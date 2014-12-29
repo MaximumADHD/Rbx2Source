@@ -184,9 +184,6 @@ namespace RobloxToSourceEngine
             }
         }
 
-        // A MAJORITY OF COMPILING OPERATIONS ARE DONE IN LUA.
-        // SEE HERE: http://pastebin.com/raw.php?i=qNXEZdD1
-
         public void LuaError(LuaException e)
         {
             string twitterName;
