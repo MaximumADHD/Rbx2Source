@@ -472,15 +472,15 @@ function JsonReader:All()
 	return self.reader:All()
 end
 
-local t = {}
+JSON = {}
 
-function t.Encode(o)
+function JSON:EncodeJSON(o)
 	local writer = JsonWriter:New()
 	writer:Write(o)
 	return writer:ToString()
 end
 
-function t.Decode(s)
+function JSON:DecodeJSON(s)
 	local reader = JsonReader:New(s)
 	return reader:Read()
 end
@@ -489,5 +489,3 @@ function Null()
 	return Null
 end
 -------------------- End JSON Parser ------------------------
-
-return t

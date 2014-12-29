@@ -46,5 +46,17 @@ namespace RobloxToSourceEngine.Properties {
                 this["SelectedGame"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("CloneTrooper1019/Rbx2Source/master/resources")]
+        public string GitPath {
+            get {
+                return ((string)(this["GitPath"]));
+            }
+            set {
+                this["GitPath"] = value;
+            }
+        }
     }
 }

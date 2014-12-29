@@ -2,120 +2,27 @@
 -- Max G, 2014
 -- This code is in charge of pulling .obj files from roblox.com and outputting them as .smd files.
 ----------------------------------------------------------------------------------------------------------------------------------------------
--- Some manually written Roblox API ports.
+
+import("System")
+import("System.Net")
+
+require("FileWriter")
+require("Vector3")
+require("ObjReader")
+require("JSON")
+
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
 function print(...)
-	local Console = luanet.import_type("System.Console")
 	for _,v in pairs{...} do
 		Console.WriteLine(v)
 	end
 end
 
-Vector3 = {} -- Vector3 ( Partially based on: http://wiki.roblox.com/index.php?title=Vector3 )
-
-function Vector3.IsVector(otherVec)
-	local is = pcall(function ()
-		-- If this is legitimate, it should concatenate without a problem.
-		return otherVec.X .. otherVec.Y .. otherVec.Z
-	end)
-	return is
-end
-
-function Vector3.new(x,y,z)
-	local x,y,z = x or 0, y or 0, z or 0
-	local meta = {}
-	local function insert(k,v)
-		meta["__"..k] = v
-	end
-	local vec = {X = x; Y = y; Z = z}
-	local vecStr = function ()
-		return vec.X .. ", " .. vec.Y .. ", " .. vec.Z
-	end
-	insert("newindex",error)
-	insert("tostring",vecStr)
-	insert("add",function (_,v)
-		local x,y,z do
-			if type(v) == "number" then
-				x,y,z = v,v,v
-			else
-				assert(Vector3.IsVector(v))
-				x,y,z = v.X,v.Y,v.Z
-			end
-		end
-		return Vector3.new(vec.X+x,vec.Y+y,vec.Z+z)
-	end)
-	insert("sub",function (_,v)
-		local x,y,z do
-			if type(v) == "number" then
-				x,y,z = v,v,v
-			else
-				assert(Vector3.IsVector(v))
-				x,y,z = v.X,v.Y,v.Z
-			end
-		end
-		return Vector3.new(vec.X-x,vec.Y-y,vec.Z-z)
-	end)
-	insert("mul",function (_,v)
-		local x,y,z do
-			if type(v) == "number" then
-				x,y,z = v,v,v
-			else
-				assert(Vector3.IsVector(v))
-				x,y,z = v.X,v.Y,v.Z
-			end
-		end
-		return Vector3.new(vec.X*x,vec.Y*y,vec.Z*z)
-	end)
-	insert("div",function (_,v)
-		local x,y,z do
-			if type(v) == "number" then
-				x,y,z = v,v,v
-			else
-				assert(Vector3.IsVector(v))
-				x,y,z = v.X,v.Y,v.Z
-			end
-		end
-		return Vector3.new(vec.X/x,vec.Y/y,vec.Z/z)
-	end)		
-	function vec:lerp(vec2,alpha)
-		assert(Vector3.IsVector(vec2))
-		assert(type(alpha) == "number")
-		local nX = vec.X + (vec2.X - vec.X) * alpha
-		local nY = vec.Y + (vec2.Y - vec.Y) * alpha
-		local nZ = vec.Z + (vec2.Z - vec.Z) * alpha
-		return Vector3.new(nX,nY,nZ)
-	end
-	setmetatable(vec,meta)
-	return vec
-end
-
 ----------------------------------------------------------------------------------------------------------------------------------------------
-h = {} -- HttpService ( http://wiki.roblox.com/index.php?title=HttpService )
 
-function h:GetAsync(url)
-	if not loadedNet then
-		loadedNet = true
-		luanet.load_assembly("System.Net")
-	end
-	local http = luanet.import_type("System.Net.WebClient")()
-	return http:DownloadString(url)
-end
-
-local JSON = loadstring(h:GetAsync("http://pastebin.com/raw.php?i=S7CmEtAy"))()
-h.DecodeJSON = JSON.Decode
-h.EncodeJSON = JSON.Encode
-
-----------------------------------------------------------------------------------------------------------------------------------------------
--- Bone Structure
--- This is a predefined skeleton that roblox characters use.
-----------------------------------------------------------------------------------------------------------------------------------------------
--- The key (Torso1, LeftArm1, etc) refers to a naming scheme that roblox uses in their meshes.
--- "Name" is the bone's name.
--- "Offset" is the bone's offset relative to the Torso's origin
--- "Link" is the reference index used to refer to that bone (used in the triangle/skeleton data)
-
-bones = {
+local bones = 
+{
 	Torso1 = 
 	{
 		Name = "Torso";
@@ -154,178 +61,16 @@ bones = {
 	}
 }
 
-----------------------------------------------------------------------------------------------------------------------------------------------
--- OBJ/MTL Parser functions
-----------------------------------------------------------------------------------------------------------------------------------------------
--- The best way I can explain these two functions is:
--- 
--- INPUT LINE:     v 0.123 0.234 0.345 1.0
---
--- RESULT:
---		TAG = "v"
--- 		ITEMS = {"0.123","0.234,"0.345,"1.0"}
---			
---	* PROCEED TO DO A SPECIFIC OPERATION ON THE ITEMS BASED ON THE TAG*
--- 
-----------------------------------------------------------------------------------------------------------------------------------------------
-
-meshScale = 10
-
-function parseOBJ(objFile,origin)
-	-- Parses an OBJ File into a data array.
-	local origin = origin or Vector3.new()
-	local obj = {
-		Verts = {};
-		Norms = {};
-		Texs = {};
-		Faces = {};
-	}
-	local currentMtl = "";
-	local currentGroup = "root";
-	for line in objFile:gmatch("[^\r\n]+") do
-		if #line > 0 then
-			local info = {}
-			local tag = ""
-			local process = ""
-			local readChars = 0
-			for char in line:gmatch(".") do
-				readChars = readChars + 1
-				if char == " " then
-					if tag == "" then
-						tag = process
-					else
-						table.insert(info,tonumber(process) or process)
-					end
-					process = ""
-				else
-					process = process .. char
-					if readChars == #line then
-						table.insert(info,tonumber(process) or process)
-					end
-				end
-			end
-			if tag == "usemtl" then
-				currentMtl = info[1]
-			elseif tag == "g" then
-				local group = info[1]
-				currentGroup = info[1]
-			elseif tag == "v" then
-				local vec = Vector3.new(unpack(info))
-				vec = (vec - origin) * meshScale
-				table.insert(obj.Verts,{vec.X,vec.Y,vec.Z})
-			elseif tag == "vn" then
-				local vec = Vector3.new(unpack(info))
-				table.insert(obj.Norms,{vec.X,vec.Y,vec.Z})
-			elseif tag == "vt" then
-				table.insert(obj.Texs,info)
-			elseif tag == "f" then
-				local face = {
-					Material = currentMtl;
-					Group = currentGroup;
-					Coords = {};
-				}
-				for _,pair in pairs(info) do
-					local triangle = {}
-					local v,t,n
-					-- The face definition format has a weird pattern format. Can't really explain this.
-					-- (%S+) is used to match an individual number using the Lua String Pattern algorithm stuff.
-					if type(pair) == "number" then 
-						v = tonumber(pair)
-					elseif string.find(pair,"//") then
-						v,n = string.match(pair,"(%S+)//(%S+)")
-					else
-						v,t,n = string.match(pair,"(%S+)/(%S+)/(%S+)")
-						if not v or not t or not n then
-							v,t = string.match(pair,"(%S+)/(%S+)")
-						end
-					end
-					triangle.Vert = tonumber(v)
-					triangle.Tex = tonumber(t)
-					triangle.Norm = tonumber(n)	
-					table.insert(face.Coords,triangle)
-				end
-				table.insert(obj.Faces,face)
-			end
-		end
-	end
-	return obj
-end
-
-function parseMTL(mtlFile)
-	-- Parses an OBJ File into a data array.
-	local mtl = {}
-	local currentMtl = ""
-	local dump
-	for line in mtlFile:gmatch("[^\r\n]+") do
-		if #line > 0 then
-			local info = {}
-			local tag = ""
-			local process = ""
-			local readChars = 0
-			for char in line:gmatch(".") do
-				readChars = readChars + 1
-				if char == " " then
-					if tag == "" then
-						tag = process
-					else
-						table.insert(info,process)
-					end
-					process = ""
-				else
-					process = process .. char
-					if readChars == #line then
-						table.insert(info,process)
-					end
-				end
-			end
-			if tag == "newmtl" then
-				if dump then
-					table.insert(mtl,dump);
-				end
-				dump = {};
-				dump.Material = info[1];
-			elseif tag == "map_d" then
-				dump.HashTex = info[1];
-			end
-		end
-	end
-	if dump then
-		table.insert(mtl,dump)
-	end
-	return mtl;
-end
-
-----------------------------------------------------------------------------------------------------------------------------------------------
--- File Writer
--- A basic string writer which lets me add new lines without a hassle.
-----------------------------------------------------------------------------------------------------------------------------------------------
-function NewFileWriter()
-	local file
-	local writer = {}
-	function writer:Add(...)
-		for _,line in pairs{...} do
-			if not file then
-				-- No file yet? Just set the file to this line
-				file = line
-			else
-				-- Add a new line below the current file.
-				file = file .. "\n" .. line
-			end
-		end
-	end
-	function writer:Dump()
-		return file
-	end
-	return writer
-end
+local http = WebClient()
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 -- Utility functions for writing the SMD data.
 ----------------------------------------------------------------------------------------------------------------------------------------------
+
 function ridiculousJSONAsync(url,tag,decodeAgain)
-	local t = h.DecodeJSON(h:GetAsync(url))
-	local async = h:GetAsync(t[tag])
-	return (decodeAgain and h.DecodeJSON(async) or async)
+	local t = JSON:DecodeJSON(http:DownloadString(url))
+	local async = http:DownloadString(t[tag])
+	return (decodeAgain and JSON:DecodeJSON(async) or async)
 end
 
 function float(num)
@@ -371,16 +116,10 @@ function calculateOrigin(obj,group)
 	return Vector3.new(avg(x),avg(y),avg(z))
 end
 
-function debugPack(vec)
-	local x,y,z = vec.X,vec.Y,vec.Z
-	local debugFunc = loadstring(h:GetAsync("http://pastebin.com/raw.php?i=HWfVS3TE"))()
-	return debugFunc(x,y,z)
-end
-
 function getTorsoCenter(torsoAsset)
 	-- Calculates the actual center of the torso as an offset to the origin of the torso's bounding box 
-	local data = ridiculousJSONAsync("http://roproxy.tk/asset-thumbnail-3d/json?assetId=" .. torsoAsset,"Url",true)
-	local objFile = ridiculousJSONAsync("http://roproxy.tk/thumbnail/resolve-hash/"..data.obj,"Url")
+	local data = ridiculousJSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. torsoAsset,"Url",true)
+	local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.obj,"Url")
 	local origin do
 		local a = Vector3.new(data.aabb.min.x,data.aabb.min.y,data.aabb.min.z)
 		local b = Vector3.new(data.aabb.max.x,data.aabb.max.y,data.aabb.max.z)
@@ -447,7 +186,7 @@ function WriteCharacterSMD(userId)
 	end
 	file:Add("end","skeleton","time 0")
 	local ignoreHash do
-		local avatar = h:GetAsync("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId=" .. userId)
+		local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId=" .. userId)
 		local gearId = string.match(avatar,"?id=(%d+)&equipped=1")
 		if gearId then
 			local gearData = ridiculousJSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. gearId,"Url",true)
@@ -515,14 +254,14 @@ function WriteCharacterSMD(userId)
 	end
 	local torsoCenter do
 		local assets = {}
-		local avatar = h:GetAsync("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId="..userId)
+		local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId="..userId)
 		for id in string.gmatch(avatar,"/?id=(%d+)") do
 			table.insert(assets,id)
 		end
 		local actualOrigin = Vector3.new()
 		local torsoAsset
 		for _,asset in pairs(assets) do
-			local info = h.DecodeJSON(h:GetAsync("http://api.roblox.com/marketplace/productinfo?assetId=" .. asset))
+			local info = JSON:DecodeJSON(http:DownloadString("http://api.roblox.com/marketplace/productinfo?assetId=" .. asset))
 			if info.AssetTypeId == 27 then
 				torsoAsset = asset
 				break
@@ -553,14 +292,6 @@ function WriteCharacterSMD(userId)
 				local vert = obj.Verts[coord.Vert]
 				local norm = obj.Norms[coord.Norm]
 				local tex = obj.Texs[coord.Tex]
-				if link == 2 and ignoreHash then
-					local t = torsoCenter or Vector3.new()
-					local midpoint = t - Vector3.new(meshScale,0,0)
-					local v = Vector3.new(unpack(vert))
-					local n = Vector3.new(unpack(norm))
-					vert = debugPack(v)
-					norm = debugPack(n)
-				end
 				file:Add(link .. " " .. unwrap(vert) .. " " .. unwrap(norm) .. " " .. unwrap(tex))
 			end
 		end
@@ -574,7 +305,7 @@ function WriteCharacterSMD(userId)
 		MtlData = mtlData;
 		IsArmUp = "false";
 	}
-	return h.EncodeJSON(data)
+	return JSON:EncodeJSON(data)
 end
 
 function WriteAssetSMD(assetId)
@@ -608,7 +339,7 @@ function WriteAssetSMD(assetId)
 		File = file:Dump();
 		MtlData = mtlData;
 	}
-	return h.EncodeJSON(data)
+	return JSON:EncodeJSON(data)
 end
 
 ----------------------------------------------------------------------------------------------------------------------------------------------

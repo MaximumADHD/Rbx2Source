@@ -60,7 +60,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OnlineConvert.cs" />
     <Compile Include="ConfigWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -74,6 +73,7 @@
     <Compile Include="Compiler.Designer.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
+    <Compile Include="LuaClass.cs" />
     <Compile Include="RbxSource.cs">
       <SubType>Form</SubType>
     </Compile>

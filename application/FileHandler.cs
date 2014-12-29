@@ -16,6 +16,8 @@ namespace RobloxToSourceEngine
 {
     class FileHandler
     {
+        bool useLocalPath = false;
+        string localPath = "";
         WebClient http = new WebClient();
         public NameValueCollection JsonToNVC(string json)
         {
@@ -31,57 +33,16 @@ namespace RobloxToSourceEngine
             return NVC;
         }
 
-        public string ConvertFile(string filePath, string newExtension)
-        {
-            Console.WriteLine("Converting " + Path.GetFileName(filePath) + " to a ." + newExtension);
-            string apiKey = "8264be4c908b83fd81208fff47117e93"; // This is a personal API key. Don't share pls lol.
-            string request = "convert-to-" + newExtension;
-            string fileName = Path.GetFileName(filePath);
-            OnlineConvert oc = OnlineConvert.create(apiKey, true, request);
-
-            // Some of this was borrowed from Online-Convert's Github Sample.
-            // https://github.com/onlineconvert/onlineconvert-api-example-codes/blob/master/DotNet/Example/Example/Example.cs
-
-            Console.WriteLine("Requesting file...");
-            string xml = oc.convert(request, "FILE_PATH", filePath, fileName);
-            Console.WriteLine("Processing file...");
-            var dica = oc.getXml2Dic(xml);
-            var directDownloadURL = "";
-            Dictionary<int, Dictionary<string, string>> dicb = new Dictionary<int, Dictionary<string, string>>();
-
-            if (dica[1].ContainsKey("hash") && dica[1]["hash"] != "")
-            {
-                while (true)
-                {
-                    var b = oc.getProgress(dica[1]["hash"]);
-                    dicb = oc.getXml2Dic(b);
-                    if (dicb[2].ContainsKey("code") && dicb[2]["code"] == "100")
-                    {
-                        break;
-                    }
-                    System.Threading.Thread.Sleep(5000);
-                }
-                directDownloadURL = dicb[1]["directDownload"];
-            }
-
-            Console.WriteLine("Done!");
-            if (directDownloadURL != "")
-            {
-                string finalPath = Path.ChangeExtension(filePath, newExtension);
-                FileStream file = File.Create(finalPath);
-                WriteToFileFromUrl(file, directDownloadURL);
-                Console.WriteLine(finalPath);
-                return finalPath;
-            }
-            else
-            {
-                return "error";
-            }
-        }
-
         public void WriteToFileFromUrl(FileStream file, string url)
         {
             byte[] fileBuffer = http.DownloadData(url);
+            file.Write(fileBuffer, 0, fileBuffer.Length);
+            file.Close();
+        }
+
+        public void WriteToFileFromBuffer(string path, byte[] fileBuffer)
+        {
+            FileStream file = File.Create(path);
             file.Write(fileBuffer, 0, fileBuffer.Length);
             file.Close();
         }
@@ -122,6 +83,95 @@ namespace RobloxToSourceEngine
             FileStream file = File.Create(filePath);
             WriteToFileFromUrl(file, url);
             return filePath;
+        }
+
+        public NameValueCollection GetAppSettings()
+        {
+            string json = null;
+            if (useLocalPath)
+            {
+                string path = Path.Combine(localPath, "settings.json");
+                json = File.ReadAllText(path);
+            }
+            else
+            {
+                string path = "https://raw.githubusercontent.com/" + Properties.Settings.Default.GitPath + "/settings.json";
+                json = http.DownloadString(path);
+                
+            }
+            return JsonToNVC(json);
+        }
+
+        public byte[] GetResource_ByteArray(string path)
+        {
+            byte[] contents = null;
+            if (useLocalPath)
+            {
+                path = path.Replace("/", "\\");
+                string dir = Path.Combine(localPath, path);
+                if (File.Exists(dir))
+                {
+                    contents = File.ReadAllBytes(dir);
+                }
+                else
+                {
+                    throw new Exception("Cannot find '" + dir + "'");
+                }
+            }
+            else
+            {
+                string dir = "https://raw.githubusercontent.com/" + Properties.Settings.Default.GitPath + "/" + path;
+                contents = http.DownloadData(dir);
+            }
+            return contents;
+        }
+
+        public string GetResource(string path)
+        {
+            string contents = null;
+            if (useLocalPath)
+            {
+                path = path.Replace("/", "\\");
+                string dir = Path.Combine(localPath, path);
+                if (File.Exists(dir))
+                {
+                    contents = File.ReadAllText(dir);
+                }
+                else
+                {
+                    throw new Exception("Cannot find '" + dir + "'");
+                }
+            }
+            else
+            {
+                string dir = "https://raw.githubusercontent.com/" + Properties.Settings.Default.GitPath + "/" + path;
+                contents = http.DownloadString(dir);
+            }
+            return contents;
+        }
+        public FileHandler()
+        {
+            string[] search = new string[] { "bin", "application", "Rbx2Source" };
+            string currentPath = Environment.CurrentDirectory;
+            int count = 0;
+            foreach (string expectedParent in search)
+            {
+                string parent = Directory.GetParent(currentPath).Name;
+                if (expectedParent == parent)
+                {
+                    currentPath = Directory.GetParent(currentPath).ToString();
+                    count = count + 1;
+                }
+            }
+            if (count == 3)
+            {
+                currentPath = Path.Combine(currentPath, "resources");
+                if (Directory.Exists(currentPath))
+                {
+                    useLocalPath = true;
+                    localPath = currentPath;
+                }
+            }
         }
     }
 }

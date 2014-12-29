@@ -8,5 +8,8 @@
     <Setting Name="SelectedGame" Type="System.String" Scope="User">
       <Value Profile="(Default)">None</Value>
     </Setting>
+    <Setting Name="GitPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">CloneTrooper1019/Rbx2Source/master/resources</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

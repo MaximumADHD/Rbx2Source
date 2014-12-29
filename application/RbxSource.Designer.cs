@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 
 namespace RobloxToSourceEngine
 {
@@ -50,7 +49,6 @@ namespace RobloxToSourceEngine
             this.compile = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.assetDisplay)).BeginInit();
             this.debugMenuStrip.SuspendLayout();
-            WebClient http = new WebClient();
             this.SuspendLayout();
             // 
             // gameList
@@ -218,11 +216,11 @@ namespace RobloxToSourceEngine
             this.version.BackColor = System.Drawing.Color.Transparent;
             this.version.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.version.ForeColor = System.Drawing.Color.White;
-            this.version.Location = new System.Drawing.Point(118, 278);
+            this.version.Location = new System.Drawing.Point(93, 278);
             this.version.Name = "version";
-            this.version.Size = new System.Drawing.Size(163, 26);
+            this.version.Size = new System.Drawing.Size(195, 26);
             this.version.TabIndex = 16;
-            this.version.Text = "Version " + http.DownloadString("http://pastebin.com/raw.php?i=T7ALJL4A") + "\r\n@ CloneTrooper1019, 2015";
+            this.version.Text = "Version 1.1\r\n@ CloneTrooper1019, 2014-2015";
             this.version.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             // 
             // compile

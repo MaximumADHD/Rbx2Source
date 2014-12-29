@@ -1,0 +1,44 @@
+So heres the story behind some of the following files you see in here.
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+DevIL.dll
+
+DevIL is a full-featured cross-platform image library used in VTFLib.dll and VTFCmd.exe
+
+Yes, I personally agree, this dll has THE WORST name ever, and if I saw it on my system, I would agree that its probably a virus,
+
+However I can tell you now that its not, and that its actually a legitimate library. It pisses me off that it has a name like that,
+but it does. You can read about it here:
+
+http://openil.sourceforge.net/
+-----------------------------------------------------------------------------------------------------------------------------------
+
+VTFLib.dll & VTFCmd.exe
+
+VTFLib is a library that is required for VTFCmd.exe to run. It allows for me to easily convert PNG files obtained from roblox into
+.vtf files for the source engine. 
+
+VTFCmd is a Command-line tool which allows me to input a PNG file, and it will spit out a VTF file for the character or asset your
+game is using.
+You can read more about these tools here:
+http://nemesis.thewavelength.net/index.php?p=40
+
+-----------------------------------------------------------------------------------------------------------------------------------
+Why I'm using these tools instead of Valve's official vtex compiler application:
+-----------------------------------------------------------------------------------------------------------------------------------
+
+The problem with valve's tools is that it requires me to convert the image into a .tga format, and the image has to be
+automatically resized to use dimensions that are powers of 2 (512x512, 1024x1024, 1024x256, etc). Microsoft Visual Studio doesnt
+come with libraries for converting PNG files into TGA files, so I would have to use an online service (such as online-convert) in
+order to accomplish this. Unfortunately those have upload limitations, so I can't just send it a file at any time from any user
+without having to pay some monthly fee in order to remove limitations.
+
+In the future, I'll figure out a way to manually convert a PNG into a TGA file so I won't have to use these libraries. I am a
+trustworthy user, and I would never make malicious tools. 
+If you still aren't convinced that nothing malicious comes from these tools, you may uninstall the application and delete these files.
+I apologize again for the inconvenience.
+
+~ CloneTrooper1019 
+
+-----------------------------------------------------------------------------------------------------------------------------------

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,9 +14,10 @@ namespace RobloxToSourceEngine
         [STAThread]
         static void Main()
         {
-            string version = "1.00";
-            bool debugMode = true;
+            string version = "1.10";
             WebClient http = new WebClient();
+            FileHandler FileHandler = new FileHandler();
+            NameValueCollection settings = FileHandler.GetAppSettings();
             try
             {
                 // Best way to test for an internet connection is to see if you can get a response from Google.
@@ -26,7 +28,8 @@ namespace RobloxToSourceEngine
                 MessageBox.Show("Unable to connect to the internet.\nPlease check your connection and try again.", "FATAL ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Application.Exit();
             }
-            string currentVersion = http.DownloadString("http://pastebin.com/raw.php?i=T7ALJL4A");
+
+            string currentVersion = settings["latestVersion"];
             if (version != currentVersion)
             {
                 DialogResult result = MessageBox.Show("This version is outdated!\n(Running on Version " + version + ", should be on Version " + currentVersion + ") \n\nPlease head over to \nhttp://clonetrooper1019.weebly.com/rbx2source.html\nand get the latest version!\n(Would you like to go there now?)", "FATAL ERROR", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
@@ -40,15 +43,7 @@ namespace RobloxToSourceEngine
             {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
-                if (debugMode)
-                {
-                    Application.Run(new Compiler("2312310", false, "loleris", true));
-                }
-                else
-                {
-                    Application.Run(new Rbx());
-                }
-  
+                Application.Run(new Rbx());
             }
         }
     }

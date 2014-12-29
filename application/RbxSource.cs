@@ -22,11 +22,11 @@ namespace RobloxToSourceEngine
     {
         GameDataManager DataManager = new GameDataManager();
         FileHandler FileHandler = new FileHandler();
-        WebClient http = new System.Net.WebClient();
+        WebClient http = new WebClient();
 
         long assetId = 19027209;
         long currentAssetId = 19027209;
-        string userName = "loleris";
+        string userName = "Shedletsky";
 
         bool assetToggled = true;
         bool controlsActive = false;
@@ -190,7 +190,7 @@ namespace RobloxToSourceEngine
                 }
                 catch
                 {
-                    showUserError("This user doesn't exist!");
+                    showUserError("Could not load mesh for this user!\tRoblox may still be loading the character.\nTry again in a few moments.");
                 }
             }
             else

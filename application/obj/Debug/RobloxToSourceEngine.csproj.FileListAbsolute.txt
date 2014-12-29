@@ -94,3 +94,21 @@ C:\Users\Maxwell\Google Drive\RbxToSourceEngineActualBuild\RobloxToSourceEngine\
 C:\Users\Maxwell\Google Drive\RbxToSourceEngineActualBuild\RobloxToSourceEngine\obj\Debug\RobloxToSourceEngine.csproj.GenerateResource.Cache
 C:\Users\Maxwell\Google Drive\RbxToSourceEngineActualBuild\RobloxToSourceEngine\obj\Debug\en\RobloxToSourceEngine.resources.dll
 C:\Users\1701125\Google Drive\RbxToSourceEngineActualBuild\RobloxToSourceEngine\bin\Debug\FreeImageNET.dll
+C:\Users\Maxwell\Desktop\Rbx2Source\application\bin\Debug\RobloxToSourceEngine.exe.config
+C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.exe
+C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.pdb
+C:\Users\Maxwell\Desktop\Rbx2Source\application\bin\Debug\RobloxToSourceEngine.exe
+C:\Users\Maxwell\Desktop\Rbx2Source\application\bin\Debug\RobloxToSourceEngine.pdb
+C:\Users\Maxwell\Desktop\Rbx2Source\application\bin\Debug\en\RobloxToSourceEngine.resources.dll
+C:\Users\Maxwell\Desktop\Rbx2Source\application\bin\Debug\lua51.dll
+C:\Users\Maxwell\Desktop\Rbx2Source\application\bin\Debug\LuaInterface.dll
+C:\Users\Maxwell\Desktop\Rbx2Source\application\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Maxwell\Desktop\Rbx2Source\application\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.csprojResolveAssemblyReference.cache
+C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.ConfigWindow.resources
+C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.Compiler.resources
+C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.Rbx.resources
+C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.Properties.Resources.resources
+C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.Rbx.en.resources
+C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.csproj.GenerateResource.Cache
+C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\en\RobloxToSourceEngine.resources.dll
