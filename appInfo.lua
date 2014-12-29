@@ -1,20 +1,19 @@
 ---------------------------------------------------------------------------------------------------------------------------------
 -- Max G, 2015
--- Application Data
--- Will have more uses when I begin moving most of the code over to Lua.
+-- App Info
+-- Will have more uses when I begin moving a majority of the code over to Lua.
 ---------------------------------------------------------------------------------------------------------------------------------
 
 luanet.load_assembly("System.Net")
 
 DATA =
 {
-  latestVersion = "1.00";
-  meshScale = 10;
+  latestVersion = "1.00"; -- All copies locally store their version number. This is used to check if its outdated.
+  twitterName = "@CloneTroper1019"; -- Used for error messages so people know where to contact me.
+  meshScale = 10; -- The default scale of a ported model.
 }
 
 ---------------------------------------------------------------------------------------------------------------------------------
-
-
 
 http = luanet.import_type("System.Net.WebClient")()
 
