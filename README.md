@@ -1,6 +1,5 @@
 Roblox to Source Engine Converter
 =====================
 
-I'm hosting some of the resources that my program uses here.
-The client application itself will be hosted on Google Drive, and I'll have a link up for that when its available.
-Feel free to pitch any changes if needed.
+NOTICE: I'm still adjusting my program to work with Github. 
+I advice not forking or cloning this repository until it is done (should be today)
