@@ -1,9 +1,6 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------
 -- Max G, 2014
 -- This code is in charge of pulling .obj files from roblox.com and outputting them as .smd files.
--- Yes... I could write this in C#, but Lua's table system is WAYYYYY MORE FLEXABLE, and I can use string patterns <3
--- Syntax Highlighting is available here (in case your eyes are strained by this c:)
--- http://pastebin.com/qNXEZdD1
 ----------------------------------------------------------------------------------------------------------------------------------------------
 -- Some manually written Roblox API ports.
 ----------------------------------------------------------------------------------------------------------------------------------------------
