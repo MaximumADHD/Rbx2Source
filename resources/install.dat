@@ -20,5 +20,5 @@ import       "RobloxToSourceEngine.exe"
 import       "RobloxToSourceEngine.exe.config"
 ----------------------------------------------------------------------------------------------------------------------------------------------
 setLocalPath "Rbx2Source/application/en"
-import  "application/RobloxToSourceEngine.resources.dll"
+import  "RobloxToSourceEngine.resources.dll"
 ----------------------------------------------------------------------------------------------------------------------------------------------
