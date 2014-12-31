@@ -317,7 +317,11 @@ namespace RobloxToSourceEngine
                 {
                     physicsMdl = "physics_mdl_armup.smd";
                 }
+<<<<<<< HEAD
                 string physicsDir = Path.Combine(mdlPath, physicsMdl);
+=======
+                string physicsDir = Path.Combine(storagePath, "models","physics_mdl.smd");
+>>>>>>> 642cab4e8b3ebc634ebf51fba8d83cf535e47c84
                 string physics = FileHandler.GetResource("models/" + physicsMdl);
                 FileHandler.WriteToFileFromString(physicsDir, physics);
                 string robloxian_root = Path.Combine(storagePath, "models", "robloxian_root.qc");
