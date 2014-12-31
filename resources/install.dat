@@ -5,13 +5,13 @@
 --    2: where to put them in the local files.
 -- The format is self explanatory, just be careful. Its a bit sensitive"
 ----------------------------------------------------------------------------------------------------------------------------------------------
-setLocalPath "Rbx2Source/images/converterUtil"
+setLocalPath "Rbx2SrcFiles/images/converterUtil"
 setGitPath   "tools"
 import       "DevIL.dll"
 import       "VTFcmd.exe"
 import       "tools/VTFLib.dll"
 ----------------------------------------------------------------------------------------------------------------------------------------------
-setLocalPath "Rbx2Source/application"
+setLocalPath "Rbx2SrcFiles/application"
 setGitPath   "application"
 import       "LuaInterface.dll"
 import       "lua51.dll"
