@@ -1,8 +1,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobloxToSourceEngine", "application\RobloxToSourceEngine.csproj", "{E902AF6D-2931-4D64-92D5-2763155B3D1A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobloxToSourceEngine", "application/RobloxToSourceEngine.csproj", "{E902AF6D-2931-4D64-92D5-2763155B3D1A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
