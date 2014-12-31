@@ -147,7 +147,7 @@ function getTorsoCenter(torsoAsset)
 	local rightArm = calculateOrigin(obj,getRealName("RightArm1"))
 	local torsoOrigin = (leftArm+rightArm)/2
 	local offset = (torsoOrigin - calculateOrigin(obj,getRealName("Torso1")))
-	return -offset
+	return offset * Vector3.new(-1,-1,-1)
 end
 
 function unwrap(this)
