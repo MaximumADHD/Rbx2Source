@@ -9,7 +9,7 @@ setLocalPath "Rbx2SrcFiles/images/converterUtil"
 setGitPath   "tools"
 import       "DevIL.dll"
 import       "vtfcmd.exe"
-import       "tools/VTFLib.dll"
+import       "VTFLib.dll"
 ----------------------------------------------------------------------------------------------------------------------------------------------
 setLocalPath "Rbx2SrcFiles/application"
 setGitPath   "application"
