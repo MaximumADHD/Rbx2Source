@@ -32,7 +32,7 @@ namespace RobloxToSourceEngine
         string username = "";
         bool isAsset = true;
         bool debugMode = false;
-        int logCharLimit = 68;
+        int logCharLimit = 55;
 
         private void log(params string[] logTxts)
         {
@@ -263,40 +263,12 @@ namespace RobloxToSourceEngine
             str_ = str;
         }
 
-        private void goToModel_Click(object sender = null, EventArgs e = null)
-        {
-            Process.Start(Directory.GetParent(finalCompilePath).ToString());
-        }
-
-        private void returnToMenu_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        public Compiler(string id_, bool isAsset_, string username_ = null, bool debugMode_ = false)
-        {
-            InitializeComponent();
-            id = id_;
-            isAsset = isAsset_;
-            debugMode = debugMode_;
-            if (username_ != null)
-            {
-                username = username_;
-            }
-        }
-
-        private async void Compiler_Load(object sender, EventArgs e)
+        private async void CompileModel(object sender = null, EventArgs e = null)
         {
             string appDataPath = Environment.GetEnvironmentVariable("AppData");
-            string storagePath = Path.Combine(appDataPath, "Rbx2SrcFiles");
-            if (!Directory.Exists(storagePath))
-            {
-                Directory.CreateDirectory(storagePath);
-            }
-            // idle_anim.smd
-            // All models require an animation sequence, even if they aren't doing anything
-            // This basically represents a static animation that does nothing.
-            string idle = Path.Combine(storagePath,"models", "idle_anim.smd");
+            string storagePath = GetDirectory(appDataPath, "Rbx2SrcFiles");
+            string mdlPath = GetDirectory(storagePath, "models");
+            string idle = Path.Combine(storagePath, "models", "idle_anim.smd");
             string data = FileHandler.GetResource("models/idle_anim.smd");
             FileHandler.WriteToFileFromString(idle, data);
             NameValueCollection mtlData;
@@ -304,7 +276,7 @@ namespace RobloxToSourceEngine
             NameValueCollection gameInfo = DataManager.GetGameInfo(GameData, Properties.Settings.Default.SelectedGame);
             string studioMdlPath = gameInfo["StudioMdlDir"];
             string gamePath = Directory.GetParent(gameInfo["GameInfoDir"]).ToString();
-            string smdPath = Path.Combine(storagePath, "models", name + ".smd");
+            string smdPath = Path.Combine(mdlPath, name + ".smd");
             string qcPath = Path.ChangeExtension(smdPath, "qc");
             if (isAsset)
             {
@@ -345,7 +317,7 @@ namespace RobloxToSourceEngine
                 {
                     physicsMdl = "physics_mdl_armup.smd";
                 }
-                string physicsDir = Path.Combine(storagePath, "models",physicsMdl);
+                string physicsDir = Path.Combine(mdlPath, physicsMdl);
                 string physics = FileHandler.GetResource("models/" + physicsMdl);
                 FileHandler.WriteToFileFromString(physicsDir, physics);
                 string robloxian_root = Path.Combine(storagePath, "models", "robloxian_root.qc");
@@ -363,8 +335,8 @@ namespace RobloxToSourceEngine
                 FileHandler.WriteToFileFromString(qcPath, qcFile);
             }
             log("COMPILING MODEL...");
-            finalCompilePath = Path.Combine(gamePath, "models", "roblox",name + ".mdl");
-            string asWhole = Path.Combine(finalCompilePath,finalModelName);
+            finalCompilePath = Path.Combine(gamePath, "models", "roblox", name + ".mdl");
+            string asWhole = Path.Combine(finalCompilePath, finalModelName);
             if (File.Exists(asWhole))
             {
                 File.Delete(asWhole);
@@ -396,7 +368,7 @@ namespace RobloxToSourceEngine
             foreach (string mtlName in mtlData.AllKeys)
             {
                 string texHash = mtlData[mtlName];
-                string vmtPath = Path.Combine(mtlPath,mtlName + ".vmt");
+                string vmtPath = Path.Combine(mtlPath, mtlName + ".vmt");
                 compileTexture(mtlName, texHash, mtlPath);
                 string vmtFile = "";
                 addLine(vmtFile, "\"VertexLitGeneric\"", out vmtFile);
@@ -405,12 +377,42 @@ namespace RobloxToSourceEngine
                 addLine(vmtFile, "}", out vmtFile);
                 FileHandler.WriteToFileFromString(vmtPath, vmtFile);
             }
-            log("====================================================================");
+            log("=======================================================");
             log("FINISHED COMPILING MODEL!");
-            log("====================================================================");
+            log("=======================================================");
             this.returnToMenu.Enabled = true;
-            this.goToViewer.Enabled = true;
+            this.recompileModel.Enabled = true;
             this.goToModel.Enabled = true;
+        }
+
+        private void recompileModel_Click(object sender = null, EventArgs e = null)
+        {
+            DialogResult result = MessageBox.Show("Are you sure you'd like to compile again?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (result == DialogResult.Yes)
+            {
+                this.returnToMenu.Enabled = false;
+                this.recompileModel.Enabled = false;
+                this.goToModel.Enabled = false;
+                this.ConsoleDisp.Items.Clear();
+                CompileModel();
+            }
+        }
+
+        private void returnToMenu_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        public Compiler(string id_, bool isAsset_, string username_ = null, bool debugMode_ = false)
+        {
+            InitializeComponent();
+            id = id_;
+            isAsset = isAsset_;
+            debugMode = debugMode_;
+            if (username_ != null)
+            {
+                username = username_;
+            }
         }
     }
 }

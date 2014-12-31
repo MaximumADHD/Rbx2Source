@@ -147,7 +147,7 @@ function getTorsoCenter(torsoAsset)
 	local rightArm = calculateOrigin(obj,getRealName("RightArm1"))
 	local torsoOrigin = (leftArm+rightArm)/2
 	local offset = (torsoOrigin - calculateOrigin(obj,getRealName("Torso1")))
-	return offset * Vector3.new(1,-1,1)
+	return offset * Vector3.new(1,-1,-1)
 end
 
 
@@ -196,6 +196,7 @@ function WriteCharacterSMD(userId)
 			end
 		end
 	end
+	print("Ignore Hash: " .. ignoreHash)
 	-- Queue every material
 	local mtlData = {}
 	local mtlFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
@@ -203,6 +204,7 @@ function WriteCharacterSMD(userId)
 	for _,material in pairs(mtl) do
 		mtlData[material.Material] = material.HashTex
 	end
+	print("Materials list: " .. JSON:EncodeJSON(mtlData))
 	-- Queue every group.
 	local setup = {}
 	local groups = {}
@@ -269,6 +271,8 @@ function WriteCharacterSMD(userId)
 		end
 		if torsoAsset then
 			torsoCenter = getTorsoCenter(torsoAsset)
+		else
+			print("Could not get torsoAsset")
 		end
 	end
 	for name,data in pairs(bones) do
