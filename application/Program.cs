@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.Net;
+using System.IO;
 
 namespace RobloxToSourceEngine
 {
@@ -17,21 +18,20 @@ namespace RobloxToSourceEngine
             WebClient http = new WebClient();
             FileHandler FileHandler = new FileHandler();
             NameValueCollection settings = FileHandler.GetAppSettings();
-            try
-            {
-                // Best way to test for an internet connection is to see if you can get a response from Google.
-                string response = http.DownloadString("http://www.google.com");
-            }
-            catch
-            {
-                MessageBox.Show("Unable to connect to the internet.\nPlease check your connection and try again.", "FATAL ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Application.Exit();
-            }
-
             string currentVersion = settings["latestVersion"];
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Rbx());
+            string appData = Environment.GetEnvironmentVariable("AppData");
+            string versionPath = Path.Combine(appData,"Rbx2SrcFiles","version");
+            string localVersion = File.ReadAllText(versionPath);
+            if (localVersion != currentVersion)
+            {
+                MessageBox.Show("You are running on an outdated version of the client.\nPlease run the launcher application and update.", "FATAL ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new Rbx());
+            }
         }
     }
 }

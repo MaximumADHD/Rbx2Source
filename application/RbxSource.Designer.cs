@@ -220,7 +220,7 @@ namespace RobloxToSourceEngine
             this.version.Name = "version";
             this.version.Size = new System.Drawing.Size(195, 26);
             this.version.TabIndex = 16;
-            this.version.Text = "Version 1.20\r\n@ CloneTrooper1019, 2014-2015";
+            this.version.Text = "Version 1.21\r\n@ CloneTrooper1019, 2014-2015";
             this.version.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             // 
             // compile
@@ -262,7 +262,6 @@ namespace RobloxToSourceEngine
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Rbx";
-            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Rbx2Source";
             ((System.ComponentModel.ISupportInitialize)(this.assetDisplay)).EndInit();
