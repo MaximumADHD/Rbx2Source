@@ -1,0 +1,24 @@
+------------------------------------------------------------------------------------------
+-- Max G, 2014-2015
+-- This is a custom layout which explains to my launcher during an installation:
+--    1: what files to look for in my github resource folder.
+--    2: where to put them in the local files.
+-- The format is self explanatory, just be careful. Its a bit sensitive"
+----------------------------------------------------------------------------------------------------------------------------------------------
+setLocalPath "Rbx2Source/images/converterUtil"
+setGitPath   "tools"
+import       "DevIL.dll"
+import       "VTFcmd.exe"
+import       "tools/VTFLib.dll"
+----------------------------------------------------------------------------------------------------------------------------------------------
+setLocalPath "Rbx2Source/application"
+setGitPath   "application"
+import       "LuaInterface.dll"
+import       "lua51.dll"
+import       "Newtonsoft.Json.dll"
+import       "RobloxToSourceEngine.exe"
+import       "RobloxToSourceEngine.exe.config"
+----------------------------------------------------------------------------------------------------------------------------------------------
+setLocalPath "Rbx2Source/application/en"
+import  "application/RobloxToSourceEngine.resources.dll"
+----------------------------------------------------------------------------------------------------------------------------------------------
