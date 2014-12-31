@@ -308,7 +308,8 @@ namespace Rbx2SourceLauncher
             await Task.Delay(2000); 
             string exePath = Path.Combine(root, "application", "RobloxToSourceEngine.exe");
             Process rbx2Source = Process.Start(exePath);
-            this.WindowState = FormWindowState.Minimized;
+            this.Visible = false;
+            //this.WindowState = FormWindowState.Minimized;
             rbx2Source.WaitForExit();
             this.Close();
         }
