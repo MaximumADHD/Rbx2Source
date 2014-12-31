@@ -63,12 +63,16 @@ namespace RobloxToSourceEngine
             string filePath;
             if (customPath != null)
             {
-                string roaming = Environment.GetEnvironmentVariable("AppData");
-                filePath = Path.Combine(roaming, "Rbx2SrcFiles");
+                filePath = customPath;
             }
             else
             {
-                filePath = customPath;
+                string roaming = Environment.GetEnvironmentVariable("AppData");
+                filePath = Path.Combine(roaming, "Rbx2SrcFiles", "files");
+                if (!Directory.Exists(filePath))
+                {
+                    Directory.CreateDirectory(filePath);
+                }
             }
             string name;
             if (customName != null)

@@ -288,14 +288,8 @@ namespace RobloxToSourceEngine
         private async void Compiler_Load(object sender, EventArgs e)
         {
             string appDataPath = Environment.GetEnvironmentVariable("AppData");
-            string storagePath = Path.Combine(appDataPath, "Rbx2SrcFiles");
-            if (!Directory.Exists(storagePath))
-            {
-                Directory.CreateDirectory(storagePath);
-            }
-            // idle_anim.smd
-            // All models require an animation sequence, even if they aren't doing anything
-            // This basically represents a static animation that does nothing.
+            string storagePath = GetDirectory(appDataPath, "Rbx2SrcFiles");
+            string mdlPath = GetDirectory(storagePath, "models");
             string idle = Path.Combine(storagePath,"models", "idle_anim.smd");
             string data = FileHandler.GetResource("models/idle_anim.smd");
             FileHandler.WriteToFileFromString(idle, data);
@@ -304,7 +298,7 @@ namespace RobloxToSourceEngine
             NameValueCollection gameInfo = DataManager.GetGameInfo(GameData, Properties.Settings.Default.SelectedGame);
             string studioMdlPath = gameInfo["StudioMdlDir"];
             string gamePath = Directory.GetParent(gameInfo["GameInfoDir"]).ToString();
-            string smdPath = Path.Combine(storagePath, "models", name + ".smd");
+            string smdPath = Path.Combine(mdlPath, name + ".smd");
             string qcPath = Path.ChangeExtension(smdPath, "qc");
             if (isAsset)
             {
@@ -345,7 +339,7 @@ namespace RobloxToSourceEngine
                 {
                     physicsMdl = "physics_mdl_armup.smd";
                 }
-                string physicsDir = Path.Combine(storagePath, "models",physicsMdl);
+                string physicsDir = Path.Combine(mdlPath,physicsMdl);
                 string physics = FileHandler.GetResource("models/" + physicsMdl);
                 FileHandler.WriteToFileFromString(physicsDir, physics);
                 string robloxian_root = Path.Combine(storagePath, "models", "robloxian_root.qc");
