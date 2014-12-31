@@ -150,7 +150,6 @@ function getTorsoCenter(torsoAsset)
 	return offset * Vector3.new(1,-1,-1)
 end
 
-
 function unwrap(this)
 	local str = ""
 	for _,v in pairs(this) do
@@ -306,7 +305,7 @@ function WriteCharacterSMD(userId)
 	local data = {
 		File = file:Dump();
 		MtlData = mtlData;
-		IsArmUp = "false";
+		IsArmUp = tostring(ignoreHash ~= nil);
 	}
 	return JSON:EncodeJSON(data)
 end
