@@ -8,10 +8,10 @@ It is usually a hassle to do, but with my Roblox to Source Converter tool, porti
 roblox characters and assets into the source engine has never been easier! 
 
 All you have to do is:
-1: Give the application a Source Game to compile for, 
-2: Input a player's username or a hat/gear's assetid
-3: Press the compile button
-4: Enjoy.
+ 1: Give the application a Source Game to compile for, 
+ 2: Input a player's username or a hat/gear's assetid
+ 3: Press the compile button
+ 4: Enjoy.
 
 
 
