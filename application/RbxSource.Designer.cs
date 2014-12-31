@@ -256,13 +256,15 @@ namespace RobloxToSourceEngine
             this.Controls.Add(this.gameConfigTitle);
             this.Controls.Add(this.gameList);
             this.Controls.Add(this.debugMenuStrip);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.debugMenuStrip;
             this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Rbx";
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Rbx to Src Converter Tool";
+            this.Text = "Rbx2Source";
             ((System.ComponentModel.ISupportInitialize)(this.assetDisplay)).EndInit();
             this.debugMenuStrip.ResumeLayout(false);
             this.debugMenuStrip.PerformLayout();
