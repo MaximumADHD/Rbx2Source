@@ -196,7 +196,6 @@ function WriteCharacterSMD(userId)
 			end
 		end
 	end
-	print("Ignore Hash: " .. ignoreHash)
 	-- Queue every material
 	local mtlData = {}
 	local mtlFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
