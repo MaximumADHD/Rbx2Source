@@ -94,14 +94,13 @@ end
 
 function calculateOrigin(obj,group)
 	local x,y,z = {},{},{}
-	local coords = {x,y,z}
 	for _,face in pairs(obj.Faces) do
 		if face.Group == group then
 			for _,coord in pairs(face.Coords) do
 				local vert = obj.Verts[coord.Vert]
-				for k,v in pairs(vert) do
-					table.insert(coords[k],v)
-				end
+				table.insert(x,vert[1]) 	
+				table.insert(y,vert[2])
+				table.insert(z,vert[3])
 			end
 		end
 	end
