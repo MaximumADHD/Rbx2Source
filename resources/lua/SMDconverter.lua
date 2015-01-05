@@ -178,10 +178,10 @@ function WriteCharacterSMD(userId)
 	end
 	local obj = parseOBJ(objFile,origin)
 	local file = NewFileWriter()
-	file:Add("version 1","nodes")
+	file:Add("version 1","","nodes")
 	for _,node in pairs(bones) do
 		local stack = (node.Link == 0) and -1 or 0
-		file:Add(node.Link .. [[ "]] .. node.Name .. [[" ]] .. stack)
+		file:Add("\t"..node.Link .. [[ "]] .. node.Name .. [[" ]] .. stack)
 	end
 	file:Add("end","skeleton","time 0")
 	local ignoreHash do
@@ -283,18 +283,18 @@ function WriteCharacterSMD(userId)
 				torsoCenter = o
 			end
 		end
-		file:Add(data.Link .." " .. dumpVector3(o) .. " 0 0 0")
+		file:Add("\t\t"..data.Link .." " .. dumpVector3(o) .. " 0 0 0")
 	end
-	file:Add("end","triangles")
+	file:Add("end","","triangles")
 	for _,face in pairs(obj.Faces) do
 		if mtlData[face.Material] ~= ignoreHash and face.Group ~= "Humanoidrootpart1" and face.Group ~= gearGroup then
-			file:Add(face.Material)
+			file:Add("\t"..face.Material)
 			local link = getLink(face.Group)
 			for _,coord in pairs(face.Coords) do
 				local vert = obj.Verts[coord.Vert]
 				local norm = obj.Norms[coord.Norm]
 				local tex = obj.Texs[coord.Tex]
-				file:Add(link .. " " .. unwrap(vert) .. " " .. unwrap(norm) .. " " .. unwrap(tex))
+				file:Add("\t\t"..link .. " " .. unwrap(vert) .. " " .. unwrap(norm) .. " " .. unwrap(tex))
 			end
 		end
 	end
@@ -320,7 +320,7 @@ function WriteAssetSMD(assetId)
 	end
 	local obj = parseOBJ(objFile,origin)
 	local file = NewFileWriter()
-	file:Add("version 1","nodes","0 \"root\" -1","end","skeleton","time 0","0 0 0 0 0 0 0","end","triangles") 
+	file:Add("version 1","","nodes","\t0 \"root\" -1","end","","skeleton","\ttime 0","\t\t0 0 0 0 0 0 0","end","triangles") 
 	local mtlData = {}
 	local mtlFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
 	local mtl = parseMTL(mtlFile)
@@ -328,12 +328,12 @@ function WriteAssetSMD(assetId)
 		mtlData[material.Material] = material.HashTex
 	end
 	for _,face in pairs(obj.Faces) do
-		file:Add(face.Material)
+		file:Add("\t" .. face.Material)
 		for _,coord in pairs(face.Coords) do
 			local Vert = obj.Verts[coord.Vert];
 			local Norm = obj.Norms[coord.Norm];
 			local Tex = obj.Texs[coord.Tex];
-			file:Add("0 " .. unwrap(Vert) .. "  " .. unwrap(Norm) .. "  " .. unwrap(Tex))
+			file:Add("\t\t0 " .. unwrap(Vert) .. "  " .. unwrap(Norm) .. "  " .. unwrap(Tex))
 		end
 	end
 	file:Add("end")
