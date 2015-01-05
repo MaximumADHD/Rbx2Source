@@ -98,7 +98,6 @@ function calculateOrigin(obj,group)
 	for _,face in pairs(obj.Faces) do
 		if face.Group == group then
 			for _,coord in pairs(face.Coords) do
-				local vert = obj.Verts[coord.Vert]
 				for k,v in pairs(verts) do
 					table.insert(coords[k],v)
 				end
