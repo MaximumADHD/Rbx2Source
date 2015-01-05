@@ -7,6 +7,7 @@
 function NewFileWriter()
 	local file
 	local writer = {}
+	local lineQueue = {}
 	function writer:Add(...)
 		for _,line in pairs{...} do
 			if not file then
@@ -17,6 +18,18 @@ function NewFileWriter()
 				file = file .. "\n" .. line
 			end
 		end
+	end
+	function writer:Queue(...)
+		for _,line in pairs{...} do
+			table.insert(lineQueue,line)
+		end
+	end
+	function writer:SortAndDump(sortFunc)
+		table.sort(lineQueue,sortFunc)
+		for _,line in pairs(lineQueue) do
+			writer:Add(line)
+		end
+		lineQueue = {}
 	end
 	function writer:Dump()
 		return file
