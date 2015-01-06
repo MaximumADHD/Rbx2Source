@@ -178,16 +178,6 @@ function WriteCharacterSMD(userId)
 	end
 	local obj = parseOBJ(objFile,origin)
 	local file = NewFileWriter()
-	file:Add("version 1","","nodes")
-	for _,node in pairs(bones) do
-		local stack = (node.Link == 0) and -1 or 0
-		file:Queue(" "..node.Link .. [[ "]] .. node.Name .. [[" ]] .. stack)
-	end
-	file:SortAndDump(function (a,b)
-		local a = tonumber(string.match(a,"(%d+) "));
-		local b = tonumber(string.match(b,"(%d+) "));
-		return a < b
-	end)
 	local ignoreHash do
 		local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId=" .. userId)
 		local gearId = string.match(avatar,"?id=(%d+)&equipped=1")
@@ -199,6 +189,27 @@ function WriteCharacterSMD(userId)
 			end
 		end
 	end
+	file:Add("version 1","","nodes")
+	local function writeBone(node,stack)
+		file:Queue(" "..node.Link .. [[ "]] .. node.Name .. [[" ]] .. stack)
+	end
+	for _,node in pairs(bones) do
+		local stack = (node.Link == 0) and -1 or 0
+		writeBone(node,stack)
+	end
+	--[[if ignoreHash then
+		local node = {
+			Name = "RightArmFix"
+			Offset = bones.RightArm1.Offset;
+			Link = 6;
+		}
+		writeBone(node,2)
+	end]]
+	file:SortAndDump(function (a,b)
+		local a = tonumber(string.match(a,"(%d+) "));
+		local b = tonumber(string.match(b,"(%d+) "));
+		return a < b
+	end)
 	-- Queue every material
 	local mtlData = {}
 	local mtlFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
@@ -288,6 +299,14 @@ function WriteCharacterSMD(userId)
 			end
 		end
 		file:Queue(" "..data.Link .." " .. dumpVector3(o) .. " 0 0 0")
+	end
+	if ignoreHash then
+		local node = {
+			Name = "RightArmFix"
+			Offset = bones.RightArm1.Offset;
+			Link = 6;
+		}
+		writeBone(node,2)
 	end
 	file:SortAndDump(function (a,b)
 		local a = tonumber(string.match(a,"(%d+) "));
