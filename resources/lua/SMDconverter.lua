@@ -287,7 +287,7 @@ function WriteCharacterSMD(userId)
 				torsoCenter = o
 			end
 		end
-		file:Queue("  "..data.Link .." " .. dumpVector3(o) .. " 0 0 0")
+		file:Queue(" "..data.Link .." " .. dumpVector3(o) .. " 0 0 0")
 	end
 	file:SortAndDump(function (a,b)
 		local a = tonumber(string.match(a,"(%d+) "));
@@ -337,12 +337,12 @@ function WriteAssetSMD(assetId)
 		mtlData[material.Material] = material.HashTex
 	end
 	for _,face in pairs(obj.Faces) do
-		file:Add(" " .. face.Material)
+		file:Add(face.Material)
 		for _,coord in pairs(face.Coords) do
 			local Vert = obj.Verts[coord.Vert];
 			local Norm = obj.Norms[coord.Norm];
 			local Tex = obj.Texs[coord.Tex];
-			file:Add("  0 " .. unwrap(Vert) .. "  " .. unwrap(Norm) .. "  " .. unwrap(Tex))
+			file:Add(" 0 " .. unwrap(Vert) .. "  " .. unwrap(Norm) .. "  " .. unwrap(Tex))
 		end
 	end
 	file:Add("end")
