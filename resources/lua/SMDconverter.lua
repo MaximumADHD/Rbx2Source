@@ -276,7 +276,7 @@ function WriteCharacterSMD(userId)
 			print("Could not get torsoAsset")
 		end
 	end
-	file:Add("end","","skeleton"," time 0")
+	file:Add("end","","skeleton","time 0")
 	for name,data in pairs(bones) do
 		name = getRealName(name)
 		local o = (data.Offset * meshScale)
