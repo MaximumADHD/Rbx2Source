@@ -181,7 +181,7 @@ function WriteCharacterSMD(userId)
 	file:Add("version 1","","nodes")
 	for _,node in pairs(bones) do
 		local stack = (node.Link == 0) and -1 or 0
-		file:Queue("\t"..node.Link .. [[ "]] .. node.Name .. [[" ]] .. stack)
+		file:Queue(" "..node.Link .. [[ "]] .. node.Name .. [[" ]] .. stack)
 	end
 	file:SortAndDump(function (a,b)
 		local a = tonumber(string.match(a,"(%d+) "));
