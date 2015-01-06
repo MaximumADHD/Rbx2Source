@@ -197,14 +197,14 @@ function WriteCharacterSMD(userId)
 		local stack = (node.Link == 0) and -1 or 0
 		writeBone(node,stack)
 	end
-	--[[if ignoreHash then
+	if ignoreHash then
 		local node = {
-			Name = "RightArmFix"
+			Name = "RightArmFix";
 			Offset = bones.RightArm1.Offset;
 			Link = 6;
 		}
 		writeBone(node,2)
-	end]]
+	end
 	file:SortAndDump(function (a,b)
 		local a = tonumber(string.match(a,"(%d+) "));
 		local b = tonumber(string.match(b,"(%d+) "));
@@ -301,12 +301,8 @@ function WriteCharacterSMD(userId)
 		file:Queue(" "..data.Link .." " .. dumpVector3(o) .. " 0 0 0")
 	end
 	if ignoreHash then
-		local node = {
-			Name = "RightArmFix"
-			Offset = bones.RightArm1.Offset;
-			Link = 6;
-		}
-		writeBone(node,2)
+		file:Queue(" 6 " .. dumpVector3(bones.RightArm1.Offset * scale) .. " 0 0 0")
+
 	end
 	file:SortAndDump(function (a,b)
 		local a = tonumber(string.match(a,"(%d+) "));
