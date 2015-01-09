@@ -81,6 +81,13 @@ function Vector3.new(x,y,z)
 		local nZ = vec.Z + (vec2.Z - vec.Z) * alpha
 		return Vector3.new(nX,nY,nZ)
 	end
+	function vec:Cross(vec2)
+		assert(Vector3.IsVector(vec2));
+		local nX = (vec.Y * vec2.Z) - (vec.Z * vec2.Y)
+		local nY = (vec.Z * vec2.X) - (vec.X * vec2.Z)
+		local nZ = (vec.X * vec2.Y) - (vec.Y * vec2.X)
+		return Vector3.new(nX,nY,nZ)
+	end
 	setmetatable(vec,meta)
 	return vec
 end
