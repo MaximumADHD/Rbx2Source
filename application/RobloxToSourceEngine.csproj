@@ -73,6 +73,7 @@
     <Compile Include="Compiler.Designer.cs">
       <DependentUpon>Compiler.cs</DependentUpon>
     </Compile>
+    <Compile Include="FileWriter.cs" />
     <Compile Include="LuaClass.cs" />
     <Compile Include="RbxSource.cs">
       <SubType>Form</SubType>
@@ -122,11 +123,10 @@
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="Icon.ico" />
+    <None Include="Resources\background.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -111,7 +111,7 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Roblox to Source Engine Compiler";
-            this.Load += new System.EventHandler(this.CompileModel);
+            this.Load += new System.EventHandler(CompileModel);
             ((System.ComponentModel.ISupportInitialize)(this.assetDisplay)).EndInit();
             this.ResumeLayout(false);
 

@@ -23,6 +23,17 @@ function Vector3.new(x,y,z)
 	local function insert(k,v)
 		meta["__"..k] = v
 	end
+	local function getXYZ(v)
+		local x,y,z do
+			if type(v) == "number" then
+				x,y,z = v,v,v
+			else
+				assert(Vector3.IsVector(v))
+				x,y,z = v.X,v.Y,v.Z
+			end
+		end	
+		return x,y,z
+	end
 	local vec = {X = x; Y = y; Z = z}
 	local vecStr = function ()
 		return vec.X .. ", " .. vec.Y .. ", " .. vec.Z
@@ -30,48 +41,20 @@ function Vector3.new(x,y,z)
 	insert("newindex",error)
 	insert("tostring",vecStr)
 	insert("add",function (_,v)
-		local x,y,z do
-			if type(v) == "number" then
-				x,y,z = v,v,v
-			else
-				assert(Vector3.IsVector(v))
-				x,y,z = v.X,v.Y,v.Z
-			end
-		end
-		return Vector3.new(vec.X+x,vec.Y+y,vec.Z+z)
+		local nx,ny,nz = getXYZ(v)
+		return Vector3.new(vec.X+nx,vec.Y+ny,vec.Z+nz)
 	end)
 	insert("sub",function (_,v)
-		local x,y,z do
-			if type(v) == "number" then
-				x,y,z = v,v,v
-			else
-				assert(Vector3.IsVector(v))
-				x,y,z = v.X,v.Y,v.Z
-			end
-		end
-		return Vector3.new(vec.X-x,vec.Y-y,vec.Z-z)
+		local nx,ny,nz = getXYZ(v)
+		return Vector3.new(vec.X-nx,vec.Y-ny,vec.Z-nz)
 	end)
 	insert("mul",function (_,v)
-		local x,y,z do
-			if type(v) == "number" then
-				x,y,z = v,v,v
-			else
-				assert(Vector3.IsVector(v),"Error: " .. tostring(v) .. " isn't a vector lol")
-				x,y,z = v.X,v.Y,v.Z
-			end
-		end
-		return Vector3.new(vec.X*x,vec.Y*y,vec.Z*z)
+		local nx,ny,nz = getXYZ(v)
+		return Vector3.new(vec.X*nx,vec.Y*ny,vec.Z*nz)
 	end)
 	insert("div",function (_,v)
-		local x,y,z do
-			if type(v) == "number" then
-				x,y,z = v,v,v
-			else
-				assert(Vector3.IsVector(v))
-				x,y,z = v.X,v.Y,v.Z
-			end
-		end
-		return Vector3.new(vec.X/x,vec.Y/y,vec.Z/z)
+		local nx,ny,nz = getXYZ(v)
+		return Vector3.new(vec.X/nx,vec.Y/ny,vec.Z/nz)
 	end)		
 	function vec:lerp(vec2,alpha)
 		assert(Vector3.IsVector(vec2))
@@ -87,6 +70,10 @@ function Vector3.new(x,y,z)
 		local nY = (vec.Z * vec2.X) - (vec.X * vec2.Z)
 		local nZ = (vec.X * vec2.Y) - (vec.Y * vec2.X)
 		return Vector3.new(nX,nY,nZ)
+	end
+	function vec:Normalize()
+		local m = math.sqrt(x^2+y^2+z^2)
+		return Vector3.new(x/m,y/m,z/m)
 	end
 	setmetatable(vec,meta)
 	return vec

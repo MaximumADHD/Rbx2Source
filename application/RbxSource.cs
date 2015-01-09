@@ -128,6 +128,7 @@ namespace RobloxToSourceEngine
 
             assetDisplay.ImageLocation = "http://www.roblox.com/Thumbs/Avatar.ashx?width=420&height=420&format=png&username=" + userName;
         }
+
         private void configButton_Click(object sender, EventArgs e)
         {
             this.Enabled = false;
@@ -138,15 +139,6 @@ namespace RobloxToSourceEngine
             window.Show();
             window.Focus();
             window.FormClosed += new FormClosedEventHandler(onWindowClosed);
-        }
-        private void debugToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            DialogResult result = MessageBox.Show("Are you sure you'd like to reset the data?\nThis will require a restart.", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (result == DialogResult.Yes)
-            {
-                Properties.Settings.Default.Reset();
-                Application.Exit();
-            }
         }
 
         bool inInputEvent = false;
@@ -288,5 +280,28 @@ namespace RobloxToSourceEngine
             }
         }
 
+        private void onlineGuideToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Enabled = false;
+            DialogResult result = MessageBox.Show("Are you sure you'd like to exit?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (result == DialogResult.Yes)
+            {
+                Application.Exit();
+            }
+            else
+            {
+                this.Enabled = true;
+            }
+        }
     }
 }

@@ -1,11 +1,18 @@
+$upaxis y
 $surfaceprop "flesh"
  
 $contents "solid"
  
-$sequence "idle" "idle_anim.smd" {
+$sequence "reference" "reference_anim.smd" {
 	fps 1 
 	loop
 }
+
+$sequence "walking" "walk_anim.smd" {
+	fps 60
+	loop
+}
+
 
 $collisionjoints "physics_mdl.smd" 
 {
@@ -13,7 +20,7 @@ $collisionjoints "physics_mdl.smd"
 	$inertia 10
 	$damping 0.01
 	$rotdamping 1.5
-	$rootbone "Torso"
+	$rootbone "Center"
 	$concave
 	
 	$jointconstrain "Right Shoulder" x free 

@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------
--- Max G, 2015
+-- Max G, 2014
 -- This code is in charge of pulling .obj files from roblox.com and outputting them as .smd files.
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -178,6 +178,16 @@ function WriteCharacterSMD(userId)
 	end
 	local obj = parseOBJ(objFile,origin)
 	local file = NewFileWriter()
+	file:Add("version 1","","nodes")
+	for _,node in pairs(bones) do
+		local stack = (node.Link == 0) and -1 or 0
+		file:Queue("\t"..node.Link .. [[ "]] .. node.Name .. [[" ]] .. stack)
+	end
+	file:SortAndDump(function (a,b)
+		local a = tonumber(string.match(a,"(%d+) "));
+		local b = tonumber(string.match(b,"(%d+) "));
+		return a < b
+	end)
 	local ignoreHash do
 		local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId=" .. userId)
 		local gearId = string.match(avatar,"?id=(%d+)&equipped=1")
@@ -189,16 +199,6 @@ function WriteCharacterSMD(userId)
 			end
 		end
 	end
-	file:Add("version 1","","nodes")
-	for _,node in pairs(bones) do
-		local stack = (node.Link == 0) and -1 or 0
-		file:Queue(" "..node.Link .. [[ "]] .. node.Name .. [[" ]] .. stack)
-	end
-	file:SortAndDump(function (a,b)
-		local a = tonumber(string.match(a,"(%d+) "));
-		local b = tonumber(string.match(b,"(%d+) "));
-		return a < b
-	end)
 	-- Queue every material
 	local mtlData = {}
 	local mtlFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
@@ -284,8 +284,8 @@ function WriteCharacterSMD(userId)
 			o = o + calculateOrigin(obj,name)
 			if torsoCenter then
 				o = o - torsoCenter
-				torsoCenter = o
 			end
+			torsoCenter = o
 		end
 		file:Queue(" "..data.Link .." " .. dumpVector3(o) .. " 0 0 0")
 	end
@@ -298,12 +298,43 @@ function WriteCharacterSMD(userId)
 	for _,face in pairs(obj.Faces) do
 		if mtlData[face.Material] ~= ignoreHash and face.Group ~= "Humanoidrootpart1" and face.Group ~= gearGroup then
 			file:Add(face.Material)
+			local verts = {}
+			local coords = {}
+			local recalcNorm = false
 			local link = getLink(face.Group)
-			for _,coord in pairs(face.Coords) do
+			for index,coord in pairs(face.Coords) do
 				local vert = obj.Verts[coord.Vert]
 				local norm = obj.Norms[coord.Norm]
 				local tex = obj.Texs[coord.Tex]
-				file:Add(" "..link .. " " .. unwrap(vert) .. " " .. unwrap(norm) .. " " .. unwrap(tex))
+				if link == 2 and ignoreHash then
+					-- This user was previously wearing a gear.
+					-- We need to manually correct the arm.	
+					recalcNorm = true
+					local v = Vector3.new(unpack(vert))
+					local origin = torsoCenter + (bones.RightArm1.Offset * meshScale)
+					local o = v-origin
+					v = origin + Vector3.new(o.X,-o.Z,o.Y)
+					vert = {v.X,v.Y,v.Z}	
+					table.insert(verts,v)
+				end
+				local newCoord = {
+					Vert = vert;
+					Norm = norm;
+					Tex = tex;
+				}
+				table.insert(coords,newCoord)
+			end
+			if recalcNorm then
+				local v1,v2,v3 = unpack(verts)
+				local u = v1 - v2
+				local v = v1 - v3
+				local norm = u:Cross(v):Normalize()
+				for _,coord in pairs(coords) do
+					coord.Norm = {norm.X,norm.Y,norm.Z}
+				end
+			end
+			for _,coord in pairs(coords) do
+				file:Add(" "..link .. " " .. unwrap(coord.Vert) .. " " .. unwrap(coord.Norm) .. " " .. unwrap(coord.Tex))
 			end
 		end
 	end
@@ -337,12 +368,12 @@ function WriteAssetSMD(assetId)
 		mtlData[material.Material] = material.HashTex
 	end
 	for _,face in pairs(obj.Faces) do
-		file:Add(face.Material)
+		file:Add(" " .. face.Material)
 		for _,coord in pairs(face.Coords) do
 			local Vert = obj.Verts[coord.Vert];
 			local Norm = obj.Norms[coord.Norm];
 			local Tex = obj.Texs[coord.Tex];
-			file:Add(" 0 " .. unwrap(Vert) .. "  " .. unwrap(Norm) .. "  " .. unwrap(Tex))
+			file:Add("  0 " .. unwrap(Vert) .. "  " .. unwrap(Norm) .. "  " .. unwrap(Tex))
 		end
 	end
 	file:Add("end")

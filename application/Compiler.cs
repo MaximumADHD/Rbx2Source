@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -24,10 +24,9 @@ namespace RobloxToSourceEngine
         static GameDataManager DataManager = new GameDataManager();
         List<NameValueCollection> GameData = DataManager.GetGameData();
         FileHandler FileHandler = new FileHandler();
-        
+
         WebClient http = new WebClient();
         string finalCompilePath = "";
-        string finalModelName = "";
         string id = "";
         string username = "";
         bool isAsset = true;
@@ -114,14 +113,14 @@ namespace RobloxToSourceEngine
         public void compileTexture(string mtlName, string texHash, string mtlDir)
         {
             string appData = Environment.GetEnvironmentVariable("AppData");
-            string rootPath = GetDirectory(appData, "Rbx2SrcFiles","images");
-            string toolsPath = GetDirectory(rootPath, "converterUtil"); 
+            string rootPath = GetDirectory(appData, "Rbx2SrcFiles", "images");
+            string toolsPath = GetDirectory(rootPath, "converterUtil");
             string readme = GetFile(toolsPath, "tools/READ ME PLEASE.txt", "READ ME PLEASE.txt");
             string DevIL = GetFile(toolsPath, "tools/DevIL.dll", "DevIL.dll");
             string VTFLib = GetFile(toolsPath, "tools/VTFLib.dll", "VTFLib.dll");
             string VTFCmd_Path = GetFile(toolsPath, "tools/vtfcmd.exe", "VTFcmd.exe");
             log("Getting PNG File: " + texHash);
-            string png = FileHandler.GetFileFromHash(texHash,"png",mtlName,rootPath);
+            string png = FileHandler.GetFileFromHash(texHash, "png", mtlName, rootPath);
             log("Converting to .VTF");
             string parameters = " -file " + inQuotes(png) + " -output " + inQuotes(mtlDir) + " -resize";
             ProcessStartInfo VTFCmd = new ProcessStartInfo();
@@ -152,7 +151,7 @@ namespace RobloxToSourceEngine
         public void LuaError(LuaException e)
         {
             NameValueCollection settings = FileHandler.GetAppSettings();
-            fatalError("A fatal error occured! \n\nLine " + e.Message.Substring(17) + "\n"+e.StackTrace+"\nIf you can, please tweet this information to " + settings["twitterName"] + ", and it will be fixed ASAP.\n\nThanks!");
+            fatalError("A fatal error occured! \n\nLine " + e.Message.Substring(17) + "\n" + e.StackTrace + "\nIf you can, please tweet this information to " + settings["twitterName"] + ", and it will be fixed ASAP.\n\nThanks!");
         }
         public NameValueCollection WriteCharacterSMD(string userId)
         {
@@ -172,7 +171,7 @@ namespace RobloxToSourceEngine
                 LuaError(e);
                 NameValueCollection data = new NameValueCollection();
                 return data;
-            }  
+            }
             catch (WebException e)
             {
                 Console.WriteLine(e.Message);
@@ -184,7 +183,7 @@ namespace RobloxToSourceEngine
         public NameValueCollection WriteAssetSMD(string assetId)
         {
             LuaClass lua = new LuaClass();
-            
+
             log("Loading Converter API...");
             try
             {
@@ -202,7 +201,7 @@ namespace RobloxToSourceEngine
                 return data;
             }
         }
-        
+
         public string inQuotes(string str)
         {
             return "\"" + str + "\"";
@@ -223,11 +222,18 @@ namespace RobloxToSourceEngine
                 modelViewer.WaitForExit();
                 this.Show();
                 this.Enabled = true;
-            }                
+            }
             else
             {
                 error("Could not find hlmv.exe in " + binPath);
             }
+        }
+
+        public NameValueCollection KeyValue(string key, string value)
+        {
+            NameValueCollection pair = new NameValueCollection();
+            pair.Add(key,value);
+            return pair;
         }
 
         public string getPathName()
@@ -243,24 +249,11 @@ namespace RobloxToSourceEngine
             {
                 name = username.ToLower();
             }
-            name = name.Replace(" ","_");
+            name = name.Replace(" ", "_");
             name = name.Replace(".", "_DOT_");
             name = name.Replace(",", "");
             name = name.Replace("'", "");
             return name;
-        }
-
-        public void addLine(string str, string line,out string str_)
-        {
-            if (str.Length == 0)
-            {
-                str = str + line;
-            }
-            else
-            {
-                str = str + "\n" + line;
-            }
-            str_ = str;
         }
 
         private async void CompileModel(object sender = null, EventArgs e = null)
@@ -268,9 +261,6 @@ namespace RobloxToSourceEngine
             string appDataPath = Environment.GetEnvironmentVariable("AppData");
             string storagePath = GetDirectory(appDataPath, "Rbx2SrcFiles");
             string mdlPath = GetDirectory(storagePath, "models");
-            string idle = Path.Combine(storagePath, "models", "idle_anim.smd");
-            string data = FileHandler.GetResource("models/idle_anim.smd");
-            FileHandler.WriteToFileFromString(idle, data);
             NameValueCollection mtlData;
             string name = getPathName();
             NameValueCollection gameInfo = DataManager.GetGameInfo(GameData, Properties.Settings.Default.SelectedGame);
@@ -280,6 +270,9 @@ namespace RobloxToSourceEngine
             string qcPath = Path.ChangeExtension(smdPath, "qc");
             if (isAsset)
             {
+                string idle = Path.Combine(storagePath, "models", "static_prop.smd");
+                string data = FileHandler.GetResource("models/static_prop.smd");
+                FileHandler.WriteToFileFromString(idle, data);
                 assetDisplay.ImageLocation = "http://www.roblox.com/Game/Tools/ThumbnailAsset.ashx?aid=" + id + "&fmt=png&wd=420&ht=420";
                 await Task.Delay(1000); // Make sure the window has time to show.
                 Console.WriteLine("Writing");
@@ -290,15 +283,18 @@ namespace RobloxToSourceEngine
                 log("StudioMDL writing completed.", "Saving File as:", smdPath);
                 FileHandler.WriteToFileFromString(smdPath, file);
                 log("Saved.");
-                string qcFile = "";
                 log("Writing QC file: " + qcPath);
-                addLine(qcFile, "$modelname " + inQuotes("roblox/" + name + ".mdl"), out qcFile);
-                addLine(qcFile, "$bodygroup " + inQuotes(name) + "\n{\n\tstudio " + inQuotes(name + ".smd") + "\n}", out qcFile);
-                addLine(qcFile, "$cdmaterials " + inQuotes("models\\roblox\\" + name + "\\"), out qcFile);
-                addLine(qcFile, "$sequence \"idle\" \"idle_anim.smd\"{\n\tfps 1 \n\tloop\n}", out qcFile);
-                addLine(qcFile, "$collisionmodel " + inQuotes(name + ".smd") + "\n{\n\t$automass\n}", out qcFile);
-                Console.WriteLine(qcFile);
-                FileHandler.WriteToFileFromString(qcPath, qcFile);
+                FileWriter qcFile = new FileWriter();
+                NameValueCollection commands = new NameValueCollection();
+                qcFile.WriteCommand("upaxis", "y");
+                qcFile.WriteCommand("autocenter", "");
+                qcFile.WriteCommand("modelname", "roblox/" + name + ".mdl");
+                qcFile.WriteCommand("bodygroup", name);
+                qcFile.WriteInBrackets(false,"studio " + inQuotes(name + ".smd"));
+                qcFile.WriteCommand("sequence", "static", "static_prop.smd");
+                qcFile.WriteInBrackets(true, "fps 1", "loop");
+                qcFile.WriteCommand("collisionmodel", name + ".smd");
+                FileHandler.WriteToFileFromString(qcPath, qcFile.Dump());
             }
             else
             {
@@ -306,18 +302,19 @@ namespace RobloxToSourceEngine
                 await Task.Delay(1000);
                 NameValueCollection characterSMD = WriteCharacterSMD(id);
                 string file = characterSMD["File"];
+                string[] animations = new string[] { "reference", "walk" };
+                foreach (string animation in animations)
+                {
+                    string path = Path.Combine(storagePath, "models", animation + "_anim.smd");
+                    string data = FileHandler.GetResource("models/animations/" + animation + ".smd");
+                    FileHandler.WriteToFileFromString(path, data);
+                }
                 string mtlDataJson = characterSMD["MtlData"];
                 mtlData = FileHandler.JsonToNVC(mtlDataJson);
-                string isArmUp = characterSMD["IsArmUp"];
                 log("StudioMDL writing completed.", "Saving File as:", smdPath);
                 FileHandler.WriteToFileFromString(smdPath, file);
-                // Load a specific physics model based on whether or not the player's right arm is up or not.
                 string physicsMdl = "physics_mdl.smd";
-                if (isArmUp == "true")
-                {
-                    physicsMdl = "physics_mdl_armup.smd";
-                }
-                string physicsDir = Path.Combine(storagePath, "models","physics_mdl.smd");
+                string physicsDir = Path.Combine(storagePath, "models", "physics_mdl.smd");
                 string physics = FileHandler.GetResource("models/" + physicsMdl);
                 FileHandler.WriteToFileFromString(physicsDir, physics);
                 string robloxian_root = Path.Combine(storagePath, "models", "robloxian_root.qc");
@@ -326,23 +323,20 @@ namespace RobloxToSourceEngine
                 FileHandler.WriteToFileFromString(robloxian_root, root);
                 log("Saved to: " + robloxian_root);
                 FileHandler.WriteToFileFromString(robloxian_root, root);
-                string qcFile = "";
                 log("Writing QC file: " + qcPath);
-                addLine(qcFile, "$modelname " + inQuotes("roblox/" + name + ".mdl"), out qcFile);
-                addLine(qcFile, "$bodygroup " + inQuotes(name) + "\n{\n\tstudio " + inQuotes(name + ".smd") + "\n}", out qcFile);
-                addLine(qcFile, "$cdmaterials " + inQuotes("models\\roblox\\" + name + "\\"), out qcFile);
-                addLine(qcFile, "$include robloxian_root.qc", out qcFile);
-                FileHandler.WriteToFileFromString(qcPath, qcFile);
+                FileWriter qcFile = new FileWriter();
+                qcFile.WriteCommand("upaxis", "Y");
+                qcFile.WriteCommand("modelname", "roblox/" + name + ".mdl");
+                qcFile.WriteCommand("bodygroup", name);
+                qcFile.WriteInBrackets(false, "studio " + inQuotes(name + ".smd"));
+                qcFile.WriteCommand("cdmaterials", "models/roblox/" + name + "/");
+                qcFile.WriteCommand("include", "robloxian_root.qc");
+                FileHandler.WriteToFileFromString(qcPath, qcFile.ToString());
             }
             log("COMPILING MODEL...");
             finalCompilePath = Path.Combine(gamePath, "models", "roblox", name + ".mdl");
-            string asWhole = Path.Combine(finalCompilePath, finalModelName);
-            if (File.Exists(asWhole))
-            {
-                File.Delete(asWhole);
-            }
             log("Executing studiomdl.exe: ");
-            string parameters = " -game " + inQuotes(gamePath) + " -nop4 -verbose  " + qcPath;
+            string parameters = " -game " + inQuotes(gamePath) + " -nop4 -verbose " + qcPath;
             log(inQuotes(studioMdlPath) + parameters);
             Console.WriteLine(inQuotes(studioMdlPath) + parameters);
             ProcessStartInfo studioMdl = new ProcessStartInfo();
@@ -358,7 +352,7 @@ namespace RobloxToSourceEngine
                 string line = await output.ReadLineAsync();
                 log(line);
             }
-            if (!File.Exists(asWhole))
+            if (!File.Exists(finalCompilePath))
             {
                 NameValueCollection settings = FileHandler.GetAppSettings();
                 error("studiomdl.exe unfortunately failed to compile the model!\nIf you are seeing this, take a screenshot of the console and tweet it to " + settings["twitterName"] + ".\nIt'll get fixed ASAP.\nThanks!");
@@ -370,12 +364,10 @@ namespace RobloxToSourceEngine
                 string texHash = mtlData[mtlName];
                 string vmtPath = Path.Combine(mtlPath, mtlName + ".vmt");
                 compileTexture(mtlName, texHash, mtlPath);
-                string vmtFile = "";
-                addLine(vmtFile, "\"VertexLitGeneric\"", out vmtFile);
-                addLine(vmtFile, "{", out vmtFile);
-                addLine(vmtFile, "\t\"$basetexture\" \"models/roblox/" + name + "/" + mtlName + "\"", out vmtFile);
-                addLine(vmtFile, "}", out vmtFile);
-                FileHandler.WriteToFileFromString(vmtPath, vmtFile);
+                FileWriter vmtFile = new FileWriter();
+                vmtFile.AddLine(inQuotes("VertexLitGeneric"));
+                vmtFile.WriteInBrackets(false, vmtFile.FormatCommand("basetexture", "models/roblox/" + name + "/" + mtlName));
+                FileHandler.WriteToFileFromString(vmtPath, vmtFile.ToString());
             }
             log("=======================================================");
             log("FINISHED COMPILING MODEL!");

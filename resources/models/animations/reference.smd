@@ -1,0 +1,8 @@
+version 1
+nodes
+ 0 "Torso" -1
+end
+skeleton
+time 0
+0  0.000000 0 0  0 1.570796 0
+end
