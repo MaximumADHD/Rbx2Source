@@ -29,7 +29,7 @@ namespace RobloxToSourceEngine
             else
             {
                 string roblox = http.DownloadString("http://www.roblox.com");
-                if (roblox.Contains("ROBLOX is down for maintenance"))
+                if (roblox.Contains("maintenance"))
                 {
                     MessageBox.Show("Roblox is down for maintenance!\nPlease try again later.", "FATAL ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
