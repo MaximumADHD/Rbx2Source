@@ -122,7 +122,7 @@ namespace RobloxToSourceEngine
             log("Getting PNG File: " + texHash);
             string png = FileHandler.GetFileFromHash(texHash, "png", mtlName, rootPath);
             log("Converting to .VTF");
-            string parameters = " -file " + inQuotes(png) + " -output " + inQuotes(mtlDir) + " -resize";
+            string parameters = " -file " + inQuotes(png) + " -output " + inQuotes(mtlDir) + " -resize -rwidth 1024 -rheight 1024";
             ProcessStartInfo VTFCmd = new ProcessStartInfo();
             VTFCmd.FileName = VTFCmd_Path;
             VTFCmd.Arguments = parameters;
@@ -288,6 +288,7 @@ namespace RobloxToSourceEngine
                 qcFile.WriteCommand("sequence", "static", "static_prop.smd");
                 qcFile.WriteInBrackets(true, "fps 1", "loop");
                 qcFile.WriteCommand("collisionmodel", name + ".smd");
+                qcFile.WriteCommand("cdmaterials", "models/roblox/" + name + "/");
                 FileHandler.WriteToFileFromString(qcPath, qcFile.ToString());
             }
             else
