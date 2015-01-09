@@ -22,5 +22,11 @@ import       "RobloxToSourceEngine.exe.config"
 setLocalPath "Rbx2SrcFiles/models"
 setGitPath   "models"
 import       "robloxian_root.qc"
-import       "idle_anim.smd"
+import       "static_prop.smd"
 ----------------------------------------------------------------------------------------------------------------------------------------------
+setLocalPath "Rbx2SrcFiles/models/animations"
+setGitPath   "models/animations
+import       "reference.smd"
+import       "walk.smd"
+----------------------------------------------------------------------------------------------------------------------------------------------
+
