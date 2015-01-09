@@ -360,7 +360,7 @@ function WriteAssetSMD(assetId)
 	end
 	local obj = parseOBJ(objFile,origin)
 	local file = NewFileWriter()
-	file:Add("version 1","","nodes"," 0 \"root\" -1","end","","skeleton"," time 0","  0 0 0 0 0 0 0","end","","triangles") 
+	file:Add("version 1","","nodes"," 0 \"root\" -1","end","","skeleton","time 0"," 0 0 0 0 0 0 0","end","","triangles") 
 	local mtlData = {}
 	local mtlFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
 	local mtl = parseMTL(mtlFile)
