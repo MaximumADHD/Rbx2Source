@@ -10,8 +10,21 @@ using System.IO;
 namespace RobloxToSourceEngine
 {
     // A version of the string writer which isn't so messy for my file writing stuff.
-    class FileWriter : StringWriter
+    class FileWriter
     {
+        private string file = "";
+        public void Write(string str)
+        {
+            file = file + str;
+        }
+        public void WriteLine(string str)
+        {
+            file = file + "\n" + str;
+        }
+        public override string ToString()
+        {
+            return file;
+        }
         private string inQuotes(string line)
         {
             return "\"" + line + "\"";
@@ -53,15 +66,8 @@ namespace RobloxToSourceEngine
         public void AddLine(string line)
         {
             line.Replace("/", "\\");
-            line.Replace("'","\"");
+            line.Replace("'", "\"");
             this.WriteLine(line);
-        }
-
-        public string Dump()
-        {
-            string contents = this.ToString();
-            this.Close();
-            return contents;
         }
     }
 }

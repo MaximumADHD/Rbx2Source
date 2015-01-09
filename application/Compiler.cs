@@ -216,12 +216,8 @@ namespace RobloxToSourceEngine
             string hlmv = Path.Combine(binPath, "hlmv.exe");
             if (File.Exists(hlmv))
             {
-                this.Enabled = false;
                 Process modelViewer = Process.Start(hlmv, " -game " + inQuotes(gamePath) + " -model " + inQuotes(finalCompilePath));
-                this.Hide();
-                modelViewer.WaitForExit();
-                this.Show();
-                this.Enabled = true;
+                this.Close();
             }
             else
             {
@@ -286,15 +282,13 @@ namespace RobloxToSourceEngine
                 log("Writing QC file: " + qcPath);
                 FileWriter qcFile = new FileWriter();
                 NameValueCollection commands = new NameValueCollection();
-                qcFile.WriteCommand("upaxis", "y");
-                qcFile.WriteCommand("autocenter", "");
                 qcFile.WriteCommand("modelname", "roblox/" + name + ".mdl");
                 qcFile.WriteCommand("bodygroup", name);
                 qcFile.WriteInBrackets(false,"studio " + inQuotes(name + ".smd"));
                 qcFile.WriteCommand("sequence", "static", "static_prop.smd");
                 qcFile.WriteInBrackets(true, "fps 1", "loop");
                 qcFile.WriteCommand("collisionmodel", name + ".smd");
-                FileHandler.WriteToFileFromString(qcPath, qcFile.Dump());
+                FileHandler.WriteToFileFromString(qcPath, qcFile.ToString());
             }
             else
             {
