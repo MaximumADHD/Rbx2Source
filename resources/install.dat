@@ -25,7 +25,7 @@ import       "robloxian_root.qc"
 import       "static_prop.smd"
 ----------------------------------------------------------------------------------------------------------------------------------------------
 setLocalPath "Rbx2SrcFiles/models/animations"
-setGitPath   "models/animations
+setGitPath   "models/animations"
 import       "reference.smd"
 import       "walk.smd"
 ----------------------------------------------------------------------------------------------------------------------------------------------
