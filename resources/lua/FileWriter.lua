@@ -5,18 +5,12 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
 function NewFileWriter()
-	local file
 	local writer = {}
+	local lines = {}
 	local lineQueue = {}
 	function writer:Add(...)
 		for _,line in pairs{...} do
-			if not file then
-				-- No file yet? Just set the file to this line
-				file = line
-			else
-				-- Add a new line below the current file.
-				file = file .. "\n" .. line
-			end
+			table.insert(lines,line)
 		end
 	end
 	function writer:Queue(...)
@@ -32,7 +26,7 @@ function NewFileWriter()
 		lineQueue = {}
 	end
 	function writer:Dump()
-		return file
+		return table.concat(lines,"\n")
 	end
 	return writer
 end
