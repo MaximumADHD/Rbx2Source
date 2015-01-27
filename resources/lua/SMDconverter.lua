@@ -19,6 +19,8 @@ function print(...)
 	end
 end
 
+print("Yes, the console is working")
+
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
 local bones = 
@@ -73,6 +75,49 @@ function ridiculousJSONAsync(url,tag,decodeAgain)
 	return (decodeAgain and JSON:DecodeJSON(async) or async)
 end
 
+function getGroupData(obj)
+	local s = {}
+	s.setup = {};
+	s.groups = {};
+	for _,face in pairs(obj.Faces) do
+		if not s.setup[face.Group] then
+			s.setup[face.Group] = true;
+		end
+	end
+	for k in pairs(s.setup) do
+		table.insert(s.groups,k)
+	end
+	function s:GetLink(group)
+		-- For some really dumb reason, recent versions of Roblox's 3D thumbnails have been using a new naming scheme.
+		-- Luckily its in a very specific order, so it can be decoded into the old format.
+		if bones[group] then
+			return bones[group].Link
+		elseif string.find(group,"Player1") then
+			local num = tonumber(string.match(group,"Player1(%d+)"))
+			local ref = { [0] = "Head1",[1] = "Torso1",[2] = "LeftArm1",[3] = "RightArm1",[4] = "LeftLeg1",[5] = "RightLeg1" }
+			if num then
+				local key = ref[#s.groups-num]
+				if key then
+					return bones[key].Link
+				end
+			end
+		end
+		return 5
+	end
+	function s:GetRealName(name)
+		-- If the new group naming scheme is present, this function translates 
+		-- the old naming scheme into the new naming scheme.
+		if not s.setup["Player11"] then
+			return name
+		else
+			local refs = {Head1 = 0, Torso1 = 1, LeftArm1 = 2, RightArm1 = 3, LeftLeg1 = 4, RightLeg1 = 5}
+			local ref = refs[name]
+			return (ref and "Player1" .. #s.groups - refs[name] or name)
+		end
+	end
+	return s
+end
+
 function float(num)
 	-- Obj Files have some insanely low numbers sometimes.
 	if math.floor(num) == num then
@@ -92,6 +137,21 @@ function float(num)
 	end
 end
 
+function unwrap(this)
+	local str = ""
+	for _,v in pairs(this) do
+		if str ~= "" then
+			str = str .. " "
+		end
+		str = str .. float(v)
+	end
+	return str
+end
+
+function dumpVector3(v3)
+	return float(v3.X).." "..float(v3.Y).." "..float(v3.Z)
+end
+
 function calculateOrigin(obj,group)
 	local x,y,z = {},{},{}
 	for _,face in pairs(obj.Faces) do
@@ -109,7 +169,6 @@ function calculateOrigin(obj,group)
 		for _,v in pairs(dump) do
 			a = a + v
 		end
-		local total = #dump/2
 		a = a / #dump
 		return a
 	end
@@ -126,49 +185,20 @@ function getTorsoCenter(torsoAsset)
 		origin = (a+b)/2
 	end
 	local obj = parseOBJ(objFile)
-	local setup = {}
-	local groups = {}
-	for _,face in pairs(obj.Faces) do
-		if not setup[face.Group] then
-			setup[face.Group] = true;
-			table.insert(groups,face.Group)
-		end
-	end
-	local function getRealName(name)
-		if not setup["Player11"] then
-			return name
-		else
-			local refs = {Head1 = 0, Torso1 = 1, LeftArm1 = 2, RightArm1 = 3, LeftLeg1 = 4, RightLeg1 = 5}
-			local ref = refs[name]
-			return (ref and "Player1" .. #groups - refs[name] or name)
-		end
-	end
-	local leftArm = calculateOrigin(obj,getRealName("LeftArm1"))
-	local rightArm = calculateOrigin(obj,getRealName("RightArm1"))
+	local groupData = getGroupData(obj)
+	local leftArm = calculateOrigin(obj,groupData:GetRealName("LeftArm1"))
+	local rightArm = calculateOrigin(obj,groupData:GetRealName("RightArm1"))
 	local torsoOrigin = (leftArm+rightArm)/2
-	local offset = (torsoOrigin - calculateOrigin(obj,getRealName("Torso1")))
+	local offset = (torsoOrigin - calculateOrigin(obj,groupData:GetRealName("Torso1")))
 	return Vector3.new(-offset.X,-offset.Y,-offset.Z)
 end
 
-function unwrap(this)
-	local str = ""
-	for _,v in pairs(this) do
-		if str ~= "" then
-			str = str .. " "
-		end
-		str = str .. float(v)
-	end
-	return str
-end
-
-function dumpVector3(v3)
-	return float(v3.X).." "..float(v3.Y).." "..float(v3.Z)
-end
 ----------------------------------------------------------------------------------------------------------------------------------------------
 -- File Writing Functions
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
 function WriteCharacterSMD(userId)
+	print("Retrieving Avatar Data")
 	local data = ridiculousJSONAsync("http://www.roblox.com/avatar-thumbnail-3d/json?userId=" .. userId,"Url",true)
 	local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
 	local origin do
@@ -176,6 +206,7 @@ function WriteCharacterSMD(userId)
 		local b = Vector3.new(data.aabb.max.x,data.aabb.max.y,data.aabb.max.z)
 		origin = (a+b)/2
 	end
+	print("Loading Obj File")
 	local obj = parseOBJ(objFile,origin)
 	local file = NewFileWriter()
 	file:Add("version 1","","nodes")
@@ -188,6 +219,8 @@ function WriteCharacterSMD(userId)
 		local b = tonumber(string.match(b,"(%d+) "));
 		return a < b
 	end)
+	print("Loading Bones")
+	local groupData = getGroupData(obj)
 	local ignoreHash do
 		local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId=" .. userId)
 		local gearId = string.match(avatar,"?id=(%d+)&equipped=1")
@@ -199,62 +232,24 @@ function WriteCharacterSMD(userId)
 			end
 		end
 	end
-	-- Queue every material
-	local mtlData = {}
-	local mtlFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
-	local mtl = parseMTL(mtlFile)
-	for _,material in pairs(mtl) do
-		mtlData[material.Material] = material.HashTex
-	end
-	-- Queue every group.
-	local setup = {}
-	local groups = {}
-	for _,face in pairs(obj.Faces) do
-		if not setup[face.Group] then
-			setup[face.Group] = true;
-		end
-	end
-	for k in pairs(setup) do
-		table.insert(groups,k)
-	end
-	local function getLink(group)
-		-- For some really dumb reason, recent versions of Roblox's 3D thumbnails have been using a new naming scheme.
-		-- Luckily its in a very specific order, so it can be decoded into the old format.
-		if bones[group] then
-			return bones[group].Link
-		elseif string.find(group,"Player1") then
-			local num = tonumber(string.match(group,"Player1(%d+)"))
-			local ref = { [0] = "Head1",[1] = "Torso1",[2] = "LeftArm1",[3] = "RightArm1",[4] = "LeftLeg1",[5] = "RightLeg1" }
-			if num then
-				local key = ref[#groups-num]
-				if key then
-					return bones[key].Link
-				end
-			end
-		end
-		return 5
-	end
-	local function getRealName(name)
-		-- If the new group naming scheme is present, this function translates 
-		-- the old naming scheme into the new naming scheme.
-		if not setup["Player11"] then
-			return name
-		else
-			local refs = {Head1 = 0, Torso1 = 1, LeftArm1 = 2, RightArm1 = 3, LeftLeg1 = 4, RightLeg1 = 5}
-			local ref = refs[name]
-			return (ref and "Player1" .. #groups - refs[name] or name)
-		end
-	end
 	local gearGroup do
-		if not setup["Player11"] and ignoreHash then
+		if not groupData.setup["Player11"] and ignoreHash then
 			for i = 2,5 do
-				if not setup["Handle"..i] then
+				if not groupData.setup["Handle"..i] then
 					gearGroup = "Handle" .. (i-1)
 					break
 				end
 			end
 		end
 	end
+	print("Loading Materials")
+	local mtlData = {}
+	local mtlFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
+	local mtl = parseMTL(mtlFile)
+	for _,material in pairs(mtl) do
+		mtlData[material.Material] = material.HashTex
+	end
+	print("Calculating Torso Origin")
 	local torsoCenter do
 		local assets = {}
 		local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId="..userId)
@@ -277,10 +272,11 @@ function WriteCharacterSMD(userId)
 		end
 	end
 	file:Add("end","","skeleton","time 0")
+	print("Writing Skeleton")
 	for name,data in pairs(bones) do
-		name = getRealName(name)
+		name = groupData:GetRealName(name)
 		local o = (data.Offset * meshScale)
-		if name == getRealName("Torso1") then
+		if name == groupData:GetRealName("Torso1") then
 			o = o + calculateOrigin(obj,name)
 			if torsoCenter then
 				o = o - torsoCenter
@@ -294,14 +290,12 @@ function WriteCharacterSMD(userId)
 		local b = tonumber(string.match(b,"(%d+) "));
 		return a < b
 	end)
+	print("Writing Triangles")
 	file:Add("end","","triangles")
 	for _,face in pairs(obj.Faces) do
 		if mtlData[face.Material] ~= ignoreHash and face.Group ~= "Humanoidrootpart1" and face.Group ~= gearGroup then
 			file:Add(face.Material)
-			local verts = {}
-			local coords = {}
-			local recalcNorm = false
-			local link = getLink(face.Group)
+			local link = groupData:GetLink(face.Group)
 			for index,coord in pairs(face.Coords) do
 				local vert = obj.Verts[coord.Vert]
 				local norm = obj.Norms[coord.Norm]
@@ -309,32 +303,15 @@ function WriteCharacterSMD(userId)
 				if link == 2 and ignoreHash then
 					-- This user was previously wearing a gear.
 					-- We need to manually correct the arm.	
-					recalcNorm = true
+					local nx,ny,nz = unpack(norm)
 					local v = Vector3.new(unpack(vert))
 					local origin = torsoCenter + (bones.RightArm1.Offset * meshScale)
 					local o = v-origin
 					v = origin + Vector3.new(o.X,-o.Z,o.Y)
-					vert = {v.X,v.Y,v.Z}	
-					table.insert(verts,v)
+					vert = {v.X,v.Y,v.Z}
+					norm = {nx,-nz,ny}
 				end
-				local newCoord = {
-					Vert = vert;
-					Norm = norm;
-					Tex = tex;
-				}
-				table.insert(coords,newCoord)
-			end
-			if recalcNorm then
-				local v1,v2,v3 = unpack(verts)
-				local u = v1 - v2
-				local v = v1 - v3
-				local norm = u:Cross(v):Normalize()
-				for _,coord in pairs(coords) do
-					coord.Norm = {norm.X,norm.Y,norm.Z}
-				end
-			end
-			for _,coord in pairs(coords) do
-				file:Add(" "..link .. " " .. unwrap(coord.Vert) .. " " .. unwrap(coord.Norm) .. " " .. unwrap(coord.Tex))
+				file:Add(" "..link .. " " .. unwrap(vert) .. " " .. unwrap(norm) .. " " .. unwrap(tex))
 			end
 		end
 	end
