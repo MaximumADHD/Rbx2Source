@@ -181,7 +181,7 @@ function WriteCharacterSMD(userId)
 	file:Add("version 1","","nodes")
 	for _,node in pairs(bones) do
 		local stack = (node.Link == 0) and -1 or 0
-		file:Queue("\t"..node.Link .. [[ "]] .. node.Name .. [[" ]] .. stack)
+		file:Queue(" "..node.Link .. [[ "]] .. node.Name .. [[" ]] .. stack)
 	end
 	file:SortAndDump(function (a,b)
 		local a = tonumber(string.match(a,"(%d+) "));
@@ -326,10 +326,8 @@ function WriteCharacterSMD(userId)
 			end
 			if recalcNorm then
 				local v1,v2,v3 = unpack(verts)
-				local u = v2 - v1
-				local v = v3 - v1
-				local x = (u.y * v.z) - (u.z * v.y)
-				
+				local u = v1 - v2
+				local v = v1 - v3
 				local norm = u:Cross(v):Normalize()
 				for _,coord in pairs(coords) do
 					coord.Norm = {norm.X,norm.Y,norm.Z}
