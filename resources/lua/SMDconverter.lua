@@ -19,8 +19,6 @@ function print(...)
 	end
 end
 
-print("Yes, the console is working")
-
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
 local bones = 
@@ -198,7 +196,7 @@ end
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
 function WriteCharacterSMD(userId)
-	print("Retrieving Avatar Data")
+	print("Getting Avatar Data")
 	local data = ridiculousJSONAsync("http://www.roblox.com/avatar-thumbnail-3d/json?userId=" .. userId,"Url",true)
 	local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
 	local origin do
