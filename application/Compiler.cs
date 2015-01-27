@@ -160,7 +160,7 @@ namespace RobloxToSourceEngine
             try
             {
                 lua.load("lua/SMDconverter.lua");
-                log("Writing SMD file", "This may take up to a minute, depending on how complex the character is.", "Please wait...");
+                log("Writing StudioMDL Data", "This may take up to a minute, depending on how complex the character is.", "Please wait...");
                 lua.DoString("response = WriteCharacterSMD(" + userId + ")");
                 string fileJSON = lua.GetString("response");
                 NameValueCollection data = FileHandler.JsonToNVC(fileJSON);
@@ -188,7 +188,7 @@ namespace RobloxToSourceEngine
             try
             {
                 lua.load("lua/SMDconverter.lua");
-                log("Writing SMD file", "Please wait...");
+                log("Writing StudioMDL Data", "Please wait...");
                 lua.DoString("response = WriteAssetSMD(" + assetId + ")");
                 string fileJSON = lua.GetString("response");
                 NameValueCollection data = FileHandler.JsonToNVC(fileJSON);
@@ -297,7 +297,7 @@ namespace RobloxToSourceEngine
                 await Task.Delay(1000);
                 NameValueCollection characterSMD = WriteCharacterSMD(id);
                 string file = characterSMD["File"];
-                string[] animations = new string[] { "reference", "walk" };
+                string[] animations = new string[] { "reference", "walk", "idle", "jump", "falling", "toolup" };
                 foreach (string animation in animations)
                 {
                     string path = Path.Combine(storagePath, "models", animation + "_anim.smd");

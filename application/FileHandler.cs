@@ -49,10 +49,28 @@ namespace RobloxToSourceEngine
 
         public void WriteToFileFromString(string path, string contents)
         {
-            FileStream file = File.Create(path);
-            byte[] contentStream = Encoding.Default.GetBytes(contents);
-            file.Write(contentStream, 0, contentStream.Length);
-            file.Close();
+            // Write to a file if the file doesn't exist yet,
+            // or if the current contents of the file aren't the same as the provided ones.
+            bool proceedToWrite = false;
+            if (File.Exists(path))
+            {
+                string currentContents = File.ReadAllText(path);
+                if (!contents.Equals(currentContents))
+                {
+                    proceedToWrite = true;
+                }
+            }
+            else
+            {
+                proceedToWrite = true;
+            }
+            if (proceedToWrite)
+            {
+                FileStream file = File.Create(path); // Creates or overwrites it. Doesn't really matter in this case.
+                byte[] contentStream = Encoding.Default.GetBytes(contents);
+                file.Write(contentStream, 0, contentStream.Length);
+                file.Close();
+            }
         }
 
         public string GetFileFromHash(string hash, string extension = "", string customName = null, string customPath = null)
@@ -151,6 +169,8 @@ namespace RobloxToSourceEngine
         }
         public FileHandler()
         {
+            // Check and see if we're running inside of a cloned github repository.
+            // If we are, use the resource files stored here rather than the ones on the cloud.
             string[] search = new string[] { "bin", "application", "Rbx2Source" };
             string currentPath = Environment.CurrentDirectory;
             int count = 0;

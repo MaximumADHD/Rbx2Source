@@ -192,9 +192,9 @@ namespace RobloxToSourceEngine
             this.version.ForeColor = System.Drawing.Color.White;
             this.version.Location = new System.Drawing.Point(93, 266);
             this.version.Name = "version";
-            this.version.Size = new System.Drawing.Size(195, 26);
+            this.version.Size = new System.Drawing.Size(193, 26);
             this.version.TabIndex = 16;
-            this.version.Text = "Version 1.31\r\n@ CloneTrooper1019, 2014-2015";
+            this.version.Text = "Version 1.40\r\n© CloneTrooper1019, 2014-2015";
             this.version.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             // 
             // compile

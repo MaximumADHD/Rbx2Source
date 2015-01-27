@@ -1,18 +1,45 @@
 $upaxis y
 $surfaceprop "flesh"
- 
 $contents "solid"
- 
-$sequence "reference" "reference_anim.smd" {
+
+$weightlist toolup_seq {
+	"Torso" 0
+	"Left Shoulder" 0
+	"Right Shoulder" 1
+	"Left Hip" 0
+	"Right Hip" 0
+	"Neck" 0
+}
+
+$sequence "ref" "reference_anim.smd" {
 	fps 1 
 	loop
 }
 
-$sequence "walking" "walk_anim.smd" {
+$sequence "idle" "idle_anim.smd" {
 	fps 60
 	loop
 }
 
+$sequence "walk" "walk_anim.smd" {
+	fps 60
+	loop
+}
+
+$sequence "jump" "jump_anim.smd" {
+	fps 20
+}
+
+$sequence "falling" "falling_anim.smd" {
+	fps 60
+	loop
+}
+
+$sequence "toolup" "toolup_anim.smd" {
+	fps 60
+	weightlist toolup_seq
+	loop
+}
 
 $collisionjoints "physics_mdl.smd" 
 {
@@ -20,7 +47,7 @@ $collisionjoints "physics_mdl.smd"
 	$inertia 10
 	$damping 0.01
 	$rotdamping 1.5
-	$rootbone "Center"
+	$rootbone "Torso"
 	$concave
 	
 	$jointconstrain "Right Shoulder" x free 

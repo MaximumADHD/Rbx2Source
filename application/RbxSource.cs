@@ -80,7 +80,7 @@ namespace RobloxToSourceEngine
             try
             {
                 string userInfo = http.DownloadString("http://api.roblox.com/users/get-by-username?username=" + username);
-                if (!userInfo.Contains("Invalid username"))
+                if (!userInfo.Contains("\"success\":false"))
                 {
                     NameValueCollection data = FileHandler.JsonToNVC(userInfo);
                     Console.WriteLine(data);
@@ -162,7 +162,7 @@ namespace RobloxToSourceEngine
         private void enterUsername_Click(object sender, EventArgs e)
         {
             string userId = userIdFromUsername(inputUsername.Text);
-            Console.WriteLine(userId);
+            Console.WriteLine("USERID: " + userId);
             if (userId != "-1")
             {
                 try
@@ -177,12 +177,12 @@ namespace RobloxToSourceEngine
                     }
                     else
                     {
-                        showUserError("Could not load mesh for this user!\tRoblox may still be loading the character.\nTry again in a few moments.");
+                        showUserError("Could not load mesh for this user!\nRoblox may still be loading the character.\nTry again in a few moments.");
                     }
                 }
                 catch
                 {
-                    showUserError("Could not load mesh for this user!\tRoblox may still be loading the character.\nTry again in a few moments.");
+                    showUserError("Could not load mesh for this user!\nRoblox may still be loading the character.\nTry again in a few moments.");
                 }
             }
             else
@@ -278,16 +278,6 @@ namespace RobloxToSourceEngine
             {
                 showUserError("The configuration for " + selectedGame + " is corrupted!");
             }
-        }
-
-        private void onlineGuideToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
