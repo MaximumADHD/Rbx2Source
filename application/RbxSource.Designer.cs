@@ -194,7 +194,7 @@ namespace RobloxToSourceEngine
             this.version.Name = "version";
             this.version.Size = new System.Drawing.Size(193, 26);
             this.version.TabIndex = 16;
-            this.version.Text = "Version 1.40\r\n© CloneTrooper1019, 2014-2015";
+            this.version.Text = "Version 1.41\r\n© CloneTrooper1019, 2014-2015";
             this.version.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             // 
             // compile

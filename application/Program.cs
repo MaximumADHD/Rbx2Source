@@ -25,32 +25,39 @@ namespace RobloxToSourceEngine
             // First, we need to prevent this from being pinned to the taskbar.
             // The application won't automatically update if its not 
             // I accomplish this by adding a "NoStartPage" key under my application in Root\Applications
-            RegistryKey root = Registry.ClassesRoot;
-            RegistryKey applicationsSubKey = root.OpenSubKey("Applications", true);
-            if (applicationsSubKey != null)
+            try
             {
-                bool updateNoStartPageKey = false;
-                var appNameSubKey = applicationsSubKey.OpenSubKey("RobloxToSourceEngine.exe", true);
-                if (appNameSubKey != null)
+                RegistryKey root = Registry.ClassesRoot;
+                RegistryKey applicationsSubKey = root.OpenSubKey("Applications", true);
+                if (applicationsSubKey != null)
                 {
-                    if (!appNameSubKey.GetValueNames().Contains("NoStartPage"))
-                    {
-                        updateNoStartPageKey = true;
-                    }
-                }
-                else
-                {
-                    appNameSubKey = applicationsSubKey.CreateSubKey("RobloxToSourceEngine.exe", RegistryKeyPermissionCheck.Default);
+                    bool updateNoStartPageKey = false;
+                    var appNameSubKey = applicationsSubKey.OpenSubKey("RobloxToSourceEngine.exe", true);
                     if (appNameSubKey != null)
                     {
-                        updateNoStartPageKey = true;
+                        if (!appNameSubKey.GetValueNames().Contains("NoStartPage"))
+                        {
+                            updateNoStartPageKey = true;
+                        }
+                    }
+                    else
+                    {
+                        appNameSubKey = applicationsSubKey.CreateSubKey("RobloxToSourceEngine.exe", RegistryKeyPermissionCheck.Default);
+                        if (appNameSubKey != null)
+                        {
+                            updateNoStartPageKey = true;
+                        }
+                    }
+
+                    if (updateNoStartPageKey)
+                    {
+                        appNameSubKey.SetValue("NoStartPage", string.Empty, RegistryValueKind.String);
                     }
                 }
-
-                if (updateNoStartPageKey)
-                {
-                    appNameSubKey.SetValue("NoStartPage", string.Empty, RegistryValueKind.String);
-                }
+            }
+            catch
+            {
+                Console.WriteLine("Couldn't block");
             }
             // Then make sure everything is up to date and the API is available.
             WebClient http = new WebClient();
