@@ -27,6 +27,11 @@ import       "static_prop.smd"
 setLocalPath "Rbx2SrcFiles/models/animations"
 setGitPath   "models/animations"
 import       "reference.smd"
+import       "idle.smd"
 import       "walk.smd"
+import       "jump.smd"
+import       "falling.smd"
+import       "toolup.smd"
+
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
