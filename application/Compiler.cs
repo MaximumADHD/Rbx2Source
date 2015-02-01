@@ -110,6 +110,16 @@ namespace RobloxToSourceEngine
             MessageBox.Show(msg, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
+        public int toNearestPowerOfTwo(int value)
+        {
+            int power = 2;
+            while (power <= value)
+            {
+                power = power + power;
+            }
+            return power;
+        }
+
         public void compileTexture(string mtlName, string texHash, string mtlDir)
         {
             string appData = Environment.GetEnvironmentVariable("AppData");
@@ -121,8 +131,11 @@ namespace RobloxToSourceEngine
             string VTFCmd_Path = GetFile(toolsPath, "tools/vtfcmd.exe", "VTFcmd.exe");
             log("Getting PNG File: " + texHash);
             string png = FileHandler.GetFileFromHash(texHash, "png", mtlName, rootPath);
+            Image pngCanvas = Image.FromFile(png);
+            int width = toNearestPowerOfTwo(pngCanvas.Width);
+            int height = toNearestPowerOfTwo(pngCanvas.Height);
             log("Converting to .VTF");
-            string parameters = " -file " + inQuotes(png) + " -output " + inQuotes(mtlDir) + " -resize -rwidth 1024 -rheight 1024";
+            string parameters = " -file " + inQuotes(png) + " -output " + inQuotes(mtlDir) + " -resize -rwidth " + width + " -rheight " + height;
             ProcessStartInfo VTFCmd = new ProcessStartInfo();
             VTFCmd.FileName = VTFCmd_Path;
             VTFCmd.Arguments = parameters;
@@ -153,6 +166,7 @@ namespace RobloxToSourceEngine
             NameValueCollection settings = FileHandler.GetAppSettings();
             fatalError("A fatal error occured! \n\nLine " + e.Message.Substring(17) + "\n" + e.StackTrace + "\nIf you can, please tweet this information to " + settings["twitterName"] + ", and it will be fixed ASAP.\n\nThanks!");
         }
+
         public NameValueCollection WriteCharacterSMD(string userId)
         {
             LuaClass lua = new LuaClass();
@@ -169,15 +183,13 @@ namespace RobloxToSourceEngine
             catch (LuaException e)
             {
                 LuaError(e);
-                NameValueCollection data = new NameValueCollection();
-                return data;
             }
             catch (WebException e)
             {
                 Console.WriteLine(e.Message);
-                NameValueCollection data = new NameValueCollection();
-                return data;
             }
+            NameValueCollection d = new NameValueCollection();
+            return d;
         }
 
         public NameValueCollection WriteAssetSMD(string assetId)

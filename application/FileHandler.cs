@@ -79,7 +79,7 @@ namespace RobloxToSourceEngine
             NameValueCollection response = JsonToNVC(json);
             string url = response["Url"];
             string filePath;
-            if (customPath != null)
+            if (customPath == null)
             {
                 string roaming = Environment.GetEnvironmentVariable("AppData");
                 filePath = Path.Combine(roaming, "Rbx2SrcFiles");
