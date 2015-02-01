@@ -1,4 +1,5 @@
 $upaxis y
+$offset 0 -30 0
 $surfaceprop "flesh"
 $contents "solid"
 
