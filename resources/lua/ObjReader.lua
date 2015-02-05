@@ -22,7 +22,7 @@ end
 
 function readTags(file)
 	local tags = {}
-	for line in mtlFile:gmatch("[^\r\n]+") do
+	for line in file:gmatch("[^\r\n]+") do
 		if #line > 0 then
 			local process = ""
 			local readChars = 0
