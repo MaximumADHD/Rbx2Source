@@ -261,6 +261,7 @@ namespace RobloxToSourceEngine
             name = name.Replace(".", "_DOT_");
             name = name.Replace(",", "");
             name = name.Replace("'", "");
+            name = name.Replace(":", "");
             return name;
         }
 

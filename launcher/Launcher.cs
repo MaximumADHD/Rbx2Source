@@ -152,6 +152,7 @@ namespace Rbx2SourceLauncher
             // Brutally parse the json key/value I'm looking for.
             // This is the only time I work with JSON in the launcher.
             string settings = getResourceStr("settings.json");
+            Console.WriteLine("k");
             string version = "";
             while (version == "")
             {
