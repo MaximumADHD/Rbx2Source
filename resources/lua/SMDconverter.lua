@@ -208,6 +208,14 @@ function shouldFlipSkeleton(obj,torsoCenter)
 	return dist > 20
 end
 
+function concat(...)
+	local t = {...}
+	for k,v in pairs(t) do
+		t[k] = tostring(v)
+	end
+	return table.concat(t," ")
+end
+
 function inQuotes(str)
 	return '"'..str..'"'
 end
@@ -227,7 +235,7 @@ function WriteCharacterSMD(userId)
 	file:Add("version 1","nodes")
 	for _,node in pairs(bones) do
 		local stack = (node.Link == 0) and -1 or 0
-		file:Queue(node.Link.." "..inQuotes(node.Name).." "..stack)
+		file:Queue(concat(node.Link,inQuotes(node.Name),stack))
 	end
 	file:SortAndDump(function (a,b)
 		local a = tonumber(string.match(a,"(%d+) "));
@@ -286,8 +294,7 @@ function WriteCharacterSMD(userId)
 			print("Could not get torsoAsset")
 		end
 	end
-	local shouldFlip = shouldFlipSkeleton(obj,torsoCenter)
-	if shouldFlip then
+	if shouldFlipSkeleton(obj,torsoCenter) then
 		print("Flipping Skeleton")
 		local ls,rs,lh,rh = bones.LeftArm1.Offset, bones.RightArm1.Offset, bones.LeftLeg1.Offset, bones.RightLeg1.Offset
 		bones.LeftArm1.Offset = rs;
@@ -307,7 +314,7 @@ function WriteCharacterSMD(userId)
 			end
 			torsoCenter = o
 		end
-		file:Queue(data.Link.." "..dumpVector3(o).." 0 0 0")
+		file:Queue(concat(data.Link,dumpVector3(o)," 0 0 0"))
 	end
 	file:SortAndDump(function (a,b)
 		local a = tonumber(string.match(a,"(%d+) "));
@@ -335,7 +342,7 @@ function WriteCharacterSMD(userId)
 					vert = {v.X,v.Y,v.Z}
 					norm = {nx,-nz,ny}
 				end
-				file:Add(link.." "..unwrap(vert).." "..unwrap(norm).." "..unwrap(tex))
+				file:Add(concat(link,unwrap(vert),unwrap(norm),unwrap(tex)))
 			end
 		end
 	end
@@ -370,7 +377,7 @@ function WriteAssetSMD(assetId)
 			local vert = obj.Verts[coord.Vert];
 			local norm = obj.Norms[coord.Norm];
 			local tex = obj.Texs[coord.Tex];
-			file:Add("0 "..unwrap(vert).." "..unwrap(norm).." "..unwrap(tex))
+			file:Add(concat(0,unwrap(vert),unwrap(norm),unwrap(tex)))
 		end
 	end
 	file:Add("end")
@@ -380,5 +387,3 @@ function WriteAssetSMD(assetId)
 	}
 	return JSON:EncodeJSON(data)
 end
-
-----------------------------------------------------------------------------------------------------------------------------------------------
