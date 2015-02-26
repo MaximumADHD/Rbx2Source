@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------
--- Max G, 2014-2015
+-- Max G, 2014
 -- This code is in charge of pulling .obj files from roblox.com and outputting them as .smd files.
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -367,10 +367,10 @@ function WriteAssetSMD(assetId)
 	for _,face in pairs(obj.Faces) do
 		file:Add(face.Material)
 		for _,coord in pairs(face.Coords) do
-			local Vert = obj.Verts[coord.Vert];
-			local Norm = obj.Norms[coord.Norm];
-			local Tex = obj.Texs[coord.Tex];
-			file:Add(" 0 " .. unwrap(Vert) .. "  " .. unwrap(Norm) .. "  " .. unwrap(Tex))
+			local vert = obj.Verts[coord.Vert];
+			local norm = obj.Norms[coord.Norm];
+			local tex = obj.Texs[coord.Tex];
+			file:Add(" 0 " .. unwrap(vert) .. "  " .. unwrap(norm) .. "  " .. unwrap(tex))
 		end
 	end
 	file:Add("end")
