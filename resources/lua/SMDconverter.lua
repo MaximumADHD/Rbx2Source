@@ -116,20 +116,6 @@ function getGroupData(obj)
 	return s
 end
 
-function shouldFlipSkeleton(obj,torsoCenter)
-	-- Recently, some meshes have been loading backwards.
-	-- Roblox wtf are you doing lol.
-	if not torsoCenter then
-		torsoCenter = Vector3.new()
-	end
-	local groupData = getGroupData(obj)
-	local bonePos = torsoCenter + (bones.LeftArm1.Offset * meshScale);
-	local groupPos = calculateCentroid(obj,groupData:GetRealName("LeftArm1"))
-	local off = groupPos-bonePos
-	local dist = math.sqrt(off.X^2+off.Y^2+off.Z^2)
-	return dist > 15
-end
-
 function float(num)
 	-- Obj Files have some insanely low numbers sometimes.
 	if math.floor(num) == num then
@@ -203,6 +189,20 @@ function getTorsoCenter(torsoAsset)
 	local torsoOrigin = (leftArm+rightArm)/2
 	local offset = (torsoOrigin - calculateCentroid(obj,groupData:GetRealName("Torso1")))
 	return Vector3.new(-offset.X,-offset.Y,-offset.Z)
+end
+
+function shouldFlipSkeleton(obj,torsoCenter)
+	-- Recently, some meshes have been loading backwards.
+	-- Roblox wtf are you doing lol.
+	if not torsoCenter then
+		torsoCenter = Vector3.new()
+	end
+	local groupData = getGroupData(obj)
+	local bonePos = torsoCenter + (bones.LeftArm1.Offset * meshScale);
+	local groupPos = calculateCentroid(obj,groupData:GetRealName("LeftArm1"))
+	local off = groupPos-bonePos
+	local dist = math.sqrt(off.X^2+off.Y^2+off.Z^2)
+	return dist > 15
 end
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
