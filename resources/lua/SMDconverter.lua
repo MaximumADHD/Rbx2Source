@@ -209,10 +209,6 @@ function shouldFlipSkeleton(obj,torsoCenter)
 end
 
 function concat(...)
-	local t = {...}
-	for k,v in pairs(t) do
-		t[k] = tostring(v)
-	end
 	return table.concat(t," ")
 end
 
@@ -294,7 +290,8 @@ function WriteCharacterSMD(userId)
 			print("Could not get torsoAsset")
 		end
 	end
-	if shouldFlipSkeleton(obj,torsoCenter) then
+	local shouldFlip = shouldFlipSkeleton(obj,torsoCenter)
+	if shouldFlip then
 		print("Flipping Skeleton")
 		local ls,rs,lh,rh = bones.LeftArm1.Offset, bones.RightArm1.Offset, bones.LeftLeg1.Offset, bones.RightLeg1.Offset
 		bones.LeftArm1.Offset = rs;
@@ -338,9 +335,9 @@ function WriteCharacterSMD(userId)
 					local v = Vector3.new(unpack(vert))
 					local origin = torsoCenter + (bones.RightArm1.Offset * meshScale)
 					local o = v-origin
-					v = origin + Vector3.new(o.X,-o.Z,o.Y)
+					v = origin + Vector3.new(o.X,o.Z,o.Y)
 					vert = {v.X,v.Y,v.Z}
-					norm = {nx,-nz,ny}
+					norm = {nx,nz,ny}
 				end
 				file:Add(concat(link,unwrap(vert),unwrap(norm),unwrap(tex)))
 			end
