@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------
--- Max G, 2014
+-- Max G, 2014-2015
 -- This code is in charge of pulling .obj files from roblox.com and outputting them as .smd files.
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -164,7 +164,7 @@ function dumpVector3(v3)
 	return float(v3.X).." "..float(v3.Y).." "..float(v3.Z)
 end
 
-function calculateOrigin(obj,group)
+function calculateCentroid(obj,group)
 	local x,y,z = {},{},{}
 	for _,face in pairs(obj.Faces) do
 		if face.Group == group then
@@ -198,10 +198,10 @@ function getTorsoCenter(torsoAsset)
 	end
 	local obj = parseOBJ(objFile)
 	local groupData = getGroupData(obj)
-	local leftArm = calculateOrigin(obj,groupData:GetRealName("LeftArm1"))
-	local rightArm = calculateOrigin(obj,groupData:GetRealName("RightArm1"))
+	local leftArm = calculateCentroid(obj,groupData:GetRealName("LeftArm1"))
+	local rightArm = calculateCentroid(obj,groupData:GetRealName("RightArm1"))
 	local torsoOrigin = (leftArm+rightArm)/2
-	local offset = (torsoOrigin - calculateOrigin(obj,groupData:GetRealName("Torso1")))
+	local offset = (torsoOrigin - calculateCentroid(obj,groupData:GetRealName("Torso1")))
 	return Vector3.new(-offset.X,-offset.Y,-offset.Z)
 end
 
@@ -297,7 +297,7 @@ function WriteCharacterSMD(userId)
 		name = groupData:GetRealName(name)
 		local o = (data.Offset * meshScale)
 		if name == groupData:GetRealName("Torso1") then
-			o = o + calculateOrigin(obj,name)
+			o = o + calculateCentroid(obj,name)
 			if torsoCenter then
 				o = o - torsoCenter
 			end
