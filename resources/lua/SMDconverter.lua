@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------
--- Max G, 2014-2015
+-- Max G, 2014
 -- This code is in charge of pulling .obj files from roblox.com and outputting them as .smd files.
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -150,7 +150,7 @@ function dumpVector3(v3)
 	return float(v3.X).." "..float(v3.Y).." "..float(v3.Z)
 end
 
-function calculateCentroid(obj,group)
+function calculateOrigin(obj,group)
 	local x,y,z = {},{},{}
 	for _,face in pairs(obj.Faces) do
 		if face.Group == group then
@@ -173,51 +173,22 @@ function calculateCentroid(obj,group)
 	return Vector3.new(avg(x),avg(y),avg(z))
 end
 
-function getOrigin(data)
-	local a = Vector3.new(data.aabb.min.x,data.aabb.min.y,data.aabb.min.z)
-	local b = Vector3.new(data.aabb.max.x,data.aabb.max.y,data.aabb.max.z)
-	return (a+b)/2
-end
-
 function getTorsoCenter(torsoAsset)
 	-- Calculates the actual center of the torso as an offset to the origin of the torso's bounding box 
 	local data = ridiculousJSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. torsoAsset,"Url",true)
 	local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.obj,"Url")
-	local origin = getOrigin(data)
+	local origin do
+		local a = Vector3.new(data.aabb.min.x,data.aabb.min.y,data.aabb.min.z)
+		local b = Vector3.new(data.aabb.max.x,data.aabb.max.y,data.aabb.max.z)
+		origin = (a+b)/2
+	end
 	local obj = parseOBJ(objFile)
 	local groupData = getGroupData(obj)
-	local leftArm = calculateCentroid(obj,groupData:GetRealName("LeftArm1"))
-	local rightArm = calculateCentroid(obj,groupData:GetRealName("RightArm1"))
+	local leftArm = calculateOrigin(obj,groupData:GetRealName("LeftArm1"))
+	local rightArm = calculateOrigin(obj,groupData:GetRealName("RightArm1"))
 	local torsoOrigin = (leftArm+rightArm)/2
-	local offset = (torsoOrigin - calculateCentroid(obj,groupData:GetRealName("Torso1")))
+	local offset = (torsoOrigin - calculateOrigin(obj,groupData:GetRealName("Torso1")))
 	return Vector3.new(-offset.X,-offset.Y,-offset.Z)
-end
-
-function shouldFlipSkeleton(obj,torsoCenter)
-	-- Recently, some meshes have been loading backwards.
-	-- Roblox wtf are you doing lol.
-	if not torsoCenter then
-		torsoCenter = Vector3.new()
-	end
-	local groupData = getGroupData(obj)
-	local bonePos = torsoCenter + (bones.LeftArm1.Offset * meshScale);
-	local groupPos = calculateCentroid(obj,groupData:GetRealName("LeftArm1"))
-	local off = groupPos-bonePos
-	local dist = math.sqrt(off.X^2+off.Y^2+off.Z^2)
-	print(dist)
-	return dist > 20
-end
-
-function concat(...)
-	local t = {...}
-	for k,v in pairs(t) do
-		t[k] = tostring(v)
-	end
-	return table.concat(t," ")
-end
-
-function inQuotes(str)
-	return '"'..str..'"'
 end
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -228,14 +199,18 @@ function WriteCharacterSMD(userId)
 	print("Getting Avatar Data")
 	local data = ridiculousJSONAsync("http://www.roblox.com/avatar-thumbnail-3d/json?userId=" .. userId,"Url",true)
 	local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
-	local origin = getOrigin(data)
+	local origin do
+		local a = Vector3.new(data.aabb.min.x,data.aabb.min.y,data.aabb.min.z)
+		local b = Vector3.new(data.aabb.max.x,data.aabb.max.y,data.aabb.max.z)
+		origin = (a+b)/2
+	end
 	print("Loading Obj File")
 	local obj = parseOBJ(objFile,origin)
 	local file = NewFileWriter()
-	file:Add("version 1","nodes")
+	file:Add("version 1","","nodes")
 	for _,node in pairs(bones) do
 		local stack = (node.Link == 0) and -1 or 0
-		file:Queue(concat(node.Link,inQuotes(node.Name),stack))
+		file:Queue(" "..node.Link .. [[ "]] .. node.Name .. [[" ]] .. stack)
 	end
 	file:SortAndDump(function (a,b)
 		local a = tonumber(string.match(a,"(%d+) "));
@@ -294,27 +269,19 @@ function WriteCharacterSMD(userId)
 			print("Could not get torsoAsset")
 		end
 	end
-	if shouldFlipSkeleton(obj,torsoCenter) then
-		print("Flipping Skeleton")
-		local ls,rs,lh,rh = bones.LeftArm1.Offset, bones.RightArm1.Offset, bones.LeftLeg1.Offset, bones.RightLeg1.Offset
-		bones.LeftArm1.Offset = rs;
-		bones.RightArm1.Offset = ls;
-		bones.LeftLeg1.Offset = rh;
-		bones.RightLeg1.Offset = lh;
-	end
-	file:Add("end","skeleton","time 0")
+	file:Add("end","","skeleton","time 0")
 	print("Writing Skeleton")
 	for name,data in pairs(bones) do
 		name = groupData:GetRealName(name)
 		local o = (data.Offset * meshScale)
 		if name == groupData:GetRealName("Torso1") then
-			o = o + calculateCentroid(obj,name) 
+			o = o + calculateOrigin(obj,name)
 			if torsoCenter then
 				o = o - torsoCenter
 			end
 			torsoCenter = o
 		end
-		file:Queue(concat(data.Link,dumpVector3(o)," 0 0 0"))
+		file:Queue(" "..data.Link .." " .. dumpVector3(o) .. " 0 0 0")
 	end
 	file:SortAndDump(function (a,b)
 		local a = tonumber(string.match(a,"(%d+) "));
@@ -342,7 +309,7 @@ function WriteCharacterSMD(userId)
 					vert = {v.X,v.Y,v.Z}
 					norm = {nx,-nz,ny}
 				end
-				file:Add(concat(link,unwrap(vert),unwrap(norm),unwrap(tex)))
+				file:Add(" "..link .. " " .. unwrap(vert) .. " " .. unwrap(norm) .. " " .. unwrap(tex))
 			end
 		end
 	end
@@ -361,10 +328,14 @@ end
 function WriteAssetSMD(assetId)
 	local data = ridiculousJSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. assetId,"Url",true)
 	local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
-	local origin = getOrigin(data)
+	local origin do
+		local a = Vector3.new(data.aabb.min.x,data.aabb.min.y,data.aabb.min.z)
+		local b = Vector3.new(data.aabb.max.x,data.aabb.max.y,data.aabb.max.z)
+		origin = (a+b)/2
+	end
 	local obj = parseOBJ(objFile,origin)
 	local file = NewFileWriter()
-	file:Add("version 1","nodes","0 \"root\" -1","end","skeleton","time 0","0 0 0 0 0 0 0","end","","triangles")
+	file:Add("version 1","","nodes"," 0 \"root\" -1","end","","skeleton","time 0"," 0 0 0 0 0 0 0","end","","triangles") 
 	local mtlData = {}
 	local mtlFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
 	local mtl = parseMTL(mtlFile)
@@ -374,10 +345,10 @@ function WriteAssetSMD(assetId)
 	for _,face in pairs(obj.Faces) do
 		file:Add(face.Material)
 		for _,coord in pairs(face.Coords) do
-			local vert = obj.Verts[coord.Vert];
-			local norm = obj.Norms[coord.Norm];
-			local tex = obj.Texs[coord.Tex];
-			file:Add(concat(0,unwrap(vert),unwrap(norm),unwrap(tex)))
+			local Vert = obj.Verts[coord.Vert];
+			local Norm = obj.Norms[coord.Norm];
+			local Tex = obj.Texs[coord.Tex];
+			file:Add(" 0 " .. unwrap(Vert) .. "  " .. unwrap(Norm) .. "  " .. unwrap(Tex))
 		end
 	end
 	file:Add("end")
@@ -387,3 +358,5 @@ function WriteAssetSMD(assetId)
 	}
 	return JSON:EncodeJSON(data)
 end
+
+----------------------------------------------------------------------------------------------------------------------------------------------
