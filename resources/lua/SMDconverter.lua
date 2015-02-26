@@ -209,7 +209,7 @@ function shouldFlipSkeleton(obj,torsoCenter)
 end
 
 function concat(...)
-	return table.concat(t," ")
+	return table.concat({...}," ")
 end
 
 function inQuotes(str)
