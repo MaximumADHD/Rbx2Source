@@ -331,7 +331,7 @@ function WriteCharacterSMD(userId)
 					local v = Vector3.new(unpack(vert))
 					local origin = torsoCenter + (bones.RightArm1.Offset * meshScale)
 					local o = v-origin
-					v = origin + Vector3.new(o.X,-o.Z,o.Y)
+					v = origin + Vector3.new(o.X * (shouldFlip and -1 or 1),-o.Z,o.Y)
 					vert = {v.X,v.Y,v.Z}
 					norm = {nx,-nz,ny}
 				end
