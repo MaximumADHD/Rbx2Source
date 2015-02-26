@@ -116,6 +116,20 @@ function getGroupData(obj)
 	return s
 end
 
+function shouldFlipSkeleton(obj,torsoCenter)
+	-- Recently, some meshes have been loading backwards.
+	-- Roblox wtf are you doing lol.
+	if not torsoCenter then
+		torsoCenter = Vector3.new()
+	end
+	local groupData = getGroupData(obj)
+	local bonePos = torsoCenter + (bones.LeftArm1.Offset * meshScale);
+	local groupPos = calculateCentroid(obj,groupData:GetRealName("LeftArm1"))
+	local off = groupPos-bonePos
+	local dist = math.sqrt(off.X^2+off.Y^2+off.Z^2)
+	return dist > 15
+end
+
 function float(num)
 	-- Obj Files have some insanely low numbers sometimes.
 	if math.floor(num) == num then
@@ -268,6 +282,14 @@ function WriteCharacterSMD(userId)
 		else
 			print("Could not get torsoAsset")
 		end
+	end
+	if shouldFlipSkeleton(obj,torsoCenter) then
+		print("Flipping Skeleton")
+		local ls,rs,lh,rh = bones.LeftArm1.Offset, bones.RightArm1.Offset, bones.LeftLeg1.Offset, bones.RightLeg1.Offset
+		bones.LeftArm1.Offset = rs;
+		bones.RightArm1.Offset = ls;
+		bones.LeftLeg1.Offset = rh;
+		bones.RightLeg1.Offset = lh;
 	end
 	file:Add("end","","skeleton","time 0")
 	print("Writing Skeleton")
