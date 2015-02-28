@@ -173,24 +173,6 @@ function calculateCentroid(obj,group)
 	return Vector3.new(avg(x),avg(y),avg(z))
 end
 
-function getTorsoCenter(torsoAsset)
-	-- Calculates the actual center of the torso as an offset to the origin of the torso's bounding box 
-	local data = ridiculousJSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. torsoAsset,"Url",true)
-	local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.obj,"Url")
-	local origin do
-		local a = Vector3.new(data.aabb.min.x,data.aabb.min.y,data.aabb.min.z)
-		local b = Vector3.new(data.aabb.max.x,data.aabb.max.y,data.aabb.max.z)
-		origin = (a+b)/2
-	end
-	local obj = parseOBJ(objFile)
-	local groupData = getGroupData(obj)
-	local leftArm = calculateCentroid(obj,groupData:GetRealName("LeftArm1"))
-	local rightArm = calculateCentroid(obj,groupData:GetRealName("RightArm1"))
-	local torsoOrigin = (leftArm+rightArm)/2
-	local offset = (torsoOrigin - calculateCentroid(obj,groupData:GetRealName("Torso1")))
-	return Vector3.new(-offset.X,-offset.Y,-offset.Z)
-end
-
 function shouldFlipSkeleton(obj,torsoCenter)
 	-- Recently, some meshes have been loading backwards.
 	-- Roblox wtf are you doing lol.
@@ -203,6 +185,37 @@ function shouldFlipSkeleton(obj,torsoCenter)
 	local off = groupPos-bonePos
 	local dist = math.sqrt(off.X^2+off.Y^2+off.Z^2)
 	return dist > 15
+end
+
+function getTorsoCenter(userId)
+	local assets = {}
+	local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId="..userId)
+	local torsoAsset
+	for id in string.gmatch(avatar,"/?id=(%d+)") do
+		local info = JSON:DecodeJSON(http:DownloadString("http://api.roblox.com/marketplace/productinfo?assetId=" .. asset))
+		if info.AssetTypeId == 27 then
+			torsoAsset = asset
+			break
+		end
+	end
+	if torsoAsset then
+		local data = ridiculousJSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. torsoAsset,"Url",true)
+		local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.obj,"Url")
+		local origin do
+			local a = Vector3.new(data.aabb.min.x,data.aabb.min.y,data.aabb.min.z)
+			local b = Vector3.new(data.aabb.max.x,data.aabb.max.y,data.aabb.max.z)
+			origin = (a+b)/2
+		end
+		local obj = parseOBJ(objFile)
+		local groupData = getGroupData(obj)
+		local leftArm = calculateCentroid(obj,groupData:GetRealName("LeftArm1"))
+		local rightArm = calculateCentroid(obj,groupData:GetRealName("RightArm1"))
+		local torsoOrigin = (leftArm+rightArm)/2
+		local offset = (torsoOrigin - calculateCentroid(obj,groupData:GetRealName("Torso1")))
+		return Vector3.new(-offset.X,-offset.Y,-offset.Z)
+	else
+		print("Could not get torsoAsset")
+	end
 end
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -262,34 +275,15 @@ function WriteCharacterSMD(userId)
 		mtlData[material.Material] = material.HashTex
 	end
 	print("Calculating Torso Origin")
-	local torsoCenter do
-		local assets = {}
-		local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId="..userId)
-		for id in string.gmatch(avatar,"/?id=(%d+)") do
-			table.insert(assets,id)
-		end
-		local actualOrigin = Vector3.new()
-		local torsoAsset
-		for _,asset in pairs(assets) do
-			local info = JSON:DecodeJSON(http:DownloadString("http://api.roblox.com/marketplace/productinfo?assetId=" .. asset))
-			if info.AssetTypeId == 27 then
-				torsoAsset = asset
-				break
+	torsoCenter = getTorsoCenter(userId)
+	if shouldFlipSkeleton(obj,torsoCenter) then
+		-- Negate the XZ axis
+		for _,face in pairs(obj.Faces) do
+			for _,coord in pairs(face.Coords) do
+				local vert = obj.Verts[coord.Vert]
+				obj.Verts[coord.Vert] = {-vert[1],vert[2],-vert[3]}
 			end
 		end
-		if torsoAsset then
-			torsoCenter = getTorsoCenter(torsoAsset)
-		else
-			print("Could not get torsoAsset")
-		end
-	end
-	if shouldFlipSkeleton(obj,torsoCenter) then
-		print("Flipping Skeleton")
-		local ls,rs,lh,rh = bones.LeftArm1.Offset, bones.RightArm1.Offset, bones.LeftLeg1.Offset, bones.RightLeg1.Offset
-		bones.LeftArm1.Offset = rs;
-		bones.RightArm1.Offset = ls;
-		bones.LeftLeg1.Offset = rh;
-		bones.RightLeg1.Offset = lh;
 	end
 	file:Add("end","","skeleton","time 0")
 	print("Writing Skeleton")
