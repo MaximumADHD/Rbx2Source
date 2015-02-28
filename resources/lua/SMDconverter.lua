@@ -285,7 +285,7 @@ function WriteCharacterSMD(userId)
 			for _,coord in pairs(face.Coords) do
 				local vert = obj.Verts[coord.Vert]
 				local vec = Vector3.new(unpack(vert))
-				vec = (vec * Vector3.new(1,-1,1))
+				vec = (vec * Vector3.new(-1,1,-1))
 				obj.Verts[coord.Vert] = {vec.X,vec.Y,vec.Z}
 			end
 		end
