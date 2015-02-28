@@ -191,7 +191,7 @@ function getTorsoCenter(userId)
 	local assets = {}
 	local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId="..userId)
 	local torsoAsset
-	for id in string.gmatch(avatar,"/?id=(%d+)") do
+	for asset in string.gmatch(avatar,"/?id=(%d+)") do
 		local info = JSON:DecodeJSON(http:DownloadString("http://api.roblox.com/marketplace/productinfo?assetId=" .. asset))
 		if info.AssetTypeId == 27 then
 			torsoAsset = asset
