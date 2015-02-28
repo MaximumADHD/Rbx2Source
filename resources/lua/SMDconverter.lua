@@ -278,12 +278,14 @@ function WriteCharacterSMD(userId)
 	print("Calculating Torso Origin")
 	torsoCenter = getTorsoCenter(userId)
 	if shouldFlipSkeleton(obj,torsoCenter) then
-		-- Negate the XZ axis relative to the torsoCenter
+		-- Negate the XZ axis relative to the actual torsoCenter.
+		local torsoName = groupData:GetRealName("Torso1")
+		local actualCenter = calculateCentroid(obj,torsoName) - torsoCenter
 		for _,face in pairs(obj.Faces) do
 			for _,coord in pairs(face.Coords) do
 				local vert = obj.Verts[coord.Vert]
-				local vec = Vector3.new(unpack(vert)) - torsoCenter
-				vec = (vec * Vector3.new(-1,1,-1)) + torsoCenter
+				local vec = Vector3.new(unpack(vert)) - actualCenter
+				vec = (vec * Vector3.new(-1,1,-1)) + actualCenter
 				obj.Verts[coord.Vert] = {vec.X,vec.Y,vec.Z}
 			end
 		end
