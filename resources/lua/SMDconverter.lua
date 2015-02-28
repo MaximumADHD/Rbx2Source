@@ -281,7 +281,8 @@ function WriteCharacterSMD(userId)
 		for _,face in pairs(obj.Faces) do
 			for _,coord in pairs(face.Coords) do
 				local vert = obj.Verts[coord.Vert]
-				obj.Verts[coord.Vert] = {-vert[1],vert[2],-vert[3]}
+				local x,y,z = unpack(vert)
+				obj.Verts[coord.Vert] = {x,-y,-z}
 			end
 		end
 	end
