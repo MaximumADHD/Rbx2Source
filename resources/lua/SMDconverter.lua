@@ -215,6 +215,7 @@ function getTorsoCenter(userId)
 		return Vector3.new(-offset.X,-offset.Y,-offset.Z)
 	else
 		print("Could not get torsoAsset")
+		return Vector3.new()
 	end
 end
 
@@ -277,12 +278,13 @@ function WriteCharacterSMD(userId)
 	print("Calculating Torso Origin")
 	torsoCenter = getTorsoCenter(userId)
 	if shouldFlipSkeleton(obj,torsoCenter) then
-		-- Negate the XZ axis
+		-- Negate the XZ axis relative to the torsoCenter
 		for _,face in pairs(obj.Faces) do
 			for _,coord in pairs(face.Coords) do
 				local vert = obj.Verts[coord.Vert]
-				local x,y,z = unpack(vert)
-				obj.Verts[coord.Vert] = {x,-y,-z}
+				local vec = Vector3.new(unpack(vert)) - torsoCenter
+				vec = (vec * Vector3.new(-1,1,-1)) + torsoCenter
+				obj.Verts[coord.Vert] = {vec.X,vec.Y,vec.Z}
 			end
 		end
 	end
