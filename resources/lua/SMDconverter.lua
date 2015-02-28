@@ -289,6 +289,7 @@ function WriteCharacterSMD(userId)
 				obj.Verts[coord.Vert] = {vec.X,vec.Y,vec.Z}
 			end
 		end
+		torsoCenter = getTorsoCenter(userId)
 	end
 	file:Add("end","","skeleton","time 0")
 	print("Writing Skeleton")
