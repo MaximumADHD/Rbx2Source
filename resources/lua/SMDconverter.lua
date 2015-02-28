@@ -277,7 +277,7 @@ function WriteCharacterSMD(userId)
 	end
 	print("Calculating Torso Origin")
 	torsoCenter = getTorsoCenter(userId)
-	if shouldFlipSkeleton(obj,torsoCenter) then
+	--[[if shouldFlipSkeleton(obj,torsoCenter) then
 		-- Negate the XZ axis
 		local actualCenter = calculateCentroid(obj)
 		for _,face in pairs(obj.Faces) do
@@ -288,7 +288,7 @@ function WriteCharacterSMD(userId)
 			end
 		end
 		torsoCenter = getTorsoCenter(userId)
-	end
+	end]]
 	file:Add("end","","skeleton","time 0")
 	print("Writing Skeleton")
 	for name,data in pairs(bones) do
