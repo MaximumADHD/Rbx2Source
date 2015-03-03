@@ -277,19 +277,14 @@ function WriteCharacterSMD(userId)
 	end
 	print("Calculating Torso Origin")
 	torsoCenter = getTorsoCenter(userId)
-	--[[if shouldFlipSkeleton(obj,torsoCenter) then
+	if shouldFlipSkeleton(obj,torsoCenter) then
 		-- Negate the XZ axis
-		local actualCenter = calculateCentroid(obj)
-		for _,face in pairs(obj.Faces) do
-			for _,coord in pairs(face.Coords) do
-				local vert = obj.Verts[coord.Vert]
-				local vec = Vector3.new(unpack(vert)) - actualCenter
-				vec = actualCenter + (vec * Vector3.new(-1,1,-1))
-				obj.Verts[coord.Vert] = {vec.X,vec.Y,vec.Z}
-			end
+		for i,vert in pairs(obj.Verts) do
+			local vec  = Vector3.new(unpack(vert)) * Vector3.new(-1,1,-1)
+			obj.Verts[i] = {vec.X,vec.Y,vec.Z}
 		end
 		torsoCenter = getTorsoCenter(userId)
-	end]]
+	end
 	file:Add("end","","skeleton","time 0")
 	print("Writing Skeleton")
 	for name,data in pairs(bones) do
