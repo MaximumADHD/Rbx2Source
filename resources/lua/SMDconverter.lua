@@ -284,6 +284,7 @@ function WriteCharacterSMD(userId)
 			obj.Verts[i] = {vec.X,vec.Y,vec.Z}
 		end
 		for i,norm in pairs(obj.Norms) do
+			error(tostring(norm))
 			local vec = Vector3.new(unpack(norm)) * Vector3.new(-1,1,-1)
 			obj.Norms[i] = {vec.X,vec.Y,vec.Z}
 		end
