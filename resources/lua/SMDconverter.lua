@@ -284,7 +284,7 @@ function WriteCharacterSMD(userId)
 			obj.Verts[i] = {vec.X,vec.Y,vec.Z}
 		end
 		for i,norm in pairs(obj.Norms) do
-			local vec = Vector3.new(unpack(vert)) * Vector3.new(-1,1,-1)
+			local vec = Vector3.new(unpack(norm)) * Vector3.new(-1,1,-1)
 			obj.Norms[i] = {vec.X,vec.Y,vec.Z}
 		end
 		-- Recalculate the torso center
