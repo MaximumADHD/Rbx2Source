@@ -229,7 +229,7 @@ local function getTorsoCenter(userId)
 		local leftArm = groupData:GetCentroid("LeftArm1")
 		local rightArm = groupData:GetCentroid("RightArm1")
 		local torsoOrigin = (leftArm+rightArm)/2
-		local offset = (torsoOrigin - groupData:GetCentroid("Torso1")))
+		local offset = (torsoOrigin - groupData:GetCentroid("Torso1"))
 		return Vector3.new(-offset.X,-offset.Y,-offset.Z)
 	else
 		return Vector3.new()
