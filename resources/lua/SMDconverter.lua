@@ -17,6 +17,7 @@ local tostring = tostring
 local tonumber = tonumber
 local pairs = pairs
 local table = table
+local string = string
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
