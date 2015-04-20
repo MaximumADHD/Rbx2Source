@@ -246,7 +246,7 @@ end
 -- File Writing Functions
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
-local function WriteCharacterSMD(userId)
+function WriteCharacterSMD(userId)
 	local data = ridiculousJSONAsync("http://www.roblox.com/avatar-thumbnail-3d/json?userId=" .. userId,"Url",true)
 	local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
 	local origin = getOrigin(data)
@@ -350,7 +350,7 @@ local function WriteCharacterSMD(userId)
 	return JSON:EncodeJSON(data)
 end
 
-local function WriteAssetSMD(assetId)
+function WriteAssetSMD(assetId)
 	local data = ridiculousJSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. assetId,"Url",true)
 	local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
 	local origin = getOrigin(data)
