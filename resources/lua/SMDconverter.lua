@@ -11,6 +11,13 @@ require("Vector3")
 require("ObjReader")
 require("JSON")
 
+local floor = math.floor
+local sqrt = math.sqrt
+local tostring = tostring
+local tonumber = tonumber
+local pairs = pairs
+local table = table
+
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
 local function print(...)
@@ -62,12 +69,6 @@ local bones =
 }
 
 local http = WebClient()
-local floor = math.floor
-local sqrt = math.sqrt
-local tostring = tostring
-local tonumber = tonumber
-local pairs = pairs
-local table = table
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 -- Utility functions for writing the SMD data.
