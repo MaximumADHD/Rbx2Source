@@ -20,27 +20,19 @@ if not Vector3 then
 	require("Vector3")
 end
 
-function readTags(file)
+local tonumber = tonumber
+local table = table
+
+local function readTags(file)
 	local tags = {}
 	for line in file:gmatch("[^\r\n]+") do
 		if #line > 0 then
-			local process = ""
-			local readChars = 0
 			local block = { Items = {} }
-			for char in line:gmatch(".") do
-				readChars = readChars + 1
-				if char == " " then
-					if not block.Tag then
-						block.Tag = process
-					else
-						table.insert(block.Items,tonumber(process) or process)
-					end
-					process = ""
+			for split in line:gmatch("([^ ]+)") do
+				if not block.Tag then
+					block.Tag = split
 				else
-					process = process .. char
-					if readChars == #line then
-						table.insert(block.Items,tonumber(process) or process)
-					end
+					table.insert(block.Items,tonumber(split) or split)
 				end
 			end
 			table.insert(tags,block)
