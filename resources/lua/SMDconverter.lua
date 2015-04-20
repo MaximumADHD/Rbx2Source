@@ -13,7 +13,7 @@ require("JSON")
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
-function print(...)
+local function print(...)
 	for _,v in pairs{...} do
 		Console.WriteLine(v)
 	end
@@ -62,28 +62,58 @@ local bones =
 }
 
 local http = WebClient()
+local floor = math.floor
+local sqrt = math.sqrt
+local tostring = tostring
+local tonumber = tonumber
+local pairs = pairs
+local table = table
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 -- Utility functions for writing the SMD data.
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
-function ridiculousJSONAsync(url,tag,decodeAgain)
+local function ridiculousJSONAsync(url,tag,decodeAgain)
 	local t = JSON:DecodeJSON(http:DownloadString(url))
 	local async = http:DownloadString(t[tag])
 	return (decodeAgain and JSON:DecodeJSON(async) or async)
 end
 
-function getGroupData(obj)
+local function avg(dump)
+	local a = 0
+	for _,v in pairs(dump) do
+		a = a + v
+	end
+	a = a / #dump
+	return a
+end
+
+local function calculateCentroid(obj,group)
+	local x,y,z = {},{},{}
+	for _,face in pairs(obj.Faces) do
+		if not group or face.Group == group then
+			for _,coord in pairs(face.Coords) do
+				local vert = obj.Verts[coord.Vert]
+				table.insert(x,vert[1]) 	
+				table.insert(y,vert[2])
+				table.insert(z,vert[3])
+			end
+		end
+	end
+	
+	return Vector3.new(avg(x),avg(y),avg(z))
+end
+
+local function getGroupData(obj)
 	local s = {}
 	s.setup = {};
 	s.groups = {};
+	local centroidCache = {}
 	for _,face in pairs(obj.Faces) do
 		if not s.setup[face.Group] then
 			s.setup[face.Group] = true;
+			s.groups[#s.groups+1] = face.Group
 		end
-	end
-	for k in pairs(s.setup) do
-		table.insert(s.groups,k)
 	end
 	function s:GetLink(group)
 		-- For some really dumb reason, recent versions of Roblox's 3D thumbnails have been using a new naming scheme.
@@ -105,7 +135,7 @@ function getGroupData(obj)
 	function s:GetRealName(name)
 		-- If the new group naming scheme is present, this function translates 
 		-- the old naming scheme into the new naming scheme.
-		if not s.setup["Player11"] then
+		if not s.setup.Player11 then
 			return name
 		else
 			local refs = {Head1 = 0, Torso1 = 1, LeftArm1 = 2, RightArm1 = 3, LeftLeg1 = 4, RightLeg1 = 5}
@@ -113,19 +143,26 @@ function getGroupData(obj)
 			return (ref and "Player1" .. #s.groups - refs[name] or name)
 		end
 	end
+	function s:GetCentroid(name)
+		local name = s:GetRealName(name)
+		if not centroidCache[name] then
+			centroidCache[name] = calculateCentroid(obj,name)
+		end
+		return centroidCache[name]
+	end
 	return s
 end
 
-function float(num)
+local function float(num)
 	-- Obj Files have some insanely low numbers sometimes.
-	if math.floor(num) == num then
+	if floor(num) == num then
 		return tostring(num)
 	else
-		local fix = math.floor(num*10000)/10000
-		if fix == math.floor(fix) then
+		local fix = floor(num*10000)/10000
+		if fix == floor(fix) then
 			return tostring(fix)
 		else
-			local fl = tostring(math.floor(fix))
+			local fl = tostring(floor(fix))
 			local str = tostring(fix)
 			while (#str - #fl) < 7 do
 				str = str .. "0"
@@ -135,7 +172,7 @@ function float(num)
 	end
 end
 
-function unwrap(this)
+local function unwrap(this)
 	local str = ""
 	for _,v in pairs(this) do
 		if str ~= "" then
@@ -146,34 +183,11 @@ function unwrap(this)
 	return str
 end
 
-function dumpVector3(v3)
+local function dumpVector3(v3)
 	return float(v3.X).." "..float(v3.Y).." "..float(v3.Z)
 end
 
-function calculateCentroid(obj,group)
-	local x,y,z = {},{},{}
-	for _,face in pairs(obj.Faces) do
-		if not group or face.Group == group then
-			for _,coord in pairs(face.Coords) do
-				local vert = obj.Verts[coord.Vert]
-				table.insert(x,vert[1]) 	
-				table.insert(y,vert[2])
-				table.insert(z,vert[3])
-			end
-		end
-	end
-	local function avg(dump)
-		local a = 0
-		for _,v in pairs(dump) do
-			a = a + v
-		end
-		a = a / #dump
-		return a
-	end
-	return Vector3.new(avg(x),avg(y),avg(z))
-end
-
-function shouldFlipSkeleton(obj,torsoCenter)
+local function shouldFlipSkeleton(obj,torsoCenter)
 	-- Recently, some meshes have been loading backwards.
 	-- Roblox wtf are you doing lol.
 	if not torsoCenter then
@@ -181,13 +195,19 @@ function shouldFlipSkeleton(obj,torsoCenter)
 	end
 	local groupData = getGroupData(obj)
 	local bonePos = torsoCenter + (bones.LeftArm1.Offset * meshScale);
-	local groupPos = calculateCentroid(obj,groupData:GetRealName("LeftArm1"))
+	local groupPos = groupData:GetCentroid("LeftArm1")
 	local off = groupPos-bonePos
-	local dist = math.sqrt(off.X^2+off.Y^2+off.Z^2)
+	local dist = sqrt(off.X^2+off.Y^2+off.Z^2)
 	return dist > 15
 end
 
-function getTorsoCenter(userId)
+local function getOrigin(data)
+	local a = Vector3.new(data.aabb.min.x,data.aabb.min.y,data.aabb.min.z)
+	local b = Vector3.new(data.aabb.max.x,data.aabb.max.y,data.aabb.max.z)
+	return (a+b)/2	
+end
+
+local function getTorsoCenter(userId)
 	local assets = {}
 	local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId="..userId)
 	local torsoAsset
@@ -201,38 +221,33 @@ function getTorsoCenter(userId)
 	if torsoAsset then
 		local data = ridiculousJSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. torsoAsset,"Url",true)
 		local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.obj,"Url")
-		local origin do
-			local a = Vector3.new(data.aabb.min.x,data.aabb.min.y,data.aabb.min.z)
-			local b = Vector3.new(data.aabb.max.x,data.aabb.max.y,data.aabb.max.z)
-			origin = (a+b)/2
-		end
+		local origin = getOrigin(data)
 		local obj = parseOBJ(objFile)
 		local groupData = getGroupData(obj)
-		local leftArm = calculateCentroid(obj,groupData:GetRealName("LeftArm1"))
-		local rightArm = calculateCentroid(obj,groupData:GetRealName("RightArm1"))
+		local leftArm = groupData:GetCentroid("LeftArm1")
+		local rightArm = groupData:GetCentroid("RightArm1")
 		local torsoOrigin = (leftArm+rightArm)/2
-		local offset = (torsoOrigin - calculateCentroid(obj,groupData:GetRealName("Torso1")))
+		local offset = (torsoOrigin - groupData:GetCentroid("Torso1")))
 		return Vector3.new(-offset.X,-offset.Y,-offset.Z)
 	else
-		print("Could not get torsoAsset")
 		return Vector3.new()
 	end
+end
+
+local function sortNumerical(a,b)
+	local a = tonumber(string.match(a,"(%d+) "));
+	local b = tonumber(string.match(b,"(%d+) "));
+	return a < b
 end
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 -- File Writing Functions
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
-function WriteCharacterSMD(userId)
-	print("Getting Avatar Data")
+local function WriteCharacterSMD(userId)
 	local data = ridiculousJSONAsync("http://www.roblox.com/avatar-thumbnail-3d/json?userId=" .. userId,"Url",true)
 	local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
-	local origin do
-		local a = Vector3.new(data.aabb.min.x,data.aabb.min.y,data.aabb.min.z)
-		local b = Vector3.new(data.aabb.max.x,data.aabb.max.y,data.aabb.max.z)
-		origin = (a+b)/2
-	end
-	print("Loading Obj File")
+	local origin = getOrigin(data)
 	local obj = parseOBJ(objFile,origin)
 	local file = NewFileWriter()
 	file:Add("version 1","","nodes")
@@ -240,12 +255,7 @@ function WriteCharacterSMD(userId)
 		local stack = (node.Link == 0) and -1 or 0
 		file:Queue(" "..node.Link .. [[ "]] .. node.Name .. [[" ]] .. stack)
 	end
-	file:SortAndDump(function (a,b)
-		local a = tonumber(string.match(a,"(%d+) "));
-		local b = tonumber(string.match(b,"(%d+) "));
-		return a < b
-	end)
-	print("Loading Bones")
+	file:SortAndDump(sortNumerical)
 	local groupData = getGroupData(obj)
 	local ignoreHash do
 		local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId=" .. userId)
@@ -259,7 +269,7 @@ function WriteCharacterSMD(userId)
 		end
 	end
 	local gearGroup do
-		if not groupData.setup["Player11"] and ignoreHash then
+		if not groupData.setup.Player11 and ignoreHash then
 			for i = 2,5 do
 				if not groupData.setup["Handle"..i] then
 					gearGroup = "Handle" .. (i-1)
@@ -268,14 +278,12 @@ function WriteCharacterSMD(userId)
 			end
 		end
 	end
-	print("Loading Materials")
 	local mtlData = {}
 	local mtlFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
 	local mtl = parseMTL(mtlFile)
 	for _,material in pairs(mtl) do
 		mtlData[material.Material] = material.HashTex
 	end
-	print("Calculating Torso Origin")
 	torsoCenter = getTorsoCenter(userId)
 	if shouldFlipSkeleton(obj,torsoCenter) then
 		-- Negate the XZ axis
@@ -291,7 +299,6 @@ function WriteCharacterSMD(userId)
 		torsoCenter = getTorsoCenter(userId)
 	end
 	file:Add("end","","skeleton","time 0")
-	print("Writing Skeleton")
 	for name,data in pairs(bones) do
 		name = groupData:GetRealName(name)
 		local o = (data.Offset * meshScale)
@@ -304,12 +311,7 @@ function WriteCharacterSMD(userId)
 		end
 		file:Queue(" "..data.Link .." " .. dumpVector3(o) .. " 0 0 0")
 	end
-	file:SortAndDump(function (a,b)
-		local a = tonumber(string.match(a,"(%d+) "));
-		local b = tonumber(string.match(b,"(%d+) "));
-		return a < b
-	end)
-	print("Writing Triangles")
+	file:SortAndDump(sortNumerical)
 	file:Add("end","","triangles")
 	for _,face in pairs(obj.Faces) do
 		if mtlData[face.Material] ~= ignoreHash and face.Group ~= "Humanoidrootpart1" and face.Group ~= gearGroup then
@@ -346,14 +348,10 @@ function WriteCharacterSMD(userId)
 	return JSON:EncodeJSON(data)
 end
 
-function WriteAssetSMD(assetId)
+local function WriteAssetSMD(assetId)
 	local data = ridiculousJSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. assetId,"Url",true)
 	local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
-	local origin do
-		local a = Vector3.new(data.aabb.min.x,data.aabb.min.y,data.aabb.min.z)
-		local b = Vector3.new(data.aabb.max.x,data.aabb.max.y,data.aabb.max.z)
-		origin = (a+b)/2
-	end
+	local origin = getOrigin(data)
 	local obj = parseOBJ(objFile,origin)
 	local file = NewFileWriter()
 	file:Add("version 1","","nodes"," 0 \"root\" -1","end","","skeleton","time 0"," 0 0 0 0 0 0 0","end","","triangles") 
