@@ -220,7 +220,7 @@ namespace RobloxToSourceEngine
                     scanLabel.Text = "Scanning for Source\nEngine Games...";
                     await Task.Delay(500);
                     List<string> sourceGames = new List<string>();
-                    foreach (string folder in Directory.GetDirectories(steamPath,"*.*",SearchOption.TopDirectoryOnly))
+                    foreach (string folder in Directory.GetDirectories(steamPath))
                     {
                         string myFolder = folder;
                         string game = Path.Combine(folder,"game");
@@ -232,7 +232,15 @@ namespace RobloxToSourceEngine
                         string studioMdl = Path.Combine(myFolder, "bin","studiomdl.exe");
                         if (File.Exists(studioMdl) && File.Exists(appId))
                         {
+                            string name = folder.Replace(steamPath + "\\", "");
+                            if (name.Length > 12)
+                            {
+                                name = name.Substring(0, 12) + "...";
+                            }
+                            Console.WriteLine(name);
+                            scanLabel.Text = "Found Game:\n" + name;
                             sourceGames.Add(myFolder);
+                            await Task.Delay(100);
                         }
                     }
                     List<string> gameInfoPaths = new List<string>();
@@ -249,7 +257,6 @@ namespace RobloxToSourceEngine
                             {
                                 if (!gameInfoPath.Contains("bin") && !gameInfoPath.Contains("movie"))
                                 {
-                                    Console.WriteLine("Adding " + gameInfoPath);
                                     gameInfoPaths.Add(gameInfoPath);
                                 }
                                 if (!gameInfoPath.Contains("Half-Life 2\\"))
