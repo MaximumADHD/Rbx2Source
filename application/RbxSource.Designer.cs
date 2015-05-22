@@ -59,6 +59,7 @@ namespace RobloxToSourceEngine
             this.gameList.Name = "gameList";
             this.gameList.Size = new System.Drawing.Size(109, 21);
             this.gameList.TabIndex = 2;
+            this.gameList.SelectedIndexChanged += new System.EventHandler(this.gameList_SelectedIndexChanged);
             // 
             // gameConfigTitle
             // 
@@ -112,7 +113,7 @@ namespace RobloxToSourceEngine
             this.inputUsername.Name = "inputUsername";
             this.inputUsername.Size = new System.Drawing.Size(84, 20);
             this.inputUsername.TabIndex = 9;
-            this.inputUsername.Text = "Shedletsky";
+            this.inputUsername.Text = "CloneTrooper1019";
             // 
             // assetDisplay
             // 
@@ -194,7 +195,7 @@ namespace RobloxToSourceEngine
             this.version.Name = "version";
             this.version.Size = new System.Drawing.Size(193, 26);
             this.version.TabIndex = 16;
-            this.version.Text = "Version 1.42\r\n© CloneTrooper1019, 2014-2015";
+            this.version.Text = "Version 1.50\r\n© CloneTrooper1019, 2014-2015";
             this.version.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             // 
             // compile

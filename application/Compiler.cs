@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 using System.IO;
 using System.Net;
 using Newtonsoft;
@@ -257,11 +258,7 @@ namespace RobloxToSourceEngine
             {
                 name = username.ToLower();
             }
-            name = name.Replace(" ", "_");
-            name = name.Replace(".", "_DOT_");
-            name = name.Replace(",", "");
-            name = name.Replace("'", "");
-            name = name.Replace(":", "");
+            name = Regex.Replace(name, @"[^\w\.@-]","_",RegexOptions.None,TimeSpan.FromSeconds(1.5));
             return name;
         }
 
@@ -321,23 +318,20 @@ namespace RobloxToSourceEngine
                 mtlData = FileHandler.JsonToNVC(mtlDataJson);
                 log("StudioMDL writing completed.", "Saving File as:", smdPath);
                 FileHandler.WriteToFileFromString(smdPath, file);
-                string physicsMdl = "physics_mdl.smd";
-                string physicsDir = Path.Combine(storagePath, "models", "physics_mdl.smd");
-                string physics = FileHandler.GetResource("models/" + physicsMdl);
-                FileHandler.WriteToFileFromString(physicsDir, physics);
                 string robloxian_root = Path.Combine(storagePath, "models", "robloxian_root.qc");
                 log("Loading robloxian_root.qc");
                 string root = FileHandler.GetResource("models/robloxian_root.qc");
-                FileHandler.WriteToFileFromString(robloxian_root, root);
                 log("Saved to: " + robloxian_root);
                 FileHandler.WriteToFileFromString(robloxian_root, root);
+                string collision = FileHandler.GetResource("models/collision.qc");
+                collision = collision.Replace("physics_mdl", name);
                 log("Writing QC file: " + qcPath);
                 FileWriter qcFile = new FileWriter();
-                qcFile.WriteCommand("upaxis", "Y");
                 qcFile.WriteCommand("modelname", "roblox/" + name + ".mdl");
                 qcFile.WriteCommand("bodygroup", name);
                 qcFile.WriteInBrackets(false, "studio " + inQuotes(name + ".smd"));
                 qcFile.WriteCommand("cdmaterials", "models/roblox/" + name + "/");
+                qcFile.WriteLine(collision);
                 qcFile.WriteCommand("include", "robloxian_root.qc");
                 FileHandler.WriteToFileFromString(qcPath, qcFile.ToString());
             }

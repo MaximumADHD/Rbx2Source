@@ -38,6 +38,8 @@
             this.gameinfotitle = new System.Windows.Forms.Label();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.doneButton = new System.Windows.Forms.Button();
+            this.scanSteam = new System.Windows.Forms.Button();
+            this.scanLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // gameList
@@ -45,7 +47,7 @@
             this.gameList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.gameList.Enabled = false;
             this.gameList.FormattingEnabled = true;
-            this.gameList.Location = new System.Drawing.Point(12, 14);
+            this.gameList.Location = new System.Drawing.Point(15, 12);
             this.gameList.Name = "gameList";
             this.gameList.Size = new System.Drawing.Size(121, 21);
             this.gameList.Sorted = true;
@@ -54,7 +56,7 @@
             // 
             // addButton
             // 
-            this.addButton.Location = new System.Drawing.Point(139, 14);
+            this.addButton.Location = new System.Drawing.Point(139, 12);
             this.addButton.Name = "addButton";
             this.addButton.Size = new System.Drawing.Size(46, 23);
             this.addButton.TabIndex = 1;
@@ -65,7 +67,7 @@
             // removeButton
             // 
             this.removeButton.Enabled = false;
-            this.removeButton.Location = new System.Drawing.Point(191, 14);
+            this.removeButton.Location = new System.Drawing.Point(191, 12);
             this.removeButton.Name = "removeButton";
             this.removeButton.Size = new System.Drawing.Size(55, 23);
             this.removeButton.TabIndex = 2;
@@ -75,7 +77,7 @@
             // 
             // inputStudioMDL
             // 
-            this.inputStudioMDL.Location = new System.Drawing.Point(12, 103);
+            this.inputStudioMDL.Location = new System.Drawing.Point(15, 120);
             this.inputStudioMDL.Name = "inputStudioMDL";
             this.inputStudioMDL.ReadOnly = true;
             this.inputStudioMDL.Size = new System.Drawing.Size(173, 20);
@@ -85,7 +87,7 @@
             // studiomdlSearch
             // 
             this.studiomdlSearch.Enabled = false;
-            this.studiomdlSearch.Location = new System.Drawing.Point(191, 103);
+            this.studiomdlSearch.Location = new System.Drawing.Point(191, 119);
             this.studiomdlSearch.Name = "studiomdlSearch";
             this.studiomdlSearch.Size = new System.Drawing.Size(30, 20);
             this.studiomdlSearch.TabIndex = 4;
@@ -96,7 +98,7 @@
             // studiomdltitle
             // 
             this.studiomdltitle.AutoSize = true;
-            this.studiomdltitle.Location = new System.Drawing.Point(12, 87);
+            this.studiomdltitle.Location = new System.Drawing.Point(12, 104);
             this.studiomdltitle.Name = "studiomdltitle";
             this.studiomdltitle.Size = new System.Drawing.Size(74, 13);
             this.studiomdltitle.TabIndex = 5;
@@ -104,7 +106,7 @@
             // 
             // inputGameInfo
             // 
-            this.inputGameInfo.Location = new System.Drawing.Point(12, 64);
+            this.inputGameInfo.Location = new System.Drawing.Point(15, 81);
             this.inputGameInfo.Name = "inputGameInfo";
             this.inputGameInfo.ReadOnly = true;
             this.inputGameInfo.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -115,7 +117,7 @@
             // gameinfotitle
             // 
             this.gameinfotitle.AutoSize = true;
-            this.gameinfotitle.Location = new System.Drawing.Point(12, 48);
+            this.gameinfotitle.Location = new System.Drawing.Point(12, 65);
             this.gameinfotitle.Name = "gameinfotitle";
             this.gameinfotitle.Size = new System.Drawing.Size(67, 13);
             this.gameinfotitle.TabIndex = 7;
@@ -127,7 +129,7 @@
             // 
             // doneButton
             // 
-            this.doneButton.Location = new System.Drawing.Point(12, 129);
+            this.doneButton.Location = new System.Drawing.Point(15, 146);
             this.doneButton.Name = "doneButton";
             this.doneButton.Size = new System.Drawing.Size(74, 20);
             this.doneButton.TabIndex = 12;
@@ -135,13 +137,33 @@
             this.doneButton.UseVisualStyleBackColor = true;
             this.doneButton.Click += new System.EventHandler(this.doneButton_Click);
             // 
+            // scanSteam
+            // 
+            this.scanSteam.Location = new System.Drawing.Point(139, 41);
+            this.scanSteam.Name = "scanSteam";
+            this.scanSteam.Size = new System.Drawing.Size(107, 34);
+            this.scanSteam.TabIndex = 13;
+            this.scanSteam.Text = "Scan for Games in Steam";
+            this.scanSteam.UseVisualStyleBackColor = true;
+            this.scanSteam.Click += new System.EventHandler(this.scanSteam_Click);
+            // 
+            // scanLabel
+            // 
+            this.scanLabel.AutoSize = true;
+            this.scanLabel.Location = new System.Drawing.Point(12, 41);
+            this.scanLabel.Name = "scanLabel";
+            this.scanLabel.Size = new System.Drawing.Size(0, 13);
+            this.scanLabel.TabIndex = 14;
+            // 
             // ConfigWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(251, 161);
+            this.ClientSize = new System.Drawing.Size(251, 190);
             this.ControlBox = false;
+            this.Controls.Add(this.scanLabel);
+            this.Controls.Add(this.scanSteam);
             this.Controls.Add(this.doneButton);
             this.Controls.Add(this.gameinfotitle);
             this.Controls.Add(this.inputGameInfo);
@@ -175,5 +197,7 @@
         private System.Windows.Forms.Label gameinfotitle;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private System.Windows.Forms.Button doneButton;
+        private System.Windows.Forms.Button scanSteam;
+        private System.Windows.Forms.Label scanLabel;
     }
 }

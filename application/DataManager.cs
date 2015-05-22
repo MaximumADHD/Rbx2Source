@@ -14,24 +14,6 @@ namespace RobloxToSourceEngine
     {
         public List<NameValueCollection> GetGameData()
         {
-            /*/
-             *  I use JSON to store the game information.
-             *  This function does the following:
-             * 
-             *   1. Create a new List<NameValueCollection>
-             *   2. Check to see if the GameData setting can be read by the JsonConverter
-             *     a. If it can, read the key/value entries of the ListDictionary
-             *        The value of each entry is another json string containing the following:
-             *        (The Name of the Game), 
-             *        (The gameinfo.txt path), 
-             *        (The studiomdl.exe path), 
-             *        (The vtex.exe path)
-             *     b. Then, we decode the Json value of the entry, and push its 
-             *        keys/values into a NameValueCollection
-             *     c. Finally, we add this new NameValueCollection into the 
-             *        List<NameValueCollection> and return it.
-             *   3. If we cant decode the json, then we just return the blank NameValueCollection.
-            /*/
             List<NameValueCollection> games = new List<NameValueCollection>();
             try
             {
@@ -45,7 +27,11 @@ namespace RobloxToSourceEngine
                     {
                         game.Add((string)dataPair.Key, (string)dataPair.Value);
                     }
-                    games.Add(game);
+                    string name = game["Name"];
+                    if (name != null)
+                    {
+                        games.Add(game);
+                    }
                 }
             }
             catch {} // I don't need to do anything with this, but its required. 
@@ -55,11 +41,8 @@ namespace RobloxToSourceEngine
 
         public void Save(string json)
         {
-            Console.WriteLine("Saving Data...");
-            Console.WriteLine(json);
             Properties.Settings.Default.GameData = json;
             Properties.Settings.Default.Save();
-            Console.WriteLine("Saved!");
         }
         public string GameDataToJSON(List<NameValueCollection> GameData)
         {
@@ -107,55 +90,59 @@ namespace RobloxToSourceEngine
                 Just read this to understand whats going on:
                 https://developer.valvesoftware.com/wiki/Gameinfo.txt
             /*/
-            bool foundGame = false;
             string gameName = "";
-            while (foundGame != true)
+            try
             {
-                gameInfo = gameInfo.Substring(1);
-                if (gameInfo.StartsWith("game") || gameInfo.StartsWith("\"game\""))
+                bool foundGame = false;
+                while (foundGame != true)
                 {
-                    foundGame = true;
-                    if (gameInfo.StartsWith("\"game\""))
+                    gameInfo = gameInfo.Substring(1);
+                    if (gameInfo.StartsWith("game") || gameInfo.StartsWith("\"game\""))
                     {
-                        gameInfo = gameInfo.Substring(6);
-                    }
-                }
-                if (foundGame)
-                {
-                    bool foundQuote1 = false;
-                    bool foundQuote2 = false;
-                    while (foundQuote1 == false || foundQuote2 == false)
-                    {
-                        gameInfo = gameInfo.Substring(1);
-                        string chunk = gameInfo.Substring(0, 1);
-                        if (chunk == "\"")
+                        foundGame = true;
+                        if (gameInfo.StartsWith("\"game\""))
                         {
-                            if (foundQuote1 != true)
-                            {
-                                foundQuote1 = true;
-                            }
-                            else if (foundQuote2 != true)
-                            {
-                                foundQuote2 = true;
-                            }
-                        }
-                        else
-                        {
-                            if (foundQuote1)
-                            {
-                                gameName = gameName + chunk;
-                            }
-
+                            gameInfo = gameInfo.Substring(6);
                         }
                     }
+                    if (foundGame)
+                    {
+                        bool foundQuote1 = false;
+                        bool foundQuote2 = false;
+                        while (foundQuote1 == false || foundQuote2 == false)
+                        {
+                            gameInfo = gameInfo.Substring(1);
+                            string chunk = gameInfo.Substring(0, 1);
+                            if (chunk == "\"")
+                            {
+                                if (foundQuote1 != true)
+                                {
+                                    foundQuote1 = true;
+                                }
+                                else if (foundQuote2 != true)
+                                {
+                                    foundQuote2 = true;
+                                }
+                            }
+                            else
+                            {
+                                if (foundQuote1)
+                                {
+                                    gameName = gameName + chunk;
+                                }
+                            }
+                        }
+                    }
                 }
+            }
+            catch
+            {
+                gameName = "ERROR";
             }
             return gameName;
         }
         public bool NeedsInit(NameValueCollection data)
         {
-            // Returns true if the data NameValueCollection contains a key named "ERROR"
-            // This signifies that the getData function couldn't find a game associated with a name.
             return data["ERROR"] != null;
         }
         public void PushChange(List<NameValueCollection> GameData, string gameName, string gameInfoDir, string studioMdlDir)

@@ -26,7 +26,7 @@ namespace RobloxToSourceEngine
 
         long assetId = 19027209;
         long currentAssetId = 19027209;
-        string userName = "Shedletsky";
+        string userName = "CloneTrooper1019";
 
         bool assetToggled = true;
         bool controlsActive = false;
@@ -291,6 +291,15 @@ namespace RobloxToSourceEngine
             else
             {
                 this.Enabled = true;
+            }
+        }
+
+        private void gameList_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (gameList.Text != "No games loaded!")
+            {
+                Properties.Settings.Default.SelectedGame = gameList.Text;
+                Properties.Settings.Default.Save();
             }
         }
     }

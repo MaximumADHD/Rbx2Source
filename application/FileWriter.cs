@@ -19,7 +19,14 @@ namespace RobloxToSourceEngine
         }
         public void WriteLine(string str)
         {
-            file = file + "\n" + str;
+            if (file != "")
+            {
+                file = file + "\n" + str;
+            }
+            else
+            {
+                Write(str);
+            }
         }
         public override string ToString()
         {
