@@ -255,7 +255,7 @@ namespace RobloxToSourceEngine
                             }
                             if (canProceed)
                             {
-                                if (!gameInfoPath.Contains("bin") && !gameInfoPath.Contains("movie"))
+                                if (!gameInfoPath.Contains("bin") && !gameInfoPath.Contains("movie") && !gameInfoPath.Contains("SDK"))
                                 {
                                     gameInfoPaths.Add(gameInfoPath);
                                 }
