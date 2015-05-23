@@ -214,6 +214,8 @@ namespace RobloxToSourceEngine
                 {
                     doneButton.Enabled = false;
                     gameList.Enabled = false;
+                    scanSteam.Enabled = false;
+                    addButton.Enabled = false;
                     Properties.Settings.Default.GameData = "{}"; // Quick Reset.
                     Properties.Settings.Default.SelectedGame = "";
                     Properties.Settings.Default.Save();
@@ -244,10 +246,15 @@ namespace RobloxToSourceEngine
                         }
                     }
                     List<string> gameInfoPaths = new List<string>();
+                    scanLabel.Text = "Checking Compatability\n";
+                    int currentA = 0;
                     foreach (string sourceGame in sourceGames)
                     {
+                        currentA++;
+                        scanLabel.Text = "Checking Compatability\n(" + currentA + "/" + sourceGames.Count + ") ";
                         foreach(string gameInfoPath in Directory.GetFiles(sourceGame,"gameinfo.txt",SearchOption.AllDirectories))
                         {
+                            scanLabel.Text = scanLabel.Text + "/";
                             bool canProceed = true;
                             if (gameInfoPath.Contains("SourceFilmmaker") && !gameInfoPath.Contains("usermod"))
                             {
@@ -264,8 +271,9 @@ namespace RobloxToSourceEngine
                                     break;
                                 }
                             }
-                            
+                            await Task.Delay(150); // Gotta make sure we don't exhaust the memory.
                         }
+                        await Task.Delay(100);
                     }
                     int current = 0;
                     foreach (string gameInfoPath in gameInfoPaths)
@@ -279,6 +287,10 @@ namespace RobloxToSourceEngine
                     scanLabel.Text = "";
                     doneButton.Enabled = true;
                     MessageBox.Show("Scan completed!\n" + current + " games were imported.","Success!",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
+                    doneButton.Enabled = true;
+                    gameList.Enabled = true;
+                    scanSteam.Enabled = true;
+                    addButton.Enabled = true;
                 }
             }
             catch

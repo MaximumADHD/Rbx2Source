@@ -16,9 +16,17 @@ namespace RobloxToSourceEngine
         static void fatalError(string msg)
         {
             MessageBox.Show(msg, "FATAL ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Application.Exit();
         }
 
         [STAThread]
+
+        static void Launch()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Rbx());
+        }
 
         static void Main()
         {
@@ -66,32 +74,45 @@ namespace RobloxToSourceEngine
             string currentVersion = settings["latestVersion"];
             string appData = Environment.GetEnvironmentVariable("AppData");
             string versionPath = Path.Combine(appData,"Rbx2SrcFiles","version");
-            string localVersion = File.ReadAllText(versionPath);
-            if (localVersion != currentVersion)
+            bool canLaunch = true;
+            try
             {
-                fatalError("You are running on an outdated version of the client.\nPlease run the launcher application and update.");
+                string localVersion = File.ReadAllText(versionPath);
+                if (localVersion != currentVersion)
+                {
+                    fatalError("You are running on an outdated version of the client.\nPlease run the launcher application and update.");
+                }
+                else
+                {
+                    try
+                    {
+                        string roblox = http.DownloadString("http://www.roblox.com");
+                        if (roblox.Contains("down for maintenance"))
+                        {
+                            // If the site is down, the API is down. No good reason for the application to run right now.
+                            canLaunch = false;
+                            fatalError("Roblox is down for maintenance!\nPlease try again later.");
+                            
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    catch (WebException)
+                    {
+                        canLaunch = false;
+                        fatalError("Something went wrong while trying to connect to roblox!\nPlease try again later.");
+                    }
+                }
             }
-            else
+            catch
             {
-                try
-                {
-                    string roblox = http.DownloadString("http://www.roblox.com");
-                    if (roblox.Contains("ROBLOX is down for maintenance"))
-                    {
-                        // If the site is down, the API is down. No good reason for the application to run right now.
-                        fatalError("Roblox is down for maintenance!\nPlease try again later.");
-                    }
-                    else
-                    {
-                        Application.EnableVisualStyles();
-                        Application.SetCompatibleTextRenderingDefault(false);
-                        Application.Run(new Rbx());
-                    }
-                }
-                catch (WebException)
-                {
-                    fatalError("Something went wrong while trying to connect to roblox!\nPlease try again later.");
-                }
+                MessageBox.Show("Could not determine current version.\n(Are you running the exe without the launcher files present?)", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);   
+            }
+            if (canLaunch)
+            {
+                Launch();
             }
         }
     }
