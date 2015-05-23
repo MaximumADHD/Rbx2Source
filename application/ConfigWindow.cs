@@ -26,11 +26,11 @@ namespace RobloxToSourceEngine
         public ConfigWindow()
         {
             InitializeComponent();
-            Properties.Settings.Default.SettingChanging += new System.Configuration.SettingChangingEventHandler(onSettingChanged);
         }
 
-        public void onSettingChanged(object sender, SettingChangingEventArgs e)
+        public void setGame(string game)
         {
+            DataManager.SetConfigValue("SelectedGame", game);
             updateGameList();
         }
 
@@ -84,8 +84,7 @@ namespace RobloxToSourceEngine
                 inChangeEvent = true;
                 if (gameList.Text != "")
                 {
-                    Properties.Settings.Default.SelectedGame = gameList.Text;
-                    Properties.Settings.Default.Save();
+                    setGame(gameList.Text);
                 }
                 gameList.Items.Clear();
                 studiomdlSearch.Enabled = (GameData.Count > 0);
@@ -93,7 +92,7 @@ namespace RobloxToSourceEngine
                 if (GameData.Count > 0)
                 {
                     gameList.Enabled = true;
-                    string selectedGame = Properties.Settings.Default.SelectedGame;
+                    string selectedGame = DataManager.GetConfigValue("SelectedGame");
                     foreach (NameValueCollection game in GameData)
                     {
                         string gameName = game["Name"];
@@ -189,7 +188,7 @@ namespace RobloxToSourceEngine
             DialogResult result = openFileDialog.ShowDialog();
             if (result == DialogResult.OK)
             {
-                string selectedGame = Properties.Settings.Default.SelectedGame;
+                string selectedGame = DataManager.GetConfigValue("SelectedGame");
                 List<NameValueCollection> GameData = DataManager.GetGameData();
                 NameValueCollection Game = DataManager.GetGameInfo(GameData, selectedGame);
                 DataManager.PushChange(GameData, Game["Name"], Game["GameInfoDir"], openFileDialog.FileName);
@@ -216,9 +215,9 @@ namespace RobloxToSourceEngine
                     gameList.Enabled = false;
                     scanSteam.Enabled = false;
                     addButton.Enabled = false;
-                    Properties.Settings.Default.GameData = "{}"; // Quick Reset.
-                    Properties.Settings.Default.SelectedGame = "";
-                    Properties.Settings.Default.Save();
+                    removeButton.Enabled = false;
+                    DataManager.SetConfigValue("GameData", "[]");
+                    DataManager.SetConfigValue("SelectedGame", "");
                     scanLabel.Text = "Scanning for Source\nEngine Games...";
                     await Task.Delay(500);
                     List<string> sourceGames = new List<string>();
@@ -287,10 +286,7 @@ namespace RobloxToSourceEngine
                     scanLabel.Text = "";
                     doneButton.Enabled = true;
                     MessageBox.Show("Scan completed!\n" + current + " games were imported.","Success!",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
-                    doneButton.Enabled = true;
-                    gameList.Enabled = true;
-                    scanSteam.Enabled = true;
-                    addButton.Enabled = true;
+                    this.Close();
                 }
             }
             catch

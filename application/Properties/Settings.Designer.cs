@@ -22,53 +22,5 @@ namespace RobloxToSourceEngine.Properties {
                 return defaultInstance;
             }
         }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("[]")]
-        public string GameData {
-            get {
-                return ((string)(this["GameData"]));
-            }
-            set {
-                this["GameData"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("None")]
-        public string SelectedGame {
-            get {
-                return ((string)(this["SelectedGame"]));
-            }
-            set {
-                this["SelectedGame"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("CloneTrooper1019/Rbx2Source/master/resources")]
-        public string GitPath {
-            get {
-                return ((string)(this["GitPath"]));
-            }
-            set {
-                this["GitPath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool DebugMode {
-            get {
-                return ((bool)(this["DebugMode"]));
-            }
-            set {
-                this["DebugMode"] = value;
-            }
-        }
     }
 }

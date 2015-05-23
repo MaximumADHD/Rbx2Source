@@ -222,7 +222,8 @@ namespace RobloxToSourceEngine
 
         private void goToViewer_Click(object sender = null, EventArgs e = null)
         {
-            NameValueCollection gameInfo = DataManager.GetGameInfo(GameData, Properties.Settings.Default.SelectedGame);
+            string currentGame = DataManager.GetConfigValue("SelectedGame");
+            NameValueCollection gameInfo = DataManager.GetGameInfo(GameData, currentGame);
             string studioMdlPath = gameInfo["StudioMdlDir"];
             string gamePath = Directory.GetParent(gameInfo["GameInfoDir"]).ToString();
             string binPath = Directory.GetParent(studioMdlPath).ToString();
@@ -269,7 +270,8 @@ namespace RobloxToSourceEngine
             string mdlPath = GetDirectory(storagePath, "models");
             NameValueCollection mtlData;
             string name = getPathName();
-            NameValueCollection gameInfo = DataManager.GetGameInfo(GameData, Properties.Settings.Default.SelectedGame);
+            string currentGame = DataManager.GetConfigValue("SelectedGame");
+            NameValueCollection gameInfo = DataManager.GetGameInfo(GameData, currentGame);
             string studioMdlPath = gameInfo["StudioMdlDir"];
             string gamePath = Directory.GetParent(gameInfo["GameInfoDir"]).ToString();
             string smdPath = Path.Combine(mdlPath, name + ".smd");

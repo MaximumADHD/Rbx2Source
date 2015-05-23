@@ -18,6 +18,7 @@ namespace RobloxToSourceEngine
     {
         bool useLocalPath = false;
         string localPath = "";
+        string defaultGitPath = "CloneTrooper1019/Rbx2Source/master/resources";
         WebClient http = new WebClient();
         public NameValueCollection JsonToNVC(string json)
         {
@@ -113,7 +114,7 @@ namespace RobloxToSourceEngine
             }
             else
             {
-                string path = "https://raw.githubusercontent.com/" + Properties.Settings.Default.GitPath + "/settings.json";
+                string path = "https://raw.githubusercontent.com/CloneTrooper1019/Rbx2Source/master/resources/settings.json";
                 json = http.DownloadString(path);
                 
             }
@@ -138,7 +139,7 @@ namespace RobloxToSourceEngine
             }
             else
             {
-                string dir = "https://raw.githubusercontent.com/" + Properties.Settings.Default.GitPath + "/" + path;
+                string dir = "https://raw.githubusercontent.com/CloneTrooper1019/Rbx2Source/master/resources/" + path;
                 contents = http.DownloadData(dir);
             }
             return contents;
@@ -162,7 +163,7 @@ namespace RobloxToSourceEngine
             }
             else
             {
-                string dir = "https://raw.githubusercontent.com/" + Properties.Settings.Default.GitPath + "/" + path;
+                string dir = "https://raw.githubusercontent.com/CloneTrooper1019/Rbx2Source/master/resources/" + path;
                 contents = http.DownloadString(dir);
             }
             return contents;

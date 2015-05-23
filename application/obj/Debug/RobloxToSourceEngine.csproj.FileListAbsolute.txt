@@ -104,7 +104,6 @@ C:\Users\Maxwell\Desktop\Rbx2Source\application\bin\Debug\lua51.dll
 C:\Users\Maxwell\Desktop\Rbx2Source\application\bin\Debug\LuaInterface.dll
 C:\Users\Maxwell\Desktop\Rbx2Source\application\bin\Debug\Newtonsoft.Json.dll
 C:\Users\Maxwell\Desktop\Rbx2Source\application\bin\Debug\Newtonsoft.Json.xml
-C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.csprojResolveAssemblyReference.cache
 C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.ConfigWindow.resources
 C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.Compiler.resources
 C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.Rbx.resources
@@ -128,3 +127,4 @@ R:\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.Properties.Resources.re
 R:\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.Rbx.en.resources
 R:\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.csproj.GenerateResource.Cache
 R:\Rbx2Source\application\obj\Debug\en\RobloxToSourceEngine.resources.dll
+C:\Users\Maxwell\Desktop\Rbx2Source\application\obj\Debug\RobloxToSourceEngine.csprojResolveAssemblyReference.cache

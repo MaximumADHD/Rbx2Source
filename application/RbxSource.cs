@@ -30,34 +30,45 @@ namespace RobloxToSourceEngine
 
         bool assetToggled = true;
         bool controlsActive = false;
+
         private void refreshGameList()
         {
             List<NameValueCollection> GameData = DataManager.GetGameData();
             setControlsActive(GameData.Count > 0);
             gameList.Items.Clear();
+            string selectedGame = DataManager.GetConfigValue("SelectedGame");
             foreach (NameValueCollection game in GameData)
             {
-                gameList.Items.Add(game["Name"]);
+                string name = game["Name"];
+                if (selectedGame.Length == 0)
+                {
+                    selectedGame = name;
+                    DataManager.SetConfigValue("SelectedGame",name);
+                }
+                gameList.Items.Add(name);
             }
-            gameList.Text = Properties.Settings.Default.SelectedGame;
+            gameList.Text = selectedGame;
             if (!gameList.Enabled)
             {
                 gameList.Items.Add("No games loaded!");
                 gameList.SelectedIndex = 0;
             }
         }
+
         private void showUserError(string errorMsg)
         {
             MessageBox.Show(errorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+
         public void onWindowClosed(object sender, FormClosedEventArgs e)
         {
-            this.Text = "Rbx to Src Converter Tool";
+            this.Text = "Rbx2Source Converter Tool";
             this.ControlBox = true;
             this.Enabled = true;
             this.Focus();
             refreshGameList();
         }
+
         public void setControlsActive(bool active)
         {
             gameList.Enabled = active;
@@ -70,11 +81,13 @@ namespace RobloxToSourceEngine
             toggleAssetId.Enabled = (active && !assetToggled);
             toggleUserId.Enabled = (active && assetToggled);
         }
+
         public Rbx()
         {
             InitializeComponent();
             refreshGameList();
         }
+
         public string userIdFromUsername(string username)
         {
             try
@@ -98,6 +111,7 @@ namespace RobloxToSourceEngine
                 return "-1";
             }
         }
+
         private void toggleAssetId_Click(object sender, EventArgs e)
         {
             assetToggled = true;
@@ -113,6 +127,7 @@ namespace RobloxToSourceEngine
 
             assetDisplay.ImageLocation = "http://www.roblox.com/Game/Tools/ThumbnailAsset.ashx?aid=" + assetId + "&fmt=png&wd=420&ht=420";
         }
+
         private void toggleUserId_Click(object sender, EventArgs e)
         {
             assetToggled = false;
@@ -238,7 +253,7 @@ namespace RobloxToSourceEngine
         {
             // Make sure that the game we're using is properly configured.
             List<NameValueCollection> GameData = DataManager.GetGameData();
-            string selectedGame = Properties.Settings.Default.SelectedGame;
+            string selectedGame = DataManager.GetConfigValue("SelectedGame");
             NameValueCollection GameInfo = DataManager.GetGameInfo(GameData, selectedGame);
             if (!DataManager.NeedsInit(GameInfo))
             {
@@ -296,10 +311,9 @@ namespace RobloxToSourceEngine
 
         private void gameList_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (gameList.Text != "No games loaded!")
+            if (gameList.Text != "No games loaded!" )
             {
-                Properties.Settings.Default.SelectedGame = gameList.Text;
-                Properties.Settings.Default.Save();
+                DataManager.SetConfigValue("SelectedGame",gameList.Text);
             }
         }
     }

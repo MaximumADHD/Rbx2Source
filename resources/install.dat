@@ -17,7 +17,6 @@ import       "LuaInterface.dll"
 import       "lua51.dll"
 import       "Newtonsoft.Json.dll"
 import       "RobloxToSourceEngine.exe"
-import       "RobloxToSourceEngine.exe.config"
 ----------------------------------------------------------------------------------------------------------------------------------------------
 setLocalPath "Rbx2SrcFiles/models"
 setGitPath   "models"

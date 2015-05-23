@@ -6,18 +6,58 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 using Newtonsoft;
 using Newtonsoft.Json;
 namespace RobloxToSourceEngine
 {
     class GameDataManager
     {
+        public string GetSaveFolder()
+        {
+            string appData = Environment.GetEnvironmentVariable("AppData");
+            string saveData = Path.Combine(appData, "Rbx2SrcFiles","application","config");
+            if (!Directory.Exists(saveData))
+            {
+                Directory.CreateDirectory(saveData);
+            }
+            return saveData;
+        }
+
+        public string GetConfigValue(string key, string defaultValue = "")
+        {
+            string saveFolder = GetSaveFolder();
+            string keyFile = Path.Combine(saveFolder, key);
+            if (!File.Exists(keyFile))
+            {
+                SetConfigValue(key, defaultValue);
+                return defaultValue;
+            }
+            else
+            {
+                return File.ReadAllText(keyFile);
+            }
+        }
+
+        public void SetConfigValue(string key, string value)
+        {
+            string currentKey = GetConfigValue(key);
+            if (!currentKey.Equals(value))
+            {
+                string saveFolder = GetSaveFolder();
+                string keyFile = Path.Combine(saveFolder, key);
+                File.WriteAllText(keyFile, value);
+                Console.WriteLine("Saved Key '" + key + "' as '" + value + "'");
+            }
+        }
+
         public List<NameValueCollection> GetGameData()
         {
             List<NameValueCollection> games = new List<NameValueCollection>();
             try
             {
-                ListDictionary gameDump = JsonConvert.DeserializeObject<ListDictionary>(Properties.Settings.Default.GameData);
+                string gameData = GetConfigValue("GameData","[]");
+                ListDictionary gameDump = JsonConvert.DeserializeObject<ListDictionary>(gameData);
                 foreach (DictionaryEntry entry in gameDump)
                 {
                     string json = (string)entry.Value;
@@ -41,9 +81,9 @@ namespace RobloxToSourceEngine
 
         public void Save(string json)
         {
-            Properties.Settings.Default.GameData = json;
-            Properties.Settings.Default.Save();
+            SetConfigValue("GameData", json);
         }
+
         public string GameDataToJSON(List<NameValueCollection> GameData)
         {
             // This is basically the same as the GetGameData function, but done in a reverse process.
@@ -141,10 +181,12 @@ namespace RobloxToSourceEngine
             }
             return gameName;
         }
+
         public bool NeedsInit(NameValueCollection data)
         {
             return data["ERROR"] != null;
         }
+
         public void PushChange(List<NameValueCollection> GameData, string gameName, string gameInfoDir, string studioMdlDir)
         {
             NameValueCollection game = this.GetGameInfo(GameData,gameName);
@@ -164,6 +206,7 @@ namespace RobloxToSourceEngine
             }
             this.Save(this.GameDataToJSON(GameData));
         }
+
         public void RemoveGameInfo(string gameName)
         {
             List<NameValueCollection> GameData = this.GetGameData();

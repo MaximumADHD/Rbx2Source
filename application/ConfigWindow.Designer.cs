@@ -80,14 +80,14 @@
             this.inputStudioMDL.Location = new System.Drawing.Point(15, 120);
             this.inputStudioMDL.Name = "inputStudioMDL";
             this.inputStudioMDL.ReadOnly = true;
-            this.inputStudioMDL.Size = new System.Drawing.Size(173, 20);
+            this.inputStudioMDL.Size = new System.Drawing.Size(195, 20);
             this.inputStudioMDL.TabIndex = 3;
             this.inputStudioMDL.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // studiomdlSearch
             // 
             this.studiomdlSearch.Enabled = false;
-            this.studiomdlSearch.Location = new System.Drawing.Point(191, 119);
+            this.studiomdlSearch.Location = new System.Drawing.Point(216, 120);
             this.studiomdlSearch.Name = "studiomdlSearch";
             this.studiomdlSearch.Size = new System.Drawing.Size(30, 20);
             this.studiomdlSearch.TabIndex = 4;
@@ -110,7 +110,7 @@
             this.inputGameInfo.Name = "inputGameInfo";
             this.inputGameInfo.ReadOnly = true;
             this.inputGameInfo.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.inputGameInfo.Size = new System.Drawing.Size(209, 20);
+            this.inputGameInfo.Size = new System.Drawing.Size(231, 20);
             this.inputGameInfo.TabIndex = 6;
             this.inputGameInfo.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
@@ -160,7 +160,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(251, 190);
+            this.ClientSize = new System.Drawing.Size(255, 178);
             this.ControlBox = false;
             this.Controls.Add(this.scanLabel);
             this.Controls.Add(this.scanSteam);

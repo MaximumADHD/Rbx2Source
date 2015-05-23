@@ -13,13 +13,13 @@ namespace RobloxToSourceEngine
 {
     static class Program
     {
+        
+
         static void fatalError(string msg)
         {
             MessageBox.Show(msg, "FATAL ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
             Application.Exit();
         }
-
-        [STAThread]
 
         static void Launch()
         {
@@ -27,6 +27,8 @@ namespace RobloxToSourceEngine
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Rbx());
         }
+
+        [STAThread]
 
         static void Main()
         {
@@ -92,11 +94,6 @@ namespace RobloxToSourceEngine
                             // If the site is down, the API is down. No good reason for the application to run right now.
                             canLaunch = false;
                             fatalError("Roblox is down for maintenance!\nPlease try again later.");
-                            
-                        }
-                        else
-                        {
-
                         }
                     }
                     catch (WebException)
