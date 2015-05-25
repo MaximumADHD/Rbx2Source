@@ -13,6 +13,7 @@ namespace RobloxToSourceEngine
 {
     class GameDataManager
     {
+
         public string GetSaveFolder()
         {
             string appData = Environment.GetEnvironmentVariable("AppData");
@@ -30,6 +31,7 @@ namespace RobloxToSourceEngine
             string keyFile = Path.Combine(saveFolder, key);
             if (!File.Exists(keyFile))
             {
+
                 SetConfigValue(key, defaultValue);
                 return defaultValue;
             }
@@ -41,14 +43,9 @@ namespace RobloxToSourceEngine
 
         public void SetConfigValue(string key, string value)
         {
-            string currentKey = GetConfigValue(key);
-            if (!currentKey.Equals(value))
-            {
-                string saveFolder = GetSaveFolder();
-                string keyFile = Path.Combine(saveFolder, key);
-                File.WriteAllText(keyFile, value);
-                Console.WriteLine("Saved Key '" + key + "' as '" + value + "'");
-            }
+            string saveFolder = GetSaveFolder();
+            string keyFile = Path.Combine(saveFolder, key);
+            File.WriteAllText(keyFile, value);
         }
 
         public List<NameValueCollection> GetGameData()
