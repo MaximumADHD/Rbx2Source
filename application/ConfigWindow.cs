@@ -270,7 +270,7 @@ namespace RobloxToSourceEngine
                                     break;
                                 }
                             }
-                            await Task.Delay(150); // Gotta make sure we don't exhaust the memory.
+                            await Task.Delay(250); // Gotta make sure we don't exhaust the memory.
                         }
                         await Task.Delay(100);
                     }
