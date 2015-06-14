@@ -22,7 +22,6 @@ end
 
 local tonumber = tonumber
 local table = table
-local unpack = unpack
 
 local function readTags(file)
 	local tags = {}
@@ -78,7 +77,19 @@ function parseOBJ(objFile,origin)
 			}
 			for _,pair in pairs(info) do
 				local triangle = {}
-				local v,t,n = pair:match("(%d*)/(%d*)/(%d*)")
+				local v,t,n
+				-- The face definition format has a weird pattern format. Can't really explain this.
+				-- (%S+) is used to match an individual number using the Lua String Pattern algorithm stuff.
+				if type(pair) == "number" then 
+					v = tonumber(pair)
+				elseif string.find(pair,"//") then
+					v,n = string.match(pair,"(%S+)//(%S+)")
+				else
+					v,t,n = string.match(pair,"(%S+)/(%S+)/(%S+)")
+					if not v or not t or not n then
+						v,t = string.match(pair,"(%S+)/(%S+)")
+					end
+				end
 				triangle.Vert = tonumber(v)
 				triangle.Tex = tonumber(t)
 				triangle.Norm = tonumber(n)	
