@@ -18,7 +18,6 @@ namespace RobloxToSourceEngine
     {
         bool useLocalPath = false;
         string localPath = "";
-        string defaultGitPath = "CloneTrooper1019/Rbx2Source/master/resources";
         WebClient http = new WebClient();
         public NameValueCollection JsonToNVC(string json)
         {

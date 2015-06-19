@@ -8,18 +8,18 @@ using LuaInterface;
 
 namespace RobloxToSourceEngine
 {
-    // This is a minor expansion to the LuaInterface.Lua class.
-    // Imports the CLRPackage library, so we can use the "using" statement.
-    // Also lets the lua script quickly load resource files from the github repository.
-    class LuaClass : Lua
+    public class LuaClass : Lua
     {
+        public event EventHandler<MessageOutEventArgs> MessageOut;
         private FileHandler FileHandler = new FileHandler();
         private bool loaded = false;
+
         private MethodBase GetMethodInfo(string methodName)
         {
             MethodBase info = this.GetType().GetMethod(methodName);
             return info;
         }
+
         public void require(string lib)
         {
             string contents = FileHandler.GetResource("lua/" + lib + ".lua");
@@ -37,10 +37,19 @@ namespace RobloxToSourceEngine
             }
         }
 
+        public void log(string text)
+        {
+            if (MessageOut != null)
+            {
+                MessageOut(this, new MessageOutEventArgs(text));
+            }
+        }
+
         public LuaClass()
         {
             require("CLRPackage");
             RegisterFunction("require", this, GetMethodInfo("require"));
+            RegisterFunction("log", this, GetMethodInfo("log"));
         }
     }
 }

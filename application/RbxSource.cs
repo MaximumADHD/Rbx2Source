@@ -96,8 +96,6 @@ namespace RobloxToSourceEngine
                 if (!userInfo.Contains("\"success\":false"))
                 {
                     NameValueCollection data = FileHandler.JsonToNVC(userInfo);
-                    Console.WriteLine(data);
-                    Console.WriteLine(data["Id"]);
                     return data["Id"];
                 }
                 else
@@ -177,7 +175,6 @@ namespace RobloxToSourceEngine
         private void enterUsername_Click(object sender, EventArgs e)
         {
             string userId = userIdFromUsername(inputUsername.Text);
-            Console.WriteLine("USERID: " + userId);
             if (userId != "-1")
             {
                 try

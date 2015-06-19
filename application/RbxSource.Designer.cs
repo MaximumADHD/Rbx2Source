@@ -195,7 +195,7 @@ namespace RobloxToSourceEngine
             this.version.Name = "version";
             this.version.Size = new System.Drawing.Size(193, 26);
             this.version.TabIndex = 16;
-            this.version.Text = "Version 1.54\r\n© CloneTrooper1019, 2014-2015";
+            this.version.Text = "Version 1.60\r\n© CloneTrooper1019, 2014-2015";
             this.version.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             // 
             // compile
@@ -234,7 +234,7 @@ namespace RobloxToSourceEngine
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "Rbx";
+            this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Rbx2Source";
             ((System.ComponentModel.ISupportInitialize)(this.assetDisplay)).EndInit();

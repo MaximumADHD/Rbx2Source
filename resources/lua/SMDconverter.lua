@@ -19,15 +19,18 @@ local pairs = pairs
 local table = table
 local string = string
 
-----------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function print(...)
-	for _,v in pairs{...} do
-		Console.WriteLine(v)
+	if log then
+		local list = {...}
+		local singleMsg = table.concat(list," ")
+		log(singleMsg)
+		Console.WriteLine(singleMsg)
 	end
 end
 
-----------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local bones = 
 {
@@ -71,14 +74,21 @@ local bones =
 
 local http = WebClient()
 
-----------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Utility functions for writing the SMD data.
-----------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-local function ridiculousJSONAsync(url,tag,decodeAgain)
+local function JSONAsync(url,tag,decodeAgain)
 	local t = JSON:DecodeJSON(http:DownloadString(url))
 	local async = http:DownloadString(t[tag])
 	return (decodeAgain and JSON:DecodeJSON(async) or async)
+end
+
+local function JSONAsyncWithLogs(url,tag,decodeAgain)
+	print("\tRetrieving content from roblox: ")
+	local _,L = url:find("http://www.roblox.com/")
+	print("\t  "..url:sub(L+1,70))
+	return JSONAsync(url,tag,decodeAgain)
 end
 
 local function avg(dump)
@@ -102,7 +112,6 @@ local function calculateCentroid(obj,group)
 			end
 		end
 	end
-	
 	return Vector3.new(avg(x),avg(y),avg(z))
 end
 
@@ -189,20 +198,6 @@ local function dumpVector3(v3)
 	return float(v3.X).." "..float(v3.Y).." "..float(v3.Z)
 end
 
-local function shouldFlipSkeleton(obj,torsoCenter)
-	-- Recently, some meshes have been loading backwards.
-	-- Roblox wtf are you doing lol.
-	if not torsoCenter then
-		torsoCenter = Vector3.new()
-	end
-	local groupData = getGroupData(obj)
-	local bonePos = torsoCenter + (bones.LeftArm1.Offset * meshScale);
-	local groupPos = groupData:GetCentroid("LeftArm1")
-	local off = groupPos-bonePos
-	local dist = sqrt(off.X^2+off.Y^2+off.Z^2)
-	return dist > 15
-end
-
 local function getOrigin(data)
 	local a = Vector3.new(data.aabb.min.x,data.aabb.min.y,data.aabb.min.z)
 	local b = Vector3.new(data.aabb.max.x,data.aabb.max.y,data.aabb.max.z)
@@ -221,8 +216,8 @@ local function getTorsoCenter(userId)
 		end
 	end
 	if torsoAsset then
-		local data = ridiculousJSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. torsoAsset,"Url",true)
-		local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.obj,"Url")
+		local data = JSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. torsoAsset,"Url",true)
+		local objFile = JSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.obj,"Url")
 		local origin = getOrigin(data)
 		local obj = parseOBJ(objFile)
 		local groupData = getGroupData(obj)
@@ -242,30 +237,45 @@ local function sortNumerical(a,b)
 	return a < b
 end
 
-----------------------------------------------------------------------------------------------------------------------------------------------
+local function printMeshInfo(obj)
+	print("Mesh Info Loaded!")
+	print("\tVerts: 	" .. #obj.Verts)
+	print("\tNorms: 	" .. #obj.Norms)
+	print("\tTexs: 	" .. #obj.Texs)
+	print("\tFaces:	" .. #obj.Faces)
+end
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- File Writing Functions
-----------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function WriteCharacterSMD(userId)
-	local data = ridiculousJSONAsync("http://www.roblox.com/avatar-thumbnail-3d/json?userId=" .. userId,"Url",true)
-	local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
+	print("Retrieving Mesh Info...")
+	local data = JSONAsyncWithLogs("http://www.roblox.com/avatar-thumbnail-3d/json?userId=" .. userId,"Url",true)
+	local objFile = JSONAsyncWithLogs("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
 	local origin = getOrigin(data)
+	print("Reading Obj File...")
 	local obj = parseOBJ(objFile,origin)
+	print("\tFinished reading!")
 	local file = NewFileWriter()
-	file:Add("version 1","","nodes")
+	file:Add("version 1","nodes")
 	for _,node in pairs(bones) do
 		local stack = (node.Link == 0) and -1 or 0
 		file:Queue(" "..node.Link .. [[ "]] .. node.Name .. [[" ]] .. stack)
 	end
 	file:SortAndDump(sortNumerical)
+	printMeshInfo(obj)
+	print("Checking for equipped gear...")
 	local groupData = getGroupData(obj)
 	local ignoreHash do
 		local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId=" .. userId)
 		local gearId = string.match(avatar,"?id=(%d+)&equipped=1")
 		if gearId then
-			local gearData = ridiculousJSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. gearId,"Url",true)
+			local gearData = JSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. gearId,"Url",true)
 			local hashTex = gearData.textures[1]
 			if hashTex then
+				print("\tIdentified an equipped gear in the character's mesh")
+				print("\tIgnoring Texture: "..hashTex)
 				ignoreHash = hashTex
 			end
 		end
@@ -275,33 +285,45 @@ function WriteCharacterSMD(userId)
 			for i = 2,5 do
 				if not groupData.setup["Handle"..i] then
 					gearGroup = "Handle" .. (i-1)
+					print("\tIdentified an equipped gear in the character's mesh")
+					print("\tIgnoring Mesh Group: "..gearGroup)
 					break
 				end
 			end
 		end
 	end
+	if not ignoreHash and not gearGroup then
+		print("\tNo gear was found.")
+	end
+	print("Loading Material references into memory...")
 	local mtlData = {}
-	local mtlFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
+	local mtlFile = JSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
 	local mtl = parseMTL(mtlFile)
 	for _,material in pairs(mtl) do
+		print("\t"..material.Material.." = "..material.HashTex)
 		mtlData[material.Material] = material.HashTex
 	end
-	torsoCenter = getTorsoCenter(userId)
-	if shouldFlipSkeleton(obj,torsoCenter) then
-		-- Negate the XZ axis
-		for i,vert in pairs(obj.Verts) do
-			local vec = Vector3.new(unpack(vert)) * Vector3.new(-1,1,-1)
-			obj.Verts[i] = {vec.X,vec.Y,vec.Z}
+	local torsoCenter do
+		print("Calculating Torso Center...")
+		if data.camera.direction.x < 0 then -- We're backwards!
+			print("\tMesh detected as backwards.")
+			-- Negate the XZ axis to flip the model.
+			for i,vert in pairs(obj.Verts) do
+				local vec = Vector3.new(unpack(vert)) * Vector3.new(-1,1,-1)
+				obj.Verts[i] = {vec.X,vec.Y,vec.Z}
+			end
+			for i,norm in pairs(obj.Norms) do
+				local vec = Vector3.new(unpack(norm)) * Vector3.new(-1,1,-1)
+				obj.Norms[i] = {vec.X,vec.Y,vec.Z}
+			end
+			print("\tFixed. Now actually calculating...")
 		end
-		for i,norm in pairs(obj.Norms) do
-			local vec = Vector3.new(unpack(norm)) * Vector3.new(-1,1,-1)
-			obj.Norms[i] = {vec.X,vec.Y,vec.Z}
-		end
-		-- Recalculate the torso center
 		torsoCenter = getTorsoCenter(userId)
 	end
-	file:Add("end","","skeleton","time 0")
+	file:Add("end","skeleton","time 0")
+	print("Writing Skeleton Data...")
 	for name,data in pairs(bones) do
+		local oldName = name
 		name = groupData:GetRealName(name)
 		local o = (data.Offset * meshScale)
 		if name == groupData:GetRealName("Torso1") then
@@ -312,10 +334,12 @@ function WriteCharacterSMD(userId)
 			torsoCenter = o
 		end
 		file:Queue(" "..data.Link .." " .. dumpVector3(o) .. " 0 0 0")
+		print("\t"..oldName.. "("..data.Link..") = " .. dumpVector3(o))
 	end
 	file:SortAndDump(sortNumerical)
 	file:Add("end","","triangles")
-	for _,face in pairs(obj.Faces) do
+	print("Writing Mesh Data...")
+	for count,face in pairs(obj.Faces) do
 		if mtlData[face.Material] ~= ignoreHash and face.Group ~= "Humanoidrootpart1" and face.Group ~= gearGroup then
 			file:Add(face.Material)
 			local link = groupData:GetLink(face.Group)
@@ -337,7 +361,11 @@ function WriteCharacterSMD(userId)
 				file:Add(" "..link .. " " .. unwrap(vert) .. " " .. unwrap(norm) .. " " .. unwrap(tex))
 			end
 		end
+		if (count%250) == 0 then
+			print("\t" .. (count/#obj.Faces) * 100 .. "% done (" .. count .. "/" .. #obj.Faces .. " faces written)")
+		end
 	end
+	print("Done!")
 	file:Add("end")
 	if mtlData[ignoreHash] then
 		mtlData[ignoreHash] = nil;
@@ -351,25 +379,35 @@ function WriteCharacterSMD(userId)
 end
 
 function WriteAssetSMD(assetId)
-	local data = ridiculousJSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. assetId,"Url",true)
-	local objFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
+	print("Retrieving Mesh Info...")
+	local data = JSONAsyncWithLogs("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. assetId,"Url",true)
+	local objFile = JSONAsyncWithLogs("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
 	local origin = getOrigin(data)
 	local obj = parseOBJ(objFile,origin)
-	local file = NewFileWriter()
-	file:Add("version 1","","nodes"," 0 \"root\" -1","end","","skeleton","time 0"," 0 0 0 0 0 0 0","end","","triangles") 
+	printMeshInfo(obj)
+	print("Loading Material references into memory...")
 	local mtlData = {}
-	local mtlFile = ridiculousJSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
+	local mtlFile = JSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
 	local mtl = parseMTL(mtlFile)
 	for _,material in pairs(mtl) do
+		print(material.Material.." = "..material.HashTex)
 		mtlData[material.Material] = material.HashTex
 	end
-	for _,face in pairs(obj.Faces) do
+	print("Writing Skeleton Data...")
+	print("\troot(0) = 0 0 0") -- Just fake this since we don't actually calculate anything here.
+	local file = NewFileWriter()
+	file:Add("version 1","nodes"," 0 \"root\" -1","end","skeleton","time 0"," 0 0 0 0 0 0 0","end","triangles") 
+	print("Writing Mesh Data...")
+	for count,face in pairs(obj.Faces) do
 		file:Add(face.Material)
 		for _,coord in pairs(face.Coords) do
 			local vert = obj.Verts[coord.Vert];
 			local norm = obj.Norms[coord.Norm];
 			local tex = obj.Texs[coord.Tex];
 			file:Add(" 0 " .. unwrap(vert) .. "  " .. unwrap(norm) .. "  " .. unwrap(tex))
+		end
+		if (count%250) == 0 then
+			print("\t" .. (count/#obj.Faces) * 100 .. "% done (" .. count .. "/" .. #obj.Faces .. " faces written)")
 		end
 	end
 	file:Add("end")
@@ -380,4 +418,4 @@ function WriteAssetSMD(assetId)
 	return JSON:EncodeJSON(data)
 end
 
-----------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

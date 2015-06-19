@@ -238,7 +238,6 @@ namespace RobloxToSourceEngine
                             {
                                 name = name.Substring(0, 12) + "...";
                             }
-                            Console.WriteLine(name);
                             scanLabel.Text = "Found Game:\n" + name;
                             sourceGames.Add(myFolder);
                             await Task.Delay(100);
@@ -279,7 +278,6 @@ namespace RobloxToSourceEngine
                     {
                         current++;
                         scanLabel.Text = "Loading Games (" + current + "/" + gameInfoPaths.Count + ")";
-                        Console.WriteLine(scanLabel.Text);
                         await Task.Delay(100);
                         addGame(gameInfoPath, false);
                     }

@@ -67,7 +67,7 @@ namespace RobloxToSourceEngine
             }
             catch
             {
-                Console.WriteLine("Couldn't block");
+                // Well thats a shame. I hope they don't try to pin it.
             }
             // Then make sure everything is up to date and the API is available.
             WebClient http = new WebClient();
