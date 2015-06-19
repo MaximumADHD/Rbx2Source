@@ -383,14 +383,16 @@ function WriteAssetSMD(assetId)
 	local data = JSONAsyncWithLogs("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. assetId,"Url",true)
 	local objFile = JSONAsyncWithLogs("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
 	local origin = getOrigin(data)
+	print("Reading Obj File...")
 	local obj = parseOBJ(objFile,origin)
+	print("\tFinished reading!")
 	printMeshInfo(obj)
 	print("Loading Material references into memory...")
 	local mtlData = {}
 	local mtlFile = JSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
 	local mtl = parseMTL(mtlFile)
 	for _,material in pairs(mtl) do
-		print(material.Material.." = "..material.HashTex)
+		print("\t"..material.Material.." = "..material.HashTex)
 		mtlData[material.Material] = material.HashTex
 	end
 	print("Writing Skeleton Data...")
