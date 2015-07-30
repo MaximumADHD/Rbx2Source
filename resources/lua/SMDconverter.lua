@@ -91,13 +91,18 @@ local function JSONAsyncWithLogs(url,tag,decodeAgain)
 	return JSONAsync(url,tag,decodeAgain)
 end
 
+local function safeDivide(a,b)
+	-- EY LETS NOT DIVIDE BY ZERO PLS
+	-- (How the hell did this even start happening? lol)
+	return b == 0 and b or a/b
+end
+
 local function avg(dump)
 	local a = 0
 	for _,v in pairs(dump) do
 		a = a + v
 	end
-	a = a / #dump
-	return a
+	return safeDivide(a,#dump)
 end
 
 local function calculateCentroid(obj,group)
@@ -327,14 +332,16 @@ function WriteCharacterSMD(userId)
 		name = groupData:GetRealName(name)
 		local o = (data.Offset * meshScale)
 		if name == groupData:GetRealName("Torso1") then
-			o = o + calculateCentroid(obj,name)
+			local centroid = calculateCentroid(obj,name)
+			print(tostring(centroid))
+			o = o + centroid
+			print(tostring(o),name)
 			if torsoCenter then
 				o = o - torsoCenter
 			end
 			torsoCenter = o
 		end
 		file:Queue(" "..data.Link .." " .. dumpVector3(o) .. " 0 0 0")
-		print("\t"..oldName.. "("..data.Link..") = " .. dumpVector3(o))
 	end
 	file:SortAndDump(sortNumerical)
 	file:Add("end","","triangles")
