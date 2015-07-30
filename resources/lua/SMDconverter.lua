@@ -332,16 +332,14 @@ function WriteCharacterSMD(userId)
 		name = groupData:GetRealName(name)
 		local o = (data.Offset * meshScale)
 		if name == groupData:GetRealName("Torso1") then
-			local centroid = calculateCentroid(obj,name)
-			print(tostring(centroid))
-			o = o + centroid
-			print(tostring(o),name)
+			o = o + calculateCentroid(obj,name)
 			if torsoCenter then
 				o = o - torsoCenter
 			end
 			torsoCenter = o
 		end
 		file:Queue(" "..data.Link .." " .. dumpVector3(o) .. " 0 0 0")
+		print("\t"..oldName.. "("..data.Link..") = " .. dumpVector3(o))
 	end
 	file:SortAndDump(sortNumerical)
 	file:Add("end","","triangles")
