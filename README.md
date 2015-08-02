@@ -19,17 +19,3 @@ All you have to do is:
 
 I'm hosting the source code of my application here. 
 Feel free to pitch any changes if needed.
-
-License
-=====================
-
-Yeah yeah... I know, I hate these too. 
-But I put a lot of work into this program so I need to make sure its used fairly.
-
-"Roblox to Source Engine Converter" by Max Gartung is licensed under a:
-
-Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
-http://creativecommons.org/licenses/by-nc-sa/4.0/
-
-Based on a work at https://github.com/CloneTrooper1019/Rbx2Source.
-
