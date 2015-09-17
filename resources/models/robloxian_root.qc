@@ -1,5 +1,5 @@
 $upaxis y
-$origin 0 -30 0
+$origin 0 -30 0 90
 $surfaceprop "flesh"
 $contents "solid"
 
