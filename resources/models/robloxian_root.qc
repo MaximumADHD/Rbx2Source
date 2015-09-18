@@ -12,7 +12,7 @@ $weightlist toolup_seq {
 	"Neck" 0
 }
 
-$sequence "ref" "reference_anim.smd" {
+$sequence "ragdoll" "reference_anim.smd" {
 	activity ACT_DIESIMPLE 1
 	fps 1 
 	loop
