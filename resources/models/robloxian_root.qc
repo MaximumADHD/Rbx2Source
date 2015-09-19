@@ -13,9 +13,8 @@ $weightlist toolup_seq {
 }
 
 $sequence "ragdoll" "reference_anim.smd" {
-	activity ACT_DIESIMPLE 1
-	fps 1 
-	loop
+	fps 1
+	activity ACT_DIERAGDOLL 1
 }
 
 $sequence "idle" "idle_anim.smd" {
