@@ -367,7 +367,7 @@ function WriteCharacterSMD(userId)
 			end
 		end
 		if (count%250) == 0 then
-			print("\t" .. (count/#obj.Faces) * 100 .. "% done (" .. count .. "/" .. #obj.Faces .. " faces written)")
+			print("\t" .. math.floor(((count/#obj.Faces)*100)+0.5) .. "% done (" .. count .. "/" .. #obj.Faces .. " faces written)")
 		end
 	end
 	print("Done!")
