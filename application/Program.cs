@@ -84,24 +84,6 @@ namespace RobloxToSourceEngine
                 {
                     fatalError("You are running on an outdated version of the client.\nPlease run the launcher application and update.");
                 }
-                else
-                {
-                    try
-                    {
-                        string roblox = http.DownloadString("http://www.roblox.com");
-                        if (roblox.Contains("down for maintenance"))
-                        {
-                            // If the site is down, the API is down. No good reason for the application to run right now.
-                            canLaunch = false;
-                            fatalError("Roblox is down for maintenance!\nPlease try again later.");
-                        }
-                    }
-                    catch (WebException)
-                    {
-                        canLaunch = false;
-                        fatalError("Something went wrong while trying to connect to roblox!\nPlease try again later.");
-                    }
-                }
             }
             catch
             {
