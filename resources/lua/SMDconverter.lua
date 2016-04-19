@@ -72,15 +72,15 @@ local bones =
 	}
 }
 
-local https = WebClient()
+local http = WebClient()
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Utility functions for writing the SMD data.
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function JSONAsync(url,tag,decodeAgain)
-	local t = JSON:DecodeJSON(https:DownloadString(url))
-	local async = https:DownloadString(t[tag])
+	local t = JSON:DecodeJSON(http:DownloadString(url))
+	local async = http:DownloadString(t[tag])
 	return (decodeAgain and JSON:DecodeJSON(async) or async)
 end
 
@@ -211,10 +211,10 @@ end
 
 local function getTorsoCenter(userId)
 	local assets = {}
-	local avatar = https:DownloadString("https://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId="..userId)
+	local avatar = http:DownloadString("https://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId="..userId)
 	local torsoAsset
 	for asset in string.gmatch(avatar,"/?id=(%d+)") do
-		local info = JSON:DecodeJSON(https:DownloadString("https://api.roblox.com/marketplace/productinfo?assetId=" .. asset))
+		local info = JSON:DecodeJSON(http:DownloadString("https://api.roblox.com/marketplace/productinfo?assetId=" .. asset))
 		if info.AssetTypeId == 27 then
 			torsoAsset = asset
 			break
@@ -273,7 +273,7 @@ function WriteCharacterSMD(userId)
 	print("Checking for equipped gear...")
 	local groupData = getGroupData(obj)
 	local ignoreHash do
-		local avatar = https:DownloadString("https://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId=" .. userId)
+		local avatar = http:DownloadString("https://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId=" .. userId)
 		local gearId = string.match(avatar,"?id=(%d+)&equipped=1")
 		if gearId then
 			local gearData = JSONAsync("https://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. gearId,"Url",true)
