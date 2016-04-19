@@ -72,21 +72,21 @@ local bones =
 	}
 }
 
-local http = WebClient()
+local https = WebClient()
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Utility functions for writing the SMD data.
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 local function JSONAsync(url,tag,decodeAgain)
-	local t = JSON:DecodeJSON(http:DownloadString(url))
-	local async = http:DownloadString(t[tag])
+	local t = JSON:DecodeJSON(https:DownloadString(url))
+	local async = https:DownloadString(t[tag])
 	return (decodeAgain and JSON:DecodeJSON(async) or async)
 end
 
 local function JSONAsyncWithLogs(url,tag,decodeAgain)
 	print("\tRetrieving content from roblox: ")
-	local _,L = url:find("http://www.roblox.com/")
+	local _,L = url:find("https://www.roblox.com/")
 	print("\t  "..url:sub(L+1,70))
 	return JSONAsync(url,tag,decodeAgain)
 end
@@ -211,18 +211,18 @@ end
 
 local function getTorsoCenter(userId)
 	local assets = {}
-	local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId="..userId)
+	local avatar = https:DownloadString("https://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId="..userId)
 	local torsoAsset
 	for asset in string.gmatch(avatar,"/?id=(%d+)") do
-		local info = JSON:DecodeJSON(http:DownloadString("http://api.roblox.com/marketplace/productinfo?assetId=" .. asset))
+		local info = JSON:DecodeJSON(https:DownloadString("https://api.roblox.com/marketplace/productinfo?assetId=" .. asset))
 		if info.AssetTypeId == 27 then
 			torsoAsset = asset
 			break
 		end
 	end
 	if torsoAsset then
-		local data = JSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. torsoAsset,"Url",true)
-		local objFile = JSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.obj,"Url")
+		local data = JSONAsync("https://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. torsoAsset,"Url",true)
+		local objFile = JSONAsync("https://www.roblox.com/thumbnail/resolve-hash/"..data.obj,"Url")
 		local origin = getOrigin(data)
 		local obj = parseOBJ(objFile)
 		local groupData = getGroupData(obj)
@@ -256,8 +256,8 @@ end
 
 function WriteCharacterSMD(userId)
 	print("Retrieving Mesh Info...")
-	local data = JSONAsyncWithLogs("http://www.roblox.com/avatar-thumbnail-3d/json?userId=" .. userId,"Url",true)
-	local objFile = JSONAsyncWithLogs("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
+	local data = JSONAsyncWithLogs("https://www.roblox.com/avatar-thumbnail-3d/json?userId=" .. userId,"Url",true)
+	local objFile = JSONAsyncWithLogs("https://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
 	local origin = getOrigin(data)
 	print("Reading Obj File...")
 	local obj = parseOBJ(objFile,origin)
@@ -273,10 +273,10 @@ function WriteCharacterSMD(userId)
 	print("Checking for equipped gear...")
 	local groupData = getGroupData(obj)
 	local ignoreHash do
-		local avatar = http:DownloadString("http://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId=" .. userId)
+		local avatar = https:DownloadString("https://www.roblox.com/Asset/AvatarAccoutrements.ashx?userId=" .. userId)
 		local gearId = string.match(avatar,"?id=(%d+)&equipped=1")
 		if gearId then
-			local gearData = JSONAsync("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. gearId,"Url",true)
+			local gearData = JSONAsync("https://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. gearId,"Url",true)
 			local hashTex = gearData.textures[1]
 			if hashTex then
 				print("\tIdentified an equipped gear in the character's mesh")
@@ -302,7 +302,7 @@ function WriteCharacterSMD(userId)
 	end
 	print("Loading Material references into memory...")
 	local mtlData = {}
-	local mtlFile = JSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
+	local mtlFile = JSONAsync("https://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
 	local mtl = parseMTL(mtlFile)
 	for _,material in pairs(mtl) do
 		print("\t"..material.Material.." = "..material.HashTex)
@@ -385,8 +385,8 @@ end
 
 function WriteAssetSMD(assetId)
 	print("Retrieving Mesh Info...")
-	local data = JSONAsyncWithLogs("http://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. assetId,"Url",true)
-	local objFile = JSONAsyncWithLogs("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
+	local data = JSONAsyncWithLogs("https://www.roblox.com/asset-thumbnail-3d/json?assetId=" .. assetId,"Url",true)
+	local objFile = JSONAsyncWithLogs("https://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")
 	local origin = getOrigin(data)
 	print("Reading Obj File...")
 	local obj = parseOBJ(objFile,origin)
@@ -394,7 +394,7 @@ function WriteAssetSMD(assetId)
 	printMeshInfo(obj)
 	print("Loading Material references into memory...")
 	local mtlData = {}
-	local mtlFile = JSONAsync("http://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
+	local mtlFile = JSONAsync("https://www.roblox.com/thumbnail/resolve-hash/"..data.mtl,"Url")
 	local mtl = parseMTL(mtlFile)
 	for _,material in pairs(mtl) do
 		print("\t"..material.Material.." = "..material.HashTex)
