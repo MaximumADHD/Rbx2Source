@@ -152,7 +152,6 @@ namespace RobloxToSourceEngine
 
         public NameValueCollection WriteAssetSMD(string assetId)
         {
-            string fuckyou = http.DownloadString("http://t7.rbxcdn.com/4d1a906336f09ab6dbdf5665973baeae");
             LuaClass lua = new LuaClass();
             lua.MessageOut += new EventHandler<MessageOutEventArgs>(onMessageOut);
             log("Loading Converter API...");
