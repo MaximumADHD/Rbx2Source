@@ -1,6 +1,7 @@
 ----------------------------------------------------------------------------------------------------------------------------------------------
 -- Max G, 2014
 -- This code is in charge of pulling .obj files from roblox.com and outputting them as .smd files.
+-- (as of 2016 this code is shit)
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
 import("System")
@@ -72,15 +73,17 @@ local bones =
 	}
 }
 
-local http = WebClient()
-
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Utility functions for writing the SMD data.
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+local http = WebClient()
+
 local function JSONAsync(url,tag,decodeAgain)
-	local t = JSON:DecodeJSON(http:DownloadString(url))
-	local async = http:DownloadString(t[tag])
+	-- Had to switch to an external downloadString function, due to some stupid gzip stuff.
+	local json = downloadString(url)
+	local t = JSON:DecodeJSON(json)
+	local async = downloadString(t[tag])
 	return (decodeAgain and JSON:DecodeJSON(async) or async)
 end
 
@@ -255,6 +258,10 @@ end
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 function WriteCharacterSMD(userId)
+	local characterInfo = JSON:DecodeJSON(downloadString("https://api.roblox.com/v1.1/avatar-fetch?placeId=0&userId=" .. userId))
+	if characterInfo.resolvedAvatarType == "R15" then
+		error("R15 characters are not supported yet!")
+	end
 	print("Retrieving Mesh Info...")
 	local data = JSONAsyncWithLogs("http://www.roblox.com/avatar-thumbnail-3d/json?userId=" .. userId,"Url",true)
 	local objFile = JSONAsyncWithLogs("http://www.roblox.com/thumbnail/resolve-hash/" .. data.obj,"Url")

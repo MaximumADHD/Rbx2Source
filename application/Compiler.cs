@@ -125,7 +125,7 @@ namespace RobloxToSourceEngine
         public void LuaError(LuaException e)
         {
             NameValueCollection settings = FileHandler.GetAppSettings();
-            fatalError("A fatal error occured! \n\nLine " + e.Message.Substring(17) + "\n" + e.StackTrace + "\nIf you can, please tweet this information to " + settings["twitterName"] + ", and it will be fixed ASAP.\n\nThanks!");
+            fatalError("A fatal error occured! \n\nLine " + e.Message.Substring(17) + "\n" + e.StackTrace);
         }
 
         public NameValueCollection WriteCharacterSMD(string userId)
@@ -144,12 +144,15 @@ namespace RobloxToSourceEngine
             catch (LuaException e)
             {
                 LuaError(e);
-                throw new Exception();
             }
+            NameValueCollection error = new NameValueCollection();
+            error.Add("ERROR", "");
+            return error;
         }
 
         public NameValueCollection WriteAssetSMD(string assetId)
         {
+            string fuckyou = http.DownloadString("http://t7.rbxcdn.com/4d1a906336f09ab6dbdf5665973baeae");
             LuaClass lua = new LuaClass();
             lua.MessageOut += new EventHandler<MessageOutEventArgs>(onMessageOut);
             log("Loading Converter API...");
@@ -164,8 +167,10 @@ namespace RobloxToSourceEngine
             catch (LuaException e)
             {
                 LuaError(e);
-                throw new Exception();
             }
+            NameValueCollection error = new NameValueCollection();
+            error.Add("ERROR", "");
+            return error;
         }
 
         public string inQuotes(string str)
@@ -246,6 +251,7 @@ namespace RobloxToSourceEngine
                 assetDisplay.ImageLocation = "http://www.roblox.com/Game/Tools/ThumbnailAsset.ashx?aid=" + id + "&fmt=png&wd=420&ht=420";
                 await Task.Delay(50);
                 NameValueCollection assetSMD = WriteAssetSMD(id);
+                if (assetSMD["ERROR"] == "") return;
                 string file = assetSMD["File"];
                 string mtlDataJson = assetSMD["MtlData"];
                 mtlData = FileHandler.JsonToNVC(mtlDataJson);
@@ -269,6 +275,7 @@ namespace RobloxToSourceEngine
                 assetDisplay.ImageLocation = "http://www.roblox.com/Thumbs/Avatar.ashx?width=420&height=420&format=png&userid=" + id;
                 await Task.Delay(50);
                 NameValueCollection characterSMD = WriteCharacterSMD(id);
+                if (characterSMD["ERROR"] == "") return;
                 string file = characterSMD["File"];
                 string[] animations = new string[] { "reference", "walk", "idle", "jump", "falling", "toolup" };
                 foreach (string animation in animations)

@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Net;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -45,11 +48,21 @@ namespace RobloxToSourceEngine
             }
         }
 
+        public string downloadString(string url)
+        {
+            WebClient client = new WebClient();
+            client.Headers[HttpRequestHeader.AcceptEncoding] = "gzip";
+            GZipStream responseStream = new GZipStream(client.OpenRead(url), CompressionMode.Decompress);
+            StreamReader reader = new StreamReader(responseStream);
+            return reader.ReadToEnd();
+        }
+
         public LuaClass()
         {
             require("CLRPackage");
             RegisterFunction("require", this, GetMethodInfo("require"));
             RegisterFunction("log", this, GetMethodInfo("log"));
+            RegisterFunction("downloadString", this, GetMethodInfo("downloadString"));
         }
     }
 }

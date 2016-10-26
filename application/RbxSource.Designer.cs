@@ -55,9 +55,10 @@ namespace RobloxToSourceEngine
             this.gameList.FormattingEnabled = true;
             this.gameList.Items.AddRange(new object[] {
             "No Games Added!"});
-            this.gameList.Location = new System.Drawing.Point(6, 161);
+            this.gameList.Location = new System.Drawing.Point(8, 198);
+            this.gameList.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.gameList.Name = "gameList";
-            this.gameList.Size = new System.Drawing.Size(109, 21);
+            this.gameList.Size = new System.Drawing.Size(144, 24);
             this.gameList.TabIndex = 2;
             this.gameList.SelectedIndexChanged += new System.EventHandler(this.gameList_SelectedIndexChanged);
             // 
@@ -68,17 +69,19 @@ namespace RobloxToSourceEngine
             this.gameConfigTitle.BackColor = System.Drawing.Color.Transparent;
             this.gameConfigTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gameConfigTitle.ForeColor = System.Drawing.Color.White;
-            this.gameConfigTitle.Location = new System.Drawing.Point(3, 145);
+            this.gameConfigTitle.Location = new System.Drawing.Point(4, 178);
+            this.gameConfigTitle.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.gameConfigTitle.Name = "gameConfigTitle";
-            this.gameConfigTitle.Size = new System.Drawing.Size(145, 13);
+            this.gameConfigTitle.Size = new System.Drawing.Size(208, 18);
             this.gameConfigTitle.TabIndex = 3;
             this.gameConfigTitle.Text = "Source Game to Compile For:";
             // 
             // configButton
             // 
-            this.configButton.Location = new System.Drawing.Point(121, 161);
+            this.configButton.Location = new System.Drawing.Point(161, 198);
+            this.configButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.configButton.Name = "configButton";
-            this.configButton.Size = new System.Drawing.Size(63, 21);
+            this.configButton.Size = new System.Drawing.Size(84, 26);
             this.configButton.TabIndex = 4;
             this.configButton.Text = "Edit";
             this.configButton.UseVisualStyleBackColor = true;
@@ -90,18 +93,20 @@ namespace RobloxToSourceEngine
             this.compileCharacter.BackColor = System.Drawing.Color.Transparent;
             this.compileCharacter.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.compileCharacter.ForeColor = System.Drawing.Color.White;
-            this.compileCharacter.Location = new System.Drawing.Point(3, 224);
+            this.compileCharacter.Location = new System.Drawing.Point(4, 276);
+            this.compileCharacter.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.compileCharacter.Name = "compileCharacter";
-            this.compileCharacter.Size = new System.Drawing.Size(132, 13);
+            this.compileCharacter.Size = new System.Drawing.Size(187, 18);
             this.compileCharacter.TabIndex = 7;
             this.compileCharacter.Text = "Compile Roblox Character:";
             // 
             // inputAssetID
             // 
             this.inputAssetID.Enabled = false;
-            this.inputAssetID.Location = new System.Drawing.Point(6, 201);
+            this.inputAssetID.Location = new System.Drawing.Point(8, 247);
+            this.inputAssetID.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.inputAssetID.Name = "inputAssetID";
-            this.inputAssetID.Size = new System.Drawing.Size(84, 20);
+            this.inputAssetID.Size = new System.Drawing.Size(111, 22);
             this.inputAssetID.TabIndex = 8;
             this.inputAssetID.Text = "19027209";
             this.inputAssetID.TextChanged += new System.EventHandler(this.inputAssetID_TextChanged);
@@ -109,9 +114,10 @@ namespace RobloxToSourceEngine
             // inputUsername
             // 
             this.inputUsername.Enabled = false;
-            this.inputUsername.Location = new System.Drawing.Point(6, 240);
+            this.inputUsername.Location = new System.Drawing.Point(8, 295);
+            this.inputUsername.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.inputUsername.Name = "inputUsername";
-            this.inputUsername.Size = new System.Drawing.Size(84, 20);
+            this.inputUsername.Size = new System.Drawing.Size(111, 22);
             this.inputUsername.TabIndex = 9;
             this.inputUsername.Text = "CloneTrooper1019";
             // 
@@ -122,9 +128,10 @@ namespace RobloxToSourceEngine
             this.assetDisplay.ErrorImage = ((System.Drawing.Image)(resources.GetObject("assetDisplay.ErrorImage")));
             this.assetDisplay.ImageLocation = "http://www.roblox.com/Game/Tools/ThumbnailAsset.ashx?aid=19027209&fmt=png&wd=420&" +
     "ht=420";
-            this.assetDisplay.Location = new System.Drawing.Point(190, 142);
+            this.assetDisplay.Location = new System.Drawing.Point(253, 175);
+            this.assetDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.assetDisplay.Name = "assetDisplay";
-            this.assetDisplay.Size = new System.Drawing.Size(91, 93);
+            this.assetDisplay.Size = new System.Drawing.Size(121, 114);
             this.assetDisplay.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.assetDisplay.TabIndex = 10;
             this.assetDisplay.TabStop = false;
@@ -132,9 +139,10 @@ namespace RobloxToSourceEngine
             // toggleAssetId
             // 
             this.toggleAssetId.Enabled = false;
-            this.toggleAssetId.Location = new System.Drawing.Point(121, 200);
+            this.toggleAssetId.Location = new System.Drawing.Point(161, 246);
+            this.toggleAssetId.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.toggleAssetId.Name = "toggleAssetId";
-            this.toggleAssetId.Size = new System.Drawing.Size(63, 20);
+            this.toggleAssetId.Size = new System.Drawing.Size(84, 25);
             this.toggleAssetId.TabIndex = 11;
             this.toggleAssetId.Text = "Use";
             this.toggleAssetId.UseVisualStyleBackColor = true;
@@ -143,9 +151,10 @@ namespace RobloxToSourceEngine
             // toggleUserId
             // 
             this.toggleUserId.Enabled = false;
-            this.toggleUserId.Location = new System.Drawing.Point(121, 240);
+            this.toggleUserId.Location = new System.Drawing.Point(161, 295);
+            this.toggleUserId.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.toggleUserId.Name = "toggleUserId";
-            this.toggleUserId.Size = new System.Drawing.Size(63, 20);
+            this.toggleUserId.Size = new System.Drawing.Size(84, 25);
             this.toggleUserId.TabIndex = 12;
             this.toggleUserId.Text = "Use";
             this.toggleUserId.UseVisualStyleBackColor = true;
@@ -157,18 +166,20 @@ namespace RobloxToSourceEngine
             this.compileAsset.BackColor = System.Drawing.Color.Transparent;
             this.compileAsset.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.compileAsset.ForeColor = System.Drawing.Color.White;
-            this.compileAsset.Location = new System.Drawing.Point(3, 185);
+            this.compileAsset.Location = new System.Drawing.Point(4, 228);
+            this.compileAsset.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.compileAsset.Name = "compileAsset";
-            this.compileAsset.Size = new System.Drawing.Size(95, 13);
+            this.compileAsset.Size = new System.Drawing.Size(131, 18);
             this.compileAsset.TabIndex = 6;
             this.compileAsset.Text = "Compile Hat/Gear:";
             // 
             // enterAssetId
             // 
             this.enterAssetId.Enabled = false;
-            this.enterAssetId.Location = new System.Drawing.Point(96, 201);
+            this.enterAssetId.Location = new System.Drawing.Point(128, 247);
+            this.enterAssetId.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.enterAssetId.Name = "enterAssetId";
-            this.enterAssetId.Size = new System.Drawing.Size(19, 20);
+            this.enterAssetId.Size = new System.Drawing.Size(25, 25);
             this.enterAssetId.TabIndex = 15;
             this.enterAssetId.Text = ">";
             this.enterAssetId.UseVisualStyleBackColor = true;
@@ -177,9 +188,10 @@ namespace RobloxToSourceEngine
             // enterUsername
             // 
             this.enterUsername.Enabled = false;
-            this.enterUsername.Location = new System.Drawing.Point(96, 240);
+            this.enterUsername.Location = new System.Drawing.Point(128, 295);
+            this.enterUsername.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.enterUsername.Name = "enterUsername";
-            this.enterUsername.Size = new System.Drawing.Size(19, 20);
+            this.enterUsername.Size = new System.Drawing.Size(25, 25);
             this.enterUsername.TabIndex = 15;
             this.enterUsername.Text = ">";
             this.enterUsername.UseVisualStyleBackColor = true;
@@ -191,19 +203,21 @@ namespace RobloxToSourceEngine
             this.version.BackColor = System.Drawing.Color.Transparent;
             this.version.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.version.ForeColor = System.Drawing.Color.White;
-            this.version.Location = new System.Drawing.Point(93, 266);
+            this.version.Location = new System.Drawing.Point(124, 327);
+            this.version.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.version.Name = "version";
-            this.version.Size = new System.Drawing.Size(193, 26);
+            this.version.Size = new System.Drawing.Size(253, 36);
             this.version.TabIndex = 16;
-            this.version.Text = "Version 1.60\r\n© CloneTrooper1019, 2014-2015";
+            this.version.Text = "Version 1.61\r\n© CloneTrooper1019, 2014-2016";
             this.version.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             // 
             // compile
             // 
             this.compile.Enabled = false;
-            this.compile.Location = new System.Drawing.Point(190, 241);
+            this.compile.Location = new System.Drawing.Point(253, 297);
+            this.compile.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.compile.Name = "compile";
-            this.compile.Size = new System.Drawing.Size(91, 20);
+            this.compile.Size = new System.Drawing.Size(121, 25);
             this.compile.TabIndex = 17;
             this.compile.Text = "Compile";
             this.compile.UseVisualStyleBackColor = true;
@@ -211,11 +225,11 @@ namespace RobloxToSourceEngine
             // 
             // Rbx
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::RobloxToSourceEngine.Properties.Resources.background;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.ClientSize = new System.Drawing.Size(293, 301);
+            this.ClientSize = new System.Drawing.Size(391, 370);
             this.Controls.Add(this.compile);
             this.Controls.Add(this.version);
             this.Controls.Add(this.enterUsername);
@@ -232,9 +246,10 @@ namespace RobloxToSourceEngine
             this.Controls.Add(this.gameList);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "Rbx2Source";
+            this.Name = "Rbx";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Rbx2Source";
             ((System.ComponentModel.ISupportInitialize)(this.assetDisplay)).EndInit();
