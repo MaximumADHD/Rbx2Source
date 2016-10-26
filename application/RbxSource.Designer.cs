@@ -56,7 +56,7 @@ namespace RobloxToSourceEngine
             this.gameList.Items.AddRange(new object[] {
             "No Games Added!"});
             this.gameList.Location = new System.Drawing.Point(8, 198);
-            this.gameList.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.gameList.Margin = new System.Windows.Forms.Padding(4);
             this.gameList.Name = "gameList";
             this.gameList.Size = new System.Drawing.Size(144, 24);
             this.gameList.TabIndex = 2;
@@ -79,7 +79,7 @@ namespace RobloxToSourceEngine
             // configButton
             // 
             this.configButton.Location = new System.Drawing.Point(161, 198);
-            this.configButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.configButton.Margin = new System.Windows.Forms.Padding(4);
             this.configButton.Name = "configButton";
             this.configButton.Size = new System.Drawing.Size(84, 26);
             this.configButton.TabIndex = 4;
@@ -104,7 +104,7 @@ namespace RobloxToSourceEngine
             // 
             this.inputAssetID.Enabled = false;
             this.inputAssetID.Location = new System.Drawing.Point(8, 247);
-            this.inputAssetID.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.inputAssetID.Margin = new System.Windows.Forms.Padding(4);
             this.inputAssetID.Name = "inputAssetID";
             this.inputAssetID.Size = new System.Drawing.Size(111, 22);
             this.inputAssetID.TabIndex = 8;
@@ -115,7 +115,7 @@ namespace RobloxToSourceEngine
             // 
             this.inputUsername.Enabled = false;
             this.inputUsername.Location = new System.Drawing.Point(8, 295);
-            this.inputUsername.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.inputUsername.Margin = new System.Windows.Forms.Padding(4);
             this.inputUsername.Name = "inputUsername";
             this.inputUsername.Size = new System.Drawing.Size(111, 22);
             this.inputUsername.TabIndex = 9;
@@ -129,7 +129,7 @@ namespace RobloxToSourceEngine
             this.assetDisplay.ImageLocation = "http://www.roblox.com/Game/Tools/ThumbnailAsset.ashx?aid=19027209&fmt=png&wd=420&" +
     "ht=420";
             this.assetDisplay.Location = new System.Drawing.Point(253, 175);
-            this.assetDisplay.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.assetDisplay.Margin = new System.Windows.Forms.Padding(4);
             this.assetDisplay.Name = "assetDisplay";
             this.assetDisplay.Size = new System.Drawing.Size(121, 114);
             this.assetDisplay.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -140,7 +140,7 @@ namespace RobloxToSourceEngine
             // 
             this.toggleAssetId.Enabled = false;
             this.toggleAssetId.Location = new System.Drawing.Point(161, 246);
-            this.toggleAssetId.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.toggleAssetId.Margin = new System.Windows.Forms.Padding(4);
             this.toggleAssetId.Name = "toggleAssetId";
             this.toggleAssetId.Size = new System.Drawing.Size(84, 25);
             this.toggleAssetId.TabIndex = 11;
@@ -152,7 +152,7 @@ namespace RobloxToSourceEngine
             // 
             this.toggleUserId.Enabled = false;
             this.toggleUserId.Location = new System.Drawing.Point(161, 295);
-            this.toggleUserId.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.toggleUserId.Margin = new System.Windows.Forms.Padding(4);
             this.toggleUserId.Name = "toggleUserId";
             this.toggleUserId.Size = new System.Drawing.Size(84, 25);
             this.toggleUserId.TabIndex = 12;
@@ -177,7 +177,7 @@ namespace RobloxToSourceEngine
             // 
             this.enterAssetId.Enabled = false;
             this.enterAssetId.Location = new System.Drawing.Point(128, 247);
-            this.enterAssetId.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.enterAssetId.Margin = new System.Windows.Forms.Padding(4);
             this.enterAssetId.Name = "enterAssetId";
             this.enterAssetId.Size = new System.Drawing.Size(25, 25);
             this.enterAssetId.TabIndex = 15;
@@ -189,7 +189,7 @@ namespace RobloxToSourceEngine
             // 
             this.enterUsername.Enabled = false;
             this.enterUsername.Location = new System.Drawing.Point(128, 295);
-            this.enterUsername.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.enterUsername.Margin = new System.Windows.Forms.Padding(4);
             this.enterUsername.Name = "enterUsername";
             this.enterUsername.Size = new System.Drawing.Size(25, 25);
             this.enterUsername.TabIndex = 15;
@@ -208,14 +208,14 @@ namespace RobloxToSourceEngine
             this.version.Name = "version";
             this.version.Size = new System.Drawing.Size(253, 36);
             this.version.TabIndex = 16;
-            this.version.Text = "Version 1.61\r\n© CloneTrooper1019, 2014-2016";
+            this.version.Text = "Version 1.62\n© CloneTrooper1019, 2014-2016";
             this.version.TextAlign = System.Drawing.ContentAlignment.BottomRight;
             // 
             // compile
             // 
             this.compile.Enabled = false;
             this.compile.Location = new System.Drawing.Point(253, 297);
-            this.compile.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.compile.Margin = new System.Windows.Forms.Padding(4);
             this.compile.Name = "compile";
             this.compile.Size = new System.Drawing.Size(121, 25);
             this.compile.TabIndex = 17;
@@ -246,7 +246,7 @@ namespace RobloxToSourceEngine
             this.Controls.Add(this.gameList);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "Rbx";
