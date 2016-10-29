@@ -6,10 +6,6 @@ $collisionjoints "physics_mdl.smd"
 	$rotdamping 1.5
 	$rootbone "Torso"
 	$concave
-	
-	$jointconstrain "Right Shoulder" x free 
-	$jointconstrain "Right Shoulder" y limit -10 10 0
-	$jointconstrain "Right Shoulder" z limit -10 10 0
 
 	$jointconstrain "Left Hip" x limit  -80 80 0
 	$jointconstrain "Left Hip" y limit  -10 10 0
@@ -26,4 +22,8 @@ $collisionjoints "physics_mdl.smd"
 	$jointconstrain "Left Shoulder" x free 
 	$jointconstrain "Left Shoulder" y limit  -10 10 0
 	$jointconstrain "Left Shoulder" z limit  -10 10 0
+		
+	$jointconstrain "Right Shoulder" x free 
+	$jointconstrain "Right Shoulder" y limit -10 10 0
+	$jointconstrain "Right Shoulder" z limit -10 10 0
 }
