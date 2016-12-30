@@ -221,9 +221,9 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="Rbx2Source.ico" />
-    <EmbeddedResource Include="Resources\Libraries\Newtonsoft.Json.dll" />
     <None Include="Resources\Images\Accoutrement_icon.png" />
     <None Include="Resources\Images\Humanoid_icon.png" />
+    <EmbeddedResource Include="Resources\Libraries\Newtonsoft.Json.dll" />
     <None Include="Resources\Images\Rbx2Source.png" />
     <EmbeddedResource Include="Resources\Images\BlankWhite.png" />
     <None Include="Resources\Images\BrokenPreview.png" />
