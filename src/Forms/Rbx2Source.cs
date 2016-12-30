@@ -1,0 +1,600 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Microsoft.Win32;
+
+using Rbx2Source.Assembler;
+using Rbx2Source.Compiler;
+using Rbx2Source.Properties;
+using Rbx2Source.Resources;
+using Rbx2Source.Web;
+
+
+namespace Rbx2Source
+{
+    public partial class Rbx2Source : Form
+    {
+        private class OutputLog
+        {
+            public string Message;
+            public FontStyle FontStyle;
+
+            public OutputLog()
+            {
+                Message = "";
+                FontStyle = FontStyle.Regular;
+            }
+
+            public OutputLog(string message, FontStyle style = FontStyle.Regular)
+            {
+                Message = message;
+                FontStyle = style;
+            }
+        }
+
+        public Launcher baseProcess;
+
+        private string steamPath = "";
+        private UserInfo currentUser;
+        private int currentAssetId = 19027209;
+
+        private Dictionary<string,GameInfo> sourceGames;
+        private GameInfo selectedGame;
+        private List<Control> CONTROLS_TO_DISABLE_WHEN_COMPILING;
+        private string latestCompiledModel;
+        private GameInfo latestCompiledOnGame;
+        private Dictionary<Control, string> Links;
+
+        private static List<OutputLog> outputQueue = new List<OutputLog>();
+        private static Dictionary<string, bool> progressQueue = new Dictionary<string, bool>();
+        private static bool updateProgressQueue = false;
+        private static string dumbHeaderLineThing = "---------------------------------------------------------------------------";
+        private string assetPreviewImage = "";
+        private static Image loadingImage = Properties.Resources.Loading;
+        private static Image brokenImage = Properties.Resources.BrokenPreview;
+
+        public Rbx2Source()
+        {
+            UserAvatar avatar = UserAvatar.FromUsername("CloneTrooper1019");
+            currentUser = avatar.UserInfo;
+            InitializeComponent();
+        }
+
+        public static void ScheduleTasks(params string[] tasks)
+        {
+            foreach (string task in tasks)
+                if (!progressQueue.ContainsKey(task))
+                    progressQueue[task] = false;
+        }
+
+        public static void MarkTaskCompleted(string completedTask)
+        {
+            if (progressQueue.ContainsKey(completedTask))
+            {
+                progressQueue[completedTask] = true;
+                updateProgressQueue = true;
+            }
+        }
+
+        private void WriteLine(string line)
+        {
+            int selectedIndex = output.Text.Length;
+            if (output.Text == "")
+                output.AppendText(line);
+            else
+                output.AppendText("\r\n" + line);
+        }
+
+        private static void PrintInternal(OutputLog log)
+        {
+            outputQueue.Add(log);
+        }
+
+        public static void Print(string msg)
+        {
+            OutputLog log = new OutputLog("\t" + msg);
+            PrintInternal(log);
+        }
+
+        public static void PrintHeader(string msg)
+        {
+            PrintInternal(new OutputLog("[" + msg.ToUpper() + "]", FontStyle.Bold));
+        }
+
+        public static void Print(string msgFormat, params object[] values)
+        {
+            for (int i = 0; i < values.Length; i++)
+            {
+                string match = "{" + i + "}";
+                msgFormat = msgFormat.Replace(match, values[i].ToString());
+            }
+            Print(msgFormat);
+        }
+
+        private void showError(string msg, bool fatal = false)
+        {
+            MessageBox.Show(msg, (fatal ? "FATAL " : "") + "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            if (fatal) Application.Exit();
+        }
+
+        private void gatherSourceGames()
+        {
+            sourceGames = new Dictionary<string, GameInfo>();
+
+            if (Directory.Exists(steamPath))
+            {
+                foreach (string game in Directory.GetDirectories(steamPath))
+                {
+                    if (!game.Contains("Source SDK"))
+                    {
+                        string bin = Path.Combine(game, "bin");
+                        bool usingAltRoute = false;
+                        if (!Directory.Exists(bin))
+                        {
+                            string altRoute = Path.Combine(game, "game", "bin");
+                            if (Directory.Exists(altRoute))
+                            {
+                                usingAltRoute = true;
+                                bin = altRoute;
+                            }
+                        }
+                        if (Directory.Exists(bin))
+                        {
+                            string studioMdl = Path.Combine(bin, "studiomdl.exe");
+                            if (File.Exists(studioMdl))
+                            {
+                                string path = "";
+                                if (usingAltRoute)
+                                {
+                                    string userMod = Path.Combine(game, "game", "usermod");
+                                    if (Directory.Exists(userMod))
+                                        path = Path.Combine(userMod, "gameinfo.txt");
+                                }
+                                foreach (string gameDir in Directory.GetDirectories(game))
+                                {
+                                    if (!gameDir.Equals(bin))
+                                    {
+                                        string gameInfoPath = Path.Combine(gameDir, "gameinfo.txt");
+                                        if (File.Exists(gameInfoPath))
+                                        {
+                                            path = gameInfoPath;
+                                            break;
+                                        }
+                                    }
+                                }
+                                try
+                                {
+                                    GameInfo info = new GameInfo(path);
+                                    if (info.ReadyToUse)
+                                    {
+                                        string gameName = info.GameName;
+                                        sourceGames[gameName] = info;
+                                    } 
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine("ERROR GETTING GAMEINFO");
+                                    Console.WriteLine(e.Message);
+                                    Console.WriteLine(e.StackTrace);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void updateDisplays()
+        {
+            assetPreview.Image = loadingImage;
+            if (compilerTypeSelect.Text == "Avatar")
+            {
+                assetPreviewImage = "https://www.roblox.com/headshot-thumbnail/json?width=420&height=420&format=png&userId=" + currentUser.Id;
+                compilerInput.Text = "Username:";
+                compilerInputField.Text = currentUser.Username;
+                compilerTypeIcon.Image = Properties.Resources.Humanoid_icon;
+            }
+            else if (compilerTypeSelect.Text == "Accessory/Gear")
+            {
+                assetPreviewImage = "https://www.roblox.com/asset-thumbnail/json?width=420&height=420&format=png&assetId=" + currentAssetId;
+                compilerInput.Text = "AssetId:";
+                compilerInputField.Text = currentAssetId.ToString();
+                compilerTypeIcon.Image = Properties.Resources.Accoutrement_icon;
+            }
+        }
+
+        private bool TrySetUsername(string userName)
+        {
+            UserAvatar avatar = UserAvatar.FromUsername(userName);
+            if (avatar.UserExists)
+            {
+                Settings.SetSetting("Username", userName, true);
+                assetPreview.Image = loadingImage;
+                currentUser = avatar.UserInfo;
+                return true;
+            }
+            else
+            {
+                showError("This user does not exist!");
+                return false;
+            }
+        }
+
+        private bool TrySetAssetId(object value)
+        {
+            string text = value.ToString();
+            int assetId = -1;
+            int.TryParse(text, out assetId);
+            if (assetId > 0)
+            {
+                Asset asset = null;
+                try
+                {
+                    asset = Asset.Get(assetId);
+                }
+                catch
+                {
+                    showError("This AssetId isn't configured correctly on ROBLOX's end.\n\nThis error usually happens if you input a very old AssetId that doesn't exist on their servers.\n\nTry something else!");
+                }
+                if (asset != null)
+                {
+                    AssetType assetType = asset.AssetType;
+                    bool isAccessory = AssetGroups.IsTypeInGroup(assetType, AssetGroup.Accessories);
+                    if (isAccessory || assetType == AssetType.Gear)
+                    {
+                        assetPreview.Image = loadingImage;
+                        Settings.SetSetting("AssetId", assetId, true);
+                        currentAssetId = assetId;
+                        return true;
+                    }
+                    else
+                        showError("AssetType received: " + Enum.GetName(typeof(AssetType), assetType) + "\n\nExpected one of the following asset types:\n* Accessory\n* Gear\n\nTry again!");
+                }
+            }
+            else showError("Invalid AssetId!");
+            return false;
+        }
+
+        private void compilerInputField_Enter(object sender, EventArgs e)
+        {
+            compilerInputField.Clear();
+        }
+
+        private async void compilerInputField_Leave(object sender = null, EventArgs e = null)
+        {
+            if (compilerInputField.Enabled)
+            {
+                compilerInputField.Enabled = false;
+                compilerTypeSelect.Enabled = false;
+                if (compilerTypeSelect.Text == "Avatar")
+                    TrySetUsername(compilerInputField.Text);
+                else if (compilerTypeSelect.Text == "Accessory/Gear")
+                    TrySetAssetId(compilerInputField.Text);
+
+                updateDisplays();
+                await Task.Delay(1);
+                compilerTypeSelect.Enabled = true;
+                compilerInputField.Enabled = true;
+            }
+        }
+
+        private void compilerInputField_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                ActiveControl = null;
+            }
+        }
+
+        private async Task UpdateCompilerState()
+        {
+            while (outputQueue.Count > 0)
+            {
+                OutputLog next = outputQueue[0];
+                outputQueue.RemoveAt(0);
+                if (!output.IsDisposed) // Prevents a crash if the user quits during the compilation.
+                {
+                    output.SelectionFont = new Font(output.Font, next.FontStyle);
+                    WriteLine(next.Message);
+                }
+            }
+
+            if (updateProgressQueue)
+            {
+                int tasksDone = 0;
+                int totalTasks = progressQueue.Keys.Count;
+
+                foreach (string task in progressQueue.Keys)
+                {
+                    bool completed = progressQueue[task];
+                    if (completed) tasksDone++;
+                }
+
+                double progress = ((double)tasksDone / (double)totalTasks) * 100.0;
+                compileProgress.Value = (int)progress;
+                updateProgressQueue = false;
+            }
+
+            await Task.Delay(1);
+        }
+
+        private async void LogException(Task brokenTask, string context)
+        {
+            string baseErrorMsg = "Failed to " + context + " model!";
+            string errorMsg = baseErrorMsg;
+            string exceptionMsg = "No message was given.";
+            AggregateException aException = brokenTask.Exception;
+            if (aException != null)
+            {
+                Exception exception = aException.InnerException;
+                if (exception != null)
+                {
+                    exceptionMsg = exception.Message;
+                    errorMsg += "\nError Message: " + exceptionMsg + "\n\nIf this error message has happened multiple times, and doesn't seem deliberate, you should totally send a screenshot of this error message to @MaxGee1019 on Twitter.\n\nSTACK TRACE:\n" + dumbHeaderLineThing + "\n" + exception.StackTrace + "\n" + dumbHeaderLineThing;
+                }
+            }
+
+            Print(baseErrorMsg);
+            Print("Message:" + exceptionMsg);
+
+            await UpdateCompilerState();
+            showError(errorMsg);
+            compileProgress.Value = 0;
+        }
+
+        private async void compile_Click(object sender, EventArgs e)
+        {
+            Stopwatch trackCompileTime = new Stopwatch();
+            trackCompileTime.Start();
+
+            output.Text = "";
+            outputQueue.Clear();
+            compileProgress.Value = 0;
+
+            foreach (Control control in CONTROLS_TO_DISABLE_WHEN_COMPILING)
+                control.Enabled = false;
+
+            Compiler.UseWaitCursor = true;
+            ModelCompiler.PreScheduleTasks();
+
+            IAssembler assembler;
+            object metadata;
+
+            if (compilerTypeSelect.Text == "Avatar")
+            {
+                assembler = new CharacterAssembler();
+                metadata = UserAvatar.FromUsername(currentUser.Username);
+            }
+            else
+            {
+                assembler = new CatalogItemAssembler();
+                metadata = currentAssetId;
+            }
+
+            Task<AssemblerData> buildModel = Task.Run(() => assembler.Assemble(metadata));
+
+            while (!buildModel.IsCompleted)
+                await UpdateCompilerState();
+
+            if (buildModel.IsFaulted)
+                LogException(buildModel,"assemble");
+            else
+            {
+                AssemblerData data = buildModel.Result;
+                Task<string> compileModel = ModelCompiler.Compile(selectedGame, data);
+
+                while (!compileModel.IsCompleted)
+                    await UpdateCompilerState();
+
+                if (compileModel.IsFaulted)
+                    LogException(compileModel, "compile");
+                else
+                {
+                    PrintHeader("FINISHED!");
+                    trackCompileTime.Stop();
+                    Print("Assembled in {0} seconds.", trackCompileTime.Elapsed.TotalSeconds);
+                    await UpdateCompilerState();
+                    compileModel.Wait();
+
+                    latestCompiledModel = compileModel.Result;
+                    latestCompiledOnGame = selectedGame;
+                }
+            }
+
+            foreach (Control control in CONTROLS_TO_DISABLE_WHEN_COMPILING)
+                control.Enabled = true;
+
+            Compiler.UseWaitCursor = false;
+            progressQueue.Clear();
+
+            if (trackCompileTime.IsRunning)
+                trackCompileTime.Stop();
+        }
+
+        private void viewCompiledModel_Click(object sender, EventArgs e)
+        {
+            if (latestCompiledOnGame != null)
+            {
+                string hlmvPath = latestCompiledOnGame.HLMVPath;
+                if (File.Exists(hlmvPath))
+                {
+                    ThirdPartyUtility hlmv = new ThirdPartyUtility(hlmvPath);
+                    Console.WriteLine(latestCompiledModel);
+                    hlmv.AddParameter("-game", latestCompiledOnGame.GameDirectory);
+                    hlmv.AddParameter("-model", latestCompiledModel);
+                    hlmv.RunSimple();
+                }
+                else showError("This Source Engine game doesn't have a model viewer for some reason :P");
+            }
+            else
+            {
+                showError("No model has compiled successfully yet!");
+                viewCompiledModel.Enabled = false;
+            }
+        }
+        
+        private void loadComboBox(ComboBox comboBox, string settingsKey, int defaultValue = 0)
+        {
+            string value = Settings.GetSetting<string>(settingsKey);
+            if (value != null && comboBox.Items.Contains(value))
+                comboBox.Text = value;
+            else
+                comboBox.SelectedIndex = defaultValue;
+        }
+
+        private void compilerTypeSelect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Settings.SetSetting("CompilerType", compilerTypeSelect.Text, true);
+            updateDisplays();
+        }
+
+        private void gameSelect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            GameInfo game = sourceGames[gameSelect.Text];
+            selectedGame = game;
+            if (game.GameIcon != null)
+                gameIcon.Image = game.GameIcon.ToBitmap();
+            else
+                gameIcon.Image = gameIcon.InitialImage;
+
+            Settings.SetSetting("SelectedGame", gameSelect.Text, true);
+        }
+
+        private void onLinkClicked(object sender, EventArgs e)
+        {
+            Control control = (Control)sender;
+            if (control != null && Links.ContainsKey(control))
+            {
+                string link = Links[control];
+                Process.Start(link);
+            }
+        }
+
+        private void Rbx2Source_Load(object sender, EventArgs e)
+        {
+            string steamDir;
+
+            try
+            {
+                RegistryKey classesRoot = Registry.ClassesRoot;
+                RegistryKey steam = classesRoot.OpenSubKey(@"SOFTWARE\Valve\Steam");
+                steamDir = (string)steam.GetValue("SteamPath");
+                if (steamDir == null)
+                    throw new Exception();
+            }
+            catch
+            {
+                string programFilesX86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+                steamDir = Path.Combine(programFilesX86, "Steam");
+                if (!Directory.Exists(steamDir))
+                {
+                    string programFiles = Environment.GetEnvironmentVariable("ProgramFiles");
+                    steamDir = Path.Combine(programFiles, "Steam");
+                    if (!Directory.Exists(steamDir))
+                        showError("Cannot find Steam on this PC!", true);
+                }
+            }
+
+            steamPath = Path.Combine(steamDir.Replace('/', '\\'), "steamapps", "common");
+            gatherSourceGames();
+
+            string savedGameSelection = Settings.GetSetting<string>("SelectedGame");
+            int gameCount = 0;
+            gameSelect.Items.Clear();
+
+            foreach (string key in sourceGames.Keys)
+            {
+                gameSelect.Items.Add(key);
+                gameCount++;
+            }
+
+            if (gameCount == 0)
+                showError("No Source Engine games were found on this PC!", true);
+
+            gameSelect.Enabled = true;
+            compile.Enabled = true;
+
+            loadComboBox(gameSelect, "SelectedGame");
+            loadComboBox(compilerTypeSelect, "CompilerType", 1);
+
+            string userName = Settings.GetSetting<string>("Username");
+            if (userName != null)
+                TrySetUsername(userName);
+
+            int assetId = Settings.GetSetting<int>("AssetId");
+            TrySetAssetId(assetId);
+
+            selectedGame = sourceGames[gameSelect.Text];
+            updateDisplays();
+
+            CONTROLS_TO_DISABLE_WHEN_COMPILING = new List<Control>() { compile, compilerInputField, gameSelect, viewCompiledModel, compilerTypeSelect };
+            
+            Links = new Dictionary<Control, string>() 
+            {
+                {twitterLink,   "https://www.twitter.com/MaxGee1019"},
+                {AJLink,        "https://www.github.com/RedInquisitive"},
+                {egoMooseLink,  "https://www.github.com/EgoMoose"},
+                {nemsTools,     "http://nemesis.thewavelength.net/index.php?p=40"}
+            };
+
+            foreach (Control link in Links.Keys)
+                link.Click += new EventHandler(onLinkClicked);
+
+            Task.Run(async() =>
+            {
+                while (true)
+                {
+                    if (assetPreview.ImageLocation != assetPreviewImage)
+                    {
+                        RbxCdnPender check = RbxWebUtility.DownloadJSON<RbxCdnPender>(assetPreviewImage);
+                        if (check.Final)
+                        {
+                            assetPreviewImage = check.Url;
+                            assetPreview.ImageLocation = check.Url;
+                        }
+                        else
+                        {
+                            string currentPending = assetPreviewImage; // localize this in case it changes.
+                            assetPreview.Image = loadingImage;
+                            Task<string> pend = Task.Run(() => RbxWebUtility.PendCdnUrl(currentPending,false));
+                            while (!pend.IsCompleted)
+                            {
+                                if (assetPreviewImage != currentPending) break;
+                                if (pend.IsFaulted) break;
+                                await Task.Delay(100);
+                            }
+                            if (assetPreviewImage == currentPending)
+                            {
+                                if (pend.IsFaulted) // mark the preview as broken.
+                                {
+                                    assetPreviewImage = "";
+                                    assetPreview.ImageLocation = "";
+                                    assetPreview.Image = brokenImage;
+                                }
+                                else
+                                {
+                                    string result = pend.Result;
+                                    assetPreviewImage = result;
+                                    assetPreview.ImageLocation = result;
+                                }
+                            }
+                        }
+                    }
+                    await Task.Delay(10);
+                }
+            });
+        }
+
+        private void Rbx2Source_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            if (baseProcess != null && !baseProcess.IsDisposed)
+                baseProcess.Dispose();
+        }
+    }
+}

@@ -1,8 +1,0 @@
-version 1
-nodes
- 0 "root" -1
-end
-skeleton
-time 0
- 0 0 0 0 1.5707963 0 0
-end

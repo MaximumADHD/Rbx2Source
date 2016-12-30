@@ -1,36 +1,3 @@
-------------------------------------------------------------------------------------------
--- Max G, 2014-2015
--- This is a custom layout which explains to my launcher during an installation:
---    1: what files to look for in my github resource folder.
---    2: where to put them in the local files.
--- The format is self explanatory, just be careful. Its a bit sensitive"
-----------------------------------------------------------------------------------------------------------------------------------------------
-setLocalPath "Rbx2SrcFiles/images/converterUtil"
-setGitPath   "tools"
-import       "DevIL.dll"
-import       "vtfcmd.exe"
-import       "VTFLib.dll"
-----------------------------------------------------------------------------------------------------------------------------------------------
 setLocalPath "Rbx2SrcFiles/application"
 setGitPath   "application"
-import       "LuaInterface.dll"
-import       "lua51.dll"
-import       "Newtonsoft.Json.dll"
 import       "RobloxToSourceEngine.exe"
-import       "RobloxToSourceEngine.exe.config"
-----------------------------------------------------------------------------------------------------------------------------------------------
-setLocalPath "Rbx2SrcFiles/models"
-setGitPath   "models"
-import       "robloxian_root.qc"
-import       "static_prop.smd"
-----------------------------------------------------------------------------------------------------------------------------------------------
-setLocalPath "Rbx2SrcFiles/models/animations"
-setGitPath   "models/animations"
-import       "reference.smd"
-import       "idle.smd"
-import       "walk.smd"
-import       "jump.smd"
-import       "falling.smd"
-import       "toolup.smd"
-----------------------------------------------------------------------------------------------------------------------------------------------
-
