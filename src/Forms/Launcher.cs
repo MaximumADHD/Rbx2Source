@@ -55,38 +55,35 @@ namespace Rbx2Source
         {
             string myPath = Application.ExecutablePath;
             FileInfo myInfo = new FileInfo(myPath);
-            Process self = Process.GetCurrentProcess();
-            if (myInfo.Name != "Rbx2SourceLauncher.exe")
+            try
             {
-                try
+                // Check if the current process is attached to the legacy launcher, so we can phase it out.
+                Process self = Process.GetCurrentProcess();
+                ManagementObjectSearcher search = new ManagementObjectSearcher(@"root\CIMV2", "SELECT ParentProcessId FROM Win32_Process WHERE ProcessId = " + self.Id);
+                ManagementObjectCollection results = search.Get();
+                var scanResults = results.GetEnumerator(); // using var because the type name is ridiculous.
+                if (scanResults.MoveNext())
                 {
-                    // Check if the current process is attached to the legacy launcher, so we can phase it out.
-                    ManagementObjectSearcher search = new ManagementObjectSearcher(@"root\CIMV2", "SELECT ParentProcessId FROM Win32_Process WHERE ProcessId = " + self.Id);
-                    ManagementObjectCollection results = search.Get();
-                    var scanResults = results.GetEnumerator(); // using var because the type name is ridiculous.
-                    if (scanResults.MoveNext())
-                    {
-                        ManagementBaseObject query = scanResults.Current;
-                        uint parentId = (uint)query.GetPropertyValue("ParentProcessId");
-                        Process parent = Process.GetProcessById((int)parentId);
+                    ManagementBaseObject query = scanResults.Current;
+                    uint parentId = (uint)query.GetPropertyValue("ParentProcessId");
+                    Process parent = Process.GetProcessById((int)parentId);
                     
-                        string parentPath = parent.MainModule.FileName;
-                        FileInfo info = new FileInfo(parentPath);
-                        if (info.Name == "Rbx2SourceLauncher.exe")
-                        {
-                            await setStatus("Phasing out the legacy launcher");
-                            parent.Kill();
-                            parent.WaitForExit();
-                            File.Copy(myPath, parentPath, true);
-                            Process.Start(parentPath);
-                            Application.Exit();
-                        }
+                    string parentPath = parent.MainModule.FileName;
+                    FileInfo info = new FileInfo(parentPath);
+                    if (info.Name == "Rbx2Source.exe" || info.Name == "Rbx2SourceLauncher.exe")
+                    {
+                        await setStatus("Phasing out the legacy launcher");
+                        parent.Kill();
+                        parent.WaitForExit();
+                        File.Copy(myPath, parentPath, true);
+                        Process.Start(parentPath);
+                        Application.Exit();
                     }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
 
             string myName = myInfo.Name;
