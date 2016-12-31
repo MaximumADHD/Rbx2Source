@@ -259,7 +259,7 @@
             // TwitterIcon
             // 
             this.TwitterIcon.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.TwitterIcon.ImageLocation = "https://avatars.io/twitter/MaxGee1019/large";
+            this.TwitterIcon.ImageLocation = "https://github.com/CloneTrooper1019.png";
             this.TwitterIcon.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
             this.TwitterIcon.Location = new System.Drawing.Point(12, 145);
             this.TwitterIcon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -486,7 +486,7 @@
             this.MaximizeBox = false;
             this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Rbx2Source v2.00";
+            this.Text = "Rbx2Source v2.01";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);
             this.About.ResumeLayout(false);

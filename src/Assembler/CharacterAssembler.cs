@@ -298,7 +298,7 @@ namespace Rbx2Source.Assembler
                 throw new Exception("bad cast");
 
             UserInfo userInfo = avatar.UserInfo;
-            string userName = FileUtility.MakeNameWindowsSafe(userInfo.Username);
+            string userName = FileUtility.MakeNameWindowsSafe(userInfo.Username,"",false);
 
             string appData = Environment.GetEnvironmentVariable("AppData");
             string rbx2Source = Path.Combine(appData, "Rbx2Source");

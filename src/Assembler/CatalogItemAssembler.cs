@@ -280,8 +280,6 @@ namespace Rbx2Source.Assembler
 
             Dictionary<string, string> matLinks = texAssembly.MatLinks;
             Dictionary<string, Material> matLookup = new Dictionary<string, Material>();
-            
-            Dictionary<string, string> updateQueue = new Dictionary<string, string>();
 
             foreach (string mtlName in matLinks.Keys)
             {

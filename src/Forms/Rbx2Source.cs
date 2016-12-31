@@ -38,11 +38,10 @@ namespace Rbx2Source
 
         public Launcher baseProcess;
 
-        private string steamPath = "";
         private UserInfo currentUser;
         private int currentAssetId = 19027209;
 
-        private Dictionary<string,GameInfo> sourceGames;
+        private Dictionary<string, GameInfo> sourceGames = new Dictionary<string, GameInfo>();
         private GameInfo selectedGame;
         private List<Control> CONTROLS_TO_DISABLE_WHEN_COMPILING;
         private string latestCompiledModel;
@@ -121,10 +120,39 @@ namespace Rbx2Source
             if (fatal) Application.Exit();
         }
 
-        private void gatherSourceGames()
+        private string[] getStringsInQuotes(string str)
         {
-            sourceGames = new Dictionary<string, GameInfo>();
+            List<int> quoteLocs = new List<int>();
+            char lastChar = '\0';
+            for (int i = 0; i < str.Length; i++)
+            {
+                char next = str[i];
+                if (next == '"' && lastChar != '\\')
+                    quoteLocs.Add(i);
 
+                lastChar = next;
+            }
+
+            if (quoteLocs.Count % 2 != 0)
+                throw new Exception("Line " + str + " has an unclosed quote! Thanks Obama.");
+
+            List<string> captures = new List<string>();
+
+            for (int i = 0; i < quoteLocs.Count; i += 2)
+            {
+                int j = i + 1;
+                int pos0 = quoteLocs[i];
+                int pos1 = quoteLocs[j];
+                string captured = str.Substring(pos0+1, pos1-pos0-1);
+                captures.Add(captured);
+            }
+
+            return captures.ToArray();
+        }
+
+        private void gatherSourceGames(string steamDir)
+        {
+            string steamPath = Path.Combine(steamDir, "steamapps", "common");
             if (Directory.Exists(steamPath))
             {
                 foreach (string game in Directory.GetDirectories(steamPath))
@@ -138,8 +166,16 @@ namespace Rbx2Source
                             string altRoute = Path.Combine(game, "game", "bin");
                             if (Directory.Exists(altRoute))
                             {
+                                // Source Filmmaker
                                 usingAltRoute = true;
                                 bin = altRoute;
+                            }
+                            else
+                            {
+                                // Fistful of Frags
+                                string altRoute2 = Path.Combine(game, "sdk", "bin");
+                                if (Directory.Exists(altRoute2))
+                                    bin = altRoute2;
                             }
                         }
                         if (Directory.Exists(bin))
@@ -396,7 +432,7 @@ namespace Rbx2Source
                     LogException(compileModel, "compile");
                 else
                 {
-                    PrintHeader("FINISHED!");
+                    PrintHeader("FINISHED MODEL!");
                     trackCompileTime.Stop();
                     Print("Assembled in {0} seconds.", trackCompileTime.Elapsed.TotalSeconds);
                     await UpdateCompilerState();
@@ -501,8 +537,36 @@ namespace Rbx2Source
                 }
             }
 
-            steamPath = Path.Combine(steamDir.Replace('/', '\\'), "steamapps", "common");
-            gatherSourceGames();
+            string steamPath = steamDir.Replace('/', '\\');
+            gatherSourceGames(steamPath);
+
+            string steamApps = Path.Combine(steamPath, "steamapps");
+            if (Directory.Exists(steamApps))
+            {
+                string libraryFolders = Path.Combine(steamApps, "libraryfolders.vdf");
+                if (File.Exists(libraryFolders))
+                {
+                    string file = File.ReadAllText(libraryFolders);
+                    string[] newlines = new string[] {"\r\n","\n"};
+                    string[] lines = file.Split(newlines,StringSplitOptions.None);
+                    foreach (string line in lines)
+                    {
+                        string[] kvPair = getStringsInQuotes(line);
+                        if (kvPair.Length == 2)
+                        {
+                            string key = kvPair[0];
+                            string value = kvPair[1];
+                            int index = -1;
+                            if (int.TryParse(key, out index))
+                            {
+                                value = value.Replace("\\\\", "\\");
+                                gatherSourceGames(value);
+                            }
+                               
+                        }
+                    }
+                }
+            }
 
             string savedGameSelection = Settings.GetSetting<string>("SelectedGame");
             int gameCount = 0;
