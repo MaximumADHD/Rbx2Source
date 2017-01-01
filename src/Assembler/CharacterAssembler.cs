@@ -298,12 +298,12 @@ namespace Rbx2Source.Assembler
                 throw new Exception("bad cast");
 
             UserInfo userInfo = avatar.UserInfo;
-            string userName = FileUtility.MakeNameWindowsSafe(userInfo.Username,"",false);
+            string userName = FileUtility.MakeNameWindowsSafe(userInfo.Username);
 
             string appData = Environment.GetEnvironmentVariable("AppData");
             string rbx2Source = Path.Combine(appData, "Rbx2Source");
             string avatars = Path.Combine(rbx2Source, "Avatars");
-            string userBin = Path.Combine(avatars, userInfo.Username);
+            string userBin = Path.Combine(avatars, userName);
 
             string modelDir = Path.Combine(userBin, "Model");
             string animDir = Path.Combine(modelDir, "Animations");
