@@ -62,6 +62,8 @@
             this.compilerType = new System.Windows.Forms.Label();
             this.compilerTypeSelect = new System.Windows.Forms.ComboBox();
             this.MainTab = new System.Windows.Forms.TabControl();
+            this.ChangeLog = new System.Windows.Forms.TabPage();
+            this.changeLogBox = new System.Windows.Forms.RichTextBox();
             this.About.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nemsTools)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.egoMooseIcon)).BeginInit();
@@ -73,6 +75,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.gameIcon)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.assetPreview)).BeginInit();
             this.MainTab.SuspendLayout();
+            this.ChangeLog.SuspendLayout();
             this.SuspendLayout();
             // 
             // About
@@ -464,6 +467,7 @@
             this.MainTab.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
             this.MainTab.Controls.Add(this.Compiler);
             this.MainTab.Controls.Add(this.About);
+            this.MainTab.Controls.Add(this.ChangeLog);
             this.MainTab.Dock = System.Windows.Forms.DockStyle.Fill;
             this.MainTab.Location = new System.Drawing.Point(0, 0);
             this.MainTab.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -471,6 +475,29 @@
             this.MainTab.SelectedIndex = 0;
             this.MainTab.Size = new System.Drawing.Size(477, 374);
             this.MainTab.TabIndex = 0;
+            // 
+            // ChangeLog
+            // 
+            this.ChangeLog.Controls.Add(this.changeLogBox);
+            this.ChangeLog.Location = new System.Drawing.Point(4, 28);
+            this.ChangeLog.Name = "ChangeLog";
+            this.ChangeLog.Size = new System.Drawing.Size(469, 342);
+            this.ChangeLog.TabIndex = 4;
+            this.ChangeLog.Text = "Change Log";
+            this.ChangeLog.UseVisualStyleBackColor = true;
+            // 
+            // changeLogBox
+            // 
+            this.changeLogBox.BulletIndent = 1;
+            this.changeLogBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.changeLogBox.Font = new System.Drawing.Font("Consolas", 7.9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.changeLogBox.Location = new System.Drawing.Point(0, 0);
+            this.changeLogBox.Name = "changeLogBox";
+            this.changeLogBox.ReadOnly = true;
+            this.changeLogBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+            this.changeLogBox.Size = new System.Drawing.Size(469, 342);
+            this.changeLogBox.TabIndex = 1;
+            this.changeLogBox.Text = resources.GetString("changeLogBox.Text");
             // 
             // Rbx2Source
             // 
@@ -486,7 +513,7 @@
             this.MaximizeBox = false;
             this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Rbx2Source v2.01";
+            this.Text = "Rbx2Source v2.02";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);
             this.About.ResumeLayout(false);
@@ -502,6 +529,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.gameIcon)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.assetPreview)).EndInit();
             this.MainTab.ResumeLayout(false);
+            this.ChangeLog.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -541,6 +569,8 @@
         private System.Windows.Forms.TabControl MainTab;
         private System.Windows.Forms.PictureBox gameIcon;
         private System.Windows.Forms.PictureBox compilerTypeIcon;
+        private System.Windows.Forms.TabPage ChangeLog;
+        private System.Windows.Forms.RichTextBox changeLogBox;
 
 
     }

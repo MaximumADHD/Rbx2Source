@@ -38,6 +38,7 @@ namespace Rbx2Source.Assembler
             {
                 SetField("alpha", 1 - mat.Transparency);
                 SetField("translucent", 1);
+                SetField("allowfencerenderstatehack", 1); // Still not sure what this is, but it works like MAGIC.
             }
 
             if (mat.UseReflectance)

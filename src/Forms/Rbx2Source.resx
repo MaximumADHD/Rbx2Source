@@ -2526,6 +2526,76 @@
         CiGEEEII0TjY3/s/dBQ7tYutkHMAAAAASUVORK5CYII=
 </value>
   </data>
+  <data name="changeLogBox.Text" xml:space="preserve">
+    <value>[v2.02] (January 1st, 2017)
+• Added a "Change Log" tab!
+• Improved the appearance of objects with
+  transparency.
+• Added some safeguards while I investigate whatever
+  is causing the "generic error in GDI+" stuff to 
+  popup for some people.
+______________________________________________________
+[v2.01] (December 30th, 2016)
+• If you are using multiple folders for your steam 
+  library, Rbx2Source will now properly detect 
+  Source engine games in there.
+• Cleaned up some unused code tidbits.
+______________________________________________________
+[v2.00] (December 29th, 2016)
+• Completely rewrote Rbx2Source from the ground up.
+• Support for both R6 and R15 characters
+• Geometry is assembled directly from the source mesh 
+  files, instead of doing some clever hacks with 3D 
+  thumbnail data.
+• Source Engine games are automatically listed, you no 
+  longer have to set it up manually
+• Brand new interface, with a much better presentation 
+  and more responsive controls.
+• Written entirely in C#, no more Lua!
+• R6 Characters are assembled much more accurately 
+  than they were in v1
+* Animations are emulated directly from ROBLOX into 
+  Source.
+• The foundation I've laid for this version is much 
+  stronger than it was before, and will allow me 
+  to add more features with relative ease.
+• The launcher is no longer a seperate application
+______________________________________________________
+[v1.60] (June 18th, 2015)
+• Textures are now compiled simultaneously
+• Improved the compiler logs to show more 
+   information about whats going on.
+______________________________________________________
+[v1.50] (May 22nd, 2015)
+• Added support to auto-scan for Source Engine games.
+• Collision models are now generated for each model.
+______________________________________________________
+[v1.40] (January 26th, 2015)
+• Updated files to stop being rewritten if they didn't 
+  change
+• Attempted to prevent the main program from being
+  pinned to the task bar, as the launcher should be 
+  pinned instead.
+• Added more animations to the character model
+______________________________________________________
+[v1.30] (January 9th, 2015)
+• User's arm will no longer get stuck in the up position 
+   if they were wearing a gear.
+• Added idle &amp; walking animation.
+• Cleaned up some of the backend code.
+______________________________________________________
+[v1.20] (December 31st, 2015)
+• Introduced the launcher application, so Rbx2Source 
+  can update itself when they are available.
+______________________________________________________
+[v1.10] (December 29th, 2015)
+• Resources are now loaded from github instead of 
+  pastebin.
+______________________________________________________
+[v1.00] (December 25th, 2015)
+• Initial release.
+______________________________________________________</value>
+  </data>
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAYAEBAAAAEAIABoBAAAZgAAACAgAAABACAAqBAAAM4EAAAwMAAAAQAgAKglAAB2FQAAQEAAAAEA

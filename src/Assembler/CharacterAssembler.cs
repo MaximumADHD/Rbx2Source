@@ -391,7 +391,14 @@ namespace Rbx2Source.Assembler
                 Rbx2Source.Print("Writing Image {0}.png", imageName);
                 Image image = images[imageName];
                 string imagePath = Path.Combine(texturesDir,imageName + ".png");
-                image.Save(imagePath, ImageFormat.Png);
+                try
+                {
+                    image.Save(imagePath, ImageFormat.Png);
+                }
+                catch
+                {
+                    Rbx2Source.Print("IMAGE {0}.png FAILED TO SAVE!", imageName);
+                }
                 FileUtility.LockFile(imagePath);
             }
             
