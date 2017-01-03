@@ -1,3 +1,6 @@
+MESH FILE SPECIFICATION
+================
+
 For anyone who might be curious about ROBLOX's mesh format, heres some specifications me and my friend were able to come up with:
 
 Header
