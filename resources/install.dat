@@ -1,4 +1,0 @@
-setLocalPath "Rbx2SrcFiles/application"
-setGitPath   "application"
-import       "THIS MIGHT TAKE A FEW MINUTES"
-import       "RobloxToSourceEngine.exe"

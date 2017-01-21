@@ -13,7 +13,6 @@ using Rbx2Source.Properties;
 using Rbx2Source.Resources;
 using Rbx2Source.Web;
 
-
 namespace Rbx2Source
 {
     public partial class Rbx2Source : Form
@@ -514,28 +513,58 @@ namespace Rbx2Source
 
         private void Rbx2Source_Load(object sender, EventArgs e)
         {
-            string steamDir;
-
-            try
+            string steamDir = null;
+            Process[] steamProcesses = Process.GetProcessesByName("Steam");
+            if (steamProcesses.Length > 0)
             {
-                RegistryKey classesRoot = Registry.ClassesRoot;
-                RegistryKey steam = classesRoot.OpenSubKey(@"SOFTWARE\Valve\Steam");
-                steamDir = (string)steam.GetValue("SteamPath");
-                if (steamDir == null)
-                    throw new Exception();
-            }
-            catch
-            {
-                string programFilesX86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
-                steamDir = Path.Combine(programFilesX86, "Steam");
-                if (!Directory.Exists(steamDir))
+                foreach (Process process in steamProcesses)
                 {
-                    string programFiles = Environment.GetEnvironmentVariable("ProgramFiles");
-                    steamDir = Path.Combine(programFiles, "Steam");
-                    if (!Directory.Exists(steamDir))
-                        showError("Cannot find Steam on this PC!", true);
+                    try
+                    {
+                        ProcessModule module = process.MainModule;
+                        string exePath = module.FileName;
+                        FileInfo info = new FileInfo(exePath);
+                        string directory = info.DirectoryName;
+                        if (info.Name == "Steam.exe" && info.Directory.Name == "Steam")
+                        {
+                            string apps = Path.Combine(directory, "steamapps");
+                            if (Directory.Exists(apps))
+                                steamDir = directory;
+                        }
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Can't access this steam process.");
+                    }
                 }
             }
+
+            if (steamDir == null)
+            {
+                try
+                {
+                    RegistryKey classesRoot = Registry.ClassesRoot;
+                    RegistryKey steam = classesRoot.OpenSubKey(@"SOFTWARE\Valve\Steam");
+                    steamDir = (string)steam.GetValue("SteamPath");
+                    if (steamDir == null)
+                        throw new Exception();
+                }
+                catch
+                {
+                    string programFilesX86 = Environment.GetEnvironmentVariable("ProgramFiles(x86)");
+                    steamDir = Path.Combine(programFilesX86, "Steam");
+                    if (!Directory.Exists(steamDir))
+                    {
+                        string programFiles = Environment.GetEnvironmentVariable("ProgramFiles");
+                        steamDir = Path.Combine(programFiles, "Steam");
+                        if (!Directory.Exists(steamDir))
+                        {
+                            showError("Cannot find Steam on this PC!\nTry running Steam so Rbx2Source can detect it.", true);
+                        }
+                    }
+                }
+            }
+
 
             string steamPath = steamDir.Replace('/', '\\');
             gatherSourceGames(steamPath);

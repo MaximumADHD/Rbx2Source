@@ -2527,7 +2527,11 @@
 </value>
   </data>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.03] (January 1st, 2017)
+    <value>[v2.04] (January 21st, 2017)
+• Rbx2Source will now fallback to finding a running
+  instance of Steam, if it cannot find the directory.
+______________________________________________________
+[v2.03] (January 1st, 2017)
 • Fixed a small bug that was causing the compiler to 
   fail with users who glitched a space after their 
   name.
