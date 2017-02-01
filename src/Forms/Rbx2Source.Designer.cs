@@ -98,7 +98,7 @@
             this.About.Controls.Add(this.TwitterIcon);
             this.About.Controls.Add(this.rbx2SourceLogo);
             this.About.Location = new System.Drawing.Point(4, 25);
-            this.About.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.About.Margin = new System.Windows.Forms.Padding(2);
             this.About.Name = "About";
             this.About.Size = new System.Drawing.Size(350, 275);
             this.About.TabIndex = 3;
@@ -111,7 +111,7 @@
             this.nemsTools.ImageLocation = "http://nemesis.thewavelength.net/images/site/title.png";
             this.nemsTools.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
             this.nemsTools.Location = new System.Drawing.Point(241, 306);
-            this.nemsTools.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.nemsTools.Margin = new System.Windows.Forms.Padding(2);
             this.nemsTools.Name = "nemsTools";
             this.nemsTools.Size = new System.Drawing.Size(92, 84);
             this.nemsTools.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -121,7 +121,7 @@
             // textBox3
             // 
             this.textBox3.Location = new System.Drawing.Point(9, 306);
-            this.textBox3.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox3.Margin = new System.Windows.Forms.Padding(2);
             this.textBox3.Multiline = true;
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
@@ -249,7 +249,7 @@
             this.egoMooseIcon.ImageLocation = "https://github.com/EgoMoose.png";
             this.egoMooseIcon.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
             this.egoMooseIcon.Location = new System.Drawing.Point(104, 180);
-            this.egoMooseIcon.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.egoMooseIcon.Margin = new System.Windows.Forms.Padding(2);
             this.egoMooseIcon.Name = "egoMooseIcon";
             this.egoMooseIcon.Size = new System.Drawing.Size(38, 41);
             this.egoMooseIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -262,7 +262,7 @@
             this.AJIcon.ImageLocation = "https://github.com/RedInquisitive.png";
             this.AJIcon.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
             this.AJIcon.Location = new System.Drawing.Point(104, 135);
-            this.AJIcon.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.AJIcon.Margin = new System.Windows.Forms.Padding(2);
             this.AJIcon.Name = "AJIcon";
             this.AJIcon.Size = new System.Drawing.Size(38, 41);
             this.AJIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -275,7 +275,7 @@
             this.TwitterIcon.ImageLocation = "https://github.com/CloneTrooper1019.png";
             this.TwitterIcon.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
             this.TwitterIcon.Location = new System.Drawing.Point(9, 118);
-            this.TwitterIcon.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.TwitterIcon.Margin = new System.Windows.Forms.Padding(2);
             this.TwitterIcon.Name = "TwitterIcon";
             this.TwitterIcon.Size = new System.Drawing.Size(71, 76);
             this.TwitterIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -287,7 +287,7 @@
             this.rbx2SourceLogo.Dock = System.Windows.Forms.DockStyle.Top;
             this.rbx2SourceLogo.Image = ((System.Drawing.Image)(resources.GetObject("rbx2SourceLogo.Image")));
             this.rbx2SourceLogo.Location = new System.Drawing.Point(0, 0);
-            this.rbx2SourceLogo.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.rbx2SourceLogo.Margin = new System.Windows.Forms.Padding(2);
             this.rbx2SourceLogo.Name = "rbx2SourceLogo";
             this.rbx2SourceLogo.Size = new System.Drawing.Size(333, 109);
             this.rbx2SourceLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -311,9 +311,9 @@
             this.Compiler.Controls.Add(this.compilerType);
             this.Compiler.Controls.Add(this.compilerTypeSelect);
             this.Compiler.Location = new System.Drawing.Point(4, 25);
-            this.Compiler.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Compiler.Margin = new System.Windows.Forms.Padding(2);
             this.Compiler.Name = "Compiler";
-            this.Compiler.Padding = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Compiler.Padding = new System.Windows.Forms.Padding(2);
             this.Compiler.Size = new System.Drawing.Size(350, 275);
             this.Compiler.TabIndex = 0;
             this.Compiler.Text = "Compiler";
@@ -324,7 +324,7 @@
             this.compilerTypeIcon.BackColor = System.Drawing.SystemColors.Control;
             this.compilerTypeIcon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.compilerTypeIcon.Location = new System.Drawing.Point(8, 57);
-            this.compilerTypeIcon.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.compilerTypeIcon.Margin = new System.Windows.Forms.Padding(2);
             this.compilerTypeIcon.Name = "compilerTypeIcon";
             this.compilerTypeIcon.Size = new System.Drawing.Size(18, 20);
             this.compilerTypeIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -336,7 +336,7 @@
             this.gameIcon.BackColor = System.Drawing.SystemColors.Control;
             this.gameIcon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.gameIcon.Location = new System.Drawing.Point(8, 19);
-            this.gameIcon.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.gameIcon.Margin = new System.Windows.Forms.Padding(2);
             this.gameIcon.Name = "gameIcon";
             this.gameIcon.Size = new System.Drawing.Size(18, 20);
             this.gameIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -346,7 +346,7 @@
             // compileProgress
             // 
             this.compileProgress.Location = new System.Drawing.Point(8, 235);
-            this.compileProgress.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.compileProgress.Margin = new System.Windows.Forms.Padding(2);
             this.compileProgress.Name = "compileProgress";
             this.compileProgress.Size = new System.Drawing.Size(217, 25);
             this.compileProgress.TabIndex = 13;
@@ -355,7 +355,7 @@
             // 
             this.viewCompiledModel.Enabled = false;
             this.viewCompiledModel.Location = new System.Drawing.Point(230, 235);
-            this.viewCompiledModel.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.viewCompiledModel.Margin = new System.Windows.Forms.Padding(2);
             this.viewCompiledModel.Name = "viewCompiledModel";
             this.viewCompiledModel.Size = new System.Drawing.Size(116, 25);
             this.viewCompiledModel.TabIndex = 11;
@@ -376,7 +376,7 @@
             // output
             // 
             this.output.Location = new System.Drawing.Point(8, 95);
-            this.output.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.output.Margin = new System.Windows.Forms.Padding(2);
             this.output.Name = "output";
             this.output.ReadOnly = true;
             this.output.Size = new System.Drawing.Size(338, 136);
@@ -387,7 +387,7 @@
             // compilerInputField
             // 
             this.compilerInputField.Location = new System.Drawing.Point(238, 20);
-            this.compilerInputField.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.compilerInputField.Margin = new System.Windows.Forms.Padding(2);
             this.compilerInputField.Name = "compilerInputField";
             this.compilerInputField.Size = new System.Drawing.Size(108, 20);
             this.compilerInputField.TabIndex = 6;
@@ -398,7 +398,7 @@
             // compile
             // 
             this.compile.Location = new System.Drawing.Point(238, 66);
-            this.compile.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.compile.Margin = new System.Windows.Forms.Padding(2);
             this.compile.Name = "compile";
             this.compile.Size = new System.Drawing.Size(107, 20);
             this.compile.TabIndex = 7;
@@ -424,7 +424,7 @@
             this.gameSelect.Items.AddRange(new object[] {
             "Loading..."});
             this.gameSelect.Location = new System.Drawing.Point(31, 19);
-            this.gameSelect.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.gameSelect.Margin = new System.Windows.Forms.Padding(2);
             this.gameSelect.Name = "gameSelect";
             this.gameSelect.Size = new System.Drawing.Size(122, 21);
             this.gameSelect.Sorted = true;
@@ -446,7 +446,7 @@
             this.assetPreview.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.assetPreview.ErrorImage = null;
             this.assetPreview.Location = new System.Drawing.Point(156, 2);
-            this.assetPreview.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.assetPreview.Margin = new System.Windows.Forms.Padding(2);
             this.assetPreview.Name = "assetPreview";
             this.assetPreview.Size = new System.Drawing.Size(79, 85);
             this.assetPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -471,7 +471,7 @@
             "Accessory/Gear",
             "Avatar"});
             this.compilerTypeSelect.Location = new System.Drawing.Point(31, 57);
-            this.compilerTypeSelect.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.compilerTypeSelect.Margin = new System.Windows.Forms.Padding(2);
             this.compilerTypeSelect.Name = "compilerTypeSelect";
             this.compilerTypeSelect.Size = new System.Drawing.Size(122, 21);
             this.compilerTypeSelect.Sorted = true;
@@ -486,7 +486,7 @@
             this.MainTab.Controls.Add(this.ChangeLog);
             this.MainTab.Dock = System.Windows.Forms.DockStyle.Fill;
             this.MainTab.Location = new System.Drawing.Point(0, 0);
-            this.MainTab.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.MainTab.Margin = new System.Windows.Forms.Padding(2);
             this.MainTab.Name = "MainTab";
             this.MainTab.SelectedIndex = 0;
             this.MainTab.Size = new System.Drawing.Size(358, 304);
@@ -496,7 +496,7 @@
             // 
             this.ChangeLog.Controls.Add(this.changeLogBox);
             this.ChangeLog.Location = new System.Drawing.Point(4, 25);
-            this.ChangeLog.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.ChangeLog.Margin = new System.Windows.Forms.Padding(2);
             this.ChangeLog.Name = "ChangeLog";
             this.ChangeLog.Size = new System.Drawing.Size(350, 275);
             this.ChangeLog.TabIndex = 4;
@@ -509,7 +509,7 @@
             this.changeLogBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.changeLogBox.Font = new System.Drawing.Font("Consolas", 7.9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.changeLogBox.Location = new System.Drawing.Point(0, 0);
-            this.changeLogBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.changeLogBox.Margin = new System.Windows.Forms.Padding(2);
             this.changeLogBox.Name = "changeLogBox";
             this.changeLogBox.ReadOnly = true;
             this.changeLogBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
@@ -527,11 +527,11 @@
             this.Cursor = System.Windows.Forms.Cursors.Default;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximizeBox = false;
             this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Rbx2Source v2.04";
+            this.Text = "Rbx2Source v2.05";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);
             this.About.ResumeLayout(false);

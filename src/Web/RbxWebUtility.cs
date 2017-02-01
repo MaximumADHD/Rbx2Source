@@ -93,6 +93,7 @@ namespace Rbx2Source.Web
         {
             byte[] content = DownloadData(url);
             string json = Encoding.UTF8.GetString(content);
+            Console.WriteLine(json);
             return JsonConvert.DeserializeObject<T>(json);
         }
 

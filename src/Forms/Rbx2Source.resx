@@ -2527,7 +2527,12 @@
 </value>
   </data>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.04] (January 21st, 2017)
+    <value>[v2.05] (January 31st, 2017)
+• Fixed a compiler crash that was caused by the
+  removal of an important web API that I used.
+• Updated to use the new avatar web APIs.
+______________________________________________________
+[v2.04] (January 21st, 2017)
 • Rbx2Source will now fallback to finding a running
   instance of Steam, if it cannot find the directory.
 ______________________________________________________

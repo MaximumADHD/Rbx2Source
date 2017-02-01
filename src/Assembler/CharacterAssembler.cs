@@ -245,15 +245,11 @@ namespace Rbx2Source.Assembler
         {
             Rbx2Source.PrintHeader("GATHERING CHARACTER ASSETS");
             Folder characterAssets = new Folder();
-            List<int> assetVersionIds = avatar.AccessoryVersionIds;
+            List<int> assetIds = avatar.CurrentlyWearing.AssetIds;
 
-            foreach (int id in assetVersionIds)
+            foreach (int id in assetIds)
             {
-                int avid = id;
-                if (avid == 883361069 && avatar.UserInfo.Id == 2032622) // shhhhhhhhh
-                    avid = 883360291;
-
-                Asset asset = Asset.Get(avid, true);
+                Asset asset = Asset.Get(id);
                 Folder import = RbxReflection.LoadFromAsset(asset);
                 if (asset.AssetType == AssetType.Head)
                 {
