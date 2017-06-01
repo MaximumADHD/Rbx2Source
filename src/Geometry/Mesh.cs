@@ -96,7 +96,7 @@ namespace Rbx2Source.Geometry
             byte cbFaceStride = reader.ReadByte(); // internal sizeof Polygon
 
             int vertBytesToSkip = 0;
-            if (cbVerticesStride != 36) // Some new bytes we
+            if (cbVerticesStride != 36) // Some new bytes were added to new meshes regarding vertex color data. Skip over them if we can.
                 vertBytesToSkip = cbVerticesStride - 36;
 
             uint numVerts = reader.ReadUInt32();
