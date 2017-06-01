@@ -8,17 +8,20 @@ using Rbx2Source.Coordinates;
 
 namespace Rbx2Source.Geometry
 {
+    struct Vertex
+    {
+        public Vector3 Pos;
+        public Vector3 Norm;
+        public Vector3 UV;
+    }
+
     class Polygon
     {
-        public Vector3[] Verts;
-        public Vector3[] Norms;
-        public Vector3[] TexCoords;
+        public Vertex[] Verts;
 
         public Polygon()
         {
-            Verts = new Vector3[3];
-            Norms = new Vector3[3];
-            TexCoords = new Vector3[3];
+            Verts = new Vertex[3];
         }
     }
 }

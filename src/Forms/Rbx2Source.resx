@@ -2527,7 +2527,14 @@
 </value>
   </data>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.05] (January 31st, 2017)
+    <value>[v2.06] (May 31st, 2017)
+• Fixed a compiler crash that was caused by the 
+  introduction of vertex color metadata to the binary
+  mesh file format.
+• Reformatted some of the mesh parser code to make
+  it faster.
+______________________________________________________
+[v2.05] (January 31st, 2017)
 • Fixed a compiler crash that was caused by the
   removal of an important web API that I used.
 • Updated to use the new avatar web APIs.

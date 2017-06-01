@@ -38,16 +38,20 @@ namespace Rbx2Source.Web
         {
             if (!ContentLoaded)
             {
-                HttpWebRequest request = WebRequest.CreateHttp("https://assetgame.roblox.com/asset/?ID=" + Id);
-                request.Headers.Set(HttpRequestHeader.AcceptEncoding, "gzip");
+                HttpWebRequest request = WebRequest.CreateHttp("https://www.roblox.com/asset/?ID=" + Id);
                 request.UserAgent = "Roblox";
                 request.Proxy = null;
                 request.UseDefaultCredentials = true;
-                WebResponse response = request.GetResponse();
-                Stream responseStream = response.GetResponseStream();
-                GZipStream decompressor = new GZipStream(responseStream, CompressionMode.Decompress);
+                request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip");
 
-                Content = FileUtility.ReadFullStream(decompressor);
+                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+                Stream responseStream = response.GetResponseStream();
+
+                string encoding = response.ContentEncoding;
+                if (encoding == "gzip")
+                    responseStream = new GZipStream(responseStream, CompressionMode.Decompress);
+
+                Content = FileUtility.ReadFullStream(responseStream);
                 ContentLoaded = true;
 
                 responseStream.Close();

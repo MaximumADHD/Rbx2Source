@@ -9,7 +9,7 @@ using Microsoft.Win32;
 
 using Rbx2Source.Assembler;
 using Rbx2Source.Compiler;
-using Rbx2Source.Properties;
+using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.Web;
 

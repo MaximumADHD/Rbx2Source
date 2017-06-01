@@ -13,20 +13,12 @@ using Rbx2Source.Web;
 
 namespace Rbx2Source.Geometry
 {
-    struct PolySet
-    {
-        public Vector3 Vert;
-        public Vector3 Norm;
-        public Vector3 Tex;
-    }
-
     class Mesh
     {
         public Polygon[] Polygons;
-        public int PolyCount = 0;
+        public uint PolyCount = 0;
         public bool Loaded = false;
 
-        private Vector3 cachedBounds = null;
         private static Dictionary<string, Asset> StandardLimbs = new Dictionary<string, Asset>
         {
             {"Head",        Asset.FromResource("Meshes/StandardLimbs/head.mesh")},
@@ -46,8 +38,8 @@ namespace Rbx2Source.Geometry
             string version = header.Substring(8);
             float vertScale = (version == "1.00" ? 0.5f : 1); // well, thats awkward.
 
-            int polyCount = -1;
-            if (!int.TryParse(reader.ReadLine(), out polyCount))
+            uint polyCount = 0;
+            if (!uint.TryParse(reader.ReadLine(), out polyCount))
                 throw new Exception("Expected 2nd line to be the polygon count.");
 
             string polyBuffer = reader.ReadLine();
@@ -61,6 +53,7 @@ namespace Rbx2Source.Geometry
             mesh.PolyCount = polyCount;
 
             Polygon currentPolygon = new Polygon();
+            Vertex currentVertex = new Vertex();
 
             foreach (Match m in matches)
             {
@@ -69,16 +62,19 @@ namespace Rbx2Source.Geometry
                 Vector3 vector = new Vector3(coords);
 
                 if (state == 0)
-                    currentPolygon.Verts[index] = vector * vertScale;
+                    currentVertex.Pos = vector * vertScale;
                 else if (state == 1)
-                    currentPolygon.Norms[index] = vector;
+                    currentVertex.Norm = vector;
                 else if (state == 2)
-                    currentPolygon.TexCoords[index] = new Vector3(vector.x,1f-vector.y,0);
+                    currentVertex.UV = new Vector3(vector.x, 1 - vector.y, 0);
 
                 state = (state + 1) % 3;
                 if (state == 0)
                 {
+                    currentPolygon.Verts[index] = currentVertex;
                     index = (index + 1) % 3;
+                    currentVertex = new Vertex();
+                    
                     if (index == 0)
                     {
                         mesh.Polygons[polyIndex++] = currentPolygon;
@@ -93,23 +89,34 @@ namespace Rbx2Source.Geometry
         private static void loadGeometryV2(BinaryReader reader, Mesh mesh)
         {
             Stream stream = reader.BaseStream;
-            stream.Position = 17; // Move past the header.
+            stream.Position = 13; // Move past the header.
 
-            int setCount = reader.ReadInt32();
-            int polyCount = reader.ReadInt32();
+            ushort cbSize = reader.ReadUInt16(); // internal sizeof mesh header
+            byte cbVerticesStride = reader.ReadByte(); // internal sizeof Vertex
+            byte cbFaceStride = reader.ReadByte(); // internal sizeof Polygon
 
-            PolySet[] sets = new PolySet[setCount];
+            int vertBytesToSkip = 0;
+            if (cbVerticesStride != 36) // Some new bytes we
+                vertBytesToSkip = cbVerticesStride - 36;
 
-            for (int i = 0; i < setCount; i++)
+            uint numVerts = reader.ReadUInt32();
+            uint numFaces = reader.ReadUInt32();
+
+            Vertex[] verts = new Vertex[numVerts];
+            Polygon[] faces = new Polygon[numFaces];
+
+            for (int i = 0; i < numVerts; i++)
             {
-                PolySet set = new PolySet();
-                set.Vert = new Vector3(reader);
-                set.Norm = new Vector3(reader);
-                set.Tex = new Vector3(reader); 
-                sets[i] = set;
+                Vertex vert = new Vertex();
+                vert.Pos = new Vector3(reader);
+                vert.Norm = new Vector3(reader);
+                vert.UV = new Vector3(reader);
+                verts[i] = vert;
+                if (vertBytesToSkip > 0)
+                    reader.ReadBytes(vertBytesToSkip);
             }
 
-            mesh.PolyCount = polyCount;
+            mesh.PolyCount = numFaces;
             mesh.Polygons = new Polygon[mesh.PolyCount];
 
             for (int p = 0; p < mesh.PolyCount; p++)
@@ -117,11 +124,9 @@ namespace Rbx2Source.Geometry
                 Polygon poly = new Polygon();
                 for (int i = 0; i < 3; i++)
                 {
-                    int setIndex = reader.ReadInt32();
-                    PolySet set = sets[setIndex];
-                    poly.Verts[i] = set.Vert;
-                    poly.Norms[i] = set.Norm;
-                    poly.TexCoords[i] = set.Tex;
+                    int setIndex = (int)reader.ReadUInt32();
+                    Vertex vert = verts[setIndex];
+                    poly.Verts[i] = vert;
                 }
                 mesh.Polygons[p] = poly;
             }
@@ -157,35 +162,6 @@ namespace Rbx2Source.Geometry
             return mesh;
         }
 
-        public Vector3 Bounds
-        {
-            get
-            {
-                if (cachedBounds == null)
-                {
-                    float[] min = new float[3];
-                    float[] max = new float[3];
-                    foreach (Polygon p in Polygons)
-                    {
-                        foreach (Vector3 v in p.Verts)
-                        {
-                            if (v.x < min[0]) min[0] = v.x;
-                            if (v.y < min[1]) min[1] = v.y;
-                            if (v.z < min[2]) min[2] = v.z;
-
-                            if (v.x > max[0]) max[0] = v.x;
-                            if (v.y > max[1]) max[1] = v.y;
-                            if (v.z > max[2]) max[2] = v.z;
-                        }
-                    }
-                    Vector3 minBounds = new Vector3(min);
-                    Vector3 maxBounds = new Vector3(max);
-                    cachedBounds = (maxBounds - minBounds);
-                }
-                return cachedBounds;
-            }
-        }
-
         /// <summary>
         /// Creates a copy of the polygon array, then rescales and offsets the vertices based on the parameters.
         /// </summary>
@@ -200,12 +176,13 @@ namespace Rbx2Source.Geometry
             {
                 Polygon src = Polygons[i];
                 Polygon newPolygon = new Polygon();
-                newPolygon.Norms = src.Norms.Clone() as Vector3[];
-                newPolygon.TexCoords = src.TexCoords.Clone() as Vector3[];
                 for (int v = 0; v < 3; v++)
                 {
-                    Vector3 vert = src.Verts[v];
-                    Vector3 newVert = (offset * new CFrame(vert * scale)).p;
+                    Vertex vert = src.Verts[v];
+                    Vertex newVert = new Vertex();
+                    newVert.Pos = (offset * new CFrame(vert.Pos * scale)).p;
+                    newVert.Norm = vert.Norm;
+                    newVert.UV = vert.UV;
                     newPolygon.Verts[v] = newVert;
                 }
                 bakedPolygons[i] = newPolygon;

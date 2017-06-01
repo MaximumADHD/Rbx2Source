@@ -33,11 +33,12 @@ namespace Rbx2Source.StudioMdl
 
             for (int i = 0; i < 3; i++)
             {
-                string vert = poly.Verts[i].ToStudioMdlString();
-                string norm = poly.Norms[i].ToStudioMdlString();
-                string tex = poly.TexCoords[i].ToStudioMdlString(true);
+                Vertex vert = poly.Verts[i];
+                string pos = vert.Pos.ToStudioMdlString();
+                string norm = vert.Norm.ToStudioMdlString();
+                string uv = vert.UV.ToStudioMdlString(true);
 
-                string line = string.Join(" ", bone, vert, norm, tex, 1, bone, 1);
+                string line = string.Join(" ", bone, pos, norm, uv, 1, bone, 1);
                 buffer.WriteLine(line);
             }
         }
