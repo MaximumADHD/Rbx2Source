@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -7,7 +6,6 @@ using System.Text.RegularExpressions;
 
 using Rbx2Source.Assembler;
 using Rbx2Source.Coordinates;
-using Rbx2Source.Properties;
 using Rbx2Source.Reflection;
 using Rbx2Source.Web;
 
@@ -15,8 +13,13 @@ namespace Rbx2Source.Geometry
 {
     class Mesh
     {
-        public Polygon[] Polygons;
-        public uint PolyCount = 0;
+        public Vertex[] Verts;
+        public int[][] Faces;
+        public int Version;
+
+        public uint FaceCount = 0;
+        public uint VertCount = 0;
+
         public bool Loaded = false;
 
         private static Dictionary<string, Asset> StandardLimbs = new Dictionary<string, Asset>
@@ -29,6 +32,13 @@ namespace Rbx2Source.Geometry
             {"Torso",       Asset.FromResource("Meshes/StandardLimbs/torso.mesh")}
         };
 
+        private static float parseFloat(string f)
+        {
+            return float.Parse(f, Rbx2Source.NormalParse);
+        }
+
+        private static Converter<string, float> toFloat = new Converter<string, float>(parseFloat);
+
         private static void loadGeometryV1(StringReader reader, Mesh mesh)
         {
             string header = reader.ReadLine();
@@ -38,47 +48,44 @@ namespace Rbx2Source.Geometry
             string version = header.Substring(8);
             float vertScale = (version == "1.00" ? 0.5f : 1); // well, thats awkward.
 
-            uint polyCount = 0;
-            if (!uint.TryParse(reader.ReadLine(), out polyCount))
+            if (!uint.TryParse(reader.ReadLine(), out mesh.FaceCount))
                 throw new Exception("Expected 2nd line to be the polygon count.");
+
+            mesh.VertCount = mesh.FaceCount * 3;
+            mesh.Faces = new int[mesh.FaceCount][];
+            mesh.Verts = new Vertex[mesh.VertCount];
 
             string polyBuffer = reader.ReadLine();
             MatchCollection matches = Regex.Matches(polyBuffer, @"\[(.*?)\]");
 
-            int polyIndex = 0;
+            int face = 0;
             int index = 0;
             int state = 0;
 
-            mesh.Polygons = new Polygon[polyCount];
-            mesh.PolyCount = polyCount;
-
-            Polygon currentPolygon = new Polygon();
             Vertex currentVertex = new Vertex();
 
             foreach (Match m in matches)
             {
                 string vectorStr = m.Groups[1].ToString();
-                float[] coords = Array.ConvertAll(vectorStr.Split(','), float.Parse);
+                float[] coords = Array.ConvertAll(vectorStr.Split(','), toFloat);
                 Vector3 vector = new Vector3(coords);
 
                 if (state == 0)
-                    currentVertex.Pos = vector * vertScale;
+                    currentVertex.Pos = new Vector3(coords) * vertScale;
                 else if (state == 1)
-                    currentVertex.Norm = vector;
+                    currentVertex.Norm = new Vector3(coords);
                 else if (state == 2)
-                    currentVertex.UV = new Vector3(vector.x, 1 - vector.y, 0);
+                    currentVertex.UV = new Vector3(coords[0], 1-coords[1], 0);
 
                 state = (state + 1) % 3;
                 if (state == 0)
                 {
-                    currentPolygon.Verts[index] = currentVertex;
-                    index = (index + 1) % 3;
+                    mesh.Verts[index++] = currentVertex;
                     currentVertex = new Vertex();
-                    
-                    if (index == 0)
+                    if (index%3 == 0)
                     {
-                        mesh.Polygons[polyIndex++] = currentPolygon;
-                        currentPolygon = new Polygon();
+                        int v = face * 3;
+                        mesh.Faces[face++] = new int[3] { v, v + 1, v + 2 };
                     }
                 }
             }
@@ -91,64 +98,59 @@ namespace Rbx2Source.Geometry
             Stream stream = reader.BaseStream;
             stream.Position = 13; // Move past the header.
 
-            ushort cbSize = reader.ReadUInt16(); // internal sizeof mesh header
-            byte cbVerticesStride = reader.ReadByte(); // internal sizeof Vertex
-            byte cbFaceStride = reader.ReadByte(); // internal sizeof Polygon
+            ushort cbSize = reader.ReadUInt16();
+            byte cbVerticesStride = reader.ReadByte();
+            byte cbFaceStride = reader.ReadByte();
 
             int vertBytesToSkip = 0;
             if (cbVerticesStride != 36) // Some new bytes were added to new meshes regarding vertex color data. Skip over them if we can.
                 vertBytesToSkip = cbVerticesStride - 36;
 
-            uint numVerts = reader.ReadUInt32();
-            uint numFaces = reader.ReadUInt32();
+            mesh.VertCount = reader.ReadUInt32();
+            mesh.FaceCount = reader.ReadUInt32();
+            mesh.Verts = new Vertex[mesh.VertCount];
+            mesh.Faces = new int[mesh.FaceCount][];
 
-            Vertex[] verts = new Vertex[numVerts];
-            Polygon[] faces = new Polygon[numFaces];
-
-            for (int i = 0; i < numVerts; i++)
+            for (int i = 0; i < mesh.VertCount; i++)
             {
                 Vertex vert = new Vertex();
                 vert.Pos = new Vector3(reader);
                 vert.Norm = new Vector3(reader);
                 vert.UV = new Vector3(reader);
-                verts[i] = vert;
+                mesh.Verts[i] = vert;
                 if (vertBytesToSkip > 0)
                     reader.ReadBytes(vertBytesToSkip);
             }
 
-            mesh.PolyCount = numFaces;
-            mesh.Polygons = new Polygon[mesh.PolyCount];
-
-            for (int p = 0; p < mesh.PolyCount; p++)
+            for (int p = 0; p < mesh.FaceCount; p++)
             {
-                Polygon poly = new Polygon();
+                int[] face = new int[3];
                 for (int i = 0; i < 3; i++)
-                {
-                    int setIndex = (int)reader.ReadUInt32();
-                    Vertex vert = verts[setIndex];
-                    poly.Verts[i] = vert;
-                }
-                mesh.Polygons[p] = poly;
+                    face[i] = reader.ReadInt32();
+
+                mesh.Faces[p] = face;
             }
 
             mesh.Loaded = true;
         }
 
-        private static Mesh buildMesh(byte[] data)
+        private static Mesh load(byte[] data)
         {
-            string file = Encoding.UTF8.GetString(data);
+            string file = Encoding.ASCII.GetString(data);
             if (!file.StartsWith("version "))
                 throw new Exception("Invalid .mesh header!");
 
             Mesh mesh = new Mesh();
-            double version = double.Parse(file.Substring(8,4));
+            double version = double.Parse(file.Substring(8,4), Rbx2Source.NormalParse);
 
-            if ((int)version == 1)
+            mesh.Version = (int)version;
+
+            if (mesh.Version == 1)
             {
                 StringReader buffer = new StringReader(file);
                 loadGeometryV1(buffer, mesh);
             }
-            else if ((int)version == 2)
+            else if (mesh.Version == 2)
             {
                 MemoryStream stream = new MemoryStream(data);
                 BinaryReader reader = new BinaryReader(stream);
@@ -162,33 +164,10 @@ namespace Rbx2Source.Geometry
             return mesh;
         }
 
-        /// <summary>
-        /// Creates a copy of the polygon array, then rescales and offsets the vertices based on the parameters.
-        /// </summary>
-        /// <param name="scale">The scale of the mesh</param>
-        /// <param name="offset">The offset of the mesh, relative to its origin</param>
-        /// <returns>The copied polygon array, with the geometry changes applied</returns>
-        public Polygon[] BakeGeometry(Vector3 scale, CFrame offset)
+        public void BakeGeometry(Vector3 scale, CFrame offset)
         {
-            Polygon[] bakedPolygons = new Polygon[PolyCount];
-
-            for (int i = 0; i < PolyCount; i++)
-            {
-                Polygon src = Polygons[i];
-                Polygon newPolygon = new Polygon();
-                for (int v = 0; v < 3; v++)
-                {
-                    Vertex vert = src.Verts[v];
-                    Vertex newVert = new Vertex();
-                    newVert.Pos = (offset * new CFrame(vert.Pos * scale)).p;
-                    newVert.Norm = vert.Norm;
-                    newVert.UV = vert.UV;
-                    newPolygon.Verts[v] = newVert;
-                }
-                bakedPolygons[i] = newPolygon;
-            }
-
-            return bakedPolygons;
+            for (int i = 0; i < VertCount; i++)
+                Verts[i].Pos = (offset * new CFrame(Verts[i].Pos * scale)).p;
         }
 
         public static Mesh FromFile(string path)
@@ -201,18 +180,18 @@ namespace Rbx2Source.Geometry
             meshStream.Read(data, 0, (int)length);
             meshStream.Close();
 
-            return buildMesh(data);
+            return load(data);
         }
 
         public static Mesh FromAsset(Asset asset)
         {
             byte[] content = asset.GetContent();
-            return buildMesh(content);
+            return load(content);
         }
 
-        public static Polygon[] BakePart(Part part, Material material = null)
+        public static Mesh BakePart(Part part, Material material = null)
         {
-            Polygon[] result = null;
+            Mesh result = null;
 
             Asset meshAsset = null;
             Asset textureAsset = null;
@@ -286,8 +265,8 @@ namespace Rbx2Source.Geometry
                 if (material != null)
                     material.TextureAsset = textureAsset;
 
-                Mesh mesh = Mesh.FromAsset(meshAsset);
-                result = mesh.BakeGeometry(scale, offset);
+                result = FromAsset(meshAsset);
+                result.BakeGeometry(scale, offset);
             }
 
             return result;

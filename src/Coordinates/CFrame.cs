@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace Rbx2Source.Coordinates
@@ -118,7 +114,7 @@ namespace Rbx2Source.Coordinates
         {
             float[] p = new float[12];
             for (int i = 0; i < 12; i++)
-                p[i] = float.Parse(cfData.ChildNodes[i].InnerText);
+                p[i] = float.Parse(cfData.ChildNodes[i].InnerText, Rbx2Source.NormalParse);
 
             return new CFrame(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11]);
         }

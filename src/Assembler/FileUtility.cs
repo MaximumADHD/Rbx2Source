@@ -37,8 +37,8 @@ namespace Rbx2Source.Assembler
             int count = 1;
             while (stream.CanRead && count > 0)
             {
-                byte[] buffer = new byte[128];
-                count = stream.Read(buffer, 0, 128);
+                byte[] buffer = new byte[2048];
+                count = stream.Read(buffer, 0, 2048);
                 streamBuffer.Write(buffer, 0, count);
             }
 

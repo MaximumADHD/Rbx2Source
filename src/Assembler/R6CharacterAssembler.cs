@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
-using Rbx2Source.Coordinates;
-using Rbx2Source.Geometry;
 using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.StudioMdl;
@@ -122,7 +114,7 @@ namespace Rbx2Source.Assembler
             {
                 if (line.StartsWith("usemtl "))
                 {
-                    int value = int.Parse(line.Substring(14).Replace("Mtl", ""));
+                    int value = int.Parse(line.Substring(14).Replace("Mtl", ""), Rbx2Source.NormalParse);
                     matLookUp.Add(value);
                 }
             }
@@ -140,7 +132,7 @@ namespace Rbx2Source.Assembler
             while ((line = reader.ReadLine()) != null)
             {
                 if (line.StartsWith("newmtl"))
-                    currentGroup = int.Parse(line.Substring(14).Replace("Mtl",""));
+                    currentGroup = int.Parse(line.Substring(14).Replace("Mtl",""), Rbx2Source.NormalParse);
                 else if (line.StartsWith("map_d"))
                 {
                     string textureHash = line.Substring(6);

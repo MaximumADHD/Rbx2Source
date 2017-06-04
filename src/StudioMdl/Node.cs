@@ -16,7 +16,7 @@ namespace Rbx2Source.StudioMdl
         public int NodeIndex;
         public bool UseParentIndex = false;
         public int ParentIndex = -1;
-        public Polygon[] Geometry;
+        public Mesh Mesh;
 
         public string GroupName
         {

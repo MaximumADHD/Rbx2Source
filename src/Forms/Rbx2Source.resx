@@ -2527,7 +2527,18 @@
 </value>
   </data>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.06] (May 31st, 2017)
+    <value>[v2.07] (June 4th, 2017)
+• Refactored a lot of the model compiler code,
+  so models should compile MUCH faster now.
+• Rewrote the asset fetcher so that it properly caches
+  assets that have been loaded at least once from the
+  website. 
+• Fixed some parser issues that could occur due to
+  some weird culture localization features.
+• If a user is wearing the "Blockhead" head, it should
+  be generated correctly now.
+______________________________________________________
+[v2.06] (May 31st, 2017)
 • Fixed a compiler crash that was caused by the 
   introduction of vertex color metadata to the binary
   mesh file format.

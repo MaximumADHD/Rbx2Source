@@ -48,7 +48,7 @@ namespace Rbx2Source.Coordinates
         {
             float[] p = new float[3];
             for (int i = 0; i < 3; i++)
-                p[i] = float.Parse(vecData.ChildNodes[i].InnerText);
+                p[i] = float.Parse(vecData.ChildNodes[i].InnerText, Rbx2Source.NormalParse);
 
             this.x = p[0];
             this.y = p[1];

@@ -14,8 +14,9 @@ namespace Rbx2Source.StudioMdl
     class Triangle : IStudioMdlEntity
     {
         public string Material;
-        public Polygon Polygon;
         public Node Node;
+        public Mesh Mesh;
+        public int FaceIndex;
 
         public string GroupName
         {
@@ -27,13 +28,17 @@ namespace Rbx2Source.StudioMdl
             Triangle tri = rawTri as Triangle;
             buffer.WriteLine(Material);
 
-            Polygon poly = tri.Polygon;
+            Mesh mesh = tri.Mesh;
+            Vertex[] verts = mesh.Verts;
+
             Node node = tri.Node;
             int bone = node.NodeIndex;
 
+            int[] face = tri.Mesh.Faces[FaceIndex];
+
             for (int i = 0; i < 3; i++)
             {
-                Vertex vert = poly.Verts[i];
+                Vertex vert = verts[face[i]];
                 string pos = vert.Pos.ToStudioMdlString();
                 string norm = vert.Norm.ToStudioMdlString();
                 string uv = vert.UV.ToStudioMdlString(true);

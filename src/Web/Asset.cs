@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.IO;
 using System.IO.Compression;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 using Newtonsoft.Json;
 using Rbx2Source.Assembler;
@@ -26,8 +24,8 @@ namespace Rbx2Source.Web
         public ProductInfo ProductInfo;
         public bool Loaded = false;
         public bool IsLocal = false;
-        public int VersionId;
-        public bool HasVersionId;
+        public string CdnUrl;
+        public string CdnCacheId;
         public byte[] Content;
         public bool ContentLoaded = false;
 
@@ -38,7 +36,7 @@ namespace Rbx2Source.Web
         {
             if (!ContentLoaded)
             {
-                HttpWebRequest request = WebRequest.CreateHttp("https://www.roblox.com/asset/?ID=" + Id);
+                HttpWebRequest request = WebRequest.CreateHttp(CdnUrl);
                 request.UserAgent = "Roblox";
                 request.Proxy = null;
                 request.UseDefaultCredentials = true;
@@ -61,63 +59,30 @@ namespace Rbx2Source.Web
             return Content;
         }
 
-        public Task<byte[]> GetContentAsync()
+        public static Asset Get(int assetId)
         {
-            Task<byte[]> contentTask = Task.Run<byte[]>(() =>
-            {
-                byte[] content = GetContent();
-                return content;
-            });
-            return contentTask;
-        }
-
-        public static Asset Get(int assetId, bool isVersionId = false)
-        {
-            int versionId = -1;
-
-            string appData = Environment.GetEnvironmentVariable("AppData");
-            string assetCacheDir = Path.Combine(appData, "Rbx2Source", "AssetCache");
-            string cachedFile = Path.Combine(assetCacheDir, assetId.ToString());
-            Directory.CreateDirectory(assetCacheDir);
-
-            string cachedContent = "";
-            bool gotCachedContent = false;
-
-            if (isVersionId)
-            {
-                versionId = assetId;
-                
-                if (File.Exists(cachedFile))
-                {
-                    Rbx2Source.Print("Got precached resource " + versionId);
-                    cachedContent = File.ReadAllText(cachedFile);
-                    gotCachedContent = true;
-                }
-                else if (!avidToId.ContainsKey(assetId))
-                {
-                    HttpWebRequest request = WebRequest.CreateHttp("http://www.roblox.com/Item.aspx?avid=" + assetId);
-                    request.Proxy = null;
-                    request.UserAgent = "Roblox";
-
-                    WebResponse response = request.GetResponse();
-                    string sAssetId = response.ResponseUri.Segments[2].Replace("/", "");
-                    int newAssetId = int.Parse(sAssetId);
-                    avidToId[assetId] = newAssetId;
-                    assetId = newAssetId;
-
-                    response.Close();
-                }
-                else
-                {
-                    assetId = avidToId[assetId];
-                }
-            }
-
             if (!assetCache.ContainsKey(assetId))
             {
+                string appData = Environment.GetEnvironmentVariable("AppData");
+                string assetCacheDir = Path.Combine(appData, "Rbx2Source", "AssetCache");
+                Directory.CreateDirectory(assetCacheDir);
+
+                // Ping Roblox to figure out what this asset's cdn url is
+                HttpWebRequest ping = WebRequest.CreateHttp("https://assetgame.roblox.com/asset/?ID=" + assetId);
+                ping.UserAgent = "Roblox";
+                ping.Method = "HEAD";
+                ping.AllowAutoRedirect = false;
+
+                HttpWebResponse response = (HttpWebResponse)ping.GetResponse();
+                string location = response.GetResponseHeader("Location");
+                string identifier = location.Remove(0, 7).Replace(".rbxcdn.com/", "-");
+                string cachedFile = Path.Combine(assetCacheDir, identifier);
+                response.Close();
+
                 Asset asset = null;
-                if (gotCachedContent)
+                if (File.Exists(cachedFile))
                 {
+                    string cachedContent = File.ReadAllText(cachedFile);
                     try
                     {
                         asset = JsonConvert.DeserializeObject<Asset>(cachedContent);
@@ -128,53 +93,43 @@ namespace Rbx2Source.Web
                         if (File.Exists(cachedFile)) File.Delete(cachedFile);
                     }
                 }
-                
+
                 if (asset == null)
                 {
                     asset = new Asset();
-                    if (isVersionId)
-                    {
-                        asset.HasVersionId = true;
-                        asset.VersionId = versionId;
-                    }
 
                     WebClient http = new WebClient();
                     http.UseDefaultCredentials = true;
                     http.Headers.Set(HttpRequestHeader.UserAgent, "Roblox");
                     http.Proxy = null;
                     asset.Id = assetId;
-                    
+
                     string productInfoJson = http.DownloadString("http://api.roblox.com/marketplace/productinfo?assetId=" + assetId);
                     asset.ProductInfo = JsonConvert.DeserializeObject<ProductInfo>(productInfoJson);
                     asset.ProductInfo.WindowsSafeName = FileUtility.MakeNameWindowsSafe(asset.ProductInfo.Name);
                     asset.AssetType = asset.ProductInfo.AssetTypeId;
+                    asset.CdnUrl = location;
+                    asset.CdnCacheId = identifier;
+                    asset.GetContent();
                     asset.Loaded = true;
 
-                    if (isVersionId)
+                    string serialized = JsonConvert.SerializeObject(asset, Formatting.None, new JsonSerializerSettings());
+                    try
                     {
-                        asset.GetContent();
-                        string cacheContent = JsonConvert.SerializeObject(asset, Formatting.None, new JsonSerializerSettings());
-                        try
-                        {
-                            File.WriteAllText(cachedFile, cacheContent);
-                            Rbx2Source.Print("Precached resource {0}",versionId);
-                        }
-                        catch
-                        {
-                            // Oh well.
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Rbx2Source.Print("Failed to cache assetVersionId {0}!",versionId);
-                            Console.ForegroundColor = ConsoleColor.Gray;
-                        }
+                        File.WriteAllText(cachedFile, serialized);
+                        Rbx2Source.Print("Precached AssetId {0} as {1}", assetId, identifier);
+                    }
+                    catch
+                    {
+                        // Oh well.
+                        Rbx2Source.Print("Failed to cache AssetId {0} as {1}", assetId, identifier);
                     }
                 }
 
-                return asset;
+                assetCache[assetId] = asset;
             }
-            else
-            {
-                return assetCache[assetId];
-            }
+
+            return assetCache[assetId];
         }
 
         public static Asset FromResource(string path)
@@ -200,7 +155,7 @@ namespace Rbx2Source.Web
         {
             int legacyId = LegacyAssets.Check(url);
             if (legacyId > 0)
-                return Asset.Get(legacyId);
+                return Get(legacyId);
             else
             {
                 string sAssetId = "";
@@ -227,16 +182,6 @@ namespace Rbx2Source.Web
                 int assetId = int.Parse(sAssetId);
                 return Get(assetId);
             }
-        }
-
-        public static Task<Asset> GetAsync(int assetId, bool isVersionId = false)
-        {
-            Task<Asset> asyncAsset = Task.Run<Asset>(() =>
-            {
-                Asset result = Get(assetId, isVersionId);
-                return result;
-            });
-            return asyncAsset;
         }
     }
 }

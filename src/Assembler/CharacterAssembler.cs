@@ -224,16 +224,17 @@ namespace Rbx2Source.Assembler
             material.UseAvatarMap = IsAvatarLimb;
 
             Rbx2Source.Print("\tBuilding Geometry for {0}",part.Name);
-            Polygon[] geometry = Mesh.BakePart(part, material);
+            Mesh geometry = Mesh.BakePart(part, material);
 
             if (!meshBuilder.Materials.ContainsKey(materialName))
                 meshBuilder.Materials.Add(materialName,material);
 
-            foreach (Polygon p in geometry)
+            for (int i = 0; i < geometry.FaceCount; i++)
             {
                 Triangle tri = new Triangle();
                 tri.Node = node;
-                tri.Polygon = p;
+                tri.Mesh = geometry;
+                tri.FaceIndex = i;
                 tri.Material = materialName;
                 meshBuilder.Triangles.Add(tri);
             }
@@ -254,13 +255,29 @@ namespace Rbx2Source.Assembler
                 if (asset.AssetType == AssetType.Head)
                 {
                     // ROBLOX WHY WOULD YOU HANDLE HEADS LIKE THIS LOL
-                    CylinderMesh cylinder = (CylinderMesh)import.FindFirstChildOfClass("CylinderMesh");
-                    if (cylinder != null)
+                    BlockMesh block = (BlockMesh)import.FindFirstChildOfClass("BlockMesh");
+                    if (block != null)
                     {
-                        string assetName = asset.ProductInfo.Name;
+                        CylinderMesh cylinder = new CylinderMesh();
                         cylinder.UsingSuperAwkwardHeadProtocol = true;
-                        cylinder.HeadAssetName = assetName;
+                        cylinder.HeadAssetName = "Blockhead";
+                        cylinder.Scale = new Vector3(1, 1, 1);
+                        cylinder.Offset = new Vector3();
+                        cylinder.VertexColor = new Vector3(1, 1, 1);
+                        cylinder.Parent = import;
+                        block.Destroy();
                     }
+                    else
+                    {
+                        CylinderMesh cylinder = (CylinderMesh)import.FindFirstChildOfClass("CylinderMesh");
+                        if (cylinder != null)
+                        {
+                            string assetName = asset.ProductInfo.Name;
+                            cylinder.UsingSuperAwkwardHeadProtocol = true;
+                            cylinder.HeadAssetName = assetName;
+                        }
+                    }
+                    
                 }
                 Folder typeSpecific = (Folder)import.FindFirstChild(avatarType);
                 if (typeSpecific != null)

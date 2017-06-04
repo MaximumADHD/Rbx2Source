@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -9,7 +10,6 @@ using Microsoft.Win32;
 
 using Rbx2Source.Assembler;
 using Rbx2Source.Compiler;
-using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.Web;
 
@@ -35,6 +35,7 @@ namespace Rbx2Source
             }
         }
 
+        public static IFormatProvider NormalParse = CultureInfo.InvariantCulture;
         public Launcher baseProcess;
 
         private UserInfo currentUser;

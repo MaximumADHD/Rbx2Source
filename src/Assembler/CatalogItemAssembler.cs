@@ -121,13 +121,13 @@ namespace Rbx2Source.Assembler
                 
                 // Assemble the part.
                 Material material = new Material();
-                Polygon[] geometry = Mesh.BakePart(part,material);
+                Mesh geometry = Mesh.BakePart(part,material);
 
-                if (geometry != null && geometry.Length > 0)
+                if (geometry != null && geometry.FaceCount > 0)
                 {
                     string task = "BuildGeometry_" + name;
                     Rbx2Source.ScheduleTasks(task);
-                    Rbx2Source.Print("\tBuilding Geometry for {0}", name);
+                    Rbx2Source.Print("Building Geometry for {0}", name);
 
                     Bone bone = new Bone(name, primaryPart, part);
                     bone.C0 = part.CFrame;
@@ -138,11 +138,12 @@ namespace Rbx2Source.Assembler
 
                     materials.Add(name, material);
 
-                    foreach (Polygon p in geometry)
+                    for (int i = 0; i < geometry.FaceCount; i++)
                     {
                         Triangle tri = new Triangle();
                         tri.Node = node;
-                        tri.Polygon = p;
+                        tri.Mesh = geometry;
+                        tri.FaceIndex = i;
                         tri.Material = name;
                         triangles.Add(tri);
                     }

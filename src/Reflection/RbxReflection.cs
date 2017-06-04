@@ -68,11 +68,11 @@ namespace Rbx2Source.Reflection
                         if (propertyType == "string")
                             value = sValue;
                         else if (propertyType == "float")
-                            value = float.Parse(sValue);
+                            value = float.Parse(sValue, Rbx2Source.NormalParse);
                         else if (propertyType == "double")
-                            value = double.Parse(sValue);
+                            value = double.Parse(sValue, Rbx2Source.NormalParse);
                         else if (propertyType == "int")
-                            value = int.Parse(sValue);
+                            value = int.Parse(sValue, Rbx2Source.NormalParse);
                         else if (propertyType == "CoordinateFrame")
                             value = CFrame.FromXml(property);
                         else if (propertyType == "Vector3")
