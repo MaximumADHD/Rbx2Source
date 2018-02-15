@@ -206,58 +206,66 @@ namespace Rbx2Source.Geometry
                 material.Reflectance = part.Reflectance;
             }
 
-            if (part.IsA("MeshPart"))
+            if (part.Transparency < 1)
             {
-                MeshPart meshPart = (MeshPart)part;
-                if (meshPart.MeshID == null)
+                if (part.IsA("MeshPart"))
                 {
-                    string partName = meshPart.Name;
-                    if (StandardLimbs.ContainsKey(partName))
-                        meshAsset = StandardLimbs[partName];
-                }
-                else meshAsset = Asset.GetByAssetId(meshPart.MeshID);
-
-                if (meshPart.TextureID != null)
-                    textureAsset = Asset.GetByAssetId(meshPart.TextureID); 
-                
-                scale = meshPart.Size / meshPart.InitialSize;
-                offset = part.CFrame;
-            }
-            else
-            {
-                offset = part.CFrame;
-
-                DataModelMesh legacy = (DataModelMesh)part.FindFirstChildOfClass("DataModelMesh");
-                if (legacy != null)
-                {
-                    scale = legacy.Scale;
-                    offset *= new CFrame(legacy.Offset);
-
-                    if (material != null)
-                        material.VertexColor = legacy.VertexColor;
-
-                    if (legacy.IsA("SpecialMesh"))
+                    MeshPart meshPart = (MeshPart)part;
+                    if (meshPart.MeshID == null)
                     {
-                        SpecialMesh specialMesh = (SpecialMesh)legacy;
-                        if (specialMesh.MeshType == MeshType.Head)
-                            meshAsset = Asset.FromResource("Meshes/StandardLimbs/head.mesh");
-                        else
-                            meshAsset = Asset.GetByAssetId(specialMesh.MeshId);
-
-                        if (specialMesh.TextureId != null)
-                            textureAsset = Asset.GetByAssetId(specialMesh.TextureId);
+                        string partName = meshPart.Name;
+                        if (StandardLimbs.ContainsKey(partName))
+                            meshAsset = StandardLimbs[partName];
                     }
+                    else meshAsset = Asset.GetByAssetId(meshPart.MeshID);
 
-                    else if (legacy.IsA("CylinderMesh"))
+                    if (meshPart.TextureID != null)
+                        textureAsset = Asset.GetByAssetId(meshPart.TextureID);
+
+                    scale = meshPart.Size / meshPart.InitialSize;
+                    offset = part.CFrame;
+                }
+                else
+                {
+                    offset = part.CFrame;
+
+                    DataModelMesh legacy = (DataModelMesh)part.FindFirstChildOfClass("DataModelMesh");
+                    if (legacy != null)
                     {
-                        CylinderMesh cylinderMesh = (CylinderMesh)legacy;
-                        if (cylinderMesh.UsingSuperAwkwardHeadProtocol)
+                        scale = legacy.Scale;
+                        offset *= new CFrame(legacy.Offset);
+
+                        if (material != null)
+                            material.VertexColor = legacy.VertexColor;
+
+                        if (legacy.IsA("SpecialMesh"))
                         {
-                            meshAsset = Asset.FromResource("Meshes/Heads/" + cylinderMesh.HeadAssetName + ".mesh");
-                            scale = new Vector3(1, 1, 1);
+                            SpecialMesh specialMesh = (SpecialMesh)legacy;
+                            if (specialMesh.MeshType == MeshType.Head)
+                                meshAsset = Asset.FromResource("Meshes/StandardLimbs/head.mesh");
+                            else
+                                meshAsset = Asset.GetByAssetId(specialMesh.MeshId);
+
+                            if (specialMesh.TextureId != null)
+                                textureAsset = Asset.GetByAssetId(specialMesh.TextureId);
+                        }
+
+                        else if (legacy.IsA("CylinderMesh"))
+                        {
+                            CylinderMesh cylinderMesh = (CylinderMesh)legacy;
+                            if (cylinderMesh.UsingSuperAwkwardHeadProtocol)
+                            {
+                                meshAsset = Asset.FromResource("Meshes/Heads/" + cylinderMesh.HeadAssetName + ".mesh");
+                                scale = new Vector3(1, 1, 1);
+                            }
                         }
                     }
                 }
+            }
+            else
+            {
+                // Just give it a blank mesh to eat for now.
+                result = new Mesh();
             }
 
             if (meshAsset != null)

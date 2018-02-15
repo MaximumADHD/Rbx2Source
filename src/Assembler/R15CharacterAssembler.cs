@@ -57,6 +57,7 @@ namespace Rbx2Source.Assembler
                 {
                     Instance existing = assembly.FindFirstChild(asset.Name);
                     if (existing != null) existing.Destroy();
+                    Part part = (Part)asset;
                     asset.Parent = assembly;
                 }
                 else if (asset.IsA("Accoutrement"))
@@ -110,8 +111,18 @@ namespace Rbx2Source.Assembler
             assembly.Images = new Dictionary<string, Image>();
             assembly.MatLinks = new Dictionary<string, string>();
 
-            string uvMapUrl = TextureFetch.FromUser(avatar.UserInfo.Id)[0];
-            Bitmap uvMap = RbxWebUtility.DownloadImage(uvMapUrl);
+            // Figure out which image is the uvMap
+            Bitmap uvMap = null;
+            foreach (string uvMapUrl in TextureFetch.FromUser(avatar.UserInfo.Id))
+            {
+                Bitmap possibleUvMap = RbxWebUtility.DownloadImage(uvMapUrl);
+                if (possibleUvMap.Width == 1024 && possibleUvMap.Height == 1024)
+                {
+                    uvMap = possibleUvMap;
+                    break;
+                }
+            }
+
             ImageAttributes blankAtt = new ImageAttributes();
 
             foreach (string materialName in materials.Keys)

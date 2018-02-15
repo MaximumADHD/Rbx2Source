@@ -2527,7 +2527,17 @@
 </value>
   </data>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.07] (June 4th, 2017)
+    <value>[v2.08] (February 15th, 2018)
+• Fixed a bug where the R15 texture assembler 
+  wasn't using the right texture.
+• Fixed a bug where invisible limbs would be generated
+  when using R15 package limbs, like the peg leg.
+• Replaced spellings of "ROBLOX" with "Roblox".
+• Switched my @MaxGee1019 handle over to 
+  @MaxGeee1019 in the program credits
+  (because Twitter sucks &lt;3)
+______________________________________________________
+[v2.07] (June 4th, 2017)
 • Refactored a lot of the model compiler code,
   so models should compile MUCH faster now.
 • Rewrote the asset fetcher so that it properly caches

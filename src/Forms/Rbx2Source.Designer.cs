@@ -174,7 +174,7 @@
             this.egoMooseContribution.Name = "egoMooseContribution";
             this.egoMooseContribution.Size = new System.Drawing.Size(149, 36);
             this.egoMooseContribution.TabIndex = 11;
-            this.egoMooseContribution.Text = "Rewrote ROBLOX\'s CFrame \r\ndatatype from scratch in C# for me.\r\n\r\n";
+            this.egoMooseContribution.Text = "Rewrote Roblox\'s CFrame \r\ndatatype from scratch in C# for me.\r\n\r\n";
             // 
             // egoMooseLink
             // 
@@ -194,9 +194,9 @@
             this.AJContribution.Location = new System.Drawing.Point(143, 149);
             this.AJContribution.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.AJContribution.Name = "AJContribution";
-            this.AJContribution.Size = new System.Drawing.Size(134, 24);
+            this.AJContribution.Size = new System.Drawing.Size(125, 24);
             this.AJContribution.TabIndex = 8;
-            this.AJContribution.Text = "Helped me reverse-engineer \r\nROBLOX\'s binary mesh format.";
+            this.AJContribution.Text = "Helped me reverse-engineer \r\nRoblox\'s binary mesh format.";
             // 
             // AJLink
             // 
@@ -227,10 +227,10 @@
             this.twitterLink.Location = new System.Drawing.Point(7, 207);
             this.twitterLink.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.twitterLink.Name = "twitterLink";
-            this.twitterLink.Size = new System.Drawing.Size(82, 13);
+            this.twitterLink.Size = new System.Drawing.Size(88, 13);
             this.twitterLink.TabIndex = 4;
             this.twitterLink.TabStop = true;
-            this.twitterLink.Text = "@MaxGee1019";
+            this.twitterLink.Text = "@MaxGeee1019";
             // 
             // developedBy
             // 
@@ -531,7 +531,7 @@
             this.MaximizeBox = false;
             this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Rbx2Source v2.07";
+            this.Text = "Rbx2Source v2.08";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);
             this.About.ResumeLayout(false);

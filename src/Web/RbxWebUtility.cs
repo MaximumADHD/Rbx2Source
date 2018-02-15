@@ -119,7 +119,7 @@ namespace Rbx2Source.Web
                     if (log) Rbx2Source.Print("\tWaiting for finalization of " + url + dots);
                     wait(1f);
                     if (dots.Length > 13)
-                        throw new Exception("RbxCdnPender timed out after 10 retries!\nROBLOX's server's may be overloaded right now.\nTry again after a few minutes!");
+                        throw new Exception("RbxCdnPender timed out after 10 retries!\nRoblox's server's may be overloaded right now.\nTry again after a few minutes!");
                 }
             }
             return result;
