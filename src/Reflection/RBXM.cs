@@ -169,17 +169,8 @@ namespace Rbx2Source.Reflection
                     }
 
                     if (value != null)
-                    {
-                        try
-                        {
-                            field.SetValue(obj, value);
-                        }
-                        catch
-                        {
-                            throw new Exception("FIELD CAST FIELD FOR " + classDesc.ClassName + "." + prop.Name);
-                        }
-                    }
-                        
+                        field.SetValue(obj, value);
+                    
                 }
             }
 
