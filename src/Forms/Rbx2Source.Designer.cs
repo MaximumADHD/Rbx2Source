@@ -227,10 +227,10 @@
             this.twitterLink.Location = new System.Drawing.Point(7, 207);
             this.twitterLink.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.twitterLink.Name = "twitterLink";
-            this.twitterLink.Size = new System.Drawing.Size(82, 13);
+            this.twitterLink.Size = new System.Drawing.Size(88, 13);
             this.twitterLink.TabIndex = 4;
             this.twitterLink.TabStop = true;
-            this.twitterLink.Text = "@MaxGee1019";
+            this.twitterLink.Text = "@MaxGeee1019";
             // 
             // developedBy
             // 

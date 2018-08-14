@@ -2,3 +2,5 @@
 */obj/*
 packages/*
 *.suo
+*.user
+*.ide

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Rbx2Source.Reflection
 {
     /// <summary>
-    /// Lazy implementation of Robloxs's Instance functionality.
+    /// Lazy implementation of Roblox's Instance functionality.
     /// </summary>
 
     class Instance
