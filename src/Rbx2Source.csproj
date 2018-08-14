@@ -74,6 +74,10 @@
     <DelaySign>false</DelaySign>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LZ4, Version=1.0.15.93, Culture=neutral, PublicKeyToken=62e1b5ec1eec9bdd, processorArchitecture=MSIL">
+      <HintPath>..\packages\lz4net.1.0.15.93\lib\net4-client\LZ4.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -105,6 +109,7 @@
     <Compile Include="Forms\Launcher.Designer.cs">
       <DependentUpon>Launcher.cs</DependentUpon>
     </Compile>
+    <Compile Include="Geometry\Heads.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -128,6 +133,13 @@
     <Compile Include="Coordinates\Coordinates.cs" />
     <Compile Include="QC\QCommand.cs" />
     <Compile Include="QC\QCWriter.cs" />
+    <Compile Include="Reflection\BinaryFormat\BinaryChunk.cs" />
+    <Compile Include="Reflection\BinaryFormat\BinaryFile.cs" />
+    <Compile Include="Reflection\BinaryFormat\Chunks\HEAD.cs" />
+    <Compile Include="Reflection\BinaryFormat\Chunks\INST.cs" />
+    <Compile Include="Reflection\BinaryFormat\Chunks\META.cs" />
+    <Compile Include="Reflection\BinaryFormat\Chunks\PRNT.cs" />
+    <Compile Include="Reflection\BinaryFormat\Chunks\PROP.cs" />
     <Compile Include="Reflection\ClassesWithProperties.cs" />
     <Compile Include="Reflection\Enums.cs" />
     <Compile Include="Reflection\BlankInheritances.cs" />
@@ -139,12 +151,12 @@
     <Compile Include="StudioMdl\Node.cs" />
     <Compile Include="StudioMdl\StudioMdlWriter.cs" />
     <Compile Include="Reflection\Instance.cs" />
-    <Compile Include="Reflection\RbxReflection.cs" />
+    <Compile Include="Reflection\RBXM.cs" />
     <Compile Include="StudioMdl\Triangle.cs" />
     <Compile Include="Web\AssetGroups.cs" />
     <Compile Include="Web\AssetType.cs" />
     <Compile Include="Web\LegacyAssets.cs" />
-    <Compile Include="Web\RbxWebUtility.cs" />
+    <Compile Include="Web\WebUtility.cs" />
     <Compile Include="Web\TextureFetch.cs" />
     <Compile Include="Web\UserData.cs" />
     <Compile Include="Coordinates\CFrame.cs" />
@@ -163,6 +175,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Rbx2Source.resx">
       <DependentUpon>Rbx2Source.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Climb.rbxmx" />
     <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Idle.rbxmx" />
@@ -195,7 +208,7 @@
     <EmbeddedResource Include="Resources\Meshes\Heads\Roll.mesh" />
     <EmbeddedResource Include="Resources\Meshes\Heads\Roundy.mesh" />
     <EmbeddedResource Include="Resources\Meshes\Heads\Trim.mesh" />
-    <EmbeddedResource Include="Resources\Meshes\StandardLimbs\head.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Default.mesh" />
     <EmbeddedResource Include="Resources\Meshes\Primitives\Ball.mesh" />
     <EmbeddedResource Include="Resources\Meshes\Primitives\Block.mesh" />
     <EmbeddedResource Include="Resources\Meshes\Primitives\Cylinder.mesh" />
@@ -221,6 +234,7 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="Rbx2Source.ico" />
+    <Content Include="Resources\Libraries\LZ4.dll" />
     <EmbeddedResource Include="Resources\Libraries\Newtonsoft.Json.dll" />
     <None Include="Resources\Images\Accoutrement_icon.png" />
     <None Include="Resources\Images\Humanoid_icon.png" />

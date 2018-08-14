@@ -8,7 +8,7 @@ namespace Rbx2Source.Web
 {
     class LegacyAssets
     {
-        private static Dictionary<string, int> Database = new Dictionary<string, int>()
+        private static Dictionary<string, long> Database = new Dictionary<string, long>()
         {
             {"rbxasset://textures/A_Key_dn.png", 12222317},
             {"rbxasset://textures/A_Key.png", 12222308},
@@ -214,7 +214,7 @@ namespace Rbx2Source.Web
             {"rbxasset://fonts/VikingHelmet.mesh", 12221815}
         };
 
-        public static int Check(string assetId)
+        public static long Check(string assetId)
         {
             if (Database.ContainsKey(assetId))
                 return Database[assetId];

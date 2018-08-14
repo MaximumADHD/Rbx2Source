@@ -60,7 +60,7 @@ namespace Rbx2Source.Assembler
 
         public static StudioMdlWriter AssembleModel(Asset asset)
         {
-            Folder content = RbxReflection.LoadFromAsset(asset);
+            Folder content = Reflection.RBXM.LoadFromAsset(asset);
             Rbx2Source.ScheduleTasks("GatherParts", "BuildMesh");
             Rbx2Source.PrintHeader("GATHERING PARTS");
 
@@ -176,13 +176,12 @@ namespace Rbx2Source.Assembler
                 {
                     string bcName = "Institutional white";
                     int brickColor = material.LinkedTo.BrickColor;
-                    if (BrickColors.NumericalSearch.Contains(brickColor))
+                    if (BrickColors.NumericalSearch.ContainsKey(brickColor))
                     {
-                        int palette = BrickColors.NumericalSearch.IndexOf(brickColor);
-                        BrickColor color = BrickColors.Palette[palette];
-                        float r = ((float)color.R) / 255.0f;
-                        float g = ((float)color.G) / 255.0f;
-                        float b = ((float)color.B) / 255.0f;
+                        BrickColor color = BrickColors.NumericalSearch[brickColor];
+                        float r = color.R / 255.0f;
+                        float g = color.G / 255.0f;
+                        float b = color.B / 255.0f;
                         material.VertexColor = new Vector3(r, g, b);
                         bcName = color.Name;
                     }
@@ -220,7 +219,7 @@ namespace Rbx2Source.Assembler
 
         public AssemblerData Assemble(object metadata)
         {
-            int assetId = (int)metadata;
+            long assetId = (long)metadata;
             Asset asset = Asset.Get(assetId);
             string assetName = asset.ProductInfo.WindowsSafeName;
 

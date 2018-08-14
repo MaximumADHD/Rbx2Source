@@ -10,6 +10,7 @@ using Microsoft.Win32;
 
 using Rbx2Source.Assembler;
 using Rbx2Source.Compiler;
+using Rbx2Source.Geometry;
 using Rbx2Source.Resources;
 using Rbx2Source.Web;
 
@@ -39,7 +40,7 @@ namespace Rbx2Source
         public Launcher baseProcess;
 
         private UserInfo currentUser;
-        private int currentAssetId = 19027209;
+        private long currentAssetId = 19027209;
 
         private Dictionary<string, GameInfo> sourceGames = new Dictionary<string, GameInfo>();
         private GameInfo selectedGame;
@@ -47,6 +48,7 @@ namespace Rbx2Source
         private string latestCompiledModel;
         private GameInfo latestCompiledOnGame;
         private Dictionary<Control, string> Links;
+        private static int stackLevel = 0;
 
         private static List<OutputLog> outputQueue = new List<OutputLog>();
         private static Dictionary<string, bool> progressQueue = new Dictionary<string, bool>();
@@ -58,8 +60,6 @@ namespace Rbx2Source
 
         public Rbx2Source()
         {
-            UserAvatar avatar = UserAvatar.FromUsername("CloneTrooper1019");
-            currentUser = avatar.UserInfo;
             InitializeComponent();
         }
 
@@ -93,9 +93,23 @@ namespace Rbx2Source
             outputQueue.Add(log);
         }
 
+        public static void IncrementStack()
+        {
+            stackLevel++;
+        }
+
+        public static void DecrementStack()
+        {
+            stackLevel--;
+        }
+
         public static void Print(string msg)
         {
-            OutputLog log = new OutputLog("\t" + msg);
+            int s = stackLevel + 1;
+            while (s-- > 0)
+                msg = "\t" + msg;
+
+            OutputLog log = new OutputLog(msg);
             PrintInternal(log);
         }
 
@@ -255,7 +269,7 @@ namespace Rbx2Source
             }
             else
             {
-                showError("This user does not exist!");
+                showError("An error occurred while trying to fetch this user!\nEither the user does not exist, or something went wrong with the request.");
                 return false;
             }
         }
@@ -263,8 +277,8 @@ namespace Rbx2Source
         private bool TrySetAssetId(object value)
         {
             string text = value.ToString();
-            int assetId = -1;
-            int.TryParse(text, out assetId);
+            long assetId = -1;
+            long.TryParse(text, out assetId);
             if (assetId > 0)
             {
                 Asset asset = null;
@@ -274,7 +288,7 @@ namespace Rbx2Source
                 }
                 catch
                 {
-                    showError("This AssetId isn't configured correctly on ROBLOX's end.\n\nThis error usually happens if you input a very old AssetId that doesn't exist on their servers.\n\nTry something else!");
+                    showError("This AssetId isn't configured correctly on Roblox's end.\n\nThis error usually happens if you input a very old AssetId that doesn't exist on their servers.\n\nTry something else!");
                 }
                 if (asset != null)
                 {
@@ -283,15 +297,20 @@ namespace Rbx2Source
                     if (isAccessory || assetType == AssetType.Gear)
                     {
                         assetPreview.Image = loadingImage;
-                        Settings.SetSetting("AssetId", assetId, true);
+                        Settings.SetSetting("AssetId64", assetId, true);
                         currentAssetId = assetId;
                         return true;
                     }
                     else
+                    {
                         showError("AssetType received: " + Enum.GetName(typeof(AssetType), assetType) + "\n\nExpected one of the following asset types:\n* Accessory\n* Gear\n\nTry again!");
+                    }
                 }
             }
-            else showError("Invalid AssetId!");
+            else
+            {
+                showError("Invalid AssetId!");
+            }
             return false;
         }
 
@@ -306,6 +325,7 @@ namespace Rbx2Source
             {
                 compilerInputField.Enabled = false;
                 compilerTypeSelect.Enabled = false;
+
                 if (compilerTypeSelect.Text == "Avatar")
                     TrySetUsername(compilerInputField.Text);
                 else if (compilerTypeSelect.Text == "Accessory/Gear")
@@ -313,6 +333,7 @@ namespace Rbx2Source
 
                 updateDisplays();
                 await Task.Delay(1);
+
                 compilerTypeSelect.Enabled = true;
                 compilerInputField.Enabled = true;
             }
@@ -621,7 +642,7 @@ namespace Rbx2Source
             if (userName != null)
                 TrySetUsername(userName);
 
-            int assetId = Settings.GetSetting<int>("AssetId");
+            string assetId = Settings.GetSetting<string>("AssetId64");
             TrySetAssetId(assetId);
 
             selectedGame = sourceGames[gameSelect.Text];
@@ -646,7 +667,7 @@ namespace Rbx2Source
                 {
                     if (assetPreview.ImageLocation != assetPreviewImage)
                     {
-                        RbxCdnPender check = RbxWebUtility.DownloadJSON<RbxCdnPender>(assetPreviewImage);
+                        CdnPender check = WebUtility.DownloadJSON<CdnPender>(assetPreviewImage);
                         if (check.Final)
                         {
                             assetPreviewImage = check.Url;
@@ -656,7 +677,7 @@ namespace Rbx2Source
                         {
                             string currentPending = assetPreviewImage; // localize this in case it changes.
                             assetPreview.Image = loadingImage;
-                            Task<string> pend = Task.Run(() => RbxWebUtility.PendCdnUrl(currentPending,false));
+                            Task<string> pend = Task.Run(() => WebUtility.PendCdnUrl(currentPending,false));
                             while (!pend.IsCompleted)
                             {
                                 if (assetPreviewImage != currentPending) break;

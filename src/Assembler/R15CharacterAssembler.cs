@@ -45,8 +45,7 @@ namespace Rbx2Source.Assembler
 
             // Build Character
 
-            Rbx2Source.Print("Importing...");
-            Folder import = RbxReflection.LoadFromAsset(R15AssemblyAsset);
+            Folder import = Reflection.RBXM.LoadFromAsset(R15AssemblyAsset);
             Folder assembly = (Folder)import.FindFirstChild("ASSEMBLY");
             Part head = (Part)assembly.FindFirstChild("Head");
             Vector3 avatarScale = GetAvatarScale(scale);
@@ -97,10 +96,11 @@ namespace Rbx2Source.Assembler
 
             // Build File Data.
             Rbx2Source.Print("Building Geometry...");
-
+            Rbx2Source.IncrementStack();
             foreach (Bone bone in bones)
                 BuildAvatarGeometry(meshBuilder, bone);
 
+            Rbx2Source.DecrementStack();
             return meshBuilder;
         }
 
@@ -110,8 +110,18 @@ namespace Rbx2Source.Assembler
             assembly.Images = new Dictionary<string, Image>();
             assembly.MatLinks = new Dictionary<string, string>();
 
-            string uvMapUrl = TextureFetch.FromUser(avatar.UserInfo.Id)[0];
-            Bitmap uvMap = RbxWebUtility.DownloadImage(uvMapUrl);
+            // Figure out which image is the uvMap
+            Bitmap uvMap = null;
+            foreach (string uvMapUrl in TextureFetch.FromUser(avatar.UserInfo.Id))
+            {
+                Bitmap possibleUvMap = WebUtility.DownloadImage(uvMapUrl);
+                if (possibleUvMap.Width == 1024 && possibleUvMap.Height == 1024)
+                {
+                    uvMap = possibleUvMap;
+                    break;
+                }
+            }
+
             ImageAttributes blankAtt = new ImageAttributes();
 
             foreach (string materialName in materials.Keys)
@@ -146,9 +156,12 @@ namespace Rbx2Source.Assembler
                 else
                 {
                     Asset texture = material.TextureAsset;
-                    byte[] textureData = texture.GetContent();
-                    MemoryStream textureStream = new MemoryStream(textureData);
-                    image = Image.FromStream(textureStream);
+                    if (texture != null)
+                    {
+                        byte[] textureData = texture.GetContent();
+                        MemoryStream textureStream = new MemoryStream(textureData);
+                        image = Image.FromStream(textureStream);
+                    }
                 }
                 if (image != null)
                 {

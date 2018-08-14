@@ -43,7 +43,7 @@ namespace Rbx2Source.Assembler
 
             // Build Character
 
-            Folder import = RbxReflection.LoadFromAsset(R6AssemblyAsset);
+            Folder import = Reflection.RBXM.LoadFromAsset(R6AssemblyAsset);
             Folder assembly = (Folder)import.FindFirstChild("ASSEMBLY");
             Part torso = (Part)assembly.FindFirstChild("Torso");
             Part head = (Part)assembly.FindFirstChild("Head");
@@ -104,8 +104,8 @@ namespace Rbx2Source.Assembler
 
             Rbx3DThumbnailInfo info = TextureFetch.Get3DThumbnail(avatar.UserInfo.Id);
             string objHash = info.Obj;
-            string objUrl = RbxWebUtility.ResolveHashUrl(objHash);
-            string obj = RbxWebUtility.DownloadString(objUrl);
+            string objUrl = WebUtility.ResolveHashUrl(objHash);
+            string obj = WebUtility.DownloadString(objUrl);
             StringReader reader = new StringReader(obj);
 
             List<int> matLookUp = new List<int>();
@@ -122,8 +122,8 @@ namespace Rbx2Source.Assembler
             int groupCount = matLookUp.Count;
 
             string materialHash = info.Mtl;
-            string materialUrl = RbxWebUtility.ResolveHashUrl(materialHash);
-            string material = RbxWebUtility.DownloadString(materialUrl);
+            string materialUrl = WebUtility.ResolveHashUrl(materialHash);
+            string material = WebUtility.DownloadString(materialUrl);
             reader = new StringReader(material);
 
             int currentGroup = 0;
@@ -148,8 +148,8 @@ namespace Rbx2Source.Assembler
             {
                 string mtlName = "AvatarMap_Id" + group;
                 string textureHash = textureIndex[group];
-                string textureUrl = RbxWebUtility.ResolveHashUrl(textureHash);
-                Bitmap baseImage = RbxWebUtility.DownloadImage(textureUrl);
+                string textureUrl = WebUtility.ResolveHashUrl(textureHash);
+                Bitmap baseImage = WebUtility.DownloadImage(textureUrl);
                 Size baseImgSize = baseImage.Size;
                 int aspectRatio = baseImgSize.Width / baseImgSize.Height;
                 if (aspectRatio == 2) // If it isn't 2:1, then we can safely assume this isn't a relevant texture map.

@@ -20,7 +20,7 @@ namespace Rbx2Source.Resources
         public static T GetSetting<T>(string key)
         {
             object value = GetSetting(key);
-            if (value != null && value is T)
+            if (value != null)
                 return (T)value;
             else
                 return default(T);
@@ -52,14 +52,20 @@ namespace Rbx2Source.Resources
             cache = new Dictionary<string, object>();
 
             foreach (string key in rbx2Source.GetValueNames())
-                SetSetting(key,rbx2Source.GetValue(key));
+                SetSetting(key, rbx2Source.GetValue(key));
 
             if (GetSetting("Initialized") == null)
             {
                 SetSetting("Username", "CloneTrooper1019");
-                SetSetting("AssetId", 19027209);
+                SetSetting("AssetId64", (long)19027209);
                 SetSetting("CompilerType", "Avatar");
                 SetSetting("Initialized", true);
+            }
+            else if (GetSetting("MigratedToInt64") == null)
+            {
+                int assetId = GetSetting<int>("AssetId");
+                SetSetting("AssetId64", (long)assetId);
+                SetSetting("MigratedToInt64", true);
             }
         }
     }

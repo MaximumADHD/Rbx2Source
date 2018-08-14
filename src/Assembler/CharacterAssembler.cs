@@ -3,20 +3,15 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 using Rbx2Source.Animation;
 using Rbx2Source.Coordinates;
-using Rbx2Source.Compiler;
 using Rbx2Source.Geometry;
 using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.QC;
 using Rbx2Source.StudioMdl;
 using Rbx2Source.Web;
-using System.Reflection;
 
 namespace Rbx2Source.Assembler
 {
@@ -223,7 +218,8 @@ namespace Rbx2Source.Assembler
             Material material = new Material();
             material.UseAvatarMap = IsAvatarLimb;
 
-            Rbx2Source.Print("\tBuilding Geometry for {0}",part.Name);
+            Rbx2Source.Print("Building Geometry for {0}",part.Name);
+            Rbx2Source.IncrementStack();
             Mesh geometry = Mesh.BakePart(part, material);
 
             if (!meshBuilder.Materials.ContainsKey(materialName))
@@ -239,6 +235,7 @@ namespace Rbx2Source.Assembler
                 meshBuilder.Triangles.Add(tri);
             }
 
+            Rbx2Source.DecrementStack();
             Rbx2Source.MarkTaskCompleted(task);
         }
 
@@ -246,39 +243,12 @@ namespace Rbx2Source.Assembler
         {
             Rbx2Source.PrintHeader("GATHERING CHARACTER ASSETS");
             Folder characterAssets = new Folder();
-            List<int> assetIds = avatar.CurrentlyWearing.AssetIds;
+            List<long> assetIds = avatar.CurrentlyWearing.AssetIds;
 
-            foreach (int id in assetIds)
+            foreach (long id in assetIds)
             {
                 Asset asset = Asset.Get(id);
-                Folder import = RbxReflection.LoadFromAsset(asset);
-                if (asset.AssetType == AssetType.Head)
-                {
-                    // ROBLOX WHY WOULD YOU HANDLE HEADS LIKE THIS LOL
-                    BlockMesh block = (BlockMesh)import.FindFirstChildOfClass("BlockMesh");
-                    if (block != null)
-                    {
-                        CylinderMesh cylinder = new CylinderMesh();
-                        cylinder.UsingSuperAwkwardHeadProtocol = true;
-                        cylinder.HeadAssetName = "Blockhead";
-                        cylinder.Scale = new Vector3(1, 1, 1);
-                        cylinder.Offset = new Vector3();
-                        cylinder.VertexColor = new Vector3(1, 1, 1);
-                        cylinder.Parent = import;
-                        block.Destroy();
-                    }
-                    else
-                    {
-                        CylinderMesh cylinder = (CylinderMesh)import.FindFirstChildOfClass("CylinderMesh");
-                        if (cylinder != null)
-                        {
-                            string assetName = asset.ProductInfo.Name;
-                            cylinder.UsingSuperAwkwardHeadProtocol = true;
-                            cylinder.HeadAssetName = assetName;
-                        }
-                    }
-                    
-                }
+                Folder import = RBXM.LoadFromAsset(asset);
                 Folder typeSpecific = (Folder)import.FindFirstChild(avatarType);
                 if (typeSpecific != null)
                     import = typeSpecific;
@@ -338,6 +308,7 @@ namespace Rbx2Source.Assembler
 
             Rbx2Source.ScheduleTasks("BuildCharacter", "BuildCollisionModel", "BuildAnimations", "BuildTextures", "BuildMaterials", "BuildCompilerScript");
             Rbx2Source.PrintHeader("BUILDING CHARACTER MODEL");
+
             StudioMdlWriter writer = assembler.AssembleModel(characterAssets, avatar.Scales);
 
             string studioMdl = writer.BuildFile();
@@ -375,13 +346,13 @@ namespace Rbx2Source.Assembler
 
             Rbx2Source.PrintHeader("BUILDING CHARACTER ANIMATIONS");
             Dictionary<string, string> animations = GatherAnimations(avatarType);
-            if (animations.Count == 0) Rbx2Source.Print("\tNo animations found :(");
+            if (animations.Count == 0) Rbx2Source.Print("No animations found :(");
             foreach (string animName in animations.Keys)
             {
                 Rbx2Source.Print("Building Animation {0}", animName);
                 string localAnimPath = animations[animName];
                 Asset animAsset = Asset.FromResource(localAnimPath);
-                Folder import = RbxReflection.LoadFromAsset(animAsset);
+                Folder import = Reflection.RBXM.LoadFromAsset(animAsset);
                 KeyframeSequence sequence = import.FindFirstChildOfClass("KeyframeSequence") as KeyframeSequence;
                 sequence.Name = animName;
                 sequence.AvatarType = avatarType;

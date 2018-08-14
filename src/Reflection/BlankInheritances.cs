@@ -4,7 +4,8 @@
     // Its required for the reflection to work correctly.
 
     class Accessory : Accoutrement { }
-    class BlockMesh : Accoutrement { }
+    class BlockMesh : BevelMesh { }
+    class CylinderMesh : BevelMesh { }
     class Folder : Instance { }
     class Hat : Accoutrement { }
     class Tool : Instance { }

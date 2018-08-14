@@ -12,23 +12,23 @@ namespace Rbx2Source.Web
 
     class TextureFetch
     {
-        public static Rbx3DThumbnailInfo Get3DThumbnail(int userId)
+        public static Rbx3DThumbnailInfo Get3DThumbnail(long userId)
         {
             Rbx3DThumbnailInfo info = null;
-            string url = RbxWebUtility.PendCdnUrl("http://www.roblox.com/avatar-thumbnail-3d/json?userId=" + userId);
+            string url = WebUtility.PendCdnUrl("http://www.roblox.com/avatar-thumbnail-3d/json?userId=" + userId);
             if (url != null)
-                info = RbxWebUtility.DownloadJSON<Rbx3DThumbnailInfo>(url);
+                info = WebUtility.DownloadJSON<Rbx3DThumbnailInfo>(url);
 
             return info;
         }
 
-        public static List<string> FromUser(int userId)
+        public static List<string> FromUser(long userId)
         {
             List<string> result = new List<string>();
             Rbx3DThumbnailInfo info = Get3DThumbnail(userId);
             if (info != null)
                 foreach (string textureHash in info.Textures)
-                    result.Add(RbxWebUtility.ResolveHashUrl(textureHash));
+                    result.Add(WebUtility.ResolveHashUrl(textureHash));
 
             return result;
         }

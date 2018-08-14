@@ -19,16 +19,17 @@ namespace Rbx2Source.Reflection
 
     class CharacterMesh : Instance
     {
-        public int BaseTextureId;
+        public long BaseTextureId;
         public Limb BodyPart;
-        public int MeshId;
-        public int OverlayTextureId;
+        public long MeshId;
+        public long OverlayTextureId;
     }
 
-    class CylinderMesh : DataModelMesh 
+    class BevelMesh : DataModelMesh
     {
-        public bool UsingSuperAwkwardHeadProtocol;
-        public string HeadAssetName;
+        public double Bevel;
+        public double Bevel_Roundness;
+        public double Buldge;
     }
 
     class DataModelMesh : Instance
@@ -54,6 +55,7 @@ namespace Rbx2Source.Reflection
     class MeshPart : Part
     {
         public string MeshID;
+        public string MeshId;
         public string TextureID;
         public Vector3 InitialSize;
     }

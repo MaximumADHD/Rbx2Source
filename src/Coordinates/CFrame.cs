@@ -110,13 +110,18 @@ namespace Rbx2Source.Coordinates
             upVector = new Vector3(m12, m22, m32);
         }
 
+        public static CFrame FromComponents(float[] p)
+        {
+            return new CFrame(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11]);
+        }
+
         public static CFrame FromXml(XmlNode cfData)
         {
             float[] p = new float[12];
             for (int i = 0; i < 12; i++)
                 p[i] = float.Parse(cfData.ChildNodes[i].InnerText, Rbx2Source.NormalParse);
 
-            return new CFrame(p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11]);
+            return FromComponents(p);
         }
 
         public static CFrame Scale(CFrame cf, Vector3 scaleBy)

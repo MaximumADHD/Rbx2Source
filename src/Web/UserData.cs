@@ -10,25 +10,28 @@ namespace Rbx2Source.Web
         public float Width;
         public float Height;
         public float Head;
+        public float Depth;
+        public float Proportion;
+        public float BodyType;
     }
 
     struct UserInfo
     {
-        public int Id;
+        public long Id;
         public string Username;
         public bool IsOnline;
-        public List<RbxWebApiError> Errors;
+        public List<WebApiError> Errors;
     }
 
     struct CurrentlyWearing
     {
-        public List<int> AssetIds;
+        public List<long> AssetIds;
     }
 
     class UserAvatar
     {
         public AvatarType ResolvedAvatarType;
-        public List<int> AccessoryVersionIds;
+        public List<long> AccessoryVersionIds;
         public AvatarScale Scales;
         public UserInfo UserInfo;
         public CurrentlyWearing CurrentlyWearing;
@@ -37,18 +40,18 @@ namespace Rbx2Source.Web
 
         private static UserAvatar createUserAvatar(UserInfo info)
         {
-            UserAvatar avatar = RbxWebUtility.DownloadRbxApiJSON<UserAvatar>("v1.1/avatar-fetch?placeId=0&userId=" + info.Id);
-            avatar.CurrentlyWearing = RbxWebUtility.DownloadJSON<CurrentlyWearing>("https://avatar.roblox.com/v1/users/" + info.Id + "/currently-wearing");
+            UserAvatar avatar = WebUtility.DownloadRbxApiJSON<UserAvatar>("v1.1/avatar-fetch?placeId=0&userId=" + info.Id);
+            avatar.CurrentlyWearing = WebUtility.DownloadJSON<CurrentlyWearing>("https://avatar.roblox.com/v1/users/" + info.Id + "/currently-wearing");
             avatar.UserExists = true;
             avatar.UserInfo = info;
             return avatar;
         }
 
-        public static UserAvatar FromUserId(int userId)
+        public static UserAvatar FromUserId(long userId)
         {
             try
             {
-                UserInfo info = RbxWebUtility.DownloadRbxApiJSON<UserInfo>("Users/" + userId);
+                UserInfo info = WebUtility.DownloadRbxApiJSON<UserInfo>("Users/" + userId);
                 return createUserAvatar(info);
             }
             catch
@@ -61,7 +64,7 @@ namespace Rbx2Source.Web
         {
             try
             {
-                UserInfo info = RbxWebUtility.DownloadRbxApiJSON<UserInfo>("Users/Get-By-Username?username=" + userName);
+                UserInfo info = WebUtility.DownloadRbxApiJSON<UserInfo>("Users/Get-By-Username?username=" + userName);
                 return createUserAvatar(info);
             }
             catch

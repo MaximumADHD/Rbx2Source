@@ -19,7 +19,7 @@ namespace Rbx2Source.Web
 
     class Asset
     {
-        public int Id;
+        public long Id;
         public AssetType AssetType;
         public ProductInfo ProductInfo;
         public bool Loaded = false;
@@ -29,8 +29,8 @@ namespace Rbx2Source.Web
         public byte[] Content;
         public bool ContentLoaded = false;
 
-        private static Dictionary<int, int> avidToId = new Dictionary<int, int>();
-        private static Dictionary<int, Asset> assetCache = new Dictionary<int, Asset>();
+        private static Dictionary<long, long> avidToId = new Dictionary<long, long>();
+        private static Dictionary<long, Asset> assetCache = new Dictionary<long, Asset>();
 
         public byte[] GetContent()
         {
@@ -59,7 +59,7 @@ namespace Rbx2Source.Web
             return Content;
         }
 
-        public static Asset Get(int assetId)
+        public static Asset Get(long assetId)
         {
             if (!assetCache.ContainsKey(assetId))
             {
@@ -75,7 +75,7 @@ namespace Rbx2Source.Web
 
                 HttpWebResponse response = (HttpWebResponse)ping.GetResponse();
                 string location = response.GetResponseHeader("Location");
-                string identifier = location.Remove(0, 7).Replace(".rbxcdn.com/", "-");
+                string identifier = location.Remove(0, 7).Replace(".rbxcdn.com/", "-") + "_64";
                 string cachedFile = Path.Combine(assetCacheDir, identifier);
                 response.Close();
 
@@ -86,6 +86,7 @@ namespace Rbx2Source.Web
                     try
                     {
                         asset = JsonConvert.DeserializeObject<Asset>(cachedContent);
+                        Rbx2Source.Print("Fetched pre-cached asset {0}: {1}", assetId, identifier);
                     }
                     catch
                     {
@@ -151,11 +152,16 @@ namespace Rbx2Source.Web
             return local;
         }
 
-        public static Asset GetByAssetId(string url = "rbxassetid://9854798")
+        public static Asset GetByAssetId(string url = "")
         {
-            int legacyId = LegacyAssets.Check(url);
+            if (url == null || url.Length == 0)
+                url = "rbxassetid://9854798";
+
+            long legacyId = LegacyAssets.Check(url);
             if (legacyId > 0)
+            {
                 return Get(legacyId);
+            }
             else
             {
                 string sAssetId = "";
@@ -179,7 +185,7 @@ namespace Rbx2Source.Web
                 Array.Reverse(charArray);
                 sAssetId = new string(charArray);
 
-                int assetId = int.Parse(sAssetId);
+                long assetId = long.Parse(sAssetId);
                 return Get(assetId);
             }
         }

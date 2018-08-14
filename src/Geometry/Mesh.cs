@@ -24,11 +24,10 @@ namespace Rbx2Source.Geometry
 
         private static Dictionary<string, Asset> StandardLimbs = new Dictionary<string, Asset>
         {
-            {"Head",        Asset.FromResource("Meshes/StandardLimbs/head.mesh")},
             {"Left Arm",    Asset.FromResource("Meshes/StandardLimbs/leftarm.mesh")},
             {"Right Arm",   Asset.FromResource("Meshes/StandardLimbs/rightarm.mesh")},
             {"Left Leg",    Asset.FromResource("Meshes/StandardLimbs/leftleg.mesh")},
-            {"Right Leg",   Asset.FromResource("Meshes/StandardLimbs/rightleg.mesh")}, 
+            {"Right Leg",   Asset.FromResource("Meshes/StandardLimbs/rightleg.mesh")},
             {"Torso",       Asset.FromResource("Meshes/StandardLimbs/torso.mesh")}
         };
 
@@ -75,14 +74,14 @@ namespace Rbx2Source.Geometry
                 else if (state == 1)
                     currentVertex.Norm = new Vector3(coords);
                 else if (state == 2)
-                    currentVertex.UV = new Vector3(coords[0], 1-coords[1], 0);
+                    currentVertex.UV = new Vector3(coords[0], 1 - coords[1], 0);
 
                 state = (state + 1) % 3;
                 if (state == 0)
                 {
                     mesh.Verts[index++] = currentVertex;
                     currentVertex = new Vertex();
-                    if (index%3 == 0)
+                    if (index % 3 == 0)
                     {
                         int v = face * 3;
                         mesh.Faces[face++] = new int[3] { v, v + 1, v + 2 };
@@ -92,7 +91,7 @@ namespace Rbx2Source.Geometry
 
             mesh.Loaded = true;
         }
-        
+
         private static void loadGeometryV2(BinaryReader reader, Mesh mesh)
         {
             Stream stream = reader.BaseStream;
@@ -141,7 +140,7 @@ namespace Rbx2Source.Geometry
                 throw new Exception("Invalid .mesh header!");
 
             Mesh mesh = new Mesh();
-            double version = double.Parse(file.Substring(8,4), Rbx2Source.NormalParse);
+            double version = double.Parse(file.Substring(8, 4), Rbx2Source.NormalParse);
 
             mesh.Version = (int)version;
 
@@ -206,58 +205,57 @@ namespace Rbx2Source.Geometry
                 material.Reflectance = part.Reflectance;
             }
 
-            if (part.IsA("MeshPart"))
+            if (part.Transparency < 1)
             {
-                MeshPart meshPart = (MeshPart)part;
-                if (meshPart.MeshID == null)
+                if (part.IsA("MeshPart"))
                 {
-                    string partName = meshPart.Name;
-                    if (StandardLimbs.ContainsKey(partName))
-                        meshAsset = StandardLimbs[partName];
-                }
-                else meshAsset = Asset.GetByAssetId(meshPart.MeshID);
-
-                if (meshPart.TextureID != null)
-                    textureAsset = Asset.GetByAssetId(meshPart.TextureID); 
-                
-                scale = meshPart.Size / meshPart.InitialSize;
-                offset = part.CFrame;
-            }
-            else
-            {
-                offset = part.CFrame;
-
-                DataModelMesh legacy = (DataModelMesh)part.FindFirstChildOfClass("DataModelMesh");
-                if (legacy != null)
-                {
-                    scale = legacy.Scale;
-                    offset *= new CFrame(legacy.Offset);
-
-                    if (material != null)
-                        material.VertexColor = legacy.VertexColor;
-
-                    if (legacy.IsA("SpecialMesh"))
+                    MeshPart meshPart = (MeshPart)part;
+                    if (meshPart.MeshID == null)
                     {
-                        SpecialMesh specialMesh = (SpecialMesh)legacy;
-                        if (specialMesh.MeshType == MeshType.Head)
-                            meshAsset = Asset.FromResource("Meshes/StandardLimbs/head.mesh");
-                        else
-                            meshAsset = Asset.GetByAssetId(specialMesh.MeshId);
-
-                        if (specialMesh.TextureId != null)
-                            textureAsset = Asset.GetByAssetId(specialMesh.TextureId);
+                        string partName = meshPart.Name;
+                        if (StandardLimbs.ContainsKey(partName))
+                            meshAsset = StandardLimbs[partName];
+                    }
+                    else
+                    {
+                        meshAsset = Asset.GetByAssetId(meshPart.MeshID);
                     }
 
-                    else if (legacy.IsA("CylinderMesh"))
+                    if (meshPart.TextureID != null)
+                        textureAsset = Asset.GetByAssetId(meshPart.TextureID);
+
+                    scale = meshPart.Size / meshPart.InitialSize;
+                    offset = part.CFrame;
+                }
+                else
+                {
+                    offset = part.CFrame;
+
+                    SpecialMesh specialMesh = (SpecialMesh)part.FindFirstChildOfClass("SpecialMesh");
+                    if (specialMesh != null && specialMesh.MeshType == MeshType.FileMesh)
                     {
-                        CylinderMesh cylinderMesh = (CylinderMesh)legacy;
-                        if (cylinderMesh.UsingSuperAwkwardHeadProtocol)
+                        meshAsset = Asset.GetByAssetId(specialMesh.MeshId);
+                        scale = specialMesh.Scale;
+                        offset *= new CFrame(specialMesh.Offset);
+                        if (material != null)
+                            textureAsset = Asset.GetByAssetId(specialMesh.TextureId);
+                    }
+                    else
+                    {
+                        DataModelMesh legacy = (DataModelMesh)part.FindFirstChildOfClass("DataModelMesh");
+                        if (legacy != null)
                         {
-                            meshAsset = Asset.FromResource("Meshes/Heads/" + cylinderMesh.HeadAssetName + ".mesh");
-                            scale = new Vector3(1, 1, 1);
+                            meshAsset = Head.ResolveHeadMeshAsset(legacy);
+                            scale = legacy.Scale;
+                            offset *= new CFrame(legacy.Offset);
                         }
                     }
                 }
+            }
+            else
+            {
+                // Just give it a blank mesh to eat for now.
+                result = new Mesh();
             }
 
             if (meshAsset != null)

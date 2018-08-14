@@ -2527,7 +2527,32 @@
 </value>
   </data>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.07] (June 4th, 2017)
+    <value>[v2.10] (August 14th, 2018)
+• Fixed a bug where the program would sometimes
+  claim a user doesn't exist, even though it does.
+• Updated the program backend to use 64-bit
+  UserIds and AssetIds.
+• Implemented support for Roblox's binary file
+  format, as it is now required going forward with
+  R15 avatars. Implementing this was a massive
+  undertaking, hence why it took awhile for me to
+  properly fix this program.
+• Ported over the lookup table functionality of avatar
+  heads, so they should now compile consistently no
+  matter what.
+
+______________________________________________________
+[v2.08] (February 15th, 2018)
+• Fixed a bug where the R15 texture assembler 
+  wasn't using the right texture.
+• Fixed a bug where invisible limbs would be generated
+  when using R15 package limbs, like the peg leg.
+• Replaced spellings of "ROBLOX" with "Roblox".
+• Switched my @MaxGee1019 handle over to 
+  @MaxGeee1019 in the program credits
+  (because Twitter sucks &lt;3)
+______________________________________________________
+[v2.07] (June 4th, 2017)
 • Refactored a lot of the model compiler code,
   so models should compile MUCH faster now.
 • Rewrote the asset fetcher so that it properly caches
@@ -2586,7 +2611,7 @@ ______________________________________________________
 • Written entirely in C#, no more Lua!
 • R6 Characters are assembled much more accurately 
   than they were in v1
-* Animations are emulated directly from ROBLOX into 
+* Animations are emulated directly from Roblox into 
   Source.
 • The foundation I've laid for this version is much 
   stronger than it was before, and will allow me 

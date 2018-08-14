@@ -7,7 +7,7 @@ using System.Resources;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Rbx2Source")]
-[assembly: AssemblyDescription("A utility tool that automatically assembles ROBLOX assets into geometry data, which is then compiled into the Source Engine.")]
+[assembly: AssemblyDescription("A utility tool that automatically assembles Roblox assets into geometry data, which is then compiled into the Source Engine.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Rbx2Source")]
