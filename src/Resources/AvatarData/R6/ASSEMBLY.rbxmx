@@ -19,8 +19,8 @@
 				<token name="BottomSurfaceInput">0</token>
 				<CoordinateFrame name="CFrame">
 					<X>-1.5</X>
-					<Y>2</Y>
-					<Z>1</Z>
+					<Y>-2.00271606e-05</Y>
+					<Z>0</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -157,8 +157,8 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 				<token name="BottomSurfaceInput">0</token>
 				<CoordinateFrame name="CFrame">
 					<X>-0.5</X>
-					<Y>0</Y>
-					<Z>1</Z>
+					<Y>-2.00002098</Y>
+					<Z>0</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -274,8 +274,8 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 				<token name="BottomSurfaceInput">0</token>
 				<CoordinateFrame name="CFrame">
 					<X>1.5</X>
-					<Y>2</Y>
-					<Z>1</Z>
+					<Y>-2.00271606e-05</Y>
+					<Z>0</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -412,8 +412,8 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 				<token name="BottomSurfaceInput">0</token>
 				<CoordinateFrame name="CFrame">
 					<X>0.5</X>
-					<Y>0</Y>
-					<Z>1</Z>
+					<Y>-2.00002098</Y>
+					<Z>0</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -529,8 +529,8 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 				<token name="BottomSurfaceInput">0</token>
 				<CoordinateFrame name="CFrame">
 					<X>0</X>
-					<Y>2</Y>
-					<Z>1</Z>
+					<Y>-2.00271606e-05</Y>
+					<Z>0</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -898,8 +898,8 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 				<token name="BottomSurfaceInput">0</token>
 				<CoordinateFrame name="CFrame">
 					<X>0</X>
-					<Y>3.5</Y>
-					<Z>1</Z>
+					<Y>1.49997807</Y>
+					<Z>0</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -1074,9 +1074,9 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<Z>0</Z>
 					</Vector3>
 					<Vector3 name="Scale">
-						<X>1</X>
-						<Y>1</Y>
-						<Z>1</Z>
+						<X>1.25</X>
+						<Y>1.25</Y>
+						<Z>1.25</Z>
 					</Vector3>
 					<BinaryString name="Tags"></BinaryString>
 					<Content name="TextureId"><null></null></Content>

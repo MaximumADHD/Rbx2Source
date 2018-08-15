@@ -2527,7 +2527,13 @@
 </value>
   </data>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.11] (August 14th, 2018)
+    <value>[v2.12] (August 14th, 2018)
+• Patching up a few more small issues with head
+  meshes.
+• Fixed a regression with R6 avatars.
+______________________________________________________
+
+[v2.11] (August 14th, 2018)
 • Fixed a regression involving SpecialMesh 
   VertexColors.
 • Fixed a regression where the main screen would say

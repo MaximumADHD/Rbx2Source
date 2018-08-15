@@ -75,16 +75,22 @@ namespace Rbx2Source.Geometry
                 Head match = Lookup.Keys.Where(head => head.BevelType == bevelType && head.paramsMatchWith(bevelMesh)).First();
                 if (match != null)
                     result = Lookup[match];
+
+                mesh.Scale = new Vector3(1, 1, 1);
             }
 
             else if (mesh.IsA("SpecialMesh"))
             {
                 SpecialMesh specialMesh = mesh as SpecialMesh;
                 if (specialMesh.MeshType == MeshType.Sphere)
+                {
                     result = "Perfection";
-                else
-                    specialMesh.Scale = new Vector3(0.8f, 0.8f, 0.8f);
+                    specialMesh.Scale = new Vector3(1, 1, 1);
+                }
             }
+
+            if (result == "Default")
+                mesh.Scale /= new Vector3(1.25f, 1.25f, 1.25f);
 
             return Asset.FromResource("Meshes/Heads/" + result + ".mesh");
         }
