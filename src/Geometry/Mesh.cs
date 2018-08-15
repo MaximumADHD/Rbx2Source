@@ -238,7 +238,10 @@ namespace Rbx2Source.Geometry
                         scale = specialMesh.Scale;
                         offset *= new CFrame(specialMesh.Offset);
                         if (material != null)
+                        {
                             textureAsset = Asset.GetByAssetId(specialMesh.TextureId);
+                            material.VertexColor = specialMesh.VertexColor;
+                        }
                     }
                     else
                     {

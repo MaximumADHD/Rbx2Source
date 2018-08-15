@@ -2527,7 +2527,19 @@
 </value>
   </data>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.10] (August 14th, 2018)
+    <value>[v2.11] (August 14th, 2018)
+• Fixed a regression involving SpecialMesh 
+  VertexColors.
+• Fixed a regression where the main screen would say
+  "User does not exist" upon initially launching the
+  program.
+• Updated the default Head mesh to use significantly
+  better normal mapping.
+• Reduced the verbosity of asset retrieval in the
+  compiler log.
+• Attempted to improve detection of Steam.
+______________________________________________________
+[v2.10] (August 14th, 2018)
 • Fixed a bug where the program would sometimes
   claim a user doesn't exist, even though it does.
 • Updated the program backend to use 64-bit
@@ -2540,7 +2552,6 @@
 • Ported over the lookup table functionality of avatar
   heads, so they should now compile consistently no
   matter what.
-
 ______________________________________________________
 [v2.08] (February 15th, 2018)
 • Fixed a bug where the R15 texture assembler 

@@ -1,9 +1,10 @@
-<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="4">
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
 	<External>null</External>
 	<External>nil</External>
 	<Item class="Folder" referent="RBX58E8DB8946304697B753D9E934569C35">
 		<Properties>
 			<string name="Name">ASSEMBLY</string>
+			<BinaryString name="Tags"></BinaryString>
 		</Properties>
 		<Item class="MeshPart" referent="RBXA57B150381BA4163B4E38B2A7B632F24">
 			<Properties>
@@ -16,11 +17,10 @@
 				<float name="BottomParamB">0.5</float>
 				<token name="BottomSurface">0</token>
 				<token name="BottomSurfaceInput">0</token>
-				<int name="BrickColor">194</int>
 				<CoordinateFrame name="CFrame">
 					<X>-1.5</X>
-					<Y>0</Y>
-					<Z>0</Z>
+					<Y>2</Y>
+					<Z>1</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -32,12 +32,12 @@
 					<R22>1</R22>
 				</CoordinateFrame>
 				<bool name="CanCollide">true</bool>
-				<token name="CollisionFidelity">0</token>
+				<token name="CollisionFidelity">1</token>
+				<int name="CollisionGroupId">0</int>
+				<Color3uint8 name="Color3uint8">4288914085</Color3uint8>
 				<PhysicalProperties name="CustomPhysicalProperties">
 					<CustomPhysics>false</CustomPhysics>
 				</PhysicalProperties>
-				<float name="Elasticity">0.5</float>
-				<float name="Friction">0.300000012</float>
 				<float name="FrontParamA">-0.5</float>
 				<float name="FrontParamB">0.5</float>
 				<token name="FrontSurface">0</token>
@@ -53,6 +53,8 @@
 				<token name="LeftSurfaceInput">0</token>
 				<bool name="Locked">false</bool>
 				<token name="Material">256</token>
+				<Content name="MeshID"><null></null></Content>
+				<Content name="MeshId"><null></null></Content>
 				<string name="Name">Left Arm</string>
 				<BinaryString name="PhysicsData"><![CDATA[Q1NHUEhTAwAAABAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAgD9IAAAA
 BAAAAFK43r4oXG8/AwAAP1K43j4qXG+/+///PlK43j4oXG8/AwAAPwAAAD8qXG8/TbjevgAA
@@ -81,6 +83,7 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 					<Y>0</Y>
 					<Z>0</Z>
 				</Vector3>
+				<BinaryString name="Tags"></BinaryString>
 				<Content name="TextureID"><null></null></Content>
 				<float name="TopParamA">-0.5</float>
 				<float name="TopParamB">0.5</float>
@@ -115,6 +118,7 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">LeftShoulderAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -135,6 +139,7 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 						<R22>0</R22>
 					</CoordinateFrame>
 					<string name="Name">Left ShoulderRigAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -150,11 +155,10 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 				<float name="BottomParamB">0.5</float>
 				<token name="BottomSurface">0</token>
 				<token name="BottomSurfaceInput">0</token>
-				<int name="BrickColor">194</int>
 				<CoordinateFrame name="CFrame">
 					<X>-0.5</X>
-					<Y>-1.99999499</Y>
-					<Z>0</Z>
+					<Y>0</Y>
+					<Z>1</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -166,12 +170,12 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 					<R22>1</R22>
 				</CoordinateFrame>
 				<bool name="CanCollide">true</bool>
-				<token name="CollisionFidelity">0</token>
+				<token name="CollisionFidelity">1</token>
+				<int name="CollisionGroupId">0</int>
+				<Color3uint8 name="Color3uint8">4288914085</Color3uint8>
 				<PhysicalProperties name="CustomPhysicalProperties">
 					<CustomPhysics>false</CustomPhysics>
 				</PhysicalProperties>
-				<float name="Elasticity">0.5</float>
-				<float name="Friction">0.300000012</float>
 				<float name="FrontParamA">-0.5</float>
 				<float name="FrontParamB">0.5</float>
 				<token name="FrontSurface">0</token>
@@ -187,6 +191,8 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 				<token name="LeftSurfaceInput">0</token>
 				<bool name="Locked">false</bool>
 				<token name="Material">256</token>
+				<Content name="MeshID"><null></null></Content>
+				<Content name="MeshId"><null></null></Content>
 				<string name="Name">Left Leg</string>
 				<BinaryString name="PhysicsData"><![CDATA[Q1NHUEhTAwAAABAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAgD9IAAAA
 BAAAAFK43r4oXG8/AwAAP1K43j4qXG+/+///PlK43j4oXG8/AwAAPwAAAD8qXG8/TbjevgAA
@@ -215,6 +221,7 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 					<Y>0</Y>
 					<Z>0</Z>
 				</Vector3>
+				<BinaryString name="Tags"></BinaryString>
 				<Content name="TextureID"><null></null></Content>
 				<float name="TopParamA">-0.5</float>
 				<float name="TopParamB">0.5</float>
@@ -249,6 +256,7 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 						<R22>0</R22>
 					</CoordinateFrame>
 					<string name="Name">Left HipRigAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -264,11 +272,10 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 				<float name="BottomParamB">0.5</float>
 				<token name="BottomSurface">0</token>
 				<token name="BottomSurfaceInput">0</token>
-				<int name="BrickColor">194</int>
 				<CoordinateFrame name="CFrame">
 					<X>1.5</X>
-					<Y>0</Y>
-					<Z>0</Z>
+					<Y>2</Y>
+					<Z>1</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -280,12 +287,12 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 					<R22>1</R22>
 				</CoordinateFrame>
 				<bool name="CanCollide">true</bool>
-				<token name="CollisionFidelity">0</token>
+				<token name="CollisionFidelity">1</token>
+				<int name="CollisionGroupId">0</int>
+				<Color3uint8 name="Color3uint8">4288914085</Color3uint8>
 				<PhysicalProperties name="CustomPhysicalProperties">
 					<CustomPhysics>false</CustomPhysics>
 				</PhysicalProperties>
-				<float name="Elasticity">0.5</float>
-				<float name="Friction">0.300000012</float>
 				<float name="FrontParamA">-0.5</float>
 				<float name="FrontParamB">0.5</float>
 				<token name="FrontSurface">0</token>
@@ -301,6 +308,8 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 				<token name="LeftSurfaceInput">0</token>
 				<bool name="Locked">false</bool>
 				<token name="Material">256</token>
+				<Content name="MeshID"><null></null></Content>
+				<Content name="MeshId"><null></null></Content>
 				<string name="Name">Right Arm</string>
 				<BinaryString name="PhysicsData"><![CDATA[Q1NHUEhTAwAAABAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAgD9IAAAA
 BAAAAFK43r4oXG8/AwAAP1K43j4qXG+/+///PlK43j4oXG8/AwAAPwAAAD8qXG8/TbjevgAA
@@ -329,6 +338,7 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 					<Y>0</Y>
 					<Z>0</Z>
 				</Vector3>
+				<BinaryString name="Tags"></BinaryString>
 				<Content name="TextureID"><null></null></Content>
 				<float name="TopParamA">-0.5</float>
 				<float name="TopParamB">0.5</float>
@@ -363,6 +373,7 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">RightShoulderAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -383,6 +394,7 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 						<R22>0</R22>
 					</CoordinateFrame>
 					<string name="Name">Right ShoulderRigAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -398,11 +410,10 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 				<float name="BottomParamB">0.5</float>
 				<token name="BottomSurface">0</token>
 				<token name="BottomSurfaceInput">0</token>
-				<int name="BrickColor">194</int>
 				<CoordinateFrame name="CFrame">
 					<X>0.5</X>
-					<Y>-1.99999499</Y>
-					<Z>0</Z>
+					<Y>0</Y>
+					<Z>1</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -414,12 +425,12 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 					<R22>1</R22>
 				</CoordinateFrame>
 				<bool name="CanCollide">true</bool>
-				<token name="CollisionFidelity">0</token>
+				<token name="CollisionFidelity">1</token>
+				<int name="CollisionGroupId">0</int>
+				<Color3uint8 name="Color3uint8">4288914085</Color3uint8>
 				<PhysicalProperties name="CustomPhysicalProperties">
 					<CustomPhysics>false</CustomPhysics>
 				</PhysicalProperties>
-				<float name="Elasticity">0.5</float>
-				<float name="Friction">0.300000012</float>
 				<float name="FrontParamA">-0.5</float>
 				<float name="FrontParamB">0.5</float>
 				<token name="FrontSurface">0</token>
@@ -435,6 +446,8 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 				<token name="LeftSurfaceInput">0</token>
 				<bool name="Locked">false</bool>
 				<token name="Material">256</token>
+				<Content name="MeshID"><null></null></Content>
+				<Content name="MeshId"><null></null></Content>
 				<string name="Name">Right Leg</string>
 				<BinaryString name="PhysicsData"><![CDATA[Q1NHUEhTAwAAABAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAgD9IAAAA
 BAAAAFK43r4oXG8/AwAAP1K43j4qXG+/+///PlK43j4oXG8/AwAAPwAAAD8qXG8/TbjevgAA
@@ -463,6 +476,7 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 					<Y>0</Y>
 					<Z>0</Z>
 				</Vector3>
+				<BinaryString name="Tags"></BinaryString>
 				<Content name="TextureID"><null></null></Content>
 				<float name="TopParamA">-0.5</float>
 				<float name="TopParamB">0.5</float>
@@ -497,6 +511,7 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 						<R22>0</R22>
 					</CoordinateFrame>
 					<string name="Name">Right HipRigAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -512,11 +527,10 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 				<float name="BottomParamB">0.5</float>
 				<token name="BottomSurface">0</token>
 				<token name="BottomSurfaceInput">0</token>
-				<int name="BrickColor">194</int>
 				<CoordinateFrame name="CFrame">
 					<X>0</X>
-					<Y>0</Y>
-					<Z>0</Z>
+					<Y>2</Y>
+					<Z>1</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -528,12 +542,12 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 					<R22>1</R22>
 				</CoordinateFrame>
 				<bool name="CanCollide">true</bool>
-				<token name="CollisionFidelity">0</token>
+				<token name="CollisionFidelity">1</token>
+				<int name="CollisionGroupId">0</int>
+				<Color3uint8 name="Color3uint8">4288914085</Color3uint8>
 				<PhysicalProperties name="CustomPhysicalProperties">
 					<CustomPhysics>false</CustomPhysics>
 				</PhysicalProperties>
-				<float name="Elasticity">0.5</float>
-				<float name="Friction">0.300000012</float>
 				<float name="FrontParamA">-0.5</float>
 				<float name="FrontParamB">0.5</float>
 				<token name="FrontSurface">0</token>
@@ -549,6 +563,8 @@ AAAXAAAACAAAABEAAAA=]]></BinaryString>
 				<token name="LeftSurfaceInput">0</token>
 				<bool name="Locked">false</bool>
 				<token name="Material">256</token>
+				<Content name="MeshID"><null></null></Content>
+				<Content name="MeshId"><null></null></Content>
 				<string name="Name">Torso</string>
 				<BinaryString name="PhysicsData"><![CDATA[Q1NHUEhTAwAAABAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAgD9IAAAA
 BAAAAClcb78oXG8/AwAAPylcb78qXG+/+///Pilcbz8oXG8/AwAAPylcbz8oXG+/AwAAvylc
@@ -577,6 +593,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 					<Y>0</Y>
 					<Z>0</Z>
 				</Vector3>
+				<BinaryString name="Tags"></BinaryString>
 				<Content name="TextureID"><null></null></Content>
 				<float name="TopParamA">-0.5</float>
 				<float name="TopParamB">0.5</float>
@@ -611,6 +628,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">BodyBackAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -631,6 +649,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">BodyFrontAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -651,6 +670,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">LeftCollarAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -671,6 +691,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">NeckAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -691,6 +712,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">RightCollarAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -711,6 +733,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">WaistBackAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -731,6 +754,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">WaistCenterAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -751,6 +775,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">WaistFrontAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -771,6 +796,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>-0</R22>
 					</CoordinateFrame>
 					<string name="Name">NeckRigAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -791,6 +817,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>0</R22>
 					</CoordinateFrame>
 					<string name="Name">Right HipRigAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -811,6 +838,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>0</R22>
 					</CoordinateFrame>
 					<string name="Name">Right ShoulderRigAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -831,6 +859,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>0</R22>
 					</CoordinateFrame>
 					<string name="Name">Left ShoulderRigAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -851,6 +880,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>0</R22>
 					</CoordinateFrame>
 					<string name="Name">Left HipRigAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -866,11 +896,10 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 				<float name="BottomParamB">0.5</float>
 				<token name="BottomSurface">4</token>
 				<token name="BottomSurfaceInput">0</token>
-				<int name="BrickColor">194</int>
 				<CoordinateFrame name="CFrame">
 					<X>0</X>
-					<Y>1.5</Y>
-					<Z>0</Z>
+					<Y>3.5</Y>
+					<Z>1</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -882,11 +911,11 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 					<R22>1</R22>
 				</CoordinateFrame>
 				<bool name="CanCollide">true</bool>
+				<int name="CollisionGroupId">0</int>
+				<Color3uint8 name="Color3uint8">4288914085</Color3uint8>
 				<PhysicalProperties name="CustomPhysicalProperties">
 					<CustomPhysics>false</CustomPhysics>
 				</PhysicalProperties>
-				<float name="Elasticity">0.5</float>
-				<float name="Friction">0.300000012</float>
 				<float name="FrontParamA">-0.5</float>
 				<float name="FrontParamB">0.5</float>
 				<token name="FrontSurface">0</token>
@@ -908,6 +937,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 					<Y>0</Y>
 					<Z>0</Z>
 				</Vector3>
+				<BinaryString name="Tags"></BinaryString>
 				<float name="TopParamA">-0.5</float>
 				<float name="TopParamB">0.5</float>
 				<token name="TopSurface">3</token>
@@ -926,31 +956,6 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 					<Z>1</Z>
 				</Vector3>
 			</Properties>
-			<Item class="SpecialMesh" referent="RBX2EA0634CEA7448789A00F3095D4B66BF">
-				<Properties>
-					<token name="LODX">2</token>
-					<token name="LODY">2</token>
-					<Content name="MeshId"><url>rbxassetid://554677042</url></Content>
-					<token name="MeshType">1</token>
-					<string name="Name">Mesh</string>
-					<Vector3 name="Offset">
-						<X>0</X>
-						<Y>0</Y>
-						<Z>0</Z>
-					</Vector3>
-					<Vector3 name="Scale">
-						<X>1</X>
-						<Y>1</Y>
-						<Z>1</Z>
-					</Vector3>
-					<Content name="TextureId"><null></null></Content>
-					<Vector3 name="VertexColor">
-						<X>1</X>
-						<Y>1</Y>
-						<Z>1</Z>
-					</Vector3>
-				</Properties>
-			</Item>
 			<Item class="Attachment" referent="RBXE86D07D9B9A3441083D04E79F36C341F">
 				<Properties>
 					<CoordinateFrame name="CFrame">
@@ -968,6 +973,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">FaceCenterAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -988,6 +994,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">FaceFrontAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -1008,6 +1015,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">HairAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -1028,6 +1036,7 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>1</R22>
 					</CoordinateFrame>
 					<string name="Name">HatAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
 				</Properties>
 			</Item>
@@ -1048,7 +1057,34 @@ AAAXAAAACQAAAAgAAAA=]]></BinaryString>
 						<R22>-0</R22>
 					</CoordinateFrame>
 					<string name="Name">NeckRigAttachment</string>
+					<BinaryString name="Tags"></BinaryString>
 					<bool name="Visible">false</bool>
+				</Properties>
+			</Item>
+			<Item class="SpecialMesh" referent="RBX2EA0634CEA7448789A00F3095D4B66BF">
+				<Properties>
+					<token name="LODX">2</token>
+					<token name="LODY">2</token>
+					<Content name="MeshId"><url>rbxassetid://2218926844</url></Content>
+					<token name="MeshType">5</token>
+					<string name="Name">Mesh</string>
+					<Vector3 name="Offset">
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+					</Vector3>
+					<Vector3 name="Scale">
+						<X>1</X>
+						<Y>1</Y>
+						<Z>1</Z>
+					</Vector3>
+					<BinaryString name="Tags"></BinaryString>
+					<Content name="TextureId"><null></null></Content>
+					<Vector3 name="VertexColor">
+						<X>1</X>
+						<Y>1</Y>
+						<Z>1</Z>
+					</Vector3>
 				</Properties>
 			</Item>
 		</Item>

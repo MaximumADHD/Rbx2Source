@@ -60,6 +60,9 @@ namespace Rbx2Source
 
         public Rbx2Source()
         {
+            UserAvatar defaultAvatar = UserAvatar.FromUserId(2032622);
+            currentUser = defaultAvatar.UserInfo;
+
             InitializeComponent();
         }
 
@@ -547,7 +550,7 @@ namespace Rbx2Source
                         string exePath = module.FileName;
                         FileInfo info = new FileInfo(exePath);
                         string directory = info.DirectoryName;
-                        if (info.Name == "Steam.exe" && info.Directory.Name == "Steam")
+                        if (info.Name == "Steam.exe")
                         {
                             string apps = Path.Combine(directory, "steamapps");
                             if (Directory.Exists(apps))
