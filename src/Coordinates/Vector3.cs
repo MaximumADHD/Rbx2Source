@@ -121,7 +121,7 @@ namespace Rbx2Source.Coordinates
 
         public override string ToString()
         {
-            return x + "," + y + "," + z;
+            return string.Join(",", x, y, z);
         }
 
         protected override string ToStudioMdlString_Impl(bool excludeZ = false)

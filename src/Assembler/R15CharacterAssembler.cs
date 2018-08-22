@@ -45,17 +45,19 @@ namespace Rbx2Source.Assembler
 
             // Build Character
 
-            Folder import = Reflection.RBXM.LoadFromAsset(R15AssemblyAsset);
-            Folder assembly = (Folder)import.FindFirstChild("ASSEMBLY");
-            Part head = (Part)assembly.FindFirstChild("Head");
+            Folder import = RBXM.LoadFromAsset(R15AssemblyAsset);
+            Folder assembly = import.FindFirstChild<Folder>("ASSEMBLY");
+            Part head = assembly.FindFirstChild<Part>("Head");
             Vector3 avatarScale = GetAvatarScale(scale);
 
             foreach (Instance asset in characterAssets.GetChildren())
             {
                 if (asset.IsA("Part"))
                 {
-                    Instance existing = assembly.FindFirstChild(asset.Name);
-                    if (existing != null) existing.Destroy();
+                    Part existing = assembly.FindFirstChild<Part>(asset.Name);
+                    if (existing != null)
+                        existing.Destroy();
+
                     asset.Parent = assembly;
                 }
                 else if (asset.IsA("Accoutrement"))
@@ -66,29 +68,19 @@ namespace Rbx2Source.Assembler
 
             // Avatar Scaling
 
-            foreach (Instance child in assembly.GetChildren())
+            foreach (Part part in assembly.GetChildrenOfClass<Part>())
             {
-                if (child.IsA("Part"))
+                Limb limb = GetLimb(part);
+                if (limb != Limb.Unknown)
                 {
-                    Part part = (Part)child;
-                    Limb limb = GetLimb(part);
-                    if (limb != Limb.Unknown)
-                    {
-                        part.Size *= avatarScale;
-                        foreach (Instance subChild in child.GetChildren())
-                        {
-                            if (subChild.IsA("Attachment"))
-                            {
-                                Attachment attachment = (Attachment)subChild;
-                                attachment.CFrame = CFrame.Scale(attachment.CFrame, avatarScale);
-                            }
-                        }
-                    }
+                    part.Size *= avatarScale;
 
+                    foreach (Attachment attachment in part.GetChildrenOfClass<Attachment>())
+                        attachment.CFrame = CFrame.Scale(attachment.CFrame, avatarScale);
                 }
             }
 
-            Part torso = (Part)assembly.FindFirstChild("LowerTorso");
+            Part torso = assembly.FindFirstChild<Part>("LowerTorso");
             torso.CFrame = new CFrame();
 
             BoneKeyframe keyframe = AssembleBones(meshBuilder, torso);

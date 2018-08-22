@@ -4,3 +4,5 @@ packages/*
 *.suo
 *.user
 *.ide
+*.db
+*.opendb

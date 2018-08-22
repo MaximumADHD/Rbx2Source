@@ -183,7 +183,7 @@ namespace Rbx2Source.Coordinates
 
         public override string ToString()
         {
-            return String.Join(", ", components());
+            return string.Join(", ", components());
         }
 
         // private static functions

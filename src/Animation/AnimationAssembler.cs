@@ -49,14 +49,10 @@ namespace Rbx2Source.Animation
             if (poses == null)
                 poses = new List<Pose>();
 
-            foreach (Instance child in kf.GetChildren())
+            foreach (Pose pose in kf.GetChildrenOfClass<Pose>())
             {
-                if (child.IsA("Pose"))
-                {
-                    Pose pose = (Pose)child;
-                    poses.Add(pose);
-                    GatherPoses(pose, poses);
-                }
+                poses.Add(pose);
+                GatherPoses(pose, poses);
             }
 
             return poses;
@@ -125,14 +121,9 @@ namespace Rbx2Source.Animation
             int nodeIndex = nodes.IndexOf(node);
             node.NodeIndex = nodeIndex;
             
-            foreach (Instance child in pose.GetChildren())
-            {
-                if (child.IsA("Pose"))
-                {
-                    Pose nextPose = (Pose)child;
-                    SetupNodeHierarchy(nextPose, nodes, nodeIndex);
-                }
-            }
+            foreach (Pose nextPose in pose.GetChildrenOfClass<Pose>())
+                SetupNodeHierarchy(nextPose, nodes, nodeIndex);
+
         }
 
         public static string Assemble(KeyframeSequence sequence, List<Bone> rig)
@@ -155,23 +146,21 @@ namespace Rbx2Source.Animation
                 }
             }
 
-            foreach (Instance child in sequence.GetChildren())
+            foreach (Keyframe kf in sequence.GetChildrenOfClass<Keyframe>())
             {
-                if (child.IsA("Keyframe"))
-                {
-                    Keyframe kf = (Keyframe)child;
-                    Pose rootPart = (Pose)kf.FindFirstChild("HumanoidRootPart");
-                    if (rootPart != null)
-                    {
-                        // We don't need the rootpart for this.
-                        foreach (Instance subPose in rootPart.GetChildren())
-                            subPose.Parent = kf;
+                Pose rootPart = kf.FindFirstChild<Pose>("HumanoidRootPart");
 
-                        rootPart.Destroy();
-                    }
-                    kf.Time /= sequence.TimeScale;
-                    keyframes.Add(kf);
+                if (rootPart != null)
+                {
+                    // We don't need the rootpart for this.
+                    foreach (Pose subPose in rootPart.GetChildrenOfClass<Pose>())
+                        subPose.Parent = kf;
+
+                    rootPart.Destroy();
                 }
+
+                kf.Time /= sequence.TimeScale;
+                keyframes.Add(kf);
             }
 
             keyframes.Sort(0, keyframes.Count, sorter);

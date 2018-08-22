@@ -43,10 +43,10 @@ namespace Rbx2Source.Assembler
 
             // Build Character
 
-            Folder import = Reflection.RBXM.LoadFromAsset(R6AssemblyAsset);
-            Folder assembly = (Folder)import.FindFirstChild("ASSEMBLY");
-            Part torso = (Part)assembly.FindFirstChild("Torso");
-            Part head = (Part)assembly.FindFirstChild("Head");
+            Folder import = RBXM.LoadFromAsset(R6AssemblyAsset);
+            Folder assembly = import.FindFirstChild<Folder>("ASSEMBLY");
+            Part torso = assembly.FindFirstChild<Part>("Torso");
+            Part head = assembly.FindFirstChild<Part>("Head");
 
             foreach (Instance asset in characterAssets.GetChildren())
             {
@@ -54,8 +54,11 @@ namespace Rbx2Source.Assembler
                 {
                     CharacterMesh characterMesh = (CharacterMesh)asset;
                     string limbName = LimbMatcher[characterMesh.BodyPart];
-                    MeshPart limb = (MeshPart)assembly.FindFirstChild(limbName);
-                    if (limb != null) limb.MeshID = "rbxassetid://" + characterMesh.MeshId;
+
+                    MeshPart limb = assembly.FindFirstChild<MeshPart>(limbName);
+                    if (limb != null)
+                        limb.MeshID = "rbxassetid://" + characterMesh.MeshId;
+
                 }
                 else if (asset.IsA("Accoutrement")) 
                     PrepareAccessory(asset, assembly);

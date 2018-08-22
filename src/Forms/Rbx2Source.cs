@@ -396,7 +396,7 @@ namespace Rbx2Source
                 if (exception != null)
                 {
                     exceptionMsg = exception.Message;
-                    errorMsg += "\nError Message: " + exceptionMsg + "\n\nIf this error message has happened multiple times, and doesn't seem deliberate, you should totally send a screenshot of this error message to @MaxGeee1019 on Twitter.\n\nSTACK TRACE:\n" + dumbHeaderLineThing + "\n" + exception.StackTrace + "\n" + dumbHeaderLineThing;
+                    errorMsg += "\nError Message: " + exceptionMsg + "\n\nIf this error message has happened multiple times, and doesn't seem deliberate, you should totally send a screenshot of this error message to @CloneTeee1019 on Twitter.\n\nSTACK TRACE:\n" + dumbHeaderLineThing + "\n" + exception.StackTrace + "\n" + dumbHeaderLineThing;
                 }
             }
 
@@ -655,7 +655,7 @@ namespace Rbx2Source
             
             Links = new Dictionary<Control, string>() 
             {
-                {twitterLink,   "https://www.twitter.com/MaxGeee1019"},
+                {twitterLink,   "https://www.twitter.com/CloneTeee1019"},
                 {AJLink,        "https://www.github.com/RedInquisitive"},
                 {egoMooseLink,  "https://www.github.com/EgoMoose"},
                 {nemsTools,     "http://nemesis.thewavelength.net/index.php?p=40"}
@@ -714,5 +714,6 @@ namespace Rbx2Source
             if (baseProcess != null && !baseProcess.IsDisposed)
                 baseProcess.Dispose();
         }
+
     }
 }

@@ -26,7 +26,7 @@ namespace Rbx2Source.Coordinates
             string[] result = new string[vals.Length];
             for (int i = 0; i < vals.Length; i++)
             {
-                string value = vals[i].ToString(format);
+                string value = vals[i].ToString(format, Rbx2Source.NormalParse);
                 if (value.ToLower() == "nan") // oh.
                     value = format;
 

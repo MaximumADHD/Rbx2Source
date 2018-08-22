@@ -13,7 +13,7 @@ namespace Rbx2Source.Reflection
 {
     static class RBXM
     {
-        private static XmlNode LoadRobloxNodeXML(string content)
+        private static XmlNode LoadRobloxNode_XML(string content)
         {
             
             XmlDocument root = new XmlDocument();
@@ -28,6 +28,12 @@ namespace Rbx2Source.Reflection
 
             XmlNode roblox = root.FirstChild;
             return roblox;
+        }
+
+        private static Type GetClassType(string className)
+        {
+            Type rbxm = typeof(RBXM);
+            return Type.GetType(rbxm.Namespace + '.' + className);
         }
 
         private static Instance Reflect_XML(XmlNode node, Type objType)
@@ -103,8 +109,7 @@ namespace Rbx2Source.Reflection
                 XmlNode classNameNode = child.Attributes.GetNamedItem("class");
                 if (classNameNode != null)
                 {
-                    string className = classNameNode.Value;
-                    Type classType = Type.GetType("Rbx2Source.Reflection." + className);
+                    Type classType = GetClassType(classNameNode.Value);
                     if (classType != null)
                     {
                         Instance childObj = Reflect_XML(child, classType);
@@ -176,8 +181,7 @@ namespace Rbx2Source.Reflection
 
             foreach (ClassDescriptor child in classDesc.Children)
             {
-                string className = child.ClassName;
-                Type classType = Type.GetType("Rbx2Source.Reflection." + className);
+                Type classType = GetClassType(child.ClassName);
                 if (classType != null)
                 {
                     Instance childObj = Reflect_BIN(child, classType);
@@ -199,8 +203,7 @@ namespace Rbx2Source.Reflection
                     XmlNode classNameNode = child.Attributes.GetNamedItem("class");
                     if (classNameNode != null)
                     {
-                        string className = classNameNode.Value;
-                        Type classType = Type.GetType("Rbx2Source.Reflection." + className);
+                        Type classType = GetClassType(classNameNode.Value);
                         if (classType != null)
                         {
                             Instance childObj = Reflect_XML(child, classType);
@@ -219,8 +222,7 @@ namespace Rbx2Source.Reflection
 
             foreach (ClassDescriptor classDesc in file.TreeRoot)
             {
-                string className = classDesc.ClassName;
-                Type classType = Type.GetType("Rbx2Source.Reflection." + className);
+                Type classType = GetClassType(classDesc.ClassName);
                 if (classType != null)
                 {
                     Instance childObj = Reflect_BIN(classDesc, classType);
@@ -243,11 +245,8 @@ namespace Rbx2Source.Reflection
             }
             else
             {
-                XmlNode roblox = LoadRobloxNodeXML(contents);
-                if (roblox != null)
-                    result = AssembleModel_XML(roblox);
-                else
-                    result = new Folder();
+                XmlNode roblox = LoadRobloxNode_XML(contents);
+                result = AssembleModel_XML(roblox);
             }
 
             return result;

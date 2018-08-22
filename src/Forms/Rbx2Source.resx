@@ -2527,13 +2527,31 @@
 </value>
   </data>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.12] (August 14th, 2018)
+    <value>[v2.13] (August 21st, 2018)
+
+• Fixed a bug where localization was interfering with
+  the generated model data. 
+• Refactored the runtime reflection code to make
+  more use of templates, so the code for working with
+  instances requires less downcasting behind the
+  scenes.
+• Improved the accuracy of the R15 floor level.
+• Changed my Twitter handle from @MaxGeee1019
+  to @CloneTeee1019 in the program
+  (because Twitter likes to ruin my fun)
+
+______________________________________________________
+
+[v2.12] (August 14th, 2018)
+
 • Patching up a few more small issues with head
   meshes.
 • Fixed a regression with R6 avatars.
+
 ______________________________________________________
 
 [v2.11] (August 14th, 2018)
+
 • Fixed a regression involving SpecialMesh 
   VertexColors.
 • Fixed a regression where the main screen would say
@@ -2544,8 +2562,11 @@ ______________________________________________________
 • Reduced the verbosity of asset retrieval in the
   compiler log.
 • Attempted to improve detection of Steam.
+
 ______________________________________________________
+
 [v2.10] (August 14th, 2018)
+
 • Fixed a bug where the program would sometimes
   claim a user doesn't exist, even though it does.
 • Updated the program backend to use 64-bit
@@ -2558,7 +2579,9 @@ ______________________________________________________
 • Ported over the lookup table functionality of avatar
   heads, so they should now compile consistently no
   matter what.
+
 ______________________________________________________
+
 [v2.08] (February 15th, 2018)
 • Fixed a bug where the R15 texture assembler 
   wasn't using the right texture.
@@ -2568,8 +2591,10 @@ ______________________________________________________
 • Switched my @MaxGee1019 handle over to 
   @MaxGeee1019 in the program credits
   (because Twitter sucks &lt;3)
+
 ______________________________________________________
 [v2.07] (June 4th, 2017)
+
 • Refactored a lot of the model compiler code,
   so models should compile MUCH faster now.
 • Rewrote the asset fetcher so that it properly caches
@@ -2579,43 +2604,62 @@ ______________________________________________________
   some weird culture localization features.
 • If a user is wearing the "Blockhead" head, it should
   be generated correctly now.
+
 ______________________________________________________
+
 [v2.06] (May 31st, 2017)
+
 • Fixed a compiler crash that was caused by the 
   introduction of vertex color metadata to the binary
   mesh file format.
 • Reformatted some of the mesh parser code to make
   it faster.
+
 ______________________________________________________
+
 [v2.05] (January 31st, 2017)
 • Fixed a compiler crash that was caused by the
   removal of an important web API that I used.
 • Updated to use the new avatar web APIs.
+
 ______________________________________________________
+
 [v2.04] (January 21st, 2017)
 • Rbx2Source will now fallback to finding a running
   instance of Steam, if it cannot find the directory.
+
 ______________________________________________________
+
 [v2.03] (January 1st, 2017)
+
 • Fixed a small bug that was causing the compiler to 
   fail with users who glitched a space after their 
   name.
+
 ______________________________________________________
+
 [v2.02] (January 1st, 2017)
+
 • Added a "Change Log" tab!
 • Improved the appearance of objects with
   transparency.
 • Added some safeguards while I investigate whatever
   is causing the "generic error in GDI+" stuff to 
   popup for some people.
+
 ______________________________________________________
+
 [v2.01] (December 30th, 2016)
+
 • If you are using multiple folders for your steam 
   library, Rbx2Source will now properly detect 
   Source engine games in there.
 • Cleaned up some unused code tidbits.
+
 ______________________________________________________
+
 [v2.00] (December 29th, 2016)
+
 • Completely rewrote Rbx2Source from the ground up.
 • Support for both R6 and R15 characters
 • Geometry is assembled directly from the source mesh 
@@ -2634,17 +2678,23 @@ ______________________________________________________
   stronger than it was before, and will allow me 
   to add more features with relative ease.
 • The launcher is no longer a seperate application
+
 ______________________________________________________
+
 [v1.60] (June 18th, 2015)
 • Textures are now compiled simultaneously
 • Improved the compiler logs to show more 
    information about whats going on.
 ______________________________________________________
+
 [v1.50] (May 22nd, 2015)
+
 • Added support to auto-scan for Source Engine games.
 • Collision models are now generated for each model.
 ______________________________________________________
+
 [v1.40] (January 26th, 2015)
+
 • Updated files to stop being rewritten if they didn't 
   change
 • Attempted to prevent the main program from being
@@ -2652,21 +2702,29 @@ ______________________________________________________
   pinned instead.
 • Added more animations to the character model
 ______________________________________________________
+
 [v1.30] (January 9th, 2015)
+
 • User's arm will no longer get stuck in the up position 
    if they were wearing a gear.
 • Added idle &amp; walking animation.
 • Cleaned up some of the backend code.
 ______________________________________________________
+
 [v1.20] (December 31st, 2015)
+
 • Introduced the launcher application, so Rbx2Source 
   can update itself when they are available.
 ______________________________________________________
+
 [v1.10] (December 29th, 2015)
+
 • Resources are now loaded from github instead of 
   pastebin.
 ______________________________________________________
+
 [v1.00] (December 25th, 2015)
+
 • Initial release.
 </value>
   </data>

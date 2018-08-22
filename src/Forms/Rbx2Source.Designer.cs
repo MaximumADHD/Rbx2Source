@@ -227,10 +227,10 @@
             this.twitterLink.Location = new System.Drawing.Point(7, 207);
             this.twitterLink.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.twitterLink.Name = "twitterLink";
-            this.twitterLink.Size = new System.Drawing.Size(88, 13);
+            this.twitterLink.Size = new System.Drawing.Size(94, 13);
             this.twitterLink.TabIndex = 4;
             this.twitterLink.TabStop = true;
-            this.twitterLink.Text = "@MaxGeee1019";
+            this.twitterLink.Text = "@CloneTeee1019";
             // 
             // developedBy
             // 
@@ -531,7 +531,7 @@
             this.MaximizeBox = false;
             this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Rbx2Source v2.12";
+            this.Text = "Rbx2Source v2.13";
             this.TopMost = true;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);

@@ -41,36 +41,33 @@ namespace Rbx2Source.Assembler
             return "UniquePartAppearance_" + key.ToString();
         }
 
-        private static void recursiveAddParts(List<Part> parts, Instance scan)
+        private static void AddParts(List<Part> parts, Instance scan)
         {
-            foreach (Instance child in scan.GetChildren())
+            foreach (Part part in scan.GetChildrenOfClass<Part>())
             {
-                if (child.IsA("Part"))
+                if (part.Transparency < 1)
                 {
-                    Part part = (Part)child;
-                    if (part.Transparency < 1)
-                    {
-                        parts.Add(part);
-                        Rbx2Source.Print("Found Part {0}", part.Name);
-                    }
+                    parts.Add(part);
+                    Rbx2Source.Print("Found Part {0}", part.Name);
                 }
-                recursiveAddParts(parts, child);
             }
         }
 
         public static StudioMdlWriter AssembleModel(Asset asset)
         {
-            Folder content = Reflection.RBXM.LoadFromAsset(asset);
+            Folder content = RBXM.LoadFromAsset(asset);
+
             Rbx2Source.ScheduleTasks("GatherParts", "BuildMesh");
             Rbx2Source.PrintHeader("GATHERING PARTS");
 
             List<Part> parts = new List<Part>();
-            recursiveAddParts(parts, content);
+            AddParts(parts, content);
 
             if (parts.Count == 0)
                 throw new Exception("No parts were found inside of this asset!");
 
             Part primaryPart = null;
+
             foreach (Part part in parts)
             {
                 if (part.IsA("MeshPart") || part.Name == "Handle")

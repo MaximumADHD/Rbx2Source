@@ -231,7 +231,7 @@ namespace Rbx2Source.Geometry
                 {
                     offset = part.CFrame;
 
-                    SpecialMesh specialMesh = (SpecialMesh)part.FindFirstChildOfClass("SpecialMesh");
+                    SpecialMesh specialMesh = part.FindFirstChildOfClass<SpecialMesh>();
                     if (specialMesh != null && specialMesh.MeshType == MeshType.FileMesh)
                     {
                         meshAsset = Asset.GetByAssetId(specialMesh.MeshId);
@@ -245,7 +245,7 @@ namespace Rbx2Source.Geometry
                     }
                     else
                     {
-                        DataModelMesh legacy = (DataModelMesh)part.FindFirstChildOfClass("DataModelMesh");
+                        DataModelMesh legacy = part.FindFirstChildOfClass<DataModelMesh>();
                         if (legacy != null)
                         {
                             meshAsset = Head.ResolveHeadMeshAsset(legacy);

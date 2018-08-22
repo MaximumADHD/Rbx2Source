@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Rbx2Source.Reflection
 {
@@ -11,25 +12,31 @@ namespace Rbx2Source.Reflection
 
     class Instance
     {
-        private Instance parentInternal;
-        private List<Instance> Children = new List<Instance>();
+        private Instance _parent;
+        private List<Instance> _children = new List<Instance>();
         public string Name;
 
         public Instance[] GetChildren()
         {
-            return Children.ToArray();
+            return _children.ToArray();
+        }
+
+        public T[] GetChildrenOfClass<T>() where T : Instance
+        {
+            T[] result = _children.OfType<T>().ToArray();
+            return result;
         }
 
         protected void AddChild(Instance child)
         {
-            if (!Children.Contains(child))
-                Children.Add(child);
+            if (!_children.Contains(child))
+                _children.Add(child);
         }
 
         protected void RemoveChild(Instance child)
         {
-            if (Children.Contains(child))
-                Children.Remove(child);
+            if (_children.Contains(child))
+                _children.Remove(child);
         }
 
         public bool IsDescendantOf(Instance obj)
@@ -52,50 +59,55 @@ namespace Rbx2Source.Reflection
 
         public string GetFullName()
         {
-            List<string> traverse = new List<string>();
-            traverse.Add(this.Name);
-            Instance current = this;
-            while (true)
-            {
-                Instance parent = current.Parent;
-                if (parent != null)
-                    traverse.Add(parent.Name);
-                else
-                    break;
+            string fullName = Name;
+            Instance current = Parent;
 
-                current = parent;
+            while (current != null)
+            {
+                fullName += '.' + current.Name;
+                current = current.Parent;
             }
 
-            traverse.Reverse();
-
-            string result = string.Join(".", traverse.ToArray());
-            return result;
+            return fullName;
         }
 
         public void Destroy()
         {
             Parent = null;
-            while (Children.Count > 0)
-            {
-                Instance child = Children[Children.Count - 1];
-                Children.Remove(child);
+            foreach (Instance child in GetChildren())
                 child.Destroy();
-            }
         }
 
-        public Instance FindFirstChild(string name, bool recursive = false)
+        public T FindFirstChildOfClass<T>() where T : Instance
         {
-            Instance firstChild = null;
-            foreach (Instance child in Children)
+            T result = null;
+
+            foreach (Instance child in _children)
             {
-                if (child.Name == name)
+                if (child is T)
                 {
-                    firstChild = child;
+                    result = child as T;
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        public T FindFirstChild<T>(string name, bool recursive = false) where T : Instance
+        {
+            T firstChild = null;
+
+            foreach (Instance child in _children)
+            {
+                if (child.Name == name && child is T)
+                {
+                    firstChild = child as T;
                     break;
                 }
                 else if (recursive)
                 {
-                    Instance descendingChild = child.FindFirstChild(name, true);
+                    T descendingChild = child.FindFirstChild<T>(name, true);
                     if (descendingChild != null)
                     {
                         firstChild = descendingChild;
@@ -103,58 +115,41 @@ namespace Rbx2Source.Reflection
                     }
                 }
             }
+
             return firstChild;
         }
 
-        public Instance FindFirstChildOfClass(string className)
-        {
-            Instance result = null;
-            foreach (Instance child in Children)
-            {
-                if (child.IsA(className))
-                {
-                    result = child;
-                    break;
-                }
-            }
-            return result;
-        }
+        public Instance FindFirstChild(string name, bool recursive = false) => FindFirstChild<Instance>(name, recursive);
 
         public Instance Parent
         {
             get
             {
-                return parentInternal;
+                return _parent;
             }
             set
             {
                 if (value != null)
                 {
                     if (value == this)
-                        throw new Exception("Attempt to set " + this.GetFullName() + " as its own parent");
+                        throw new Exception("Attempt to set " + GetFullName() + " as its own parent");
                     else if (value.IsDescendantOf(this))
-                        throw new Exception("Attempt to set parent of " + this.GetFullName() + " to " + value.GetFullName() + " would result in circular reference");
+                        throw new Exception("Attempt to set parent of " + GetFullName() + " to " + value.GetFullName() + " would result in circular reference");
                 }
 
-                Instance oldParent = this.parentInternal;
-                if (oldParent != null)
-                    oldParent.RemoveChild(this);
+                if (_parent != null)
+                    _parent.RemoveChild(this);
 
-                parentInternal = value;
-                if (parentInternal != null)
-                    parentInternal.AddChild(this);
+                _parent = value;
 
+                if (_parent != null)
+                    _parent.AddChild(this);
             }
         }
 
         public string ClassName
         {
-            get
-            {
-                Type myType = this.GetType();
-                string typeName = myType.Name;
-                return typeName;
-            }
+            get { return GetType().Name; }
         }
 
         public bool IsA(string className)
@@ -165,18 +160,6 @@ namespace Rbx2Source.Reflection
                 return specType.IsAssignableFrom(myType);
             else
                 return false;
-        }
-
-        public Instance this[string childName]
-        {
-            get
-            {
-                Instance result = this.FindFirstChild(childName);
-                if (result != null)
-                    return result;
-                else
-                    throw new Exception(childName + " is not a valid member of " + this.ClassName);
-            }
         }
 
         public override string ToString()
