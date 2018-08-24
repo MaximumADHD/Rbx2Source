@@ -45,14 +45,12 @@ namespace Rbx2Source.Web
         public AvatarScale Scales;
         public BodyColors BodyColors;
         public UserInfo UserInfo;
-        public CurrentlyWearing CurrentlyWearing;
 
         public bool UserExists = false;
 
         private static UserAvatar createUserAvatar(UserInfo info)
         {
             UserAvatar avatar = WebUtility.DownloadRbxApiJSON<UserAvatar>("v1.1/avatar-fetch?placeId=0&userId=" + info.Id);
-            avatar.CurrentlyWearing = WebUtility.DownloadJSON<CurrentlyWearing>("https://avatar.roblox.com/v1/users/" + info.Id + "/currently-wearing");
             avatar.UserExists = true;
             avatar.UserInfo = info;
             return avatar;
