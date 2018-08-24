@@ -33,11 +33,6 @@ namespace Rbx2Source.Web
         public int TorsoColor;
     }
 
-    struct CurrentlyWearing
-    {
-        public List<long> AssetIds;
-    }
-
     class UserAvatar
     {
         public AvatarType ResolvedAvatarType;
