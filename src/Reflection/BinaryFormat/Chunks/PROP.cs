@@ -99,7 +99,7 @@ namespace Rbx2Source.Reflection.BinaryFormat
 
         public override string ToString()
         {
-            return '[' + Enum.GetName(typeof(BinaryPropertyFormat), Format) + "] " + Name;
+            return '[' + BinaryFile.GetEnumName(Format) + "] " + Name;
         }
 
         public BinaryChunkPROP(BinaryChunk chunk)

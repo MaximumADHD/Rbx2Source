@@ -5,7 +5,7 @@ namespace Rbx2Source.Web
 {
     enum AvatarType { R6, R15, Unknown }
 
-    class AvatarScale
+    struct AvatarScale
     {
         public float Width;
         public float Height;
@@ -23,11 +23,27 @@ namespace Rbx2Source.Web
         public List<WebApiError> Errors;
     }
 
+    struct BodyColors
+    {
+        public int HeadColor;
+        public int LeftArmColor;
+        public int RightArmColor;
+        public int LeftLegColor;
+        public int RightLegColor;
+        public int TorsoColor;
+    }
+
+    struct CurrentlyWearing
+    {
+        public List<long> AssetIds;
+    }
+
     class UserAvatar
     {
         public AvatarType ResolvedAvatarType;
         public List<long> AccessoryVersionIds;
         public AvatarScale Scales;
+        public BodyColors BodyColors;
         public UserInfo UserInfo;
 
         public bool UserExists = false;
