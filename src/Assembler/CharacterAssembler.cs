@@ -246,11 +246,11 @@ namespace Rbx2Source.Assembler
             Rbx2Source.PrintHeader("GATHERING CHARACTER ASSETS");
 
             Folder characterAssets = new Folder();
-            List<long> assetIds = avatar.CurrentlyWearing.AssetIds;
+            List<long> assetIds = avatar.AccessoryVersionIds;
 
             foreach (long id in assetIds)
             {
-                Asset asset = Asset.Get(id);
+                Asset asset = Asset.Get(id,"/asset/?assetversionid=");
                 Folder import = RBXM.LoadFromAsset(asset);
                 Folder typeSpecific = import.FindFirstChild<Folder>(avatarType);
                 if (typeSpecific != null)

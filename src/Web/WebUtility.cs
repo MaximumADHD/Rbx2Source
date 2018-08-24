@@ -117,7 +117,7 @@ namespace Rbx2Source.Web
                 {
                     dots += ".";
                     if (log)
-                        Rbx2Source.Print("\tWaiting for finalization of " + url + dots);
+                        Rbx2Source.Print("Waiting for finalization of " + url + dots);
 
                     wait(1f);
 
