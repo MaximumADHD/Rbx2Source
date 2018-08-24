@@ -15,7 +15,7 @@ namespace Rbx2Source.Reflection.BinaryFormat
 
         public override string ToString()
         {
-            string typeName = Enum.GetName(typeof(BinaryPropertyFormat), Format);
+            string typeName = BinaryFile.GetEnumName(Format);
             string valueLabel;
 
             if (Value != null)
@@ -102,6 +102,11 @@ namespace Rbx2Source.Reflection.BinaryFormat
         public ClassDescriptor[] Instances;
         private BinaryChunkMETA Metadata;
         public List<ClassDescriptor> TreeRoot = new List<ClassDescriptor>();
+
+        public static string GetEnumName<T>(T value)
+        {
+            return Enum.GetName(typeof(T), value);
+        }
 
         internal static uint decodeUInt(int value)
         {

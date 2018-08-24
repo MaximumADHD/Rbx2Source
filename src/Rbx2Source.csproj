@@ -103,6 +103,13 @@
     <Compile Include="Assembler\BrickColor.cs" />
     <Compile Include="Assembler\Headers.cs" />
     <Compile Include="Assembler\CatalogItemAssembler.cs" />
+    <Compile Include="Assembler\TextureCompositor.cs" />
+    <Compile Include="Forms\DebugDraw.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\DebugDraw.Designer.cs">
+      <DependentUpon>DebugDraw.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\Launcher.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -140,9 +147,9 @@
     <Compile Include="Reflection\BinaryFormat\Chunks\META.cs" />
     <Compile Include="Reflection\BinaryFormat\Chunks\PRNT.cs" />
     <Compile Include="Reflection\BinaryFormat\Chunks\PROP.cs" />
-    <Compile Include="Reflection\ClassesWithProperties.cs" />
+    <Compile Include="Reflection\Classes.cs" />
     <Compile Include="Reflection\Enums.cs" />
-    <Compile Include="Reflection\BlankInheritances.cs" />
+    <Compile Include="Reflection\EmptyClasses.cs" />
     <Compile Include="Resources\ResourceUtility.cs" />
     <Compile Include="Resources\Settings.cs" />
     <Compile Include="StudioMdl\Bone.cs" />
@@ -165,6 +172,9 @@
     <Compile Include="Geometry\Vertex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Web\Asset.cs" />
+    <EmbeddedResource Include="Forms\DebugDraw.resx">
+      <DependentUpon>DebugDraw.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\Launcher.resx">
       <DependentUpon>Launcher.cs</DependentUpon>
     </EmbeddedResource>
@@ -214,6 +224,16 @@
     <EmbeddedResource Include="Resources\Meshes\Primitives\Cylinder.mesh" />
     <None Include="Properties\app.manifest" />
     <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Swim.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\BaseTexture.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\OverlayTexture.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositLeftArm.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositLeftLeg.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositRightArm.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositRightLeg.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositTorso.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Compositing\R15CompositLeftArmBase.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Compositing\R15CompositRightArmBase.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Compositing\R15CompositTorsoBase.mesh" />
     <None Include="web.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Resources\AvatarData\R15\ASSEMBLY.rbxmx" />
@@ -234,6 +254,7 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="Rbx2Source.ico" />
+    <EmbeddedResource Include="Resources\Images\face.png" />
     <EmbeddedResource Include="Resources\Libraries\LZ4.dll" />
     <EmbeddedResource Include="Resources\Libraries\Newtonsoft.Json.dll" />
     <None Include="Resources\Images\Accoutrement_icon.png" />

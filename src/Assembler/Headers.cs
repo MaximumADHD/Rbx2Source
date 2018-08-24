@@ -41,7 +41,8 @@ namespace Rbx2Source.Assembler
     interface ICharacterAssembler
     {
         StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale);
-        TextureAssembly AssembleTextures(UserAvatar avatar, Dictionary<string, Material> materials);
+        TextureCompositor ComposeTextureMap(Folder characterAssets, BodyColors bodyColors);
+        TextureAssembly AssembleTextures(TextureCompositor compositor, Dictionary<string, Material> materials);
         byte[] CollisionModelScript { get; }
     }
 

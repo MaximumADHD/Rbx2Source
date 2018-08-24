@@ -74,38 +74,18 @@ namespace Rbx2Source.Assembler
             return meshBuilder;
         }
 
-        public TextureAssembly AssembleTextures(UserAvatar avatar, Dictionary<string, Material> materials)
+        public TextureCompositor ComposeTextureMap(Folder characterAssets, BodyColors bodyColors)
         {
-            /*/ ASSEMBLING R6 CHARACTER TEXTURES IS VERY WEIRD
-             *
-             * This currently depends on a lucky observation I was able to make based on the
-             * layout of the 3D thumbnail files.
-             * 
-             * To put it as simply as possible, there are "group" tags specified in the 3D Thumbnail's
-             * obj file. Each group is prefixed with "Player1" followed by a numerical index for the group.
-             * Each group is linked to a material in the mtl file, and the mtl file tells us what texture
-             * that material should be linked to.
-             * 
-             * The number of numerical indexes depends on how many roblox parts exist on the character.
-             * Accessories and gears always come first.
-             * 
-             * The last five groups will always be the following in-order:
-             *  - Left Leg
-             *  - Right Leg
-             *  - Left Arm
-             *  - Right Arm
-             *  - Torso
-             *  - Head
-             *  
-             * By cleverly exploiting this knowledge, I can extract the 3D obj file textures, and 
-             * correctly link them to the right geometry in the generated R6 character.
-            /*/
+            return new TextureCompositor(AvatarType.R6, 1, 1);
+        }
 
+        public TextureAssembly AssembleTextures(TextureCompositor compositor, Dictionary<string, Material> materials)
+        {
             TextureAssembly assembly = new TextureAssembly();
             assembly.Images = new Dictionary<string, Image>();
             assembly.MatLinks = new Dictionary<string, string>();
 
-            Rbx3DThumbnailInfo info = TextureFetch.Get3DThumbnail(avatar.UserInfo.Id);
+            /*Rbx3DThumbnailInfo info = TextureFetch.Get3DThumbnail(avatar.UserInfo.Id);
             string objHash = info.Obj;
             string objUrl = WebUtility.ResolveHashUrl(objHash);
             string obj = WebUtility.DownloadString(objUrl);
@@ -196,7 +176,7 @@ namespace Rbx2Source.Assembler
                         assembly.MatLinks.Add(mtlName, mtlName);
                     }
                 }
-            }
+            }*/
 
             return assembly;
         }
