@@ -82,6 +82,11 @@ namespace Rbx2Source
             }
         }
 
+        public static string GetEnumName<T>(T value)
+        {
+            return Enum.GetName(typeof(T), value);
+        }
+
         private void WriteLine(string line)
         {
             int selectedIndex = output.Text.Length;
@@ -306,7 +311,7 @@ namespace Rbx2Source
                     }
                     else
                     {
-                        showError("AssetType received: " + Enum.GetName(typeof(AssetType), assetType) + "\n\nExpected one of the following asset types:\n* Accessory\n* Gear\n\nTry again!");
+                        showError("AssetType received: " + GetEnumName(assetType) + "\n\nExpected one of the following asset types:\n* Accessory\n* Gear\n\nTry again!");
                     }
                 }
             }
@@ -405,6 +410,10 @@ namespace Rbx2Source
 
             await UpdateCompilerState();
             showError(errorMsg);
+
+            if (Debugger.IsAttached)
+                Debugger.Break();
+
             compileProgress.Value = 0;
         }
 
@@ -485,9 +494,8 @@ namespace Rbx2Source
                 if (File.Exists(hlmvPath))
                 {
                     ThirdPartyUtility hlmv = new ThirdPartyUtility(hlmvPath);
-                    Console.WriteLine(latestCompiledModel);
-                    hlmv.AddParameter("-game", latestCompiledOnGame.GameDirectory);
-                    hlmv.AddParameter("-model", latestCompiledModel);
+                    hlmv.AddParameter("game", latestCompiledOnGame.GameDirectory);
+                    hlmv.AddParameter("model", latestCompiledModel);
                     hlmv.RunSimple();
                 }
                 else showError("This Source Engine game doesn't have a model viewer for some reason :P");

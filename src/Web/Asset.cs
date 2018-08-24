@@ -86,7 +86,7 @@ namespace Rbx2Source.Web
                     try
                     {
                         asset = JsonConvert.DeserializeObject<Asset>(cachedContent);
-                        //Rbx2Source.Print("Fetched pre-cached asset {0}: {1}", assetId, identifier);
+                        Rbx2Source.Print("Fetched pre-cached asset {0}", assetId);
                     }
                     catch
                     {

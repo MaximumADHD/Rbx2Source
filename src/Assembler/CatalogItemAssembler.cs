@@ -51,6 +51,9 @@ namespace Rbx2Source.Assembler
                     Rbx2Source.Print("Found Part {0}", part.Name);
                 }
             }
+
+            foreach (Instance inst in scan.GetChildren())
+                AddParts(parts, inst);
         }
 
         public static StudioMdlWriter AssembleModel(Asset asset)
