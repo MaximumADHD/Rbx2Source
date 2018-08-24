@@ -32,7 +32,7 @@ namespace Rbx2Source.Assembler
         private static Rectangle  RECT_LEFT_LEG       =  new Rectangle ( 496, 284, 264, 284 );
         private static Rectangle  RECT_RIGHT_ARM      =  new Rectangle ( 760,   0, 264, 284 );
         private static Rectangle  RECT_RIGHT_LEG      =  new Rectangle ( 760, 284, 264, 284 );
-        private static Rectangle  RECT_TSHIRT         =  new Rectangle (   2, 822, 128, 128 );
+        private static Rectangle  RECT_TSHIRT         =  new Rectangle (   2,  74, 128, 128 );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -118,7 +118,7 @@ namespace Rbx2Source.Assembler
 
         public TextureCompositor ComposeTextureMap(Folder characterAssets, BodyColors bodyColors)
         {
-            TextureCompositor compositor = new TextureCompositor(AvatarType.R15, 1024, 768);
+            TextureCompositor compositor = new TextureCompositor(AvatarType.R15, 1024, 568);
 
             // Append BodyColors
             compositor.AppendColor(bodyColors.TorsoColor,    COMPOSIT_TORSO,      RECT_TORSO);
@@ -214,6 +214,7 @@ namespace Rbx2Source.Assembler
                         Size size = cropRegion.Size;
                         int w = size.Width;
                         int h = size.Height;
+
                         Point origin = cropRegion.Location;
                         int x = origin.X;
                         int y = origin.Y;

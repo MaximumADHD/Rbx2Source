@@ -57,6 +57,7 @@ namespace Rbx2Source
         private string assetPreviewImage = "";
         private static Image loadingImage = Properties.Resources.Loading;
         private static Image brokenImage = Properties.Resources.BrokenPreview;
+        private static Image debugImage;
 
         public Rbx2Source()
         {
@@ -134,6 +135,11 @@ namespace Rbx2Source
                 msgFormat = msgFormat.Replace(match, values[i].ToString());
             }
             Print(msgFormat);
+        }
+
+        public static void SetDebugImage(Image img)
+        {
+            debugImage = img;
         }
 
         private void showError(string msg, bool fatal = false)
@@ -712,6 +718,10 @@ namespace Rbx2Source
                             }
                         }
                     }
+
+                    if (debugImg.Image != debugImage)
+                        debugImg.Image = debugImage;
+
                     await Task.Delay(10);
                 }
             });

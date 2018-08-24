@@ -22,7 +22,6 @@ namespace Rbx2Source.Assembler
         Color,
     }
 
-
     class CompositData : IComparable
     {
         public DrawMode DrawMode { get; private set; }
