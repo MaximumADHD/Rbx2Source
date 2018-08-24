@@ -2527,7 +2527,18 @@
 </value>
   </data>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.13] (August 21st, 2018)
+    <value>[v2.14] (August 23rd, 2018)
+
+• Fixed a bug that was preventing users from viewing
+  their compiled models in Garry's Mod.
+• Fixed a bug that was making Accessories and Gear
+  fail to compile.
+• Worked around an issue that was preventing
+  terminated Roblox users from being compiled.
+
+______________________________________________________
+
+[v2.13] (August 21st, 2018)
 
 • Fixed a bug where localization was interfering with
   the generated model data. 

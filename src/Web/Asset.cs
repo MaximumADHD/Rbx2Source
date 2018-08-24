@@ -59,7 +59,7 @@ namespace Rbx2Source.Web
             return Content;
         }
 
-        public static Asset Get(long assetId)
+        public static Asset Get(long assetId, string idPiece = "/asset/?ID=")
         {
             if (!assetCache.ContainsKey(assetId))
             {
@@ -68,7 +68,7 @@ namespace Rbx2Source.Web
                 Directory.CreateDirectory(assetCacheDir);
 
                 // Ping Roblox to figure out what this asset's cdn url is
-                HttpWebRequest ping = WebRequest.CreateHttp("https://assetgame.roblox.com/asset/?ID=" + assetId);
+                HttpWebRequest ping = WebRequest.CreateHttp("https://assetgame.roblox.com" + idPiece + assetId);
                 ping.UserAgent = "Roblox";
                 ping.Method = "HEAD";
                 ping.AllowAutoRedirect = false;
@@ -86,7 +86,7 @@ namespace Rbx2Source.Web
                     try
                     {
                         asset = JsonConvert.DeserializeObject<Asset>(cachedContent);
-                        //Rbx2Source.Print("Fetched pre-cached asset {0}: {1}", assetId, identifier);
+                        Rbx2Source.Print("Fetched pre-cached asset {0}", assetId);
                     }
                     catch
                     {
@@ -118,12 +118,12 @@ namespace Rbx2Source.Web
                     try
                     {
                         File.WriteAllText(cachedFile, serialized);
-                        //Rbx2Source.Print("Precached AssetId {0} as {1}", assetId, identifier);
+                        Rbx2Source.Print("Precached AssetId {0}", assetId);
                     }
                     catch
                     {
                         // Oh well.
-                        //Rbx2Source.Print("Failed to cache AssetId {0} as {1}", assetId, identifier);
+                        Rbx2Source.Print("Failed to cache AssetId {0}", assetId);
                     }
                 }
 
