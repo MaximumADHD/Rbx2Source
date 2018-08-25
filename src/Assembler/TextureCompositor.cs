@@ -154,6 +154,31 @@ namespace Rbx2Source.Assembler
             layers.Add(composit);
         }
 
+        public PointF VertexToUVPoint(Vertex vert)
+        {
+            Vector3 uv = vert.UV;
+            float x = uv.x * canvas.Width;
+            float y = uv.y * canvas.Height;
+            return new PointF(x, y);
+        }
+
+        public Point VertexToPoint(Vertex vert)
+        {
+            int x = (int)vert.Pos.x;
+            int y = (int)vert.Pos.y;
+
+            return new Point(x, y);
+        }
+
+        public Point VertexToPoint(Vertex vert, Rectangle canvas, Point offset)
+        {
+            int x = (int)vert.Pos.x;
+            int y = (int)vert.Pos.y;
+
+            Point result = new Point(offset.X + x, (offset.Y - y) + canvas.Height);
+            return result;
+        }
+
         public Bitmap BakeTextureMap()
         {
             Bitmap bitmap = new Bitmap(canvas.Width, canvas.Height);
@@ -180,9 +205,11 @@ namespace Rbx2Source.Assembler
                         Asset texture = composit.Texture;
                         byte[] payload = texture.GetContent();
 
-                        MemoryStream stream = new MemoryStream(payload);
-                        Image image = Image.FromStream(stream);
-                        buffer.DrawImage(image, canvas);
+                        using (MemoryStream stream = new MemoryStream(payload))
+                        {
+                            Image image = Image.FromStream(stream);
+                            buffer.DrawImage(image, canvas);
+                        }
                     }
                 }
                 else if (drawMode == DrawMode.Guide)
@@ -194,19 +221,36 @@ namespace Rbx2Source.Assembler
                         Vertex[] verts = composit.GetGuideVerts(f);
                         Point offset = canvas.Location;
 
-                        Point a = verts[0].ToPoint(canvas, offset);
-                        Point b = verts[1].ToPoint(canvas, offset);
-                        Point c = verts[2].ToPoint(canvas, offset);
+                        Point vert_a = VertexToPoint(verts[0], canvas, offset);
+                        Point vert_b = VertexToPoint(verts[1], canvas, offset);
+                        Point vert_c = VertexToPoint(verts[2], canvas, offset);
 
                         if (drawType == DrawType.Color)
                         {
-                            Point[] poly = new Point[3] { a, b, c };
+                            Point[] poly = new Point[3] { A, B, C };
                             using (Brush brush = new SolidBrush(composit.DrawColor))
                                 buffer.FillPolygon(brush, poly);
                         }
                         else if (drawType == DrawType.Texture)
                         {
+                            Asset texture = composit.Texture;
+                            byte[] payload = texture.GetContent();
 
+                            using (MemoryStream stream = new MemoryStream(payload))
+                            {
+                                Image image = Image.FromStream(stream);
+                                using (TextureBrush brush = new TextureBrush(image))
+                                {
+                                    Pen pen = new Pen(brush);
+
+                                    PointF uvA = GetUVPoint(verts[0]);
+                                    PointF uvB = GetUVPoint(verts[1]);
+                                    PointF uvC = GetUVPoint(verts[2]);
+
+                                    buffer.DrawPolygon(pen, 
+                                    buffer.DrawImage(image, canvas);
+                                }
+                            }
                         }
 
                     }
