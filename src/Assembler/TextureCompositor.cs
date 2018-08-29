@@ -154,7 +154,7 @@ namespace Rbx2Source.Assembler
             layers.Add(composit);
         }
 
-        public PointF VertexToUVPoint(Vertex vert)
+        private PointF VertexToUVPoint(Vertex vert)
         {
             Vector3 uv = vert.UV;
             float x = uv.x * canvas.Width;
@@ -162,7 +162,7 @@ namespace Rbx2Source.Assembler
             return new PointF(x, y);
         }
 
-        public Point VertexToPoint(Vertex vert)
+        private static Point VertexToPoint(Vertex vert)
         {
             int x = (int)vert.Pos.x;
             int y = (int)vert.Pos.y;
@@ -170,13 +170,71 @@ namespace Rbx2Source.Assembler
             return new Point(x, y);
         }
 
-        public Point VertexToPoint(Vertex vert, Rectangle canvas, Point offset)
+        private static Point VertexToPoint(Vertex vert, Rectangle canvas, Point offset)
         {
             int x = (int)vert.Pos.x;
             int y = (int)vert.Pos.y;
 
             Point result = new Point(offset.X + x, (offset.Y - y) + canvas.Height);
             return result;
+        }
+
+        private static bool PointInTriangle(PointF p, PointF p0, PointF p1, PointF p2)
+        {
+            float s = p0.Y * p2.X - p0.X * p2.Y + (p2.Y - p0.Y) * p.X + (p0.X - p2.X) * p.Y;
+            float t = p0.X * p1.Y - p0.Y * p1.X + (p0.Y - p1.Y) * p.X + (p1.X - p0.X) * p.Y;
+
+            if ((s < 0) != (t < 0))
+                return false;
+
+            var a = -p1.Y * p2.X + p0.Y * (p2.X - p1.X) + p0.X * (p1.Y - p2.Y) + p1.X * p2.Y;
+            if (a < 0.0)
+            {
+                s = -s;
+                t = -t;
+                a = -a;
+            }
+
+            return s > 0 && t > 0 && (s + t) <= a;
+        }
+
+        private static PointF ProjectToLine(PointF p, PointF line0, PointF line1)
+        {
+            float m = (line1.Y - line0.Y) / (line1.X / line0.X);
+            float b = (line0.Y - (m * line0.X));
+
+            float x = (m * p.Y + p.X - m * b) / (m * m + 1);
+            float y = (m * m * p.Y + m * p.X + b) / (m * m + 1);
+
+            return new PointF(x, y);
+        }
+
+        private static double MagnitudeOf(PointF p)
+        {
+            return Math.Sqrt(p.X * p.X + p.Y * p.Y);
+        }
+
+        private static PointF Subtract(PointF a, PointF b)
+        {
+            return new PointF(a.X - b.X, a.Y - b.Y);
+        }
+
+        private static double DistAlongLine(PointF p, PointF line0, PointF line1)
+        {
+            PointF online = ProjectToLine(p, line0, line1);
+
+            PointF a = Subtract(online, line0);
+            PointF b = Subtract(line1, line0);
+
+            return MagnitudeOf(a) / MagnitudeOf(b);
+        }
+
+        private static PointF Lerp(PointF a, PointF b, double t)
+        {
+            double x = a.X + ((b.X - a.X) * t);
+            double y = a.Y + ((b.Y - a.Y) * t);
+
+            return new PointF((float)x, (float)y);
         }
 
         public Bitmap BakeTextureMap()
@@ -227,7 +285,7 @@ namespace Rbx2Source.Assembler
 
                         if (drawType == DrawType.Color)
                         {
-                            Point[] poly = new Point[3] { A, B, C };
+                            Point[] poly = new Point[3] { vert_a, vert_b, vert_c };
                             using (Brush brush = new SolidBrush(composit.DrawColor))
                                 buffer.FillPolygon(brush, poly);
                         }
@@ -243,12 +301,11 @@ namespace Rbx2Source.Assembler
                                 {
                                     Pen pen = new Pen(brush);
 
-                                    PointF uvA = GetUVPoint(verts[0]);
-                                    PointF uvB = GetUVPoint(verts[1]);
-                                    PointF uvC = GetUVPoint(verts[2]);
+                                    PointF uvA = VertexToUVPoint(verts[0]);
+                                    PointF uvB = VertexToUVPoint(verts[1]);
+                                    PointF uvC = VertexToUVPoint(verts[2]);
 
-                                    buffer.DrawPolygon(pen, 
-                                    buffer.DrawImage(image, canvas);
+
                                 }
                             }
                         }
