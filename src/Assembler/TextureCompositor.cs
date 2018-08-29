@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.IO;
+using System.Timers;
 
 using Rbx2Source.Coordinates;
 using Rbx2Source.Geometry;
@@ -22,6 +24,12 @@ namespace Rbx2Source.Assembler
         Color,
     }
 
+    class TextureAllocation
+    {
+        public MemoryStream Stream;
+        public Image Texture;
+    }
+
     class CompositData : IComparable
     {
         public DrawMode DrawMode { get; private set; }
@@ -34,6 +42,8 @@ namespace Rbx2Source.Assembler
         public int Layer;
 
         public Rectangle Rect;
+
+        private static Dictionary<long, TextureAllocation> TextureAlloc = new Dictionary<long, TextureAllocation>();
 
         public CompositData(DrawMode drawMode, DrawType drawType)
         {
@@ -100,18 +110,61 @@ namespace Rbx2Source.Assembler
                 Guide.Verts[c]
             };
         }
+
+        public static Image GetTextureBuffer(Asset asset)
+        {
+            long assetId = asset.Id;
+
+            if (!TextureAlloc.ContainsKey(assetId))
+            {
+                byte[] buffer = asset.GetContent();
+
+                TextureAllocation alloc = new TextureAllocation();
+                alloc.Stream = new MemoryStream(buffer);
+                alloc.Texture = Image.FromStream(alloc.Stream);
+
+                TextureAlloc.Add(assetId, alloc);
+            }
+
+            return TextureAlloc[assetId].Texture;
+        }
+
+        public static void FreeAllocatedTextures()
+        {
+            long[] assetIds = TextureAlloc.Keys.ToArray();
+
+            foreach (long assetId in assetIds)
+            {
+                TextureAllocation alloc = TextureAlloc[assetId];
+                TextureAlloc.Remove(assetId);
+
+                alloc.Texture.Dispose();
+                alloc.Texture = null;
+
+                alloc.Stream.Dispose();
+                alloc.Stream = null;
+            }
+        }
+
     }
 
     class TextureCompositor
     {
-        private List<CompositData> layers = new List<CompositData>();
+        private List<CompositData> layers;
         private Rectangle canvas;
         private AvatarType avatarType;
+        private Timer timer;
+        private int composed;
 
-        public TextureCompositor(AvatarType avType, int width, int height)
+        public TextureCompositor(AvatarType avatar_type, int width, int height)
         {
-            avatarType = avType;
+            avatarType = avatar_type;
+
+            layers = new List<CompositData>();
             canvas = new Rectangle(0, 0, width, height);
+            
+            timer = new Timer(1000);
+            timer.Elapsed += new ElapsedEventHandler(onTimerElapsed);
         }
 
         public void AppendColor(int brickColorId, string guide, Rectangle guideSize, byte layer = 0)
@@ -154,7 +207,12 @@ namespace Rbx2Source.Assembler
             layers.Add(composit);
         }
 
-        private PointF VertexToUVPoint(Vertex vert)
+        private void onTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            Rbx2Source.Print("{0}/{1} ...", composed, layers.Count);
+        }
+
+        private PointF VertexToUV(Vertex vert)
         {
             Vector3 uv = vert.UV;
             float x = uv.x * canvas.Width;
@@ -229,18 +287,52 @@ namespace Rbx2Source.Assembler
             return MagnitudeOf(a) / MagnitudeOf(b);
         }
 
-        private static PointF Lerp(PointF a, PointF b, double t)
+        private static PointF Lerp(PointF a, PointF b, float t)
         {
-            double x = a.X + ((b.X - a.X) * t);
-            double y = a.Y + ((b.Y - a.Y) * t);
+            float x = a.X + ((b.X - a.X) * t);
+            float y = a.Y + ((b.Y - a.Y) * t);
 
-            return new PointF((float)x, (float)y);
+            return new PointF(x, y);
+        }
+
+        private static RectangleF GetBoundingBox(params PointF[] points)
+        {
+            float min_X =  10e7f;
+            float min_Y =  10e7f;
+            float max_X = -10e7f;
+            float max_Y = -10e7f;
+
+            foreach (PointF point in points)
+            {
+                if (point.X < min_X)
+                    min_X = point.X;
+
+                if (point.Y < min_Y)
+                    min_Y = point.Y;
+
+                if (point.X > max_X)
+                    max_X = point.X;
+
+                if (point.Y > max_Y)
+                    max_Y = point.Y;
+            }
+
+            float width = max_X - min_X;
+            float height = max_Y - min_Y;
+
+            return new RectangleF(min_X, min_Y, width, height);
         }
 
         public Bitmap BakeTextureMap()
         {
             Bitmap bitmap = new Bitmap(canvas.Width, canvas.Height);
             layers.Sort();
+
+            composed = 0;
+            timer.Start();
+
+            Rbx2Source.Print("Composing Humanoid Texture Map...");
+            Rbx2Source.IncrementStack();
 
             foreach (CompositData composit in layers)
             {
@@ -260,14 +352,8 @@ namespace Rbx2Source.Assembler
                     }
                     else if (drawType == DrawType.Texture)
                     {
-                        Asset texture = composit.Texture;
-                        byte[] payload = texture.GetContent();
-
-                        using (MemoryStream stream = new MemoryStream(payload))
-                        {
-                            Image image = Image.FromStream(stream);
-                            buffer.DrawImage(image, canvas);
-                        }
+                        Image image = CompositData.GetTextureBuffer(composit.Texture);
+                        buffer.DrawImage(image, canvas);
                     }
                 }
                 else if (drawMode == DrawMode.Guide)
@@ -285,36 +371,65 @@ namespace Rbx2Source.Assembler
 
                         if (drawType == DrawType.Color)
                         {
-                            Point[] poly = new Point[3] { vert_a, vert_b, vert_c };
+                            Point[] polygon = new Point[3] { vert_a, vert_b, vert_c };
                             using (Brush brush = new SolidBrush(composit.DrawColor))
-                                buffer.FillPolygon(brush, poly);
+                                buffer.FillPolygon(brush, polygon);
                         }
                         else if (drawType == DrawType.Texture)
                         {
-                            Asset texture = composit.Texture;
-                            byte[] payload = texture.GetContent();
-
-                            using (MemoryStream stream = new MemoryStream(payload))
+                            using (SolidBrush brush = new SolidBrush(Color.Black))
                             {
-                                Image image = Image.FromStream(stream);
-                                using (TextureBrush brush = new TextureBrush(image))
+                                Pen pen = new Pen(brush);
+
+                                //PointF uv_a = VertexToUVPoint(verts[0]);
+                                //PointF uv_b = VertexToUVPoint(verts[1]);
+                                //PointF uv_c = VertexToUVPoint(verts[2]);
+
+                                //buffer.DrawLine(pen, uv_a, uv_b);
+                                //buffer.DrawLine(pen, uv_b, uv_c);
+                                //buffer.DrawLine(pen, uv_c, uv_a);
+
+                                RectangleF bbox = GetBoundingBox(vert_a, vert_b, vert_c);
+
+                                for (float x = bbox.Left; x <= bbox.Right; x++)
                                 {
-                                    Pen pen = new Pen(brush);
+                                    for (float y = bbox.Top; y < bbox.Bottom; y++)
+                                    {
+                                        PointF pixel = new PointF(x, y);
 
-                                    PointF uvA = VertexToUVPoint(verts[0]);
-                                    PointF uvB = VertexToUVPoint(verts[1]);
-                                    PointF uvC = VertexToUVPoint(verts[2]);
-
-
+                                        if (PointInTriangle(pixel, vert_a, vert_b, vert_c))
+                                        {
+                                            if ((x+y) % 2 == 0)
+                                            {
+                                                bitmap.SetPixel((int)x, (int)y, Color.Purple);
+                                            }
+                                            else
+                                            {
+                                                bitmap.SetPixel((int)x, (int)y, Color.Black);
+                                            }
+                                        }
+                                    }
                                 }
+
+                                //buffer.DrawLine(pen, vert_a, vert_b);
+                                //buffer.DrawLine(pen, vert_b, vert_c);
+                                //buffer.DrawLine(pen, vert_c, vert_a);
                             }
                         }
-
                     }
+
+                    composed++;
                 }
 
                 buffer.Dispose();
             }
+
+            timer.Stop();
+
+            Rbx2Source.Print("Done!");
+            Rbx2Source.DecrementStack();
+
+            CompositData.FreeAllocatedTextures();
 
             return bitmap;
         }
