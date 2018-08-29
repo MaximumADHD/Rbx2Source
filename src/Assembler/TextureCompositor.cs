@@ -153,7 +153,6 @@ namespace Rbx2Source.Assembler
         private List<CompositData> layers;
         private Rectangle canvas;
         private AvatarType avatarType;
-        private Timer timer;
         private int composed;
 
         public TextureCompositor(AvatarType avatar_type, int width, int height)
@@ -162,9 +161,6 @@ namespace Rbx2Source.Assembler
 
             layers = new List<CompositData>();
             canvas = new Rectangle(0, 0, width, height);
-            
-            timer = new Timer(1000);
-            timer.Elapsed += new ElapsedEventHandler(onTimerElapsed);
         }
 
         public void AppendColor(int brickColorId, string guide, Rectangle guideSize, byte layer = 0)
@@ -207,16 +203,11 @@ namespace Rbx2Source.Assembler
             layers.Add(composit);
         }
 
-        private void onTimerElapsed(object sender, ElapsedEventArgs e)
-        {
-            Rbx2Source.Print("{0}/{1} ...", composed, layers.Count);
-        }
-
-        private PointF VertexToUV(Vertex vert)
+        private PointF VertexToUV(Vertex vert, Bitmap target)
         {
             Vector3 uv = vert.UV;
-            float x = uv.x * canvas.Width;
-            float y = uv.y * canvas.Height;
+            float x = uv.x * target.Width;
+            float y = uv.y * target.Height;
             return new PointF(x, y);
         }
 
@@ -237,39 +228,45 @@ namespace Rbx2Source.Assembler
             return result;
         }
 
-        private static bool PointInTriangle(PointF p, PointF p0, PointF p1, PointF p2)
+        private static float FiniteDivide(float a, float b)
         {
-            float s = p0.Y * p2.X - p0.X * p2.Y + (p2.Y - p0.Y) * p.X + (p0.X - p2.X) * p.Y;
-            float t = p0.X * p1.Y - p0.Y * p1.X + (p0.Y - p1.Y) * p.X + (p1.X - p0.X) * p.Y;
-
-            if ((s < 0) != (t < 0))
-                return false;
-
-            var a = -p1.Y * p2.X + p0.Y * (p2.X - p1.X) + p0.X * (p1.Y - p2.Y) + p1.X * p2.Y;
-            if (a < 0.0)
-            {
-                s = -s;
-                t = -t;
-                a = -a;
-            }
-
-            return s > 0 && t > 0 && (s + t) <= a;
+            return (b == 0 ? 0 : a / b);
+        }
+        private static double FiniteDivide(double a, double b)
+        {
+            return (b == 0 ? 0 : a / b);
         }
 
-        private static PointF ProjectToLine(PointF p, PointF line0, PointF line1)
+        private static Point ProjectToEdge(Point p, Point line0, Point line1)
         {
-            float m = (line1.Y - line0.Y) / (line1.X / line0.X);
-            float b = (line0.Y - (m * line0.X));
+            if (p == line0)
+                return line0;
 
-            float x = (m * p.Y + p.X - m * b) / (m * m + 1);
-            float y = (m * m * p.Y + m * p.X + b) / (m * m + 1);
+            if (p == line1)
+                return line1;
 
-            return new PointF(x, y);
+            try
+            {
+                float m = FiniteDivide(line1.Y - line0.Y, line1.X - line0.X);
+                float b = (line0.Y - (m * line0.X));
+
+                float x = FiniteDivide(m * p.Y + p.X - m * b, m * m + 1);
+                float y = FiniteDivide(m * m * p.Y + m * p.X + b, m * m + 1);
+
+                int ix = (int)x;
+                int iy = (int)y;
+
+                return new Point(ix, iy);
+            }
+            catch (DivideByZeroException)
+            {
+                return new Point();
+            }
         }
 
         private static double MagnitudeOf(PointF p)
         {
-            return Math.Sqrt(p.X * p.X + p.Y * p.Y);
+            return Math.Sqrt((p.X * p.X) + (p.Y * p.Y));
         }
 
         private static PointF Subtract(PointF a, PointF b)
@@ -277,32 +274,36 @@ namespace Rbx2Source.Assembler
             return new PointF(a.X - b.X, a.Y - b.Y);
         }
 
-        private static double DistAlongLine(PointF p, PointF line0, PointF line1)
+        private static double DistAlongEdge(Point p, Point e0, Point e1)
         {
-            PointF online = ProjectToLine(p, line0, line1);
+            PointF onEdge = ProjectToEdge(p, e0, e1);
 
-            PointF a = Subtract(online, line0);
-            PointF b = Subtract(line1, line0);
+            PointF a = Subtract(onEdge, e0);
+            PointF b = Subtract(e1, e0);
 
-            return MagnitudeOf(a) / MagnitudeOf(b);
+            return FiniteDivide(MagnitudeOf(a), MagnitudeOf(b));
         }
 
-        private static PointF Lerp(PointF a, PointF b, float t)
+        private static Point Lerp(PointF a, PointF b, double t)
         {
-            float x = a.X + ((b.X - a.X) * t);
-            float y = a.Y + ((b.Y - a.Y) * t);
+            double x = a.X + ((b.X - a.X) * t);
+            double y = a.Y + ((b.Y - a.Y) * t);
 
-            return new PointF(x, y);
+            int ix = (int)x;
+            int iy = (int)y;
+
+            return new Point(ix, iy);
         }
 
-        private static RectangleF GetBoundingBox(params PointF[] points)
+        private static Rectangle GetBoundingBox(params Point[] points)
         {
-            float min_X =  10e7f;
-            float min_Y =  10e7f;
-            float max_X = -10e7f;
-            float max_Y = -10e7f;
+            int min_X = int.MaxValue;
+            int min_Y = int.MaxValue;
 
-            foreach (PointF point in points)
+            int max_X = int.MinValue;
+            int max_Y = int.MinValue;
+
+            foreach (Point point in points)
             {
                 if (point.X < min_X)
                     min_X = point.X;
@@ -317,10 +318,51 @@ namespace Rbx2Source.Assembler
                     max_Y = point.Y;
             }
 
-            float width = max_X - min_X;
-            float height = max_Y - min_Y;
+            int width = max_X - min_X;
+            int height = max_Y - min_Y;
 
-            return new RectangleF(min_X, min_Y, width, height);
+            return new Rectangle(min_X, min_Y, width, height);
+        }
+
+        public Dictionary<int, Tuple<int,int>> ComputeScanlineMask(Rectangle canvas, Rectangle bbox, Point[] points)
+        {
+            Bitmap mask = new Bitmap(canvas.Width, canvas.Height);
+
+            // Draw the polygon onto the mask
+            Graphics graphics = Graphics.FromImage(mask);
+            using (SolidBrush black = new SolidBrush(Color.Black))
+            {
+                graphics.FillPolygon(black, points);
+                graphics.Dispose();
+            }
+
+            // Do some raycasts to compute the range of each horizontal scanline.
+            // The amount of pixel lookups needed for this is dramatically reduced by scanning along the bbox.
+
+            Dictionary<int, Tuple<int, int>> scanlineMask = new Dictionary<int, Tuple<int, int>>();
+
+            for (int y = bbox.Top; y < bbox.Bottom; y++)
+            {
+                int x0 = bbox.Left;
+                int x1 = bbox.Right - 1;
+
+                while (mask.GetPixel(x0, y).A == 0 && x0 < x1)
+                    x0++;
+                
+                while (mask.GetPixel(x1, y).A == 0 && x1 > x0)
+                    x1--;
+
+                int width = (x1 - x0);
+
+                if (width > 0)
+                {
+                    Tuple<int, int> x = new Tuple<int, int>(x0, x1);
+                    scanlineMask.Add(y, x);
+                }
+            }
+
+            mask.Dispose();
+            return scanlineMask;
         }
 
         public Bitmap BakeTextureMap()
@@ -329,10 +371,17 @@ namespace Rbx2Source.Assembler
             layers.Sort();
 
             composed = 0;
-            timer.Start();
 
             Rbx2Source.Print("Composing Humanoid Texture Map...");
             Rbx2Source.IncrementStack();
+
+            Bitmap basePolyMask = new Bitmap(canvas.Width, canvas.Height);
+
+            using (Graphics mask = Graphics.FromImage(basePolyMask))
+            {
+                using (SolidBrush black = new SolidBrush(Color.Black))
+                    mask.FillRectangle(black, canvas);
+            }
 
             foreach (CompositData composit in layers)
             {
@@ -341,19 +390,19 @@ namespace Rbx2Source.Assembler
                 DrawMode drawMode = composit.DrawMode;
                 DrawType drawType = composit.DrawType;
 
-                Rectangle canvas = composit.Rect;
+                Rectangle compositCanvas = composit.Rect;
 
                 if (drawMode == DrawMode.Rect)
                 {
                     if (drawType == DrawType.Color)
                     {
                         using (Brush brush = new SolidBrush(composit.DrawColor))
-                            buffer.FillRectangle(brush, canvas);
+                            buffer.FillRectangle(brush, compositCanvas);
                     }
                     else if (drawType == DrawType.Texture)
                     {
                         Image image = CompositData.GetTextureBuffer(composit.Texture);
-                        buffer.DrawImage(image, canvas);
+                        buffer.DrawImage(image, compositCanvas);
                     }
                 }
                 else if (drawMode == DrawMode.Guide)
@@ -363,68 +412,80 @@ namespace Rbx2Source.Assembler
                     for (int f = 0; f < guide.FaceCount; f++)
                     {
                         Vertex[] verts = composit.GetGuideVerts(f);
-                        Point offset = canvas.Location;
+                        Point offset = compositCanvas.Location;
 
-                        Point vert_a = VertexToPoint(verts[0], canvas, offset);
-                        Point vert_b = VertexToPoint(verts[1], canvas, offset);
-                        Point vert_c = VertexToPoint(verts[2], canvas, offset);
+                        Point vert_a = VertexToPoint(verts[0], compositCanvas, offset);
+                        Point vert_b = VertexToPoint(verts[1], compositCanvas, offset);
+                        Point vert_c = VertexToPoint(verts[2], compositCanvas, offset);
+
+                        Point[] polygon = new Point[3] { vert_a, vert_b, vert_c };
 
                         if (drawType == DrawType.Color)
                         {
-                            Point[] polygon = new Point[3] { vert_a, vert_b, vert_c };
                             using (Brush brush = new SolidBrush(composit.DrawColor))
                                 buffer.FillPolygon(brush, polygon);
                         }
                         else if (drawType == DrawType.Texture)
                         {
-                            using (SolidBrush brush = new SolidBrush(Color.Black))
+                            // Use some GPU acceleration to help us rasterize the polygon.
+
+                            Rectangle bbox = GetBoundingBox(vert_a, vert_b, vert_c);
+                            Dictionary<int, Tuple<int, int>> scanlineMask = ComputeScanlineMask(canvas, bbox, polygon);
+
+                            Bitmap texture = CompositData.GetTextureBuffer(composit.Texture) as Bitmap;
+
+                            using (SolidBrush brush = new SolidBrush(Color.Cyan))
                             {
                                 Pen pen = new Pen(brush);
 
-                                //PointF uv_a = VertexToUVPoint(verts[0]);
-                                //PointF uv_b = VertexToUVPoint(verts[1]);
-                                //PointF uv_c = VertexToUVPoint(verts[2]);
+                                PointF uv_a = VertexToUV(verts[0], texture);
+                                PointF uv_b = VertexToUV(verts[1], texture);
+                                PointF uv_c = VertexToUV(verts[2], texture);
 
-                                //buffer.DrawLine(pen, uv_a, uv_b);
-                                //buffer.DrawLine(pen, uv_b, uv_c);
-                                //buffer.DrawLine(pen, uv_c, uv_a);
-
-                                RectangleF bbox = GetBoundingBox(vert_a, vert_b, vert_c);
-
-                                for (float x = bbox.Left; x <= bbox.Right; x++)
+                                foreach (int y in scanlineMask.Keys)
                                 {
-                                    for (float y = bbox.Top; y < bbox.Bottom; y++)
+                                    Tuple<int, int> line = scanlineMask[y];
+                                    for (int x = line.Item1; x <= line.Item2; x++)
                                     {
-                                        PointF pixel = new PointF(x, y);
+                                        Point pixel = new Point(x, y);
 
-                                        if (PointInTriangle(pixel, vert_a, vert_b, vert_c))
-                                        {
-                                            if ((x+y) % 2 == 0)
-                                            {
-                                                bitmap.SetPixel((int)x, (int)y, Color.Purple);
-                                            }
-                                            else
-                                            {
-                                                bitmap.SetPixel((int)x, (int)y, Color.Black);
-                                            }
-                                        }
+                                        // Project the pixel onto the UV map.
+                                        Point  proj_ab  = ProjectToEdge(pixel, vert_a, vert_b);
+                                        double dist_ab  = DistAlongEdge(pixel, vert_a, vert_b);
+                                        Point  uv_ab    = Lerp(uv_a,  uv_b, dist_ab);
+
+                                        Point  proj_cb  = ProjectToEdge(pixel, vert_c, vert_b);
+                                        double dist_cb  = DistAlongEdge(pixel, vert_c, vert_b);
+                                        Point  uv_cb    = Lerp(uv_c,  uv_b,  dist_cb);
+
+                                        double dist_abc = DistAlongEdge(pixel, proj_ab, proj_cb);
+                                        Point  uv_abc   = Lerp(uv_ab, uv_cb, dist_abc);
+
+                                        // Apply the color of the projected pixel.
+                                        int uv_x = uv_abc.X;
+                                        int uv_y = uv_abc.Y;
+
+                                        Color color = texture.GetPixel(uv_x, uv_y);
+                                        bitmap.SetPixel(x, y, color);
                                     }
                                 }
-
-                                //buffer.DrawLine(pen, vert_a, vert_b);
-                                //buffer.DrawLine(pen, vert_b, vert_c);
-                                //buffer.DrawLine(pen, vert_c, vert_a);
                             }
                         }
                     }
-
-                    composed++;
                 }
+
+                Rbx2Source.Print("{0}/{1} layers composed...", ++composed, layers.Count);
+
+                string localAppData = Environment.GetEnvironmentVariable("LocalAppData");
+
+                string debugMasks = Path.Combine(localAppData, "DebugMasks");
+                Directory.CreateDirectory(debugMasks);
+
+                string debugPath = Path.Combine(localAppData, "DebugMasks", composed + ".png");
+                bitmap.Save(debugPath);
 
                 buffer.Dispose();
             }
-
-            timer.Stop();
 
             Rbx2Source.Print("Done!");
             Rbx2Source.DecrementStack();

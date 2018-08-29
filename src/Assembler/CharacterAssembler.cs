@@ -392,7 +392,6 @@ namespace Rbx2Source.Assembler
             string compileDirectory = "roblox_avatars/" + userName;
 
             TextureCompositor texCompositor = assembler.ComposeTextureMap(characterAssets, avatar.BodyColors);
-            Rbx2Source.SetDebugImage(texCompositor.BakeTextureMap());
 
             TextureAssembly texAssembly = assembler.AssembleTextures(texCompositor, materials);
             texAssembly.MaterialDirectory = compileDirectory;

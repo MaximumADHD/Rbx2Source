@@ -197,6 +197,8 @@ namespace Rbx2Source.Assembler
             assembly.MatLinks = new Dictionary<string, string>();
 
             Bitmap uvMap = compositor.BakeTextureMap();
+            Rbx2Source.SetDebugImage(uvMap);
+
             ImageAttributes blankAtt = new ImageAttributes();
 
             foreach (string materialName in materials.Keys)
