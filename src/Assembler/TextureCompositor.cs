@@ -219,16 +219,16 @@ namespace Rbx2Source.Assembler
 
         private static Point VertexToPoint(Vertex vert)
         {
-            int x = (int)vert.Pos.x;
-            int y = (int)vert.Pos.y;
+            int x = (int)vert.Pos.X;
+            int y = (int)vert.Pos.Y;
 
             return new Point(x, y);
         }
 
         private static Point VertexToPoint(Vertex vert, Rectangle canvas, Point offset)
         {
-            int x = (int)vert.Pos.x;
-            int y = (int)vert.Pos.y;
+            int x = (int)vert.Pos.X;
+            int y = (int)vert.Pos.Y;
 
             Point result = new Point(offset.X + x, (offset.Y - y) + canvas.Height);
             return result;
@@ -271,8 +271,6 @@ namespace Rbx2Source.Assembler
         public Dictionary<int, Tuple<int,int>> ComputeScanlineMask(Rectangle canvas, Rectangle bbox, Point[] points)
         {
             Bitmap mask = new Bitmap(canvas.Width, canvas.Height);
-
-            // Draw the polygon onto the mask
             Graphics graphics = Graphics.FromImage(mask);
             using (SolidBrush black = new SolidBrush(Color.Black))
             {
@@ -280,11 +278,7 @@ namespace Rbx2Source.Assembler
                 graphics.Dispose();
             }
 
-            // Do some raycasts to compute the range of each horizontal scanline.
-            // The amount of pixel lookups needed for this is dramatically reduced by scanning along the bbox.
-
             var scanlineMask = new Dictionary<int, Tuple<int, int>>();
-
             for (int y = bbox.Top; y < bbox.Bottom; y++)
             {
                 int x0 = bbox.Left;
@@ -300,13 +294,21 @@ namespace Rbx2Source.Assembler
 
                 if (width > 0)
                 {
-                    Tuple<int, int> x = new Tuple<int, int>(x0, x1);
+                    var x = new Tuple<int, int>(x0, x1);
                     scanlineMask.Add(y, x);
                 }
             }
 
             mask.Dispose();
             return scanlineMask;
+        }
+
+        public bool InTriangle(Vector3 bc)
+        {
+            float u = bc.X;
+            float v = bc.Y;
+
+            return u >= 0 && v >= 0 && u + v <= 1;
         }
 
         public float Dot(Point a, Point b)
@@ -356,14 +358,6 @@ namespace Rbx2Source.Assembler
             Rbx2Source.Print("Composing Humanoid Texture Map...");
             Rbx2Source.IncrementStack();
 
-            Bitmap basePolyMask = new Bitmap(canvas.Width, canvas.Height);
-
-            using (Graphics mask = Graphics.FromImage(basePolyMask))
-            {
-                using (SolidBrush black = new SolidBrush(Color.Black))
-                    mask.FillRectangle(black, canvas);
-            }
-
             foreach (CompositData composit in layers)
             {
                 Graphics buffer = Graphics.FromImage(bitmap);
@@ -408,41 +402,55 @@ namespace Rbx2Source.Assembler
                         }
                         else if (drawType == DrawType.Texture)
                         {
+                            Bitmap texture = CompositData.GetTextureBuffer(composit.Texture) as Bitmap;
+
                             Rectangle bbox = GetBoundingBox(vert_a, vert_b, vert_c);
                             var scanlineMask = ComputeScanlineMask(canvas, bbox, polygon);
 
-                            Bitmap texture = CompositData.GetTextureBuffer(composit.Texture) as Bitmap;
+                            Point origin = compositCanvas.Location;
+                            int width = compositCanvas.Width;
+                            int height = compositCanvas.Height;
+
+                            Bitmap drawLayer = new Bitmap(width, height);
 
                             Point uv_a = VertexToUV(verts[0], texture);
                             Point uv_b = VertexToUV(verts[1], texture);
                             Point uv_c = VertexToUV(verts[2], texture);
-
-                            foreach (int y in scanlineMask.Keys)
+                            
+                            for (int y = bbox.Top; y < bbox.Bottom; y++)
                             {
-                                Tuple<int, int> line = scanlineMask[y];
+                                bool scanY = scanlineMask.ContainsKey(y);
 
-                                for (int x = line.Item1; x <= line.Item2; x++)
+                                for (int x = bbox.Left; x < bbox.Right; x++)
                                 {
                                     Point pixel = new Point(x, y);
-                                    Vector3 bary = Barycentric(pixel, vert_a, vert_b, vert_c);
-                                    Point uvProj = Cartesian(bary, uv_a, uv_b, uv_c);
-                                    Color color = texture.GetPixel(uvProj.X, uvProj.Y);
-                                    bitmap.SetPixel(x, y, color);
+                                    Vector3 bcPixel = Barycentric(pixel, vert_a, vert_b, vert_c);
+
+                                    bool valid = InTriangle(bcPixel);
+                                    if (!valid && scanY)
+                                    {
+                                        var scanline = scanlineMask[y];
+                                        int left = scanline.Item1;
+                                        int right = scanline.Item2;
+                                        valid = (left <= x && x <= right);
+                                    }
+
+                                    if (valid)
+                                    {
+                                        Point uvPixel = Cartesian(bcPixel, uv_a, uv_b, uv_c);
+                                        Color color = texture.GetPixel(uvPixel.X, uvPixel.Y);
+                                        drawLayer.SetPixel(x - origin.X, y - origin.Y, color);
+                                    }
                                 }
                             }
+
+                            buffer.DrawImage(drawLayer, origin);
+                            drawLayer.Dispose();
                         }
                     }
                 }
 
                 Rbx2Source.Print("{0}/{1} layers composed...", ++composed, layers.Count);
-
-                string localAppData = Environment.GetEnvironmentVariable("LocalAppData");
-
-                string debugMasks = Path.Combine(localAppData, "DebugMasks");
-                Directory.CreateDirectory(debugMasks);
-
-                string debugPath = Path.Combine(localAppData, "DebugMasks", composed + ".png");
-                bitmap.Save(debugPath);
 
                 buffer.Dispose();
             }
