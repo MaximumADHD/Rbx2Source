@@ -234,71 +234,9 @@ namespace Rbx2Source.Assembler
             return result;
         }
 
-        private static float FiniteDivide(float a, float b)
+        private static Point Subtract(Point a, Point b)
         {
-            return (b == 0 ? 0 : a / b);
-        }
-        private static double FiniteDivide(double a, double b)
-        {
-            return (b == 0 ? 0 : a / b);
-        }
-
-        private static Point ProjectToEdge(Point p, Point line0, Point line1)
-        {
-            if (p == line0)
-                return line0;
-
-            if (p == line1)
-                return line1;
-
-            try
-            {
-                float m = FiniteDivide(line1.Y - line0.Y, line1.X - line0.X);
-                float b = (line0.Y - (m * line0.X));
-
-                float x = FiniteDivide(m * p.Y + p.X - m * b, m * m + 1);
-                float y = FiniteDivide(m * m * p.Y + m * p.X + b, m * m + 1);
-
-                int ix = (int)x;
-                int iy = (int)y;
-
-                return new Point(ix, iy);
-            }
-            catch (DivideByZeroException)
-            {
-                return new Point();
-            }
-        }
-
-        private static double MagnitudeOf(PointF p)
-        {
-            return Math.Sqrt((p.X * p.X) + (p.Y * p.Y));
-        }
-
-        private static PointF Subtract(PointF a, PointF b)
-        {
-            return new PointF(a.X - b.X, a.Y - b.Y);
-        }
-
-        private static double DistAlongEdge(Point p, Point e0, Point e1)
-        {
-            PointF onEdge = ProjectToEdge(p, e0, e1);
-
-            PointF a = Subtract(onEdge, e0);
-            PointF b = Subtract(e1, e0);
-
-            return FiniteDivide(MagnitudeOf(a), MagnitudeOf(b));
-        }
-
-        private static Point Lerp(PointF a, PointF b, double t)
-        {
-            double x = a.X + ((b.X - a.X) * t);
-            double y = a.Y + ((b.Y - a.Y) * t);
-
-            int ix = (int)x;
-            int iy = (int)y;
-
-            return new Point(ix, iy);
+            return new Point(a.X - b.X, a.Y - b.Y);
         }
 
         private static Rectangle GetBoundingBox(params Point[] points)
@@ -345,7 +283,7 @@ namespace Rbx2Source.Assembler
             // Do some raycasts to compute the range of each horizontal scanline.
             // The amount of pixel lookups needed for this is dramatically reduced by scanning along the bbox.
 
-            Dictionary<int, Tuple<int, int>> scanlineMask = new Dictionary<int, Tuple<int, int>>();
+            var scanlineMask = new Dictionary<int, Tuple<int, int>>();
 
             for (int y = bbox.Top; y < bbox.Bottom; y++)
             {
@@ -371,68 +309,41 @@ namespace Rbx2Source.Assembler
             return scanlineMask;
         }
 
-        public double Dist(Point a, Point b)
+        public float Dot(Point a, Point b)
         {
-            PointF diff = Subtract(a, b);
-            return MagnitudeOf(diff);
+            return a.X * b.X + a.Y * b.Y;
         }
 
-        // Returns the inner angle of vertex A in triangle ABC
-        public double AngleOf(Point A, Point B, Point C)
+        public Vector3 Barycentric(Point p, Point a, Point b, Point c)
         {
-            double a = Dist(A, B);
-            double b = Dist(B, C);
-            double c = Dist(C, A);
+            Point v0 = Subtract(b, a);
+            Point v1 = Subtract(c, a);
+            Point v2 = Subtract(p, a);
 
-            double a2 = a * a;
-            double b2 = b * b;
-            double c2 = c * c;
+            float d00 = Dot(v0, v0);
+            float d01 = Dot(v0, v1);
+            float d11 = Dot(v1, v1);
+            float d20 = Dot(v2, v0);
+            float d21 = Dot(v2, v1);
 
-            double ang = FiniteDivide(b2 + c2 - a2, 2 * b * c);
-            if (ang < -1)
-                ang = -1;
-            else if (ang < 1)
-                ang = 1;
+            float denom = d00 * d11 - d01 * d01;
 
-            double result = Math.Acos(ang);
-            
-            if (result != result)
-                Debugger.Break();
+            float v = (d11 * d20 - d01 * d21) / denom;
+            float w = (d00 * d21 - d01 * d20) / denom;
+            float u = 1.0f - v - w;
 
-            return result;
+            return new Vector3(u, v, w);
         }
 
-        // Returns the ratio between angles <BAC and <BAP
-        public double GetAngleRatio(Point P, Point A, Point B, Point C)
+        public Point Cartesian(Vector3 bary, Point a, Point b, Point c)
         {
-            double baseAng = AngleOf(A, B, C);
-            double innerAng = AngleOf(A, B, P);
+            float x = (a.X * bary.X) + (b.X * bary.Y) + (c.X * bary.Z);
+            float y = (a.Y * bary.X) + (b.Y * bary.Y) + (c.Y * bary.Z);
 
-            return innerAng / baseAng;
-        }
-        
-        // Given point P inside of triangle ABC, this function projects P onto triangle DEF
-        public Point ProjectPoint(Point P, Point A, Point B, Point C, Point D, Point E, Point F)
-        {
-            double ab = Dist(A, B);
-            double ac = Dist(C, A);
-            double ap = Dist(A, P);
+            int ix = (int)x;
+            int iy = (int)y;
 
-            double baseAngle = AngleOf(A, B, C);
-            double innerAngle = AngleOf(A, B, P);
-            double angleRatio = FiniteDivide(innerAngle, baseAngle);
-
-            Point de = Lerp(D, E, FiniteDivide(ap, ab));
-            Point df = Lerp(D, F, FiniteDivide(ap, ac));
-
-            Point result = Lerp(de, df, angleRatio);
-            if (result.X < 0)
-                result.X = 0;
-
-            if (result.Y < 0)
-                result.Y = 0;
-
-            return result;
+            return new Point(ix, iy);
         }
 
         public Bitmap BakeTextureMap()
@@ -484,11 +395,11 @@ namespace Rbx2Source.Assembler
                         Vertex[] verts = composit.GetGuideVerts(face);
                         Point offset = compositCanvas.Location;
 
-                        Point a = VertexToPoint(verts[0], compositCanvas, offset);
-                        Point b = VertexToPoint(verts[1], compositCanvas, offset);
-                        Point c = VertexToPoint(verts[2], compositCanvas, offset);
+                        Point vert_a = VertexToPoint(verts[0], compositCanvas, offset);
+                        Point vert_b = VertexToPoint(verts[1], compositCanvas, offset);
+                        Point vert_c = VertexToPoint(verts[2], compositCanvas, offset);
 
-                        Point[] polygon = new Point[3] { a, b, c };
+                        Point[] polygon = new Point[3] { vert_a, vert_b, vert_c };
 
                         if (drawType == DrawType.Color)
                         {
@@ -497,14 +408,14 @@ namespace Rbx2Source.Assembler
                         }
                         else if (drawType == DrawType.Texture)
                         {
-                            Rectangle bbox = GetBoundingBox(a, b, c);
+                            Rectangle bbox = GetBoundingBox(vert_a, vert_b, vert_c);
                             var scanlineMask = ComputeScanlineMask(canvas, bbox, polygon);
 
                             Bitmap texture = CompositData.GetTextureBuffer(composit.Texture) as Bitmap;
 
-                            Point d = VertexToUV(verts[0], texture);
-                            Point e = VertexToUV(verts[1], texture);
-                            Point f = VertexToUV(verts[2], texture);
+                            Point uv_a = VertexToUV(verts[0], texture);
+                            Point uv_b = VertexToUV(verts[1], texture);
+                            Point uv_c = VertexToUV(verts[2], texture);
 
                             foreach (int y in scanlineMask.Keys)
                             {
@@ -513,17 +424,9 @@ namespace Rbx2Source.Assembler
                                 for (int x = line.Item1; x <= line.Item2; x++)
                                 {
                                     Point pixel = new Point(x, y);
-                                    Point uvProj = ProjectPoint(pixel, a, b, c, d, e, f);
-
-                                    int uv_x = uvProj.X;
-                                    if (uv_x >= texture.Width)
-                                        uv_x = texture.Width - 1;
-
-                                    int uv_y = uvProj.Y;
-                                    if (uv_y >= texture.Height)
-                                        uv_y = texture.Height - 1;
-
-                                    Color color = texture.GetPixel(uv_x, uv_y);
+                                    Vector3 bary = Barycentric(pixel, vert_a, vert_b, vert_c);
+                                    Point uvProj = Cartesian(bary, uv_a, uv_b, uv_c);
+                                    Color color = texture.GetPixel(uvProj.X, uvProj.Y);
                                     bitmap.SetPixel(x, y, color);
                                 }
                             }

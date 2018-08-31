@@ -9,6 +9,10 @@ namespace Rbx2Source.Coordinates
     {
         public readonly float x, y, z;
 
+        public float X => x;
+        public float Y => y;
+        public float Z => z;
+
         public Vector3 unit { get { return normalize(this); } }
         public float magnitude { get { return calcMagnitude(this); } }
 
