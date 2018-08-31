@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.IO;
@@ -203,12 +204,17 @@ namespace Rbx2Source.Assembler
             layers.Add(composit);
         }
 
-        private PointF VertexToUV(Vertex vert, Bitmap target)
+        private Point VertexToUV(Vertex vert, Bitmap target)
         {
             Vector3 uv = vert.UV;
+
             float x = uv.x * target.Width;
             float y = uv.y * target.Height;
-            return new PointF(x, y);
+
+            int ix = (int)x;
+            int iy = (int)y;
+
+            return new Point(ix, iy);
         }
 
         private static Point VertexToPoint(Vertex vert)
@@ -365,6 +371,70 @@ namespace Rbx2Source.Assembler
             return scanlineMask;
         }
 
+        public double Dist(Point a, Point b)
+        {
+            PointF diff = Subtract(a, b);
+            return MagnitudeOf(diff);
+        }
+
+        // Returns the inner angle of vertex A in triangle ABC
+        public double AngleOf(Point A, Point B, Point C)
+        {
+            double a = Dist(A, B);
+            double b = Dist(B, C);
+            double c = Dist(C, A);
+
+            double a2 = a * a;
+            double b2 = b * b;
+            double c2 = c * c;
+
+            double ang = FiniteDivide(b2 + c2 - a2, 2 * b * c);
+            if (ang < -1)
+                ang = -1;
+            else if (ang < 1)
+                ang = 1;
+
+            double result = Math.Acos(ang);
+            
+            if (result != result)
+                Debugger.Break();
+
+            return result;
+        }
+
+        // Returns the ratio between angles <BAC and <BAP
+        public double GetAngleRatio(Point P, Point A, Point B, Point C)
+        {
+            double baseAng = AngleOf(A, B, C);
+            double innerAng = AngleOf(A, B, P);
+
+            return innerAng / baseAng;
+        }
+        
+        // Given point P inside of triangle ABC, this function projects P onto triangle DEF
+        public Point ProjectPoint(Point P, Point A, Point B, Point C, Point D, Point E, Point F)
+        {
+            double ab = Dist(A, B);
+            double ac = Dist(C, A);
+            double ap = Dist(A, P);
+
+            double baseAngle = AngleOf(A, B, C);
+            double innerAngle = AngleOf(A, B, P);
+            double angleRatio = FiniteDivide(innerAngle, baseAngle);
+
+            Point de = Lerp(D, E, FiniteDivide(ap, ab));
+            Point df = Lerp(D, F, FiniteDivide(ap, ac));
+
+            Point result = Lerp(de, df, angleRatio);
+            if (result.X < 0)
+                result.X = 0;
+
+            if (result.Y < 0)
+                result.Y = 0;
+
+            return result;
+        }
+
         public Bitmap BakeTextureMap()
         {
             Bitmap bitmap = new Bitmap(canvas.Width, canvas.Height);
@@ -409,16 +479,16 @@ namespace Rbx2Source.Assembler
                 {
                     Mesh guide = composit.Guide;
 
-                    for (int f = 0; f < guide.FaceCount; f++)
+                    for (int face = 0; face < guide.FaceCount; face++)
                     {
-                        Vertex[] verts = composit.GetGuideVerts(f);
+                        Vertex[] verts = composit.GetGuideVerts(face);
                         Point offset = compositCanvas.Location;
 
-                        Point vert_a = VertexToPoint(verts[0], compositCanvas, offset);
-                        Point vert_b = VertexToPoint(verts[1], compositCanvas, offset);
-                        Point vert_c = VertexToPoint(verts[2], compositCanvas, offset);
+                        Point a = VertexToPoint(verts[0], compositCanvas, offset);
+                        Point b = VertexToPoint(verts[1], compositCanvas, offset);
+                        Point c = VertexToPoint(verts[2], compositCanvas, offset);
 
-                        Point[] polygon = new Point[3] { vert_a, vert_b, vert_c };
+                        Point[] polygon = new Point[3] { a, b, c };
 
                         if (drawType == DrawType.Color)
                         {
@@ -427,47 +497,34 @@ namespace Rbx2Source.Assembler
                         }
                         else if (drawType == DrawType.Texture)
                         {
-                            // Use some GPU acceleration to help us rasterize the polygon.
-
-                            Rectangle bbox = GetBoundingBox(vert_a, vert_b, vert_c);
-                            Dictionary<int, Tuple<int, int>> scanlineMask = ComputeScanlineMask(canvas, bbox, polygon);
+                            Rectangle bbox = GetBoundingBox(a, b, c);
+                            var scanlineMask = ComputeScanlineMask(canvas, bbox, polygon);
 
                             Bitmap texture = CompositData.GetTextureBuffer(composit.Texture) as Bitmap;
 
-                            using (SolidBrush brush = new SolidBrush(Color.Cyan))
+                            Point d = VertexToUV(verts[0], texture);
+                            Point e = VertexToUV(verts[1], texture);
+                            Point f = VertexToUV(verts[2], texture);
+
+                            foreach (int y in scanlineMask.Keys)
                             {
-                                Pen pen = new Pen(brush);
+                                Tuple<int, int> line = scanlineMask[y];
 
-                                PointF uv_a = VertexToUV(verts[0], texture);
-                                PointF uv_b = VertexToUV(verts[1], texture);
-                                PointF uv_c = VertexToUV(verts[2], texture);
-
-                                foreach (int y in scanlineMask.Keys)
+                                for (int x = line.Item1; x <= line.Item2; x++)
                                 {
-                                    Tuple<int, int> line = scanlineMask[y];
-                                    for (int x = line.Item1; x <= line.Item2; x++)
-                                    {
-                                        Point pixel = new Point(x, y);
+                                    Point pixel = new Point(x, y);
+                                    Point uvProj = ProjectPoint(pixel, a, b, c, d, e, f);
 
-                                        // Project the pixel onto the UV map.
-                                        Point  proj_ab  = ProjectToEdge(pixel, vert_a, vert_b);
-                                        double dist_ab  = DistAlongEdge(pixel, vert_a, vert_b);
-                                        Point  uv_ab    = Lerp(uv_a,  uv_b, dist_ab);
+                                    int uv_x = uvProj.X;
+                                    if (uv_x >= texture.Width)
+                                        uv_x = texture.Width - 1;
 
-                                        Point  proj_cb  = ProjectToEdge(pixel, vert_c, vert_b);
-                                        double dist_cb  = DistAlongEdge(pixel, vert_c, vert_b);
-                                        Point  uv_cb    = Lerp(uv_c,  uv_b,  dist_cb);
+                                    int uv_y = uvProj.Y;
+                                    if (uv_y >= texture.Height)
+                                        uv_y = texture.Height - 1;
 
-                                        double dist_abc = DistAlongEdge(pixel, proj_ab, proj_cb);
-                                        Point  uv_abc   = Lerp(uv_ab, uv_cb, dist_abc);
-
-                                        // Apply the color of the projected pixel.
-                                        int uv_x = uv_abc.X;
-                                        int uv_y = uv_abc.Y;
-
-                                        Color color = texture.GetPixel(uv_x, uv_y);
-                                        bitmap.SetPixel(x, y, color);
-                                    }
+                                    Color color = texture.GetPixel(uv_x, uv_y);
+                                    bitmap.SetPixel(x, y, color);
                                 }
                             }
                         }
