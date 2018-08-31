@@ -31,6 +31,13 @@ namespace Rbx2Source.Assembler
         public Image Texture;
     }
 
+    class BarycentricPoint
+    {
+        public double U;
+        public double V;
+        public double W;
+    }
+
     class CompositData : IComparable
     {
         public DrawMode DrawMode { get; private set; }
@@ -151,17 +158,21 @@ namespace Rbx2Source.Assembler
 
     class TextureCompositor
     {
-        private List<CompositData> layers;
+        private List<CompositData> layers = new List<CompositData>();
         private Rectangle canvas;
         private AvatarType avatarType;
         private int composed;
 
-        public TextureCompositor(AvatarType avatar_type, int width, int height)
+        public TextureCompositor(AvatarType at, int width, int height)
         {
-            avatarType = avatar_type;
-
-            layers = new List<CompositData>();
+            avatarType = at;
             canvas = new Rectangle(0, 0, width, height);
+        }
+
+        public TextureCompositor(AvatarType at, Rectangle rect)
+        {
+            avatarType = at;
+            canvas = rect;
         }
 
         public void AppendColor(int brickColorId, string guide, Rectangle guideSize, byte layer = 0)
@@ -268,21 +279,23 @@ namespace Rbx2Source.Assembler
             return new Rectangle(min_X, min_Y, width, height);
         }
 
-        public Dictionary<int, Tuple<int,int>> ComputeScanlineMask(Rectangle canvas, Rectangle bbox, Point[] points)
+        public Bitmap ComputeScanlineMask(Rectangle canvas, Rectangle bbox, Point[] points)
         {
             Bitmap mask = new Bitmap(canvas.Width, canvas.Height);
             Graphics graphics = Graphics.FromImage(mask);
+
             using (SolidBrush black = new SolidBrush(Color.Black))
             {
                 graphics.FillPolygon(black, points);
                 graphics.Dispose();
             }
 
-            var scanlineMask = new Dictionary<int, Tuple<int, int>>();
+            /*var scanlineMask = new Dictionary<int, Tuple<int, int>>();
+
             for (int y = bbox.Top; y < bbox.Bottom; y++)
             {
                 int x0 = bbox.Left;
-                int x1 = bbox.Right - 1;
+                int x1 = bbox.Right;
 
                 while (mask.GetPixel(x0, y).A == 0 && x0 < x1)
                     x0++;
@@ -300,47 +313,51 @@ namespace Rbx2Source.Assembler
             }
 
             mask.Dispose();
-            return scanlineMask;
+            return scanlineMask;*/
+
+            return mask;
         }
 
-        public bool InTriangle(Vector3 bc)
+        public bool InTriangle(BarycentricPoint bc)
         {
-            float u = bc.X;
-            float v = bc.Y;
+            // Use int approximation to avoid floating point errors.
+            int u = (int)bc.U * 10000;
+            int v = (int)bc.V * 10000;
 
-            return u >= 0 && v >= 0 && u + v <= 1;
+            return u >= 0 && v >= 0 && u+v <= 10000;
         }
 
-        public float Dot(Point a, Point b)
+        public double Dot(Point a, Point b)
         {
             return a.X * b.X + a.Y * b.Y;
         }
 
-        public Vector3 Barycentric(Point p, Point a, Point b, Point c)
+        public BarycentricPoint ToBarycentric(Point p, Point a, Point b, Point c)
         {
             Point v0 = Subtract(b, a);
             Point v1 = Subtract(c, a);
             Point v2 = Subtract(p, a);
 
-            float d00 = Dot(v0, v0);
-            float d01 = Dot(v0, v1);
-            float d11 = Dot(v1, v1);
-            float d20 = Dot(v2, v0);
-            float d21 = Dot(v2, v1);
+            double d00 = Dot(v0, v0);
+            double d01 = Dot(v0, v1);
+            double d11 = Dot(v1, v1);
+            double d20 = Dot(v2, v0);
+            double d21 = Dot(v2, v1);
 
-            float denom = d00 * d11 - d01 * d01;
+            double denom = d00 * d11 - d01 * d01;
 
-            float v = (d11 * d20 - d01 * d21) / denom;
-            float w = (d00 * d21 - d01 * d20) / denom;
-            float u = 1.0f - v - w;
+            BarycentricPoint bp = new BarycentricPoint();
+            bp.V = (d11 * d20 - d01 * d21) / denom;
+            bp.W = (d00 * d21 - d01 * d20) / denom;
+            bp.U = 1.0 - bp.V - bp.W;
 
-            return new Vector3(u, v, w);
+            return bp;
         }
 
-        public Point Cartesian(Vector3 bary, Point a, Point b, Point c)
+        public Point ToCartesian(BarycentricPoint bp, Point a, Point b, Point c)
         {
-            float x = (a.X * bary.X) + (b.X * bary.Y) + (c.X * bary.Z);
-            float y = (a.Y * bary.X) + (b.Y * bary.Y) + (c.Y * bary.Z);
+            double x = (a.X * bp.U) + (b.X * bp.V) + (c.X * bp.W);
+            double y = (a.Y * bp.U) + (b.Y * bp.V) + (c.Y * bp.W);
 
             int ix = (int)x;
             int iy = (int)y;
@@ -405,7 +422,7 @@ namespace Rbx2Source.Assembler
                             Bitmap texture = CompositData.GetTextureBuffer(composit.Texture) as Bitmap;
 
                             Rectangle bbox = GetBoundingBox(vert_a, vert_b, vert_c);
-                            var scanlineMask = ComputeScanlineMask(canvas, bbox, polygon);
+                            //var scanlineMask = ComputeScanlineMask(canvas, bbox, polygon);
 
                             Point origin = compositCanvas.Location;
                             int width = compositCanvas.Width;
@@ -419,27 +436,36 @@ namespace Rbx2Source.Assembler
                             
                             for (int y = bbox.Top; y < bbox.Bottom; y++)
                             {
-                                bool scanY = scanlineMask.ContainsKey(y);
+                                //bool scanY = scanlineMask.ContainsKey(y);
 
                                 for (int x = bbox.Left; x < bbox.Right; x++)
                                 {
                                     Point pixel = new Point(x, y);
-                                    Vector3 bcPixel = Barycentric(pixel, vert_a, vert_b, vert_c);
+                                    BarycentricPoint bcPixel = ToBarycentric(pixel, vert_a, vert_b, vert_c);
 
                                     bool valid = InTriangle(bcPixel);
-                                    if (!valid && scanY)
+                                    bool passedByColor = false;
+
+                                    /*if (!valid)
                                     {
                                         var scanline = scanlineMask[y];
                                         int left = scanline.Item1;
                                         int right = scanline.Item2;
                                         valid = (left <= x && x <= right);
-                                    }
+                                        Color check = scanlineMask.GetPixel(x, y);
+                                        valid = (check.A > 0);
+                                        passedByColor = valid;
+                                    }*/
 
                                     if (valid)
                                     {
-                                        Point uvPixel = Cartesian(bcPixel, uv_a, uv_b, uv_c);
+                                        if (passedByColor)
+                                            Debugger.Break();
+
+                                        Point uvPixel = ToCartesian(bcPixel, uv_a, uv_b, uv_c);
                                         Color color = texture.GetPixel(uvPixel.X, uvPixel.Y);
                                         drawLayer.SetPixel(x - origin.X, y - origin.Y, color);
+                                       
                                     }
                                 }
                             }
@@ -451,6 +477,7 @@ namespace Rbx2Source.Assembler
                 }
 
                 Rbx2Source.Print("{0}/{1} layers composed...", ++composed, layers.Count);
+                Rbx2Source.SetDebugImage(bitmap);
 
                 buffer.Dispose();
             }

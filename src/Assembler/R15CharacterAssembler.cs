@@ -48,10 +48,7 @@ namespace Rbx2Source.Assembler
             { Limb.RightLeg, RECT_RIGHT_LEG },
         };
 
-        public byte[] CollisionModelScript
-        {
-            get { return ResourceUtility.GetResource("AvatarData/R15/CollisionJoints.qc"); }
-        }
+        public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R15/CollisionJoints.qc");
 
         public static Vector3 GetAvatarScale(AvatarScale scale)
         {
@@ -121,15 +118,15 @@ namespace Rbx2Source.Assembler
             TextureCompositor compositor = new TextureCompositor(AvatarType.R15, 1024, 568);
 
             // Append BodyColors
-            compositor.AppendColor(bodyColors.TorsoColor,    COMPOSIT_TORSO,      RECT_TORSO);
-            compositor.AppendColor(bodyColors.LeftArmColor,  COMPOSIT_LEFT_LIMB,  RECT_LEFT_ARM);
-            compositor.AppendColor(bodyColors.LeftLegColor,  COMPOSIT_LEFT_LIMB,  RECT_LEFT_LEG);
-            compositor.AppendColor(bodyColors.RightArmColor, COMPOSIT_RIGHT_LIMB, RECT_RIGHT_ARM);
-            compositor.AppendColor(bodyColors.RightLegColor, COMPOSIT_RIGHT_LIMB, RECT_RIGHT_LEG);
+            compositor.AppendColor(bodyColors.HeadColor,     RECT_HEAD);
+            compositor.AppendColor(bodyColors.TorsoColor,    RECT_TORSO);
+            compositor.AppendColor(bodyColors.LeftArmColor,  RECT_LEFT_ARM);
+            compositor.AppendColor(bodyColors.LeftLegColor,  RECT_LEFT_LEG);
+            compositor.AppendColor(bodyColors.RightArmColor, RECT_RIGHT_ARM);
+            compositor.AppendColor(bodyColors.RightLegColor, RECT_RIGHT_LEG);
 
-            // Append Head & Face
+            // Append Face
             Asset face = GetAvatarFace(characterAssets);
-            compositor.AppendColor(bodyColors.HeadColor, RECT_HEAD);
             compositor.AppendTexture(face, RECT_HEAD, 1);
 
             // Append Shirt

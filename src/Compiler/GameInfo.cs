@@ -120,9 +120,6 @@ namespace Rbx2Source.Compiler
             }
         }
 
-        public bool ReadyToUse
-        {
-            get { return (GameInfoPath != null && StudioMdlPath != null); }
-        }
+        public bool ReadyToUse => (GameInfoPath != null && StudioMdlPath != null);
     }
 }

@@ -18,10 +18,7 @@ namespace Rbx2Source.StudioMdl
         public int ParentIndex = -1;
         public Mesh Mesh;
 
-        public string GroupName
-        {
-            get { return "nodes"; }
-        }
+        public string GroupName => "nodes";
 
         private int FindParent(List<Node> nodes, Node node)
         {

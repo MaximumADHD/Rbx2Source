@@ -18,10 +18,7 @@ namespace Rbx2Source.StudioMdl
         public Mesh Mesh;
         public int FaceIndex;
 
-        public string GroupName
-        {
-            get { return "triangles"; }
-        }
+        public string GroupName => "triangles";
 
         public void Write(StringWriter buffer, IList rawTriList, object rawTri)
         {

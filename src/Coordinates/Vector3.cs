@@ -8,13 +8,14 @@ namespace Rbx2Source.Coordinates
     class Vector3 : BaseCoordinates
     {
         public readonly float x, y, z;
+        public Vector3 unit => normalize(this);
+        public float magnitude => calcMagnitude(this);
 
         public float X => x;
         public float Y => y;
         public float Z => z;
-
-        public Vector3 unit { get { return normalize(this); } }
-        public float magnitude { get { return calcMagnitude(this); } }
+        public Vector3 Unit => unit;
+        public float Magnitude => magnitude;
 
         public Vector3(float x = 0, float y = 0, float z = 0)
         {
@@ -29,9 +30,9 @@ namespace Rbx2Source.Coordinates
         /// <param name="coords">The XYZ coordinates packaged into a float array</param>
         public Vector3(float[] coords)
         {
-            this.x = coords[0];
-            this.y = coords[1];
-            this.z = coords[2];
+            x = coords[0];
+            y = coords[1];
+            z = coords[2];
         }
 
         /// <summary>
@@ -54,9 +55,9 @@ namespace Rbx2Source.Coordinates
             for (int i = 0; i < 3; i++)
                 p[i] = float.Parse(vecData.ChildNodes[i].InnerText, Rbx2Source.NormalParse);
 
-            this.x = p[0];
-            this.y = p[1];
-            this.z = p[2];
+            x = p[0];
+            y = p[1];
+            z = p[2];
         }
 
         public static Vector3 FromNormalId(int normalId)

@@ -11,6 +11,22 @@ namespace Rbx2Source.Assembler
 {
     class R6CharacterAssembler : CharacterAssembler, ICharacterAssembler
     {
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // TEXTURE COMPOSITION CONSTANTS
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        private static string COMPOSIT_TORSO     = "CompositTorso";
+        private static string COMPOSIT_LEFT_ARM  = "CompositLeftArm";
+        private static string COMPOSIT_LEFT_LEG  = "CompositLeftLeg";
+        private static string COMPOSIT_RIGHT_ARM = "CompositRightArm";
+        private static string COMPOSIT_RIGHT_LEG = "CompositRightLeg";
+
+        private static string COMPOSIT_BASE_TEXTURE    = "BaseTexture";
+        private static string COMPOSIT_OVERLAY_TEXTURE = "OverlayTexture";
+
+        private static Rectangle CANVAS_RECT = new Rectangle(0, 0, 1024, 768);
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private static Asset R6AssemblyAsset = Asset.FromResource("AvatarData/R6/ASSEMBLY.rbxmx");
 
         private static Dictionary<Limb, string> LimbMatcher = new Dictionary<Limb, string>()
@@ -32,10 +48,7 @@ namespace Rbx2Source.Assembler
             {"RightLeg",5}
         };
 
-        public byte[] CollisionModelScript
-        {
-            get { return ResourceUtility.GetResource("AvatarData/R6/CollisionJoints.qc"); }
-        }
+        public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R6/CollisionJoints.qc");
 
         public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale)
         {
@@ -76,7 +89,36 @@ namespace Rbx2Source.Assembler
 
         public TextureCompositor ComposeTextureMap(Folder characterAssets, BodyColors bodyColors)
         {
-            return new TextureCompositor(AvatarType.R6, 1, 1);
+            TextureCompositor compositor = new TextureCompositor(AvatarType.R6, CANVAS_RECT);
+
+            // Append BodyColors
+            compositor.AppendColor(bodyColors.TorsoColor,    COMPOSIT_TORSO,     CANVAS_RECT);
+            compositor.AppendColor(bodyColors.LeftArmColor,  COMPOSIT_LEFT_ARM,  CANVAS_RECT);
+            compositor.AppendColor(bodyColors.LeftLegColor,  COMPOSIT_LEFT_LEG,  CANVAS_RECT);
+            compositor.AppendColor(bodyColors.RightArmColor, COMPOSIT_RIGHT_ARM, CANVAS_RECT);
+            compositor.AppendColor(bodyColors.RightLegColor, COMPOSIT_RIGHT_LEG, CANVAS_RECT);
+
+            // Append Shirt
+            Shirt shirt = characterAssets.FindFirstChildOfClass<Shirt>();
+            if (shirt != null)
+            {
+                Asset shirtAsset = Asset.GetByAssetId(shirt.ShirtTemplate);
+                compositor.AppendTexture(shirtAsset, COMPOSIT_TORSO,     CANVAS_RECT, 2);
+                compositor.AppendTexture(shirtAsset, COMPOSIT_LEFT_ARM,  CANVAS_RECT, 1);
+                compositor.AppendTexture(shirtAsset, COMPOSIT_RIGHT_ARM, CANVAS_RECT, 1);
+            }
+
+            // Append Pants
+            Pants pants = characterAssets.FindFirstChildOfClass<Pants>();
+            if (pants != null)
+            {
+                Asset pantsAsset = Asset.GetByAssetId(pants.PantsTemplate);
+                compositor.AppendTexture(pantsAsset, COMPOSIT_TORSO,     CANVAS_RECT, 1);
+                compositor.AppendTexture(pantsAsset, COMPOSIT_LEFT_LEG,  CANVAS_RECT, 1);
+                compositor.AppendTexture(pantsAsset, COMPOSIT_RIGHT_LEG, CANVAS_RECT, 1);
+            }
+
+            return compositor;
         }
 
         public TextureAssembly AssembleTextures(TextureCompositor compositor, Dictionary<string, Material> materials)
@@ -84,6 +126,9 @@ namespace Rbx2Source.Assembler
             TextureAssembly assembly = new TextureAssembly();
             assembly.Images = new Dictionary<string, Image>();
             assembly.MatLinks = new Dictionary<string, string>();
+
+            Bitmap core = compositor.BakeTextureMap();
+            Rbx2Source.SetDebugImage(core);
 
             /*Rbx3DThumbnailInfo info = TextureFetch.Get3DThumbnail(avatar.UserInfo.Id);
             string objHash = info.Obj;

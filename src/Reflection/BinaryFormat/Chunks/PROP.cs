@@ -89,10 +89,7 @@ namespace Rbx2Source.Reflection.BinaryFormat
         public readonly int Index;
         public readonly string Name;
         public readonly BinaryPropertyFormat Format;
-        public PropertyDescriptor[] Properties
-        {
-            get { return props; }
-        }
+        public PropertyDescriptor[] Properties => props;
 
         private BinaryReader reader;
         private PropertyDescriptor[] props;

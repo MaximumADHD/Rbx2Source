@@ -23,15 +23,9 @@ namespace Rbx2Source.Assembler
             BrickColors.NumericalSearch.Add(number, this);
         }
 
-        public Color Color
-        {
-            get { return Color.FromArgb(R, G, B); }
-        }
+        public Color Color => Color.FromArgb(R, G, B);
 
-        public override string ToString()
-        {
-            return Name + '[' + Number + "] (" + string.Join(", ", R, G, B) + ')';
-        }
+        public override string ToString() => Name + '[' + Number + "] (" + string.Join(", ", R, G, B) + ')';
     }
 
     public static class BrickColors
