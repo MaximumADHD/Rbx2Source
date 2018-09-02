@@ -1,19 +1,19 @@
-﻿using Rbx2Source.Coordinates;
-using Rbx2Source.Geometry;
-using Rbx2Source.QC;
-using Rbx2Source.Reflection;
-using Rbx2Source.Resources;
-using Rbx2Source.StudioMdl;
-using Rbx2Source.Web;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.Windows.Forms;
+
+using Rbx2Source.Coordinates;
+using Rbx2Source.Geometry;
+using Rbx2Source.QC;
+using Rbx2Source.Reflection;
+using Rbx2Source.Resources;
+using Rbx2Source.StudioMdl;
+using Rbx2Source.Textures;
+using Rbx2Source.Web;
 
 namespace Rbx2Source.Assembler
 {

@@ -65,6 +65,9 @@ namespace Rbx2Source
             currentUser = defaultAvatar.UserInfo;
 
             InitializeComponent();
+
+            if (!Debugger.IsAttached)
+                MainTab.Controls.Remove(Debug);
         }
 
         public static void ScheduleTasks(params string[] tasks)
@@ -719,8 +722,11 @@ namespace Rbx2Source
                         }
                     }
 
-                    if (debugImg.Image != debugImage)
-                        debugImg.Image = debugImage;
+                    if (Debugger.IsAttached)
+                    {
+                        if (debugImg.Image != debugImage)
+                            debugImg.Image = debugImage;
+                    }
 
                     await Task.Delay(10);
                 }

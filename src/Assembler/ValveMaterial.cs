@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+
 using Rbx2Source.Coordinates;
 
 namespace Rbx2Source.Assembler

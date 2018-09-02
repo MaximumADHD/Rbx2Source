@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
 
-namespace Rbx2Source.Assembler
+namespace Rbx2Source.Textures
 {
     public class BrickColor
     {

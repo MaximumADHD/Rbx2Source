@@ -8,10 +8,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Rbx2Source.Coordinates;
-using Rbx2Source.Geometry;
 using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.StudioMdl;
+using Rbx2Source.Textures;
 using Rbx2Source.Web;
 
 namespace Rbx2Source.Assembler
@@ -37,6 +37,7 @@ namespace Rbx2Source.Assembler
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         private static Asset R15AssemblyAsset = Asset.FromResource("AvatarData/R15/ASSEMBLY.rbxmx");
+        public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R15/CollisionJoints.qc");
 
         private static Dictionary<Limb, Rectangle> UVCrops = new Dictionary<Limb, Rectangle>()
         {
@@ -47,8 +48,6 @@ namespace Rbx2Source.Assembler
             { Limb.RightArm, RECT_RIGHT_ARM },
             { Limb.RightLeg, RECT_RIGHT_LEG },
         };
-
-        public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R15/CollisionJoints.qc");
 
         public static Vector3 GetAvatarScale(AvatarScale scale)
         {

@@ -100,10 +100,12 @@
   <ItemGroup>
     <Compile Include="Animation\AnimationAssembler.cs" />
     <Compile Include="Animation\EasingUtil.cs" />
-    <Compile Include="Assembler\BrickColor.cs" />
+    <Compile Include="Textures\BrickColor.cs" />
     <Compile Include="Assembler\Headers.cs" />
     <Compile Include="Assembler\CatalogItemAssembler.cs" />
-    <Compile Include="Assembler\TextureCompositor.cs" />
+    <Compile Include="Textures\CompositData.cs" />
+    <Compile Include="Textures\CompositUtil.cs" />
+    <Compile Include="Textures\TextureCompositor.cs" />
     <Compile Include="Forms\Launcher.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -141,9 +143,9 @@
     <Compile Include="Reflection\BinaryFormat\Chunks\META.cs" />
     <Compile Include="Reflection\BinaryFormat\Chunks\PRNT.cs" />
     <Compile Include="Reflection\BinaryFormat\Chunks\PROP.cs" />
-    <Compile Include="Reflection\Classes.cs" />
+    <Compile Include="Reflection\Classes\Membered.cs" />
     <Compile Include="Reflection\Enums.cs" />
-    <Compile Include="Reflection\EmptyClasses.cs" />
+    <Compile Include="Reflection\Classes\Empty.cs" />
     <Compile Include="Resources\ResourceUtility.cs" />
     <Compile Include="Resources\Settings.cs" />
     <Compile Include="StudioMdl\Bone.cs" />
@@ -158,7 +160,6 @@
     <Compile Include="Web\AssetType.cs" />
     <Compile Include="Web\LegacyAssets.cs" />
     <Compile Include="Web\WebUtility.cs" />
-    <Compile Include="Web\TextureFetch.cs" />
     <Compile Include="Web\UserData.cs" />
     <Compile Include="Coordinates\CFrame.cs" />
     <Compile Include="Coordinates\Vector3.cs" />
@@ -225,6 +226,9 @@
     <EmbeddedResource Include="Resources\AvatarData\R15\Compositing\R15CompositLeftArmBase.mesh" />
     <EmbeddedResource Include="Resources\AvatarData\R15\Compositing\R15CompositRightArmBase.mesh" />
     <EmbeddedResource Include="Resources\AvatarData\R15\Compositing\R15CompositTorsoBase.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositPantsTemplate.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositShirtTemplate.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositTShirt.mesh" />
     <None Include="web.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Resources\AvatarData\R15\ASSEMBLY.rbxmx" />

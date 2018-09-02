@@ -11,6 +11,7 @@ using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.QC;
 using Rbx2Source.StudioMdl;
+using Rbx2Source.Textures;
 using Rbx2Source.Web;
 
 namespace Rbx2Source.Assembler
@@ -392,8 +393,9 @@ namespace Rbx2Source.Assembler
             string compileDirectory = "roblox_avatars/" + userName;
 
             TextureCompositor texCompositor = assembler.ComposeTextureMap(characterAssets, avatar.BodyColors);
-
             TextureAssembly texAssembly = assembler.AssembleTextures(texCompositor, materials);
+
+            CompositData.FreeAllocatedTextures();
             texAssembly.MaterialDirectory = compileDirectory;
 
             Dictionary<string, Image> images = texAssembly.Images;
