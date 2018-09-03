@@ -287,7 +287,15 @@ namespace Rbx2Source.Reflection.BinaryFormat
                     }
                     else
                     {
-                        matrices[i] = BinaryFile.ReadFloats(reader, 9);
+                        float[] matrix = new float[9];
+
+                        for (int m = 0; m < 9; m++)
+                        {
+                            float value = reader.ReadSingle();
+                            matrix[m] = value;
+                        }
+
+                        matrices[i] = matrix;
                     }
                 }
 

@@ -2527,7 +2527,31 @@
 </value>
   </data>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.20] (September 3rd, 2018)
+    <value>[v2.21] (September 3rd, 2018)
+
+• Fixed an issue where the binary file format was not
+  correctly reading non-orthogonal CFrame rotations.
+  This should fix geometry corruption cases for newer
+  Roblox catalog items.
+
+______________________________________________________
+
+
+[v2.20] (September 3rd, 2018)
+
+• Humanoid texture compositing is now done within
+  the program instead of snatching from Roblox's
+  3D avatar thumbnails. This change will open the
+  door to more customization for avatar importing
+  later down the road.
+• Fixed a bug where attempting to compile some
+  users would result in an HTTP 400 error.
+
+______________________________________________________
+
+
+
+[v2.20] (September 3rd, 2018)
 
 • Humanoid texture compositing is now done within
   the program instead of snatching from Roblox's
