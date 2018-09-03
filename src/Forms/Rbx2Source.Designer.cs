@@ -64,6 +64,8 @@
             this.MainTab = new System.Windows.Forms.TabControl();
             this.ChangeLog = new System.Windows.Forms.TabPage();
             this.changeLogBox = new System.Windows.Forms.RichTextBox();
+            this.Debug = new System.Windows.Forms.TabPage();
+            this.debugImg = new System.Windows.Forms.PictureBox();
             this.About.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nemsTools)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.egoMooseIcon)).BeginInit();
@@ -76,6 +78,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.assetPreview)).BeginInit();
             this.MainTab.SuspendLayout();
             this.ChangeLog.SuspendLayout();
+            this.Debug.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.debugImg)).BeginInit();
             this.SuspendLayout();
             // 
             // About
@@ -397,10 +401,10 @@
             // 
             // compile
             // 
-            this.compile.Location = new System.Drawing.Point(238, 66);
+            this.compile.Location = new System.Drawing.Point(238, 44);
             this.compile.Margin = new System.Windows.Forms.Padding(2);
             this.compile.Name = "compile";
-            this.compile.Size = new System.Drawing.Size(107, 20);
+            this.compile.Size = new System.Drawing.Size(108, 20);
             this.compile.TabIndex = 7;
             this.compile.Text = "Compile";
             this.compile.UseVisualStyleBackColor = true;
@@ -484,6 +488,7 @@
             this.MainTab.Controls.Add(this.Compiler);
             this.MainTab.Controls.Add(this.About);
             this.MainTab.Controls.Add(this.ChangeLog);
+            this.MainTab.Controls.Add(this.Debug);
             this.MainTab.Dock = System.Windows.Forms.DockStyle.Fill;
             this.MainTab.Location = new System.Drawing.Point(0, 0);
             this.MainTab.Margin = new System.Windows.Forms.Padding(2);
@@ -517,6 +522,27 @@
             this.changeLogBox.TabIndex = 1;
             this.changeLogBox.Text = resources.GetString("changeLogBox.Text");
             // 
+            // Debug
+            // 
+            this.Debug.Controls.Add(this.debugImg);
+            this.Debug.Location = new System.Drawing.Point(4, 25);
+            this.Debug.Name = "Debug";
+            this.Debug.Size = new System.Drawing.Size(350, 275);
+            this.Debug.TabIndex = 5;
+            this.Debug.Text = "Debug Draw";
+            this.Debug.UseVisualStyleBackColor = true;
+            // 
+            // debugImg
+            // 
+            this.debugImg.BackColor = System.Drawing.Color.Gray;
+            this.debugImg.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.debugImg.Location = new System.Drawing.Point(0, 0);
+            this.debugImg.Name = "debugImg";
+            this.debugImg.Size = new System.Drawing.Size(350, 275);
+            this.debugImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.debugImg.TabIndex = 0;
+            this.debugImg.TabStop = false;
+            // 
             // Rbx2Source
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -531,7 +557,7 @@
             this.MaximizeBox = false;
             this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Rbx2Source v2.14";
+            this.Text = "Rbx2Source v2.20";
             this.TopMost = true;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);
@@ -549,6 +575,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.assetPreview)).EndInit();
             this.MainTab.ResumeLayout(false);
             this.ChangeLog.ResumeLayout(false);
+            this.Debug.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.debugImg)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -590,7 +618,7 @@
         private System.Windows.Forms.PictureBox compilerTypeIcon;
         private System.Windows.Forms.TabPage ChangeLog;
         private System.Windows.Forms.RichTextBox changeLogBox;
-
-
+        private System.Windows.Forms.TabPage Debug;
+        private System.Windows.Forms.PictureBox debugImg;
     }
 }

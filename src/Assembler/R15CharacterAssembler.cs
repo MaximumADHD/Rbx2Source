@@ -8,31 +8,46 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Rbx2Source.Coordinates;
-using Rbx2Source.Geometry;
 using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.StudioMdl;
+using Rbx2Source.Textures;
 using Rbx2Source.Web;
 
 namespace Rbx2Source.Assembler
 {
     class R15CharacterAssembler : CharacterAssembler, ICharacterAssembler
     {
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // TEXTURE COMPOSITION CONSTANTS
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        private static string     COMPOSIT_TORSO      = "R15CompositTorsoBase";
+        private static string     COMPOSIT_LEFT_LIMB  = "R15CompositLeftArmBase";
+        private static string     COMPOSIT_RIGHT_LIMB = "R15CompositRightArmBase";
+
+        private static Rectangle  RECT_HEAD           =  new Rectangle ( 240, 272, 256, 296 );
+        private static Rectangle  RECT_TORSO          =  new Rectangle (   0,   0, 388, 272 );
+        private static Rectangle  RECT_LEFT_ARM       =  new Rectangle ( 496,   0, 264, 284 );
+        private static Rectangle  RECT_LEFT_LEG       =  new Rectangle ( 496, 284, 264, 284 );
+        private static Rectangle  RECT_RIGHT_ARM      =  new Rectangle ( 760,   0, 264, 284 );
+        private static Rectangle  RECT_RIGHT_LEG      =  new Rectangle ( 760, 284, 264, 284 );
+        private static Rectangle  RECT_TSHIRT         =  new Rectangle (   2,  74, 128, 128 );
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private static Asset R15AssemblyAsset = Asset.FromResource("AvatarData/R15/ASSEMBLY.rbxmx");
+        public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R15/CollisionJoints.qc");
+
         private static Dictionary<Limb, Rectangle> UVCrops = new Dictionary<Limb, Rectangle>()
         {
-            {Limb.Torso, new Rectangle(0,0,388,272)},
-            {Limb.LeftArm, new Rectangle(496,0,264,284)},
-            {Limb.RightArm, new Rectangle(760,0,264,284)},
-            {Limb.Head, new Rectangle(240,272,256,296)},
-            {Limb.LeftLeg, new Rectangle(496,284,264,284)},
-            {Limb.RightLeg, new Rectangle(760,284,264,284)}
+            { Limb.Head,     RECT_HEAD      },
+            { Limb.Torso,    RECT_TORSO     },
+            { Limb.LeftArm,  RECT_LEFT_ARM  },
+            { Limb.LeftLeg,  RECT_LEFT_LEG  },
+            { Limb.RightArm, RECT_RIGHT_ARM },
+            { Limb.RightLeg, RECT_RIGHT_LEG },
         };
-
-        public byte[] CollisionModelScript
-        {
-            get { return ResourceUtility.GetResource("AvatarData/R15/CollisionJoints.qc"); }
-        }
 
         public static Vector3 GetAvatarScale(AvatarScale scale)
         {
@@ -44,9 +59,10 @@ namespace Rbx2Source.Assembler
             StudioMdlWriter meshBuilder = new StudioMdlWriter();
 
             // Build Character
-
             Folder import = RBXM.LoadFromAsset(R15AssemblyAsset);
             Folder assembly = import.FindFirstChild<Folder>("ASSEMBLY");
+            assembly.Parent = characterAssets;
+
             Part head = assembly.FindFirstChild<Part>("Head");
             Vector3 avatarScale = GetAvatarScale(scale);
 
@@ -96,23 +112,88 @@ namespace Rbx2Source.Assembler
             return meshBuilder;
         }
 
-        public TextureAssembly AssembleTextures(UserAvatar avatar, Dictionary<string,Material> materials)
+        public TextureCompositor ComposeTextureMap(Folder characterAssets, BodyColors bodyColors)
+        {
+            TextureCompositor compositor = new TextureCompositor(AvatarType.R15, 1024, 568);
+
+            // Append BodyColors
+            compositor.AppendColor(bodyColors.HeadColor,     RECT_HEAD);
+            compositor.AppendColor(bodyColors.TorsoColor,    RECT_TORSO);
+            compositor.AppendColor(bodyColors.LeftArmColor,  RECT_LEFT_ARM);
+            compositor.AppendColor(bodyColors.LeftLegColor,  RECT_LEFT_LEG);
+            compositor.AppendColor(bodyColors.RightArmColor, RECT_RIGHT_ARM);
+            compositor.AppendColor(bodyColors.RightLegColor, RECT_RIGHT_LEG);
+
+            // Append Face
+            Asset face = GetAvatarFace(characterAssets);
+            compositor.AppendTexture(face, RECT_HEAD, 1);
+
+            // Append Shirt
+            Shirt shirt = characterAssets.FindFirstChildOfClass<Shirt>();
+            if (shirt != null)
+            {
+                Asset shirtTemplate = Asset.GetByAssetId(shirt.ShirtTemplate);
+                compositor.AppendTexture(shirtTemplate, COMPOSIT_TORSO,      RECT_TORSO,     2);
+                compositor.AppendTexture(shirtTemplate, COMPOSIT_LEFT_LIMB,  RECT_LEFT_ARM,  1);
+                compositor.AppendTexture(shirtTemplate, COMPOSIT_RIGHT_LIMB, RECT_RIGHT_ARM, 1);
+            }
+
+            // Append Pants
+            Pants pants = characterAssets.FindFirstChildOfClass<Pants>();
+            if (pants != null)
+            {
+                Asset pantsTemplate = Asset.GetByAssetId(pants.PantsTemplate);
+                compositor.AppendTexture(pantsTemplate, COMPOSIT_TORSO,      RECT_TORSO,     1);
+                compositor.AppendTexture(pantsTemplate, COMPOSIT_LEFT_LIMB,  RECT_LEFT_LEG,  1);
+                compositor.AppendTexture(pantsTemplate, COMPOSIT_RIGHT_LIMB, RECT_RIGHT_LEG, 1);
+            }
+
+            // Append T-Shirt
+            ShirtGraphic tshirt = characterAssets.FindFirstChildOfClass<ShirtGraphic>();
+            if (tshirt != null)
+            {
+                Asset graphic = Asset.GetByAssetId(tshirt.Graphic);
+                compositor.AppendTexture(graphic, RECT_TSHIRT, 4);
+            }
+
+            // Append Package Overlays
+            Folder avatarParts = characterAssets.FindFirstChild<Folder>("ASSEMBLY");
+            List<Limb> overlainLimbs = new List<Limb>();
+
+            foreach (MeshPart part in avatarParts.GetChildrenOfClass<MeshPart>())
+            {
+                Limb limb = GetLimb(part);
+                string textureId = part.TextureID;
+                if (textureId != null && textureId.Length > 0 && !overlainLimbs.Contains(limb))
+                {
+                    Asset overlay = Asset.GetByAssetId(textureId);
+
+                    if (limb == Limb.Torso)
+                        compositor.AppendTexture(overlay, RECT_TORSO,     3);
+                    else if (limb == Limb.LeftArm)
+                        compositor.AppendTexture(overlay, RECT_LEFT_ARM,  3);
+                    else if (limb == Limb.RightArm)
+                        compositor.AppendTexture(overlay, RECT_RIGHT_ARM, 3);
+                    else if (limb == Limb.LeftLeg)
+                        compositor.AppendTexture(overlay, RECT_LEFT_LEG,  3);
+                    else if (limb == Limb.RightLeg)
+                        compositor.AppendTexture(overlay, RECT_RIGHT_LEG, 3);
+
+                    overlainLimbs.Add(limb);
+                }
+            }
+
+            return compositor;
+        }
+
+        public TextureAssembly AssembleTextures(TextureCompositor compositor, Dictionary<string,Material> materials)
         {
             TextureAssembly assembly = new TextureAssembly();
             assembly.Images = new Dictionary<string, Image>();
             assembly.MatLinks = new Dictionary<string, string>();
 
-            // Figure out which image is the uvMap
-            Bitmap uvMap = null;
-            foreach (string uvMapUrl in TextureFetch.FromUser(avatar.UserInfo.Id))
-            {
-                Bitmap possibleUvMap = WebUtility.DownloadImage(uvMapUrl);
-                if (possibleUvMap.Width == 1024 && possibleUvMap.Height == 1024)
-                {
-                    uvMap = possibleUvMap;
-                    break;
-                }
-            }
+            Bitmap uvMap = compositor.BakeTextureMap();
+            Rbx2Source.SetDebugImage(uvMap);
 
             ImageAttributes blankAtt = new ImageAttributes();
 
@@ -131,6 +212,7 @@ namespace Rbx2Source.Assembler
                         Size size = cropRegion.Size;
                         int w = size.Width;
                         int h = size.Height;
+
                         Point origin = cropRegion.Location;
                         int x = origin.X;
                         int y = origin.Y;

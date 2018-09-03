@@ -1,4 +1,5 @@
-﻿using Rbx2Source.Coordinates;
+﻿using System.Drawing;
+using Rbx2Source.Coordinates;
 
 namespace Rbx2Source.Geometry
 {

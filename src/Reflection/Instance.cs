@@ -147,10 +147,7 @@ namespace Rbx2Source.Reflection
             }
         }
 
-        public string ClassName
-        {
-            get { return GetType().Name; }
-        }
+        public string ClassName => GetType().Name;
 
         public bool IsA(string className)
         {

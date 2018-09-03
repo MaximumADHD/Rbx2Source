@@ -17,12 +17,27 @@ namespace Rbx2Source.Reflection
         public bool Visible;
     }
 
-    class CharacterMesh : Instance
+    class CharacterMesh : CharacterAppearance
     {
         public long BaseTextureId;
         public Limb BodyPart;
         public long MeshId;
         public long OverlayTextureId;
+    }
+
+    class Shirt : CharacterAppearance
+    {
+        public string ShirtTemplate;
+    }
+
+    class Pants : CharacterAppearance
+    {
+        public string PantsTemplate;
+    }
+
+    class ShirtGraphic : CharacterAppearance
+    {
+        public string Graphic;
     }
 
     class BevelMesh : DataModelMesh
@@ -98,5 +113,10 @@ namespace Rbx2Source.Reflection
         public string MeshId;
         public string TextureId;
         public MeshType MeshType;
+    }
+
+    class Decal : Instance
+    {
+        public string Texture;
     }
 }

@@ -11,6 +11,7 @@ using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.QC;
 using Rbx2Source.StudioMdl;
+using Rbx2Source.Textures;
 using Rbx2Source.Web;
 
 namespace Rbx2Source.Assembler
@@ -209,7 +210,7 @@ namespace Rbx2Source.Assembler
             if (IsAvatarLimb)
             {
                 Limb limb = GetLimb(part);
-                materialName = Enum.GetName(typeof(Limb), limb);
+                materialName = Rbx2Source.GetEnumName(limb);
             }
             else
             {
@@ -281,6 +282,15 @@ namespace Rbx2Source.Assembler
             return animations;
         }
 
+        public static Asset GetAvatarFace(Folder characterAssets)
+        {
+            Decal face = characterAssets.FindFirstChild<Decal>("face");
+            if (face != null && face.Texture != "rbxasset://textures/face.png")
+                return Asset.GetByAssetId(face.Texture);
+            else
+                return Asset.FromResource("Images/face.png");
+        }
+
         public AssemblerData Assemble(object metadata)
         {
             UserAvatar avatar = metadata as UserAvatar;
@@ -310,7 +320,7 @@ namespace Rbx2Source.Assembler
             else
                 assembler = new R6CharacterAssembler();
 
-            string avatarTypeName = Enum.GetName(typeof(AvatarType),avatar.ResolvedAvatarType);
+            string avatarTypeName = Rbx2Source.GetEnumName(avatar.ResolvedAvatarType);
             Folder characterAssets = AppendCharacterAssets(avatar, avatarTypeName);
 
             Rbx2Source.ScheduleTasks("BuildCharacter", "BuildCollisionModel", "BuildAnimations", "BuildTextures", "BuildMaterials", "BuildCompilerScript");
@@ -382,7 +392,10 @@ namespace Rbx2Source.Assembler
 
             string compileDirectory = "roblox_avatars/" + userName;
 
-            TextureAssembly texAssembly = assembler.AssembleTextures(avatar, materials);
+            TextureCompositor texCompositor = assembler.ComposeTextureMap(characterAssets, avatar.BodyColors);
+            TextureAssembly texAssembly = assembler.AssembleTextures(texCompositor, materials);
+
+            CompositData.FreeAllocatedTextures();
             texAssembly.MaterialDirectory = compileDirectory;
 
             Dictionary<string, Image> images = texAssembly.Images;

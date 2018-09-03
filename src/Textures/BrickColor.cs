@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Drawing;
 
-namespace Rbx2Source.Assembler
+namespace Rbx2Source.Textures
 {
-    public struct BrickColor
+    public class BrickColor
     {
         public string Name;
         public int R;
@@ -16,13 +13,19 @@ namespace Rbx2Source.Assembler
 
         public BrickColor(int number, int r, int g, int b, string name)
         {
-            Name = name.Replace(".", "").Replace(" ", "_").ToLower();
+            Name = name;
+            Number = number;
+
             R = r;
             G = g;
             B = b;
-            Number = number;
+            
             BrickColors.NumericalSearch.Add(number, this);
         }
+
+        public Color Color => Color.FromArgb(R, G, B);
+
+        public override string ToString() => Name + '[' + Number + "] (" + string.Join(", ", R, G, B) + ')';
     }
 
     public static class BrickColors

@@ -1,17 +1,41 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
+using System.Threading.Tasks;
 
 using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.StudioMdl;
+using Rbx2Source.Textures;
 using Rbx2Source.Web;
 
 namespace Rbx2Source.Assembler
 {
     class R6CharacterAssembler : CharacterAssembler, ICharacterAssembler
     {
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // TEXTURE COMPOSITION CONSTANTS
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        private static string COMPOSIT_TORSO     = "CompositTorso";
+        private static string COMPOSIT_LEFT_ARM  = "CompositLeftArm";
+        private static string COMPOSIT_LEFT_LEG  = "CompositLeftLeg";
+        private static string COMPOSIT_RIGHT_ARM = "CompositRightArm";
+        private static string COMPOSIT_RIGHT_LEG = "CompositRightLeg";
+
+        private static string COMPOSIT_SHIRT     = "CompositShirtTemplate";
+        private static string COMPOSIT_PANTS     = "CompositPantsTemplate";
+
+        private static Rectangle CANVAS_RECT = new Rectangle(  0,   0, 1024, 768);
+        private static Rectangle CANVAS_HEAD = new Rectangle(400,   0,  200, 200);
+        private static Rectangle CANVAS_BODY = new Rectangle(  0, 256, 1024, 512);
+        private static Rectangle CANVAS_ITEM = new Rectangle(  0,   0,  512, 512);
+
+        private static Rectangle RECT_TSHIRT = new Rectangle( 32, 321,  128, 128);
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private static Asset R6AssemblyAsset = Asset.FromResource("AvatarData/R6/ASSEMBLY.rbxmx");
+        public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R6/CollisionJoints.qc");
 
         private static Dictionary<Limb, string> LimbMatcher = new Dictionary<Limb, string>()
         {
@@ -23,18 +47,9 @@ namespace Rbx2Source.Assembler
             {Limb.Torso,    "Torso"}
         };
 
-        private static Dictionary<string,int> refs = new Dictionary<string,int>() 
+        private static string GetBodyMaterialName(long id)
         {
-            {"Torso",1},
-            {"LeftArm",2},
-            {"RightArm",3},
-            {"LeftLeg",4},
-            {"RightLeg",5}
-        };
-
-        public byte[] CollisionModelScript
-        {
-            get { return ResourceUtility.GetResource("AvatarData/R6/CollisionJoints.qc"); }
+            return id == 0 ? "Body" : "PackageOverlay" + id;
         }
 
         public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale)
@@ -74,130 +89,176 @@ namespace Rbx2Source.Assembler
             return meshBuilder;
         }
 
-        public TextureAssembly AssembleTextures(UserAvatar avatar, Dictionary<string, Material> materials)
+        public TextureCompositor ComposeTextureMap(Folder characterAssets, BodyColors bodyColors)
         {
-            /*/ ASSEMBLING R6 CHARACTER TEXTURES IS VERY WEIRD
-             *
-             * This currently depends on a lucky observation I was able to make based on the
-             * layout of the 3D thumbnail files.
-             * 
-             * To put it as simply as possible, there are "group" tags specified in the 3D Thumbnail's
-             * obj file. Each group is prefixed with "Player1" followed by a numerical index for the group.
-             * Each group is linked to a material in the mtl file, and the mtl file tells us what texture
-             * that material should be linked to.
-             * 
-             * The number of numerical indexes depends on how many roblox parts exist on the character.
-             * Accessories and gears always come first.
-             * 
-             * The last five groups will always be the following in-order:
-             *  - Left Leg
-             *  - Right Leg
-             *  - Left Arm
-             *  - Right Arm
-             *  - Torso
-             *  - Head
-             *  
-             * By cleverly exploiting this knowledge, I can extract the 3D obj file textures, and 
-             * correctly link them to the right geometry in the generated R6 character.
-            /*/
+            TextureCompositor compositor = new TextureCompositor(AvatarType.R6, CANVAS_RECT);
+            compositor.CharacterAssets = characterAssets;
 
+            // Append BodyColors
+            compositor.AppendColor(bodyColors.TorsoColor,    COMPOSIT_TORSO,     CANVAS_RECT);
+            compositor.AppendColor(bodyColors.LeftArmColor,  COMPOSIT_LEFT_ARM,  CANVAS_RECT);
+            compositor.AppendColor(bodyColors.LeftLegColor,  COMPOSIT_LEFT_LEG,  CANVAS_RECT);
+            compositor.AppendColor(bodyColors.RightArmColor, COMPOSIT_RIGHT_ARM, CANVAS_RECT);
+            compositor.AppendColor(bodyColors.RightLegColor, COMPOSIT_RIGHT_LEG, CANVAS_RECT);
+
+            // Append Head & Face
+            Asset faceAsset = GetAvatarFace(characterAssets);
+            compositor.AppendColor(bodyColors.HeadColor, CANVAS_HEAD);
+            compositor.AppendTexture(faceAsset, CANVAS_HEAD, 1);
+
+            // Append Shirt
+            Shirt shirt = characterAssets.FindFirstChildOfClass<Shirt>();
+            if (shirt != null)
+            {
+                Asset shirtAsset = Asset.GetByAssetId(shirt.ShirtTemplate);
+                compositor.AppendTexture(shirtAsset,  COMPOSIT_SHIRT,  CANVAS_RECT, 2);
+            }
+
+            // Append Pants
+            Pants pants = characterAssets.FindFirstChildOfClass<Pants>();
+            if (pants != null)
+            {
+                Asset pantsAsset = Asset.GetByAssetId(pants.PantsTemplate);
+                compositor.AppendTexture(pantsAsset,  COMPOSIT_PANTS,  CANVAS_RECT, 1);
+            }
+
+            // Append T-Shirt
+            ShirtGraphic tshirt = characterAssets.FindFirstChildOfClass<ShirtGraphic>();
+            if (tshirt != null)
+            {
+                Asset tshirtAsset = Asset.GetByAssetId(tshirt.Graphic);
+                compositor.AppendTexture(tshirtAsset, RECT_TSHIRT, 3, RotateFlipType.Rotate90FlipNone);
+            }
+
+            return compositor;
+        }
+
+        public TextureAssembly AssembleTextures(TextureCompositor compositor, Dictionary<string, Material> materials)
+        {
             TextureAssembly assembly = new TextureAssembly();
             assembly.Images = new Dictionary<string, Image>();
             assembly.MatLinks = new Dictionary<string, string>();
 
-            Rbx3DThumbnailInfo info = TextureFetch.Get3DThumbnail(avatar.UserInfo.Id);
-            string objHash = info.Obj;
-            string objUrl = WebUtility.ResolveHashUrl(objHash);
-            string obj = WebUtility.DownloadString(objUrl);
-            StringReader reader = new StringReader(obj);
+            Bitmap core = compositor.BakeTextureMap();
+            Rbx2Source.SetDebugImage(core);
 
-            List<int> matLookUp = new List<int>();
-            string line;
-            while ((line = reader.ReadLine()) != null)
+            Bitmap head = TextureCompositor.CropBitmap(core, CANVAS_HEAD);
+            assembly.LinkDirectly("Head", head);
+
+            Bitmap body = TextureCompositor.CropBitmap(core, CANVAS_BODY);
+            Folder characterAssets = compositor.CharacterAssets;
+
+            Rbx2Source.Print("Processing Package Textures...");
+            Rbx2Source.IncrementStack();
+
+            // Collect CharacterMeshes
+            var packagedLimbs = new Dictionary<Limb, CharacterMesh>();
+            foreach (CharacterMesh mesh in characterAssets.GetChildrenOfClass<CharacterMesh>())
+                packagedLimbs.Add(mesh.BodyPart, mesh);
+
+            // Compose the textures that will be used
+            var limbOverlays = new Dictionary<Limb, long>();
+            var limbBitmaps = new Dictionary<long, Bitmap>() { {0, body} };
+
+            foreach (Limb limb in LimbMatcher.Keys)
             {
-                if (line.StartsWith("usemtl "))
+                // Head is already textured, ignore it.
+                if (limb == Limb.Head)
+                    continue;
+
+                // Is there a CharacterMesh for this limb?
+                if (packagedLimbs.ContainsKey(limb))
                 {
-                    int value = int.Parse(line.Substring(14).Replace("Mtl", ""), Rbx2Source.NormalParse);
-                    matLookUp.Add(value);
-                }
-            }
+                    // Check the CharacterMesh textures.
+                    CharacterMesh mesh = packagedLimbs[limb];
 
-            int groupCount = matLookUp.Count;
+                    long baseId = mesh.BaseTextureId;
+                    long overlayId = mesh.OverlayTextureId;
 
-            string materialHash = info.Mtl;
-            string materialUrl = WebUtility.ResolveHashUrl(materialHash);
-            string material = WebUtility.DownloadString(materialUrl);
-            reader = new StringReader(material);
-
-            int currentGroup = 0;
-            Dictionary<int, string> textureIndex = new Dictionary<int, string>();
-
-            while ((line = reader.ReadLine()) != null)
-            {
-                if (line.StartsWith("newmtl"))
-                    currentGroup = int.Parse(line.Substring(14).Replace("Mtl",""), Rbx2Source.NormalParse);
-                else if (line.StartsWith("map_d"))
-                {
-                    string textureHash = line.Substring(6);
-                    if (!textureIndex.ContainsKey(currentGroup))
-                         textureIndex.Add(currentGroup, textureHash);
-                }
-            }
-
-            Bitmap head = new Bitmap(113, 113);
-            bool gotHead = false;
-
-            foreach (int group in textureIndex.Keys)
-            {
-                string mtlName = "AvatarMap_Id" + group;
-                string textureHash = textureIndex[group];
-                string textureUrl = WebUtility.ResolveHashUrl(textureHash);
-                Bitmap baseImage = WebUtility.DownloadImage(textureUrl);
-                Size baseImgSize = baseImage.Size;
-                int aspectRatio = baseImgSize.Width / baseImgSize.Height;
-                if (aspectRatio == 2) // If it isn't 2:1, then we can safely assume this isn't a relevant texture map.
-                {
-                    Bitmap image = new Bitmap(768, 512);
-                    Graphics graphics = Graphics.FromImage(image);
-                    graphics.DrawImage(baseImage, Point.Empty);
-                    assembly.Images.Add(mtlName, image);
-                    if (!gotHead)
+                    if (overlayId > 0)
                     {
-                        Graphics headGraphics = Graphics.FromImage(head);
-                        headGraphics.DrawImage(baseImage, new Point(-903, -8));
-                        gotHead = true;
+                        // Use the overlay texture for this limb.
+                        limbOverlays.Add(limb, overlayId);
+
+                        // Compose this overlay texture with the body texture if it doesn't exist yet.
+                        if (!limbBitmaps.ContainsKey(overlayId))
+                        {
+                            Asset overlayAsset = Asset.Get(overlayId);
+
+                            TextureCompositor overlayCompositor = new TextureCompositor(AvatarType.R6, CANVAS_RECT);
+                            overlayCompositor.AppendTexture(body, CANVAS_BODY);
+                            overlayCompositor.AppendTexture(overlayAsset, CANVAS_BODY, 1);
+                            overlayCompositor.SetContext("Overlay Texture " + overlayId);
+
+                            Bitmap overlayTex = overlayCompositor.BakeTextureMap(CANVAS_BODY);
+                            limbBitmaps.Add(overlayId, overlayTex);
+                        }
+
+                        continue;
+                    }
+                    else if (baseId > 0)
+                    {
+                        // Use the base texture for this limb.
+                        limbOverlays.Add(limb, baseId);
+
+                        // Compose the base texture if it doesn't exist yet.
+                        if (!limbBitmaps.ContainsKey(baseId))
+                        {
+                            Asset baseAsset = Asset.Get(baseId);
+
+                            TextureCompositor baseCompositor = new TextureCompositor(AvatarType.R6, CANVAS_RECT);
+                            baseCompositor.AppendTexture(baseAsset, CANVAS_BODY);
+                            baseCompositor.SetContext("Base Texture " + baseId);
+
+                            Bitmap baseTex = baseCompositor.BakeTextureMap(CANVAS_BODY);
+                            limbBitmaps.Add(baseId, baseTex);
+                        }
+
+                        continue;
                     }
                 }
+
+                // If no continue statement is reached, fallback to using the body texture.
+                // This occurs if the limb has no package, or the package limb has no textures.
+                limbOverlays.Add(limb, 0);
             }
 
-            assembly.Images.Add("Head", head);
-            assembly.MatLinks.Add("Head", "Head");
-
-            foreach (string mtlName in materials.Keys)
+            // Add the images into the texture assembly.
+            foreach (long id in limbBitmaps.Keys)
             {
-                if (!assembly.MatLinks.ContainsKey(mtlName))
+                string materialName = GetBodyMaterialName(id);
+                Bitmap bitmap = limbBitmaps[id];
+                assembly.Images.Add(materialName, bitmap);
+            }
+
+            // Link the limbs to their textures.
+            foreach (Limb limb in limbOverlays.Keys)
+            {
+                long id = limbOverlays[limb];
+                string materialName = GetBodyMaterialName(id);
+
+                string limbName = Rbx2Source.GetEnumName(limb);
+                assembly.MatLinks.Add(limbName, materialName);
+            }
+
+            // Handle the rest of the materials
+            foreach (string materialName in materials.Keys)
+            {
+                if (!assembly.MatLinks.ContainsKey(materialName))
                 {
-                    if (refs.ContainsKey(mtlName))
-                    {
-                        int i = refs[mtlName];
-                        int g = groupCount - i - 1;
-                        int v = matLookUp[g];
-                        string textureLink = "AvatarMap_Id" + v;
-                        assembly.MatLinks.Add(mtlName, textureLink);
-                    }
-                    else
-                    {
-                        Material mat = materials[mtlName];
-                        Asset texture = mat.TextureAsset;
-                        byte[] textureData = texture.GetContent();
-                        MemoryStream textureStream = new MemoryStream(textureData);
-                        Image image = Image.FromStream(textureStream);
-                        assembly.Images.Add(mtlName, image);
-                        assembly.MatLinks.Add(mtlName, mtlName);
-                    }
+                    Material material = materials[materialName];
+                    Asset texture = material.TextureAsset;
+
+                    TextureCompositor matComp = new TextureCompositor(AvatarType.R6, CANVAS_ITEM);
+                    matComp.AppendTexture(texture, CANVAS_ITEM);
+                    matComp.SetContext("Accessory Texture " + materialName);
+
+                    Bitmap bitmap = matComp.BakeTextureMap();
+                    assembly.LinkDirectly(materialName, bitmap);
                 }
             }
 
+            Rbx2Source.DecrementStack();
             return assembly;
         }
     }

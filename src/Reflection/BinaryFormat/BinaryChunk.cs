@@ -41,7 +41,7 @@ namespace Rbx2Source.Reflection.BinaryFormat
         internal void AssertChunkType(BinaryChunkType type)
         {
             if (ChunkType != type)
-                throw new Exception("Expected " + Enum.GetName(typeof(BinaryChunkType), type) + " ChunkType from input BinaryChunk");
+                throw new Exception("Expected " + BinaryFile.GetEnumName(type) + " ChunkType from input BinaryChunk");
         }
 
         public BinaryChunk(BinaryReader reader)

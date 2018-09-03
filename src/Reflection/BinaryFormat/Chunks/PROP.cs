@@ -89,17 +89,14 @@ namespace Rbx2Source.Reflection.BinaryFormat
         public readonly int Index;
         public readonly string Name;
         public readonly BinaryPropertyFormat Format;
-        public PropertyDescriptor[] Properties
-        {
-            get { return props; }
-        }
+        public PropertyDescriptor[] Properties => props;
 
         private BinaryReader reader;
         private PropertyDescriptor[] props;
 
         public override string ToString()
         {
-            return '[' + Enum.GetName(typeof(BinaryPropertyFormat), Format) + "] " + Name;
+            return '[' + BinaryFile.GetEnumName(Format) + "] " + Name;
         }
 
         public BinaryChunkPROP(BinaryChunk chunk)

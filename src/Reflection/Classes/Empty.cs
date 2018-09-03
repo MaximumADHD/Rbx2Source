@@ -9,4 +9,5 @@
     class Folder : Instance { }
     class Hat : Accoutrement { }
     class Tool : Instance { }
+    class CharacterAppearance : Instance { }
 }

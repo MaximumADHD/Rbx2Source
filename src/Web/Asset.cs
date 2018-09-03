@@ -105,10 +105,21 @@ namespace Rbx2Source.Web
                     http.Proxy = null;
                     asset.Id = assetId;
 
-                    string productInfoJson = http.DownloadString("http://api.roblox.com/marketplace/productinfo?assetId=" + assetId);
-                    asset.ProductInfo = JsonConvert.DeserializeObject<ProductInfo>(productInfoJson);
-                    asset.ProductInfo.WindowsSafeName = FileUtility.MakeNameWindowsSafe(asset.ProductInfo.Name);
-                    asset.AssetType = asset.ProductInfo.AssetTypeId;
+                    try
+                    {
+                        string productInfoJson = http.DownloadString("http://api.roblox.com/marketplace/productinfo?assetId=" + assetId);
+                        asset.ProductInfo = JsonConvert.DeserializeObject<ProductInfo>(productInfoJson);
+                        asset.ProductInfo.WindowsSafeName = FileUtility.MakeNameWindowsSafe(asset.ProductInfo.Name);
+                        asset.AssetType = asset.ProductInfo.AssetTypeId;
+                    }
+                    catch
+                    {
+                        ProductInfo dummyInfo = new ProductInfo();
+                        dummyInfo.Name = "unknown_" + asset.Id;
+                        dummyInfo.WindowsSafeName = dummyInfo.Name;
+                        dummyInfo.AssetTypeId = AssetType.Model;
+                    }
+
                     asset.CdnUrl = location;
                     asset.CdnCacheId = identifier;
                     asset.GetContent();

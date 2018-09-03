@@ -19,10 +19,7 @@ namespace Rbx2Source.StudioMdl
         public bool DeltaSequence = false;
         public List<Bone> BaseRig;
 
-        public string GroupName
-        {
-            get { return "skeleton"; }
-        }
+        public string GroupName => "skeleton";
 
         public void Write(StringWriter fileBuffer, IList rawSkeleton, object rawKeyframe)
         {

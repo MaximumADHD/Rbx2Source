@@ -4,6 +4,7 @@ using System.Drawing;
 using Rbx2Source.Coordinates;
 using Rbx2Source.Reflection;
 using Rbx2Source.StudioMdl;
+using Rbx2Source.Textures;
 using Rbx2Source.Web;
 
 namespace Rbx2Source.Assembler
@@ -13,6 +14,12 @@ namespace Rbx2Source.Assembler
         public Dictionary<string, Image> Images;
         public Dictionary<string, string> MatLinks;
         public string MaterialDirectory;
+
+        public void LinkDirectly(string name, Image img)
+        {
+            Images.Add(name, img);
+            MatLinks.Add(name, name);
+        }
     }
 
     class Material
@@ -41,7 +48,8 @@ namespace Rbx2Source.Assembler
     interface ICharacterAssembler
     {
         StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale);
-        TextureAssembly AssembleTextures(UserAvatar avatar, Dictionary<string, Material> materials);
+        TextureCompositor ComposeTextureMap(Folder characterAssets, BodyColors bodyColors);
+        TextureAssembly AssembleTextures(TextureCompositor compositor, Dictionary<string, Material> materials);
         byte[] CollisionModelScript { get; }
     }
 
