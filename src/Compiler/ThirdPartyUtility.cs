@@ -92,8 +92,6 @@ namespace Rbx2Source.Compiler
             info.CreateNoWindow = true;
             info.UseShellExecute = false;
             info.RedirectStandardOutput = true;
-
-            Console.WriteLine(appPath + ' ' + info.Arguments);
             return Process.Start(info);
         }
 
