@@ -24,12 +24,13 @@ namespace Rbx2Source.Assembler
 
         private static string COMPOSIT_SHIRT     = "CompositShirtTemplate";
         private static string COMPOSIT_PANTS     = "CompositPantsTemplate";
-        private static string COMPOSIT_TSHIRT    = "CompositTShirt";
 
-        private static Rectangle CANVAS_RECT = new Rectangle(0,   0, 1024, 768);
-        private static Rectangle CANVAS_HEAD = new Rectangle(0,   0,  200, 200);
-        private static Rectangle CANVAS_BODY = new Rectangle(0, 256, 1024, 512);
-        private static Rectangle CANVAS_ITEM = new Rectangle(0,   0,  512, 512);
+        private static Rectangle CANVAS_RECT = new Rectangle(  0,   0, 1024, 768);
+        private static Rectangle CANVAS_HEAD = new Rectangle(400,   0,  200, 200);
+        private static Rectangle CANVAS_BODY = new Rectangle(  0, 256, 1024, 512);
+        private static Rectangle CANVAS_ITEM = new Rectangle(  0,   0,  512, 512);
+
+        private static Rectangle RECT_TSHIRT = new Rectangle( 32, 321,  128, 128);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -126,7 +127,7 @@ namespace Rbx2Source.Assembler
             if (tshirt != null)
             {
                 Asset tshirtAsset = Asset.GetByAssetId(tshirt.Graphic);
-                compositor.AppendTexture(tshirtAsset, COMPOSIT_TSHIRT, CANVAS_RECT, 3);
+                compositor.AppendTexture(tshirtAsset, RECT_TSHIRT, 3, RotateFlipType.Rotate90FlipNone);
             }
 
             return compositor;

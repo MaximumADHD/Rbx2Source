@@ -21,8 +21,8 @@ namespace Rbx2Source.Textures
             float x = uv.x * target.Width;
             float y = uv.y * target.Height;
 
-            int ix = (int)x;
-            int iy = (int)y;
+            int ix = (int)(x + 0.5f);
+            int iy = (int)(y + 0.5f);
 
             return new Point(ix, iy);
         }
@@ -37,8 +37,8 @@ namespace Rbx2Source.Textures
 
         public static Point VertexToPoint(Vertex vert, Rectangle canvas, Point offset)
         {
-            int x = (int)vert.Pos.X;
-            int y = (int)vert.Pos.Y;
+            int x = (int)(vert.Pos.X + 0.5f);
+            int y = (int)(vert.Pos.Y + 0.5f);
 
             Point result = new Point(offset.X + x, (offset.Y - y) + canvas.Height);
             return result;

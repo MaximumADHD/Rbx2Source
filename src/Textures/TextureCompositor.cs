@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.IO;
 
-using Rbx2Source.Coordinates;
 using Rbx2Source.Geometry;
 using Rbx2Source.Reflection;
 using Rbx2Source.Web;
@@ -63,12 +59,13 @@ namespace Rbx2Source.Textures
             layers.Add(composit);
         }
 
-        public void AppendTexture(object img, Rectangle rect, byte layer = 0)
+        public void AppendTexture(object img, Rectangle rect, byte layer = 0, RotateFlipType flipMode = RotateFlipType.RotateNoneFlipNone)
         {
             CompositData composit = new CompositData(DrawMode.Rect, DrawType.Texture);
             composit.Texture = img;
             composit.Layer = layer;
             composit.Rect = rect;
+            composit.FlipMode = flipMode;
 
             layers.Add(composit);
         }
@@ -107,6 +104,9 @@ namespace Rbx2Source.Textures
                     else if (drawType == DrawType.Texture)
                     {
                         Bitmap image = composit.GetTextureBitmap();
+                        if (composit.FlipMode > 0)
+                            image.RotateFlip(composit.FlipMode);
+
                         buffer.DrawImage(image, compositCanvas);
                     }
                 }
@@ -168,7 +168,9 @@ namespace Rbx2Source.Textures
                 }
 
                 Rbx2Source.Print("{0}/{1} layers composed...", ++composed, layers.Count);
-                Rbx2Source.SetDebugImage(bitmap);
+
+                if (layers.Count > 2)
+                    Rbx2Source.SetDebugImage(bitmap);
 
                 buffer.Dispose();
             }

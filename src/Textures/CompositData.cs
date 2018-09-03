@@ -37,6 +37,7 @@ namespace Rbx2Source.Textures
 
         public Mesh Guide;
         public int Layer;
+        public RotateFlipType FlipMode = RotateFlipType.RotateNoneFlipNone;
 
         public Rectangle Rect;
 

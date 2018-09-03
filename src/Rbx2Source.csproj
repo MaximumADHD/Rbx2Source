@@ -216,8 +216,6 @@
     <EmbeddedResource Include="Resources\Meshes\Primitives\Cylinder.mesh" />
     <None Include="Properties\app.manifest" />
     <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Swim.rbxmx" />
-    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\BaseTexture.mesh" />
-    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\OverlayTexture.mesh" />
     <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositLeftArm.mesh" />
     <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositLeftLeg.mesh" />
     <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositRightArm.mesh" />
@@ -228,7 +226,6 @@
     <EmbeddedResource Include="Resources\AvatarData\R15\Compositing\R15CompositTorsoBase.mesh" />
     <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositPantsTemplate.mesh" />
     <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositShirtTemplate.mesh" />
-    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositTShirt.mesh" />
     <None Include="web.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Resources\AvatarData\R15\ASSEMBLY.rbxmx" />
