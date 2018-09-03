@@ -2533,9 +2533,7 @@
   correctly reading non-orthogonal CFrame rotations.
   This should fix geometry corruption cases for newer
   Roblox catalog items.
-
 ______________________________________________________
-
 
 [v2.20] (September 3rd, 2018)
 
@@ -2546,23 +2544,7 @@ ______________________________________________________
   later down the road.
 • Fixed a bug where attempting to compile some
   users would result in an HTTP 400 error.
-
 ______________________________________________________
-
-
-
-[v2.20] (September 3rd, 2018)
-
-• Humanoid texture compositing is now done within
-  the program instead of snatching from Roblox's
-  3D avatar thumbnails. This change will open the
-  door to more customization for avatar importing
-  later down the road.
-• Fixed a bug where attempting to compile some
-  users would result in an HTTP 400 error.
-
-______________________________________________________
-
 
 [v2.14] (August 23rd, 2018)
 
@@ -2572,7 +2554,6 @@ ______________________________________________________
   fail to compile.
 • Worked around an issue that was preventing
   terminated Roblox users from being compiled.
-
 ______________________________________________________
 
 [v2.13] (August 21st, 2018)
@@ -2587,7 +2568,6 @@ ______________________________________________________
 • Changed my Twitter handle from @MaxGeee1019
   to @CloneTeee1019 in the program
   (because Twitter likes to ruin my fun)
-
 ______________________________________________________
 
 [v2.12] (August 14th, 2018)
@@ -2595,7 +2575,6 @@ ______________________________________________________
 • Patching up a few more small issues with head
   meshes.
 • Fixed a regression with R6 avatars.
-
 ______________________________________________________
 
 [v2.11] (August 14th, 2018)
@@ -2610,7 +2589,6 @@ ______________________________________________________
 • Reduced the verbosity of asset retrieval in the
   compiler log.
 • Attempted to improve detection of Steam.
-
 ______________________________________________________
 
 [v2.10] (August 14th, 2018)
@@ -2627,7 +2605,6 @@ ______________________________________________________
 • Ported over the lookup table functionality of avatar
   heads, so they should now compile consistently no
   matter what.
-
 ______________________________________________________
 
 [v2.08] (February 15th, 2018)
@@ -2639,8 +2616,8 @@ ______________________________________________________
 • Switched my @MaxGee1019 handle over to 
   @MaxGeee1019 in the program credits
   (because Twitter sucks &lt;3)
-
 ______________________________________________________
+
 [v2.07] (June 4th, 2017)
 
 • Refactored a lot of the model compiler code,
@@ -2652,7 +2629,6 @@ ______________________________________________________
   some weird culture localization features.
 • If a user is wearing the "Blockhead" head, it should
   be generated correctly now.
-
 ______________________________________________________
 
 [v2.06] (May 31st, 2017)
@@ -2662,7 +2638,6 @@ ______________________________________________________
   mesh file format.
 • Reformatted some of the mesh parser code to make
   it faster.
-
 ______________________________________________________
 
 [v2.05] (January 31st, 2017)
@@ -2675,7 +2650,6 @@ ______________________________________________________
 [v2.04] (January 21st, 2017)
 • Rbx2Source will now fallback to finding a running
   instance of Steam, if it cannot find the directory.
-
 ______________________________________________________
 
 [v2.03] (January 1st, 2017)
@@ -2683,7 +2657,6 @@ ______________________________________________________
 • Fixed a small bug that was causing the compiler to 
   fail with users who glitched a space after their 
   name.
-
 ______________________________________________________
 
 [v2.02] (January 1st, 2017)
@@ -2694,7 +2667,6 @@ ______________________________________________________
 • Added some safeguards while I investigate whatever
   is causing the "generic error in GDI+" stuff to 
   popup for some people.
-
 ______________________________________________________
 
 [v2.01] (December 30th, 2016)
@@ -2703,7 +2675,6 @@ ______________________________________________________
   library, Rbx2Source will now properly detect 
   Source engine games in there.
 • Cleaned up some unused code tidbits.
-
 ______________________________________________________
 
 [v2.00] (December 29th, 2016)
@@ -2726,7 +2697,6 @@ ______________________________________________________
   stronger than it was before, and will allow me 
   to add more features with relative ease.
 • The launcher is no longer a seperate application
-
 ______________________________________________________
 
 [v1.60] (June 18th, 2015)
