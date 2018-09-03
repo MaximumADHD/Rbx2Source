@@ -14,7 +14,7 @@ namespace Rbx2Source
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Rbx2Source());
+            Application.Run(new Launcher());
         }
     }
 }
