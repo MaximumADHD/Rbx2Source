@@ -10,4 +10,5 @@
     class Hat : Accoutrement { }
     class Tool : Instance { }
     class CharacterAppearance : Instance { }
+    class ValueBase : Instance { }
 }

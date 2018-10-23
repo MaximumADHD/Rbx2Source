@@ -2527,7 +2527,22 @@
 </value>
   </data>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.21] (September 3rd, 2018)
+    <value>[v2.22] (October 23rd, 2018)
+
+• Fixed a bug where package limbs using the 
+  artist-intent mode would not be detected properly
+  during compilation
+• Fixed a bug where 64-bit integers were not being
+  handled correctly in the binary file format
+• Added partial support for Rthro avatars. I still 
+  need to integrate scaling support for avatar 
+  limbs, so some results might still look weird.
+  I'm investigating the specs for these characters
+  and hopefully should have some results soon.
+• Cleaned up some of the backend code.
+______________________________________________________
+
+[v2.21] (September 3rd, 2018)
 
 • Fixed an issue where the binary file format was not
   correctly reading non-orthogonal CFrame rotations.

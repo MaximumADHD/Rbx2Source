@@ -422,10 +422,10 @@ namespace Rbx2Source.Reflection.BinaryFormat
             }
             else if (Format == BinaryPropertyFormat.Int64)
             {
+                byte[] buffer = reader.ReadBytes(instCount * 8);
+
                 for (int i = 0; i < instCount; i++)
                 {
-                    byte[] buffer = reader.ReadBytes(8);
-
                     long v0 = buffer[i];
                     long v1 = buffer[instCount + i];
                     long v2 = buffer[instCount * 2 + i];

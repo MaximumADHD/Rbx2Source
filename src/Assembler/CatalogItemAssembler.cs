@@ -117,7 +117,10 @@ namespace Rbx2Source.Assembler
                     name += count.ToString();
                     part.Name = name;
                 }
-                else nameCounts[name] = 0;
+                else
+                {
+                    nameCounts[name] = 0;
+                }
                 
                 // Assemble the part.
                 Material material = new Material();
@@ -186,7 +189,9 @@ namespace Rbx2Source.Assembler
                         bcName = color.Name;
                     }
                     else
-                        material.VertexColor = new Vector3(1, 1, 1); 
+                    {
+                        material.VertexColor = new Vector3(1, 1, 1);
+                    }
 
                     if (!images.ContainsKey("BrickColor"))
                     {

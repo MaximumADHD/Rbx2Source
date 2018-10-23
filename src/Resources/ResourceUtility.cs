@@ -46,7 +46,9 @@ namespace Rbx2Source.Resources
         public static byte[] GetResource(string localPath)
         {
             if (resourceCache.ContainsKey(localPath))
+            {
                 return resourceCache[localPath];
+            }
             else
             {
                 Type program = typeof(Program);

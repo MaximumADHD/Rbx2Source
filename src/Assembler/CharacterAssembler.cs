@@ -107,7 +107,9 @@ namespace Rbx2Source.Assembler
                                 GenerateBones(prep, part1.GetChildrenOfClass<Attachment>());
                         }
                         else // We'll deal with Accessory attachments afterwards.
+                        {
                             prep.NonRigs.Add(a0);
+                        }
                     }
                 }
             }
@@ -191,10 +193,32 @@ namespace Rbx2Source.Assembler
         public static void OverwriteHead(Instance asset, Part head)
         {
             DataModelMesh mesh = (DataModelMesh)asset;
+
             DataModelMesh currentMesh = head.FindFirstChild<DataModelMesh>("Mesh");
             if (currentMesh != null) currentMesh.Destroy();
+
             mesh.Name = "Mesh";
             mesh.Parent = head;
+
+            // Apply Rthro adjustments
+            foreach (Vector3Value attachmentOverride in mesh.GetChildrenOfClass<Vector3Value>())
+            {
+                Attachment attachment = head.FindFirstChild<Attachment>(attachmentOverride.Name);
+                if (attachment != null)
+                {
+                    CFrame cf = attachment.CFrame;
+                    attachment.CFrame = new CFrame(attachmentOverride.Value) * (cf - cf.p);
+                }
+            }
+
+            // Copy any extra instances into the Head.
+            foreach (Instance metadata in mesh.GetChildren())
+            {
+                if (!metadata.IsA("Vector3Value"))
+                {
+                    metadata.Parent = head;
+                }
+            }
         }
 
         public static void BuildAvatarGeometry(StudioMdlWriter meshBuilder, Bone bone)
@@ -284,6 +308,29 @@ namespace Rbx2Source.Assembler
 
         public static Asset GetAvatarFace(Folder characterAssets)
         {
+            // Check if this avatar is using an Rthro head with a texture overlay.
+            Folder assembly = characterAssets.FindFirstChild<Folder>("ASSEMBLY");
+            if (assembly != null)
+            {
+                Part head = assembly.FindFirstChild<Part>("Head");
+                if (head != null)
+                {
+                    SpecialMesh headMesh = head.FindFirstChildOfClass<SpecialMesh>();
+                    if (headMesh != null && headMesh.TextureId.Length > 0)
+                    {
+                        // One last check to make sure this is *probably* an Rthro head.
+                        // The reason this check is necessary is due to the iBot Head, which has a texture and allows a face to be drawn on it.
+                        // I suspect Roblox will expand this behavior later, so I need to keep an eye on it.
+                        StringValue scaleType = head.FindFirstChild<StringValue>("AvatarPartScaleType");
+                        if (scaleType != null && scaleType.Value != "Classic")
+                        {
+                            return Asset.GetByAssetId(headMesh.TextureId);
+                        }
+                    }
+                }
+            }
+
+            // Fall back to normal behavior.
             Decal face = characterAssets.FindFirstChild<Decal>("face");
             if (face != null && face.Texture != "rbxasset://textures/face.png")
                 return Asset.GetByAssetId(face.Texture);

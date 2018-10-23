@@ -119,4 +119,14 @@ namespace Rbx2Source.Reflection
     {
         public string Texture;
     }
+
+    class StringValue : Instance
+    {
+        public string Value;
+    }
+
+    class Vector3Value : Instance
+    {
+        public Vector3 Value;
+    }
 }

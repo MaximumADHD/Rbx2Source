@@ -101,7 +101,9 @@ namespace Rbx2Source.Animation
                     return 1 - easeInOut(percent, cubic);
             }
             else if (style == EasingStyle.Linear)
+            {
                 return 1 - percent;
+            }
             else // Constant
             {
                 if (direction == EasingDirection.Out)

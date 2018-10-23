@@ -64,19 +64,24 @@ namespace Rbx2Source.Animation
             int minFrame = frame;
 
             while (minFrame >= 0)
+            {
                 if (keyFrameMap[minFrame].ContainsKey(poseName))
                     break;
                 else
                     minFrame--;
+            }
+                
 
             // Get max.
 
             int maxFrame = frame;
             while (maxFrame < keyFrameMap.Count)
+            {
                 if (keyFrameMap[maxFrame].ContainsKey(poseName))
                     break;
                 else
                     maxFrame++;
+            }
 
             if (maxFrame == keyFrameMap.Count)
                 maxFrame = minFrame;

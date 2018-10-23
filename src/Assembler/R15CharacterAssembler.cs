@@ -66,6 +66,8 @@ namespace Rbx2Source.Assembler
             Part head = assembly.FindFirstChild<Part>("Head");
             Vector3 avatarScale = GetAvatarScale(scale);
 
+
+
             foreach (Instance asset in characterAssets.GetChildren())
             {
                 if (asset.IsA("Part"))
@@ -76,10 +78,25 @@ namespace Rbx2Source.Assembler
 
                     asset.Parent = assembly;
                 }
+                else if (asset.IsA("Folder") && asset.Name == "R15Fixed")
+                {
+                    foreach (MeshPart child in asset.GetChildrenOfClass<MeshPart>())
+                    {
+                        Part existing = assembly.FindFirstChild<Part>(child.Name);
+                        if (existing != null)
+                            existing.Destroy();
+
+                        child.Parent = assembly;
+                    }
+                }
                 else if (asset.IsA("Accoutrement"))
+                {
                     PrepareAccessory(asset, assembly);
+                } 
                 else if (asset.IsA("DataModelMesh"))
+                {
                     OverwriteHead(asset, head);
+                }
             }
 
             // Avatar Scaling
@@ -105,6 +122,7 @@ namespace Rbx2Source.Assembler
             // Build File Data.
             Rbx2Source.Print("Building Geometry...");
             Rbx2Source.IncrementStack();
+
             foreach (Bone bone in bones)
                 BuildAvatarGeometry(meshBuilder, bone);
 
@@ -164,21 +182,12 @@ namespace Rbx2Source.Assembler
             {
                 Limb limb = GetLimb(part);
                 string textureId = part.TextureID;
+
                 if (textureId != null && textureId.Length > 0 && !overlainLimbs.Contains(limb))
                 {
                     Asset overlay = Asset.GetByAssetId(textureId);
-
-                    if (limb == Limb.Torso)
-                        compositor.AppendTexture(overlay, RECT_TORSO,     3);
-                    else if (limb == Limb.LeftArm)
-                        compositor.AppendTexture(overlay, RECT_LEFT_ARM,  3);
-                    else if (limb == Limb.RightArm)
-                        compositor.AppendTexture(overlay, RECT_RIGHT_ARM, 3);
-                    else if (limb == Limb.LeftLeg)
-                        compositor.AppendTexture(overlay, RECT_LEFT_LEG,  3);
-                    else if (limb == Limb.RightLeg)
-                        compositor.AppendTexture(overlay, RECT_RIGHT_LEG, 3);
-
+                    Rectangle crop = UVCrops[limb];
+                    compositor.AppendTexture(overlay, crop, 3);
                     overlainLimbs.Add(limb);
                 }
             }
@@ -202,29 +211,14 @@ namespace Rbx2Source.Assembler
                 Rbx2Source.Print("Building Material {0}", materialName);
                 Material material = materials[materialName];
                 Image image = null;
+
                 if (material.UseAvatarMap)
                 {
                     Limb limb;
                     if (Enum.TryParse(materialName, out limb))
                     {
                         Rectangle cropRegion = UVCrops[limb];
-
-                        Size size = cropRegion.Size;
-                        int w = size.Width;
-                        int h = size.Height;
-
-                        Point origin = cropRegion.Location;
-                        int x = origin.X;
-                        int y = origin.Y;
-
-                        Bitmap newImg = new Bitmap(w, h);
-                        Graphics graphics = Graphics.FromImage(newImg);
-                        Rectangle dest = new Rectangle(Point.Empty, size);
-
-                        graphics.DrawImage(uvMap,dest,x,y,w,h,GraphicsUnit.Pixel,blankAtt);
-                        graphics.Dispose();
-
-                        image = newImg;
+                        image = TextureCompositor.CropBitmap(uvMap, cropRegion);
                     }
                 }
                 else
@@ -237,13 +231,12 @@ namespace Rbx2Source.Assembler
                         image = Image.FromStream(textureStream);
                     }
                 }
+
                 if (image != null)
-                {
-                    assembly.Images.Add(materialName, image);
-                    assembly.MatLinks.Add(materialName, materialName);
-                }
+                    assembly.LinkDirectly(materialName, image);
                 else
                     Rbx2Source.Print("Missing Image for Material {0}?", materialName);
+
             }
 
             return assembly;
