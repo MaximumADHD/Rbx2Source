@@ -35,6 +35,50 @@ namespace Rbx2Source.Assembler
         private static Rectangle  RECT_TSHIRT         =  new Rectangle (   2,  74, 128, 128 );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // RTHRO CONSTANTS 
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        // Controls how much each limb should be scaled up based on the BodyTypeScale value
+        private static Dictionary<string, Vector3> BODY_TYPE_SCALES = new Dictionary<string, Vector3>()
+        {
+            { "LeftHand",      new Vector3(1.066f, 1.151f, 1.231f) },
+            { "LeftLowerArm",  new Vector3(1.129f, 1.315f, 1.132f) },
+            { "LeftUpperArm",  new Vector3(1.129f, 1.315f, 1.132f) },
+            { "RightHand",     new Vector3(1.066f, 1.151f, 1.231f) },
+            { "RightLowerArm", new Vector3(1.129f, 1.315f, 1.132f) },
+            { "RightUpperArm", new Vector3(1.129f, 1.315f, 1.132f) },
+            { "UpperTorso",    new Vector3(1.033f, 1.283f, 1.140f) },
+            { "LeftFoot",      new Vector3(1.079f, 1.242f, 1.129f) },
+            { "LeftLowerLeg",  new Vector3(1.023f, 1.476f, 1.023f) },
+            { "LeftUpperLeg",  new Vector3(1.023f, 1.476f, 1.023f) },
+            { "RightFoot",     new Vector3(1.079f, 1.242f, 1.129f) },
+            { "RightLowerLeg", new Vector3(1.023f, 1.476f, 1.023f) },
+            { "RightUpperLeg", new Vector3(1.023f, 1.476f, 1.023f) },
+            { "LowerTorso",    new Vector3(1.033f, 1.283f, 1.140f) },
+            { "Head",          new Vector3(0.942f, 0.942f, 0.942f) },
+        };
+
+        // Alternative proportions for rthro, blended between BODY_TYPE_SCALES using the BodyProportionScale value
+        private static Dictionary<string, Vector3> BODY_PROPORTION_SCALES = new Dictionary<string, Vector3>()
+        {
+            {"LeftHand",      new Vector3(0.948f, 1.151f, 1.094f) },
+            {"LeftLowerArm",  new Vector3(1.004f, 1.184f, 1.006f) },
+            {"LeftUpperArm",  new Vector3(1.004f, 1.184f, 1.006f) },
+            {"RightHand",     new Vector3(0.948f, 1.151f, 1.094f) },
+            {"RightLowerArm", new Vector3(1.004f, 1.184f, 1.006f) },
+            {"RightUpperArm", new Vector3(1.004f, 1.184f, 1.006f) },
+            {"UpperTorso",    new Vector3(0.905f, 1.180f, 1.013f) },
+            {"LeftFoot",      new Vector3(1.030f, 1.111f, 1.004f) },
+            {"LeftLowerLeg",  new Vector3(0.976f, 1.275f, 0.909f) },
+            {"LeftUpperLeg",  new Vector3(0.976f, 1.373f, 0.909f) },
+            {"RightFoot",     new Vector3(1.030f, 1.111f, 1.004f) },
+            {"RightLowerLeg", new Vector3(0.976f, 1.275f, 0.909f) },
+            {"RightUpperLeg", new Vector3(0.976f, 1.373f, 0.909f) },
+            {"LowerTorso",    new Vector3(0.986f, 0.985f, 1.013f) },
+            {"Head",          new Vector3(0.896f, 0.942f, 0.896f) },
+        };
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         private static Asset R15AssemblyAsset = Asset.FromResource("AvatarData/R15/ASSEMBLY.rbxmx");
         public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R15/CollisionJoints.qc");
@@ -49,9 +93,63 @@ namespace Rbx2Source.Assembler
             { Limb.RightLeg, RECT_RIGHT_LEG },
         };
 
-        public static Vector3 GetAvatarScale(AvatarScale scale)
+        public static Vector3 ComputeLimbScale(AvatarScale avatarScale, Part part)
         {
-            return new Vector3(scale.Width, scale.Height, 1);
+            string limbName = part.Name;
+
+            // Foundational scale
+            Vector3 scale = new Vector3(avatarScale.Width, avatarScale.Height, avatarScale.Depth);
+            
+            // Sample the target body scale from the BODY_TYPE_SCALES lookup table.
+            Vector3 bodyScale = new Vector3(1, 1, 1);
+            if (BODY_TYPE_SCALES.ContainsKey(limbName))
+                bodyScale = BODY_TYPE_SCALES[limbName];
+
+            // Sample the target proportions scale from the BODY_PROPORTION_SCALES lookup table.
+            Vector3 propScale = new Vector3(1, 1, 1);
+            if (BODY_PROPORTION_SCALES.ContainsKey(limbName))
+                propScale = BODY_PROPORTION_SCALES[limbName];
+
+            // The target proportions are determined by blending between bodyScale and propScale
+            // using the value of the Humanoid's BodyProportionScale value.
+            Vector3 rthroTarget = bodyScale.Lerp(propScale, avatarScale.Proportion);
+
+            // Now we compute how much the rthroTarget value will be applied to the limb based on the
+            // value of the humanoid's BodyTypeScale value.
+            Vector3 rthroScale = new Vector3(1, 1, 1);
+            rthroScale = rthroScale.Lerp(rthroTarget, avatarScale.BodyType);
+
+            // If there is a StringValue named AvatarPartScaleType, then this limb is being scaled 
+            // relative to one of the scale lookup tables. In other words, its original size was 
+            // already scaled to an Rthro configuration, so we need to tune the scale accordingly.
+            StringValue avatarScaleType = part.FindFirstChild<StringValue>("AvatarPartScaleType");
+
+            if (avatarScaleType != null)
+            {
+                Vector3 rthroBase = new Vector3(1, 1, 1);
+
+                if (avatarScaleType.Value == "ProportionsNormal")
+                    rthroBase = bodyScale;
+                else if (avatarScaleType.Value == "ProportionsSlender")
+                    rthroBase = propScale;
+
+                rthroScale /= rthroBase;
+            }
+
+            return scale * rthroScale;
+        }
+
+        public double ComputeAvatarHeight(AvatarScale scale)
+        {
+            double height = 24.5 * scale.Height;
+
+            const double rthroBody = 0.333;
+            const double rthroProp = 0.181;
+
+            double rthroFactor = rthroBody + ((rthroProp - rthroBody) * scale.Proportion);
+            rthroFactor = rthroFactor * (height * scale.BodyType);
+
+            return height + rthroFactor;
         }
 
         public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale)
@@ -64,9 +162,6 @@ namespace Rbx2Source.Assembler
             assembly.Parent = characterAssets;
 
             Part head = assembly.FindFirstChild<Part>("Head");
-            Vector3 avatarScale = GetAvatarScale(scale);
-
-
 
             foreach (Instance asset in characterAssets.GetChildren())
             {
@@ -99,17 +194,18 @@ namespace Rbx2Source.Assembler
                 }
             }
 
-            // Avatar Scaling
-
+            // Apply limb scaling
             foreach (Part part in assembly.GetChildrenOfClass<Part>())
             {
                 Limb limb = GetLimb(part);
+
                 if (limb != Limb.Unknown)
                 {
-                    part.Size *= avatarScale;
+                    Vector3 limbScale = ComputeLimbScale(scale, part);
+                    part.Size *= limbScale;
 
                     foreach (Attachment attachment in part.GetChildrenOfClass<Attachment>())
-                        attachment.CFrame = CFrame.Scale(attachment.CFrame, avatarScale);
+                        attachment.CFrame = CFrame.Scale(attachment.CFrame, limbScale);
                 }
             }
 

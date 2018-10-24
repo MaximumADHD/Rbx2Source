@@ -492,11 +492,8 @@ namespace Rbx2Source.Assembler
             qc.WriteBasicCmd("modelname", modelNameStr);
             qc.WriteBasicCmd("upaxis", "y");
 
-            string originStr = "";
-            if (avatarType == AvatarType.R6)
-                originStr = "0 -30 0";
-            else
-                originStr = "0 " + (-23.5 * avatar.Scales.Height).ToString(Rbx2Source.NormalParse) + " 0";
+            double height = assembler.ComputeAvatarHeight(avatar.Scales);
+            string originStr = "0 -" + height.ToString(Rbx2Source.NormalParse) + " 0";
 
             qc.WriteBasicCmd("origin", originStr, false);
             qc.WriteBasicCmd("cdmaterials", "models/" + compileDirectory);

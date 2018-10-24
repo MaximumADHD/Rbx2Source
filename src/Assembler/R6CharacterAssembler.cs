@@ -35,7 +35,9 @@ namespace Rbx2Source.Assembler
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         private static Asset R6AssemblyAsset = Asset.FromResource("AvatarData/R6/ASSEMBLY.rbxmx");
+
         public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R6/CollisionJoints.qc");
+        public double ComputeAvatarHeight(AvatarScale scale) => 30.0;
 
         private static Dictionary<Limb, string> LimbMatcher = new Dictionary<Limb, string>()
         {

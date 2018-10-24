@@ -51,6 +51,7 @@ namespace Rbx2Source.Assembler
         TextureCompositor ComposeTextureMap(Folder characterAssets, BodyColors bodyColors);
         TextureAssembly AssembleTextures(TextureCompositor compositor, Dictionary<string, Material> materials);
         byte[] CollisionModelScript { get; }
+        double ComputeAvatarHeight(AvatarScale scale);
     }
 
     interface IAssembler

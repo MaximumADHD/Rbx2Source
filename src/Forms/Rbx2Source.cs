@@ -618,8 +618,10 @@ namespace Rbx2Source
                 if (File.Exists(libraryFolders))
                 {
                     string file = File.ReadAllText(libraryFolders);
+
                     string[] newlines = new string[] {"\r\n","\n"};
                     string[] lines = file.Split(newlines,StringSplitOptions.None);
+
                     foreach (string line in lines)
                     {
                         string[] kvPair = getStringsInQuotes(line);
@@ -633,7 +635,6 @@ namespace Rbx2Source
                                 value = value.Replace("\\\\", "\\");
                                 gatherSourceGames(value);
                             }
-                               
                         }
                     }
                 }
