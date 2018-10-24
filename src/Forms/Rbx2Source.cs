@@ -36,6 +36,8 @@ namespace Rbx2Source
             }
         }
 
+        public const float MODEL_SCALE = 10;
+
         public static IFormatProvider NormalParse = CultureInfo.InvariantCulture;
         public Launcher baseProcess;
 

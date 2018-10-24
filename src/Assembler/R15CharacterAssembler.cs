@@ -93,7 +93,7 @@ namespace Rbx2Source.Assembler
             { Limb.RightLeg, RECT_RIGHT_LEG },
         };
 
-        public static Vector3 ComputeLimbScale(AvatarScale avatarScale, Part part)
+        public static Vector3 ComputeLimbScale(AvatarScale avatarScale, BasePart part)
         {
             string limbName = part.Name;
 
@@ -139,19 +139,6 @@ namespace Rbx2Source.Assembler
             return scale * rthroScale;
         }
 
-        public double ComputeAvatarHeight(AvatarScale scale)
-        {
-            double height = 24.5 * scale.Height;
-
-            const double rthroBody = 0.333;
-            const double rthroProp = 0.181;
-
-            double rthroFactor = rthroBody + ((rthroProp - rthroBody) * scale.Proportion);
-            rthroFactor = rthroFactor * (height * scale.BodyType);
-
-            return height + rthroFactor;
-        }
-
         public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale)
         {
             StudioMdlWriter meshBuilder = new StudioMdlWriter();
@@ -161,13 +148,13 @@ namespace Rbx2Source.Assembler
             Folder assembly = import.FindFirstChild<Folder>("ASSEMBLY");
             assembly.Parent = characterAssets;
 
-            Part head = assembly.FindFirstChild<Part>("Head");
+            BasePart head = assembly.FindFirstChild<BasePart>("Head");
 
             foreach (Instance asset in characterAssets.GetChildren())
             {
-                if (asset.IsA("Part"))
+                if (asset.IsA("BasePart"))
                 {
-                    Part existing = assembly.FindFirstChild<Part>(asset.Name);
+                    BasePart existing = assembly.FindFirstChild<BasePart>(asset.Name);
                     if (existing != null)
                         existing.Destroy();
 
@@ -175,9 +162,9 @@ namespace Rbx2Source.Assembler
                 }
                 else if (asset.IsA("Folder") && asset.Name == "R15Fixed")
                 {
-                    foreach (MeshPart child in asset.GetChildrenOfClass<MeshPart>())
+                    foreach (BasePart child in asset.GetChildrenOfClass<BasePart>())
                     {
-                        Part existing = assembly.FindFirstChild<Part>(child.Name);
+                        BasePart existing = assembly.FindFirstChild<BasePart>(child.Name);
                         if (existing != null)
                             existing.Destroy();
 
@@ -195,7 +182,7 @@ namespace Rbx2Source.Assembler
             }
 
             // Apply limb scaling
-            foreach (Part part in assembly.GetChildrenOfClass<Part>())
+            foreach (BasePart part in assembly.GetChildrenOfClass<BasePart>())
             {
                 Limb limb = GetLimb(part);
 
@@ -209,7 +196,7 @@ namespace Rbx2Source.Assembler
                 }
             }
 
-            Part torso = assembly.FindFirstChild<Part>("LowerTorso");
+            BasePart torso = assembly.FindFirstChild<BasePart>("LowerTorso");
             torso.CFrame = new CFrame();
 
             BoneKeyframe keyframe = AssembleBones(meshBuilder, torso);

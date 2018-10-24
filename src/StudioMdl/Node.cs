@@ -23,11 +23,14 @@ namespace Rbx2Source.StudioMdl
         private int FindParent(List<Node> nodes, Node node)
         {
             Bone bone = node.Bone;
-            Part part0 = bone.Part0;
-            Part part1 = bone.Part1;
+
+            BasePart part0 = bone.Part0;
+            BasePart part1 = bone.Part1;
+
             if (part0 != part1)
             {
                 Node parent = null;
+
                 foreach (Node n in nodes)
                 {
                     Bone b = n.Bone;
@@ -37,8 +40,10 @@ namespace Rbx2Source.StudioMdl
                         break;
                     }
                 }
+
                 return nodes.IndexOf(parent);
             }
+
             return -1;
         }
 

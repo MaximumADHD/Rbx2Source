@@ -188,7 +188,7 @@ namespace Rbx2Source.Geometry
             return load(content);
         }
 
-        public static Mesh BakePart(Part part, Material material = null)
+        public static Mesh BakePart(BasePart part, Material material = null)
         {
             Mesh result = null;
 

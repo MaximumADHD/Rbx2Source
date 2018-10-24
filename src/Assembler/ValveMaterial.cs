@@ -45,8 +45,8 @@ namespace Rbx2Source.Assembler
             if (mat.UseReflectance)
             {
                 double r = mat.Reflectance;
-                Vector3 v = mat.VertexColor;
                 string tint = "[" + string.Join(" ", r, r, r) + "]";
+
                 SetField("envmap", "env_cubemap");
                 SetField("envmaptint", tint);
             }
@@ -54,9 +54,11 @@ namespace Rbx2Source.Assembler
             if (mat.VertexColor != defVertexColor)
             {
                 Vector3 vc = mat.VertexColor;
-                int r = (int)(vc.x * 255);
-                int g = (int)(vc.y * 255);
-                int b = (int)(vc.z * 255);
+
+                byte r = (byte)(vc.X * 255);
+                byte g = (byte)(vc.Y * 255);
+                byte b = (byte)(vc.Z * 255);
+
                 string rgb = string.Join(" ", r, g, b);
                 SetField("color2", "{" + rgb + "}");
             }

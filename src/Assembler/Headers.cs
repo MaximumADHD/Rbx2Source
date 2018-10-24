@@ -24,7 +24,7 @@ namespace Rbx2Source.Assembler
 
     class Material
     {
-        public Part LinkedTo;
+        public BasePart LinkedTo;
         public bool UseAvatarMap = false;
         public Vector3 VertexColor = new Vector3(1, 1, 1);
         public double Transparency = 0.0;
@@ -51,7 +51,6 @@ namespace Rbx2Source.Assembler
         TextureCompositor ComposeTextureMap(Folder characterAssets, BodyColors bodyColors);
         TextureAssembly AssembleTextures(TextureCompositor compositor, Dictionary<string, Material> materials);
         byte[] CollisionModelScript { get; }
-        double ComputeAvatarHeight(AvatarScale scale);
     }
 
     interface IAssembler

@@ -78,11 +78,13 @@ namespace Rbx2Source.Assembler
         public static void WriteFile(string path, byte[] data)
         {
             UnlockFile(path);
+
             FileStream fileStream = (File.Exists(path) ? File.OpenWrite(path) : File.Create(path));
             fileStream.SetLength(data.LongLength);
             fileStream.Write(data, 0, data.Length);
             fileStream.Flush();
             fileStream.Close();
+
             LockFile(path);
         }
 

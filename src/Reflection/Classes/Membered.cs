@@ -67,37 +67,29 @@ namespace Rbx2Source.Reflection
         public float TimeScale = 1f;
     }
 
-    class MeshPart : Part
+    class BasePart : Instance
+    {
+        public int BrickColor;
+
+        public CFrame CFrame;
+        public Vector3 Position => CFrame.p;
+
+        public float Reflectance;
+        public float Transparency;
+
+        public Vector3 Size;
+    }
+
+    class MeshPart : BasePart
     {
         public string MeshID;
-        public string MeshId;
         public string TextureID;
         public Vector3 InitialSize;
     }
 
-    class Part : Instance
+    class Part : BasePart
     {
-        public float Transparency;
-        public float Reflectance;
-        public CFrame CFrame;
-        public int BrickColor;
-
-        // note: the XML reflection is case sensitive :/
-
-        public Vector3 size;
-        public PartType shape = PartType.Block;
-
-        public Vector3 Size
-        {
-            get { return size; }
-            set { size = value; }
-        }
-
-        public PartType Shape
-        {
-            get { return shape; }
-            set { shape = value; }
-        }
+        public PartType Shape = PartType.Block;
     }
 
     class Pose : Instance
