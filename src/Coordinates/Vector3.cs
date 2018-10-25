@@ -132,7 +132,8 @@ namespace Rbx2Source.Coordinates
         protected override string ToStudioMdlString_Impl(bool excludeZ = false)
         {
             float[] values;
-            float scale = 10; // TODO: Make this a setting.
+            float scale = Rbx2Source.MODEL_SCALE;
+
             if (excludeZ)
                 values = new float[2] {x, 1-y};
             else

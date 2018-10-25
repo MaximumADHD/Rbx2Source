@@ -35,10 +35,11 @@
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(213, 409);
+            this.progressBar.Location = new System.Drawing.Point(15, 332);
+            this.progressBar.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.progressBar.MarqueeAnimationSpeed = 20;
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(401, 29);
+            this.progressBar.Size = new System.Drawing.Size(217, 23);
             this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.progressBar.TabIndex = 0;
             // 
@@ -48,23 +49,25 @@
             this.statusLbl.BackColor = System.Drawing.Color.Transparent;
             this.statusLbl.Font = new System.Drawing.Font("Lucida Sans", 14.17323F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.statusLbl.ForeColor = System.Drawing.Color.White;
-            this.statusLbl.Location = new System.Drawing.Point(208, 377);
+            this.statusLbl.Location = new System.Drawing.Point(11, 308);
+            this.statusLbl.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.statusLbl.Name = "statusLbl";
-            this.statusLbl.Size = new System.Drawing.Size(142, 29);
+            this.statusLbl.Size = new System.Drawing.Size(107, 22);
             this.statusLbl.TabIndex = 1;
             this.statusLbl.Text = "Loading...";
             // 
             // Launcher
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackgroundImage = global::Rbx2Source.Properties.Resources.LoadingScreen;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(600, 366);
             this.Controls.Add(this.statusLbl);
             this.Controls.Add(this.progressBar);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = global::Rbx2Source.Properties.Resources.Icon;
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "Launcher";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Launcher";

@@ -13,6 +13,8 @@ namespace Rbx2Source.Reflection
 {
     static class RBXM
     {
+        private static BindingFlags fieldInfoFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy | BindingFlags.IgnoreCase;
+
         private static XmlNode LoadRobloxNode_XML(string content)
         {
             
@@ -62,7 +64,7 @@ namespace Rbx2Source.Reflection
                     string propertyName = property.Attributes.GetNamedItem("name").Value;
                     propertyName = propertyName.Replace(" ", "_");
 
-                    FieldInfo field = objType.GetField(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+                    FieldInfo field = objType.GetField(propertyName, fieldInfoFlags);
 
                     if (field != null)
                     {
@@ -130,7 +132,7 @@ namespace Rbx2Source.Reflection
             foreach (PropertyDescriptor prop in classDesc.Properties)
             {
                 string propertyName = prop.Name.Replace(" ", "_");
-                FieldInfo field = objType.GetField(propertyName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+                FieldInfo field = objType.GetField(propertyName, fieldInfoFlags);
 
                 if (field != null)
                 {

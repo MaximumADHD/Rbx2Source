@@ -27,6 +27,8 @@ namespace Rbx2Source
         public async Task setStatus(string status)
         {
             statusLbl.Text = status + "...";
+            statusLbl.Refresh();
+
             await Task.Delay(1);
         }
 

@@ -12,14 +12,14 @@ namespace Rbx2Source.Reflection
 {
     class Bone : Instance
     {
-        public Part Part0;
-        public Part Part1;
+        public BasePart Part0;
+        public BasePart Part1;
         public CFrame C0;
         public CFrame C1;
         public Node Node;
         public bool IsAvatarBone;
 
-        public Bone(string name, Part parent, Part attachTo = null)
+        public Bone(string name, BasePart parent, BasePart attachTo = null)
         {
             Node = new Node();
             Node.Bone = this;

@@ -19,31 +19,28 @@ namespace Rbx2Source.Assembler
 {
     class CatalogItemAssembler : IAssembler
     {
-        private static MD5 serializer = MD5.Create();
+        // TODO: When I wrote this function about 2 years ago, I think I had the intention of
+        //       filtering redundant material files based on the material configuration. I should
+        //       look into integrating this. Right now it remains unused.
 
         private static string serializeBrickColorMtl(Material mat)
         {
-            // Do some fuzzy precision with these values; they don't need to be perfect.
-            int iref = (int)(mat.Reflectance * 100);
-            int itransp = (int)(mat.Transparency * 100);
-            int r = (int)(mat.VertexColor.x * 255);
-            int g = (int)(mat.VertexColor.y * 255);
-            int b = (int)(mat.VertexColor.z * 255);
+            long refl = (byte)(mat.Reflectance * 255);
+            long trsp = (byte)(mat.Transparency * 255);
 
-            string concat = string.Join(",", r, g, b, iref, itransp);
-            byte[] buffer = Encoding.ASCII.GetBytes(concat);
-            byte[] hash = serializer.ComputeHash(buffer);
+            long R = (byte)(mat.VertexColor.X * 255);
+            long G = (byte)(mat.VertexColor.Y * 255);
+            long B = (byte)(mat.VertexColor.Z * 255);
 
-            StringBuilder key = new StringBuilder();
-            for (int i = 0; i < hash.Length; i++)
-                key.Append(hash[i].ToString("X2"));
+            long hash = (refl << 32) | (trsp << 24) | (R << 16) | (G << 8) | B;
+            string key = hash.ToString("X2");
 
-            return "UniquePartAppearance_" + key.ToString();
+            return "PartStyle-" + key.ToString();
         }
 
-        private static void AddParts(List<Part> parts, Instance scan)
+        private static void AddParts(List<BasePart> parts, Instance scan)
         {
-            foreach (Part part in scan.GetChildrenOfClass<Part>())
+            foreach (BasePart part in scan.GetChildrenOfClass<BasePart>())
             {
                 if (part.Transparency < 1)
                 {
@@ -63,15 +60,15 @@ namespace Rbx2Source.Assembler
             Rbx2Source.ScheduleTasks("GatherParts", "BuildMesh");
             Rbx2Source.PrintHeader("GATHERING PARTS");
 
-            List<Part> parts = new List<Part>();
+            List<BasePart> parts = new List<BasePart>();
             AddParts(parts, content);
 
             if (parts.Count == 0)
                 throw new Exception("No parts were found inside of this asset!");
 
-            Part primaryPart = null;
+            BasePart primaryPart = null;
 
-            foreach (Part part in parts)
+            foreach (BasePart part in parts)
             {
                 if (part.IsA("MeshPart") || part.Name == "Handle")
                 {
@@ -87,7 +84,7 @@ namespace Rbx2Source.Assembler
 
             // Mark the primaryPart's location as the center.
             CFrame rootCoord = primaryPart.CFrame;
-            foreach (Part part in parts)
+            foreach (BasePart part in parts)
                 part.CFrame = rootCoord.toObjectSpace(part.CFrame);
 
             Rbx2Source.MarkTaskCompleted("GatherParts");
@@ -107,7 +104,7 @@ namespace Rbx2Source.Assembler
 
             int numAssembledParts = 0;
 
-            foreach (Part part in parts)
+            foreach (BasePart part in parts)
             {
                 // Make sure this part has a unique name.
                 string name = part.Name;
@@ -175,16 +172,20 @@ namespace Rbx2Source.Assembler
             {
                 Material material = materials[mtlName];
                 Asset textureAsset = material.TextureAsset;
-                if (textureAsset == null)
+
+                if (textureAsset == null || textureAsset.Id == 9854798)
                 {
                     string bcName = "Institutional white";
                     int brickColor = material.LinkedTo.BrickColor;
+
                     if (BrickColors.NumericalSearch.ContainsKey(brickColor))
                     {
                         BrickColor color = BrickColors.NumericalSearch[brickColor];
+
                         float r = color.R / 255.0f;
                         float g = color.G / 255.0f;
                         float b = color.B / 255.0f;
+
                         material.VertexColor = new Vector3(r, g, b);
                         bcName = color.Name;
                     }
@@ -203,9 +204,8 @@ namespace Rbx2Source.Assembler
                         }
                     }
 
-                    string matKey = serializeBrickColorMtl(material);
                     material.UseReflectance = true;
-                    matLinks.Add(mtlName, matKey);
+                    matLinks.Add(mtlName, "BrickColor");
                 }
                 else
                 {
@@ -225,6 +225,7 @@ namespace Rbx2Source.Assembler
         public AssemblerData Assemble(object metadata)
         {
             long assetId = (long)metadata;
+
             Asset asset = Asset.Get(assetId);
             string assetName = asset.ProductInfo.WindowsSafeName;
 
@@ -236,18 +237,19 @@ namespace Rbx2Source.Assembler
             string modelDir = Path.Combine(rootDir, "Model");
             string texturesDir = Path.Combine(rootDir, "Textures");
             string materialsDir = Path.Combine(rootDir, "Materials");
+
             FileUtility.InitiateEmptyDirectories(modelDir, texturesDir, materialsDir);
             Rbx2Source.ScheduleTasks("BuildModel", "BuildTextures", "BuildMaterials", "BuildCompilerScript");
 
             // Build Model
-
             StudioMdlWriter writer = AssembleModel(asset);
+
             string studioMdl = writer.BuildFile();
             string modelPath = Path.Combine(modelDir, "Asset.smd");
+
             FileUtility.WriteFile(modelPath, studioMdl);
 
             // Build Reference Sequence
-
             Triangle[] triangles = writer.Triangles.ToArray();
             writer.Triangles.Clear();
 
@@ -257,8 +259,8 @@ namespace Rbx2Source.Assembler
             Rbx2Source.MarkTaskCompleted("BuildModel");
 
             // Build Textures
-
             Rbx2Source.PrintHeader("BUILDING TEXTURES");
+
             Dictionary<string, Material> materials = writer.Materials;
             string compileDirectory = "roblox_assets/" + assetName;
 
@@ -286,8 +288,8 @@ namespace Rbx2Source.Assembler
             Rbx2Source.MarkTaskCompleted("BuildTextures");
 
             // Build Materials
-
             Rbx2Source.PrintHeader("BUILDING MATERIAL FILES");
+
             string mtlDir = "models/" + compileDirectory;
 
             Dictionary<string, string> matLinks = texAssembly.MatLinks;
@@ -298,13 +300,17 @@ namespace Rbx2Source.Assembler
                 Material mtl = materials[mtlName];
                 string vtfTarget = matLinks[mtlName];
                 string vmtPath = Path.Combine(materialsDir, mtlName + ".vmt");
+
                 if (!File.Exists(vmtPath))
                 {
                     Rbx2Source.Print("Building VMT {0}.vmt", mtlName);
+
                     ValveMaterial vmt = new ValveMaterial(mtl);
                     vmt.SetField("basetexture", mtlDir + "/" + vtfTarget);
+
                     string vmtContent = vmt.ToString();
                     FileUtility.WriteFile(vmtPath, vmtContent);
+
                     matLookup[mtlName] = mtl;
                 }
             }
@@ -312,7 +318,6 @@ namespace Rbx2Source.Assembler
             Rbx2Source.MarkTaskCompleted("BuildMaterials");
 
             // Build Compiler Script
-
             Rbx2Source.PrintHeader("WRITING COMPILER SCRIPT");
             QCWriter qc = new QCWriter();
 

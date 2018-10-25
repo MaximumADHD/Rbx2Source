@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Threading.Tasks;
 
+using Rbx2Source.Coordinates;
 using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.StudioMdl;
@@ -34,8 +35,8 @@ namespace Rbx2Source.Assembler
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private static Asset R6AssemblyAsset = Asset.FromResource("AvatarData/R6/ASSEMBLY.rbxmx");
         public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R6/CollisionJoints.qc");
+        private static Asset R6AssemblyAsset = Asset.FromResource("AvatarData/R6/ASSEMBLY.rbxmx");
 
         private static Dictionary<Limb, string> LimbMatcher = new Dictionary<Limb, string>()
         {
@@ -52,20 +53,22 @@ namespace Rbx2Source.Assembler
             return id == 0 ? "Body" : "PackageOverlay" + id;
         }
 
-        public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale)
+        public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale, bool collisionModel = false)
         {
             StudioMdlWriter meshBuilder = new StudioMdlWriter();
 
             // Build Character
-
             Folder import = RBXM.LoadFromAsset(R6AssemblyAsset);
             Folder assembly = import.FindFirstChild<Folder>("ASSEMBLY");
-            Part torso = assembly.FindFirstChild<Part>("Torso");
-            Part head = assembly.FindFirstChild<Part>("Head");
+            assembly.Parent = characterAssets;
+
+            BasePart head = assembly.FindFirstChild<BasePart>("Head");
+            BasePart torso = assembly.FindFirstChild<BasePart>("Torso");
+            torso.CFrame = new CFrame();
 
             foreach (Instance asset in characterAssets.GetChildren())
             {
-                if (asset.IsA("CharacterMesh"))
+                if (asset.IsA("CharacterMesh") && !collisionModel)
                 {
                     CharacterMesh characterMesh = (CharacterMesh)asset;
                     string limbName = LimbMatcher[characterMesh.BodyPart];
@@ -75,7 +78,7 @@ namespace Rbx2Source.Assembler
                         limb.MeshID = "rbxassetid://" + characterMesh.MeshId;
 
                 }
-                else if (asset.IsA("Accoutrement"))
+                else if (asset.IsA("Accoutrement") && !collisionModel)
                 {
                     PrepareAccessory(asset, assembly);
                 }
@@ -89,7 +92,7 @@ namespace Rbx2Source.Assembler
 
             foreach (Bone bone in keyframe.Bones)
                 BuildAvatarGeometry(meshBuilder, bone);
-
+            
             return meshBuilder;
         }
 
