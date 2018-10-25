@@ -53,13 +53,14 @@ namespace Rbx2Source.Assembler
             return id == 0 ? "Body" : "PackageOverlay" + id;
         }
 
-        public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale)
+        public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale, bool collisionModel = false)
         {
             StudioMdlWriter meshBuilder = new StudioMdlWriter();
 
             // Build Character
             Folder import = RBXM.LoadFromAsset(R6AssemblyAsset);
             Folder assembly = import.FindFirstChild<Folder>("ASSEMBLY");
+            assembly.Parent = characterAssets;
 
             BasePart head = assembly.FindFirstChild<BasePart>("Head");
             BasePart torso = assembly.FindFirstChild<BasePart>("Torso");
@@ -67,7 +68,7 @@ namespace Rbx2Source.Assembler
 
             foreach (Instance asset in characterAssets.GetChildren())
             {
-                if (asset.IsA("CharacterMesh"))
+                if (asset.IsA("CharacterMesh") && !collisionModel)
                 {
                     CharacterMesh characterMesh = (CharacterMesh)asset;
                     string limbName = LimbMatcher[characterMesh.BodyPart];
@@ -77,7 +78,7 @@ namespace Rbx2Source.Assembler
                         limb.MeshID = "rbxassetid://" + characterMesh.MeshId;
 
                 }
-                else if (asset.IsA("Accoutrement"))
+                else if (asset.IsA("Accoutrement") && !collisionModel)
                 {
                     PrepareAccessory(asset, assembly);
                 }
@@ -91,7 +92,6 @@ namespace Rbx2Source.Assembler
 
             foreach (Bone bone in keyframe.Bones)
                 BuildAvatarGeometry(meshBuilder, bone);
-
             
             return meshBuilder;
         }

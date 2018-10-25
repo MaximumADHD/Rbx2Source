@@ -139,7 +139,7 @@ namespace Rbx2Source.Assembler
             return scale * rthroScale;
         }
 
-        public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale)
+        public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale, bool collisionModel = false)
         {
             StudioMdlWriter meshBuilder = new StudioMdlWriter();
 
@@ -160,7 +160,7 @@ namespace Rbx2Source.Assembler
 
                     asset.Parent = assembly;
                 }
-                else if (asset.IsA("Folder") && asset.Name == "R15Fixed")
+                else if (asset.IsA("Folder") && asset.Name == "R15ArtistIntent")
                 {
                     foreach (BasePart child in asset.GetChildrenOfClass<BasePart>())
                     {
@@ -171,7 +171,7 @@ namespace Rbx2Source.Assembler
                         child.Parent = assembly;
                     }
                 }
-                else if (asset.IsA("Accoutrement"))
+                else if (asset.IsA("Accoutrement") && !collisionModel)
                 {
                     PrepareAccessory(asset, assembly);
                 } 

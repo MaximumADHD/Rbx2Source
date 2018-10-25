@@ -289,11 +289,11 @@
             // rbx2SourceLogo
             // 
             this.rbx2SourceLogo.Dock = System.Windows.Forms.DockStyle.Top;
-            this.rbx2SourceLogo.Image = ((System.Drawing.Image)(resources.GetObject("rbx2SourceLogo.Image")));
+            this.rbx2SourceLogo.Image = global::Rbx2Source.Properties.Resources.Rbx2SourceLogo;
             this.rbx2SourceLogo.Location = new System.Drawing.Point(0, 0);
             this.rbx2SourceLogo.Margin = new System.Windows.Forms.Padding(2);
             this.rbx2SourceLogo.Name = "rbx2SourceLogo";
-            this.rbx2SourceLogo.Size = new System.Drawing.Size(333, 109);
+            this.rbx2SourceLogo.Size = new System.Drawing.Size(333, 114);
             this.rbx2SourceLogo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.rbx2SourceLogo.TabIndex = 0;
             this.rbx2SourceLogo.TabStop = false;
@@ -552,12 +552,12 @@
             this.Controls.Add(this.MainTab);
             this.Cursor = System.Windows.Forms.Cursors.Default;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Icon = global::Rbx2Source.Properties.Resources.Icon;
             this.Margin = new System.Windows.Forms.Padding(2);
             this.MaximizeBox = false;
             this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Rbx2Source v2.22";
+            this.Text = "Rbx2Source v2.30";
             this.TopMost = true;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);

@@ -19,9 +19,8 @@ namespace Rbx2Source.Assembler
 {
     class CatalogItemAssembler : IAssembler
     {
-
         // TODO: When I wrote this function about 2 years ago, I think I had the intention of
-        //       making redundant material files based on the material configuration. I should
+        //       filtering redundant material files based on the material configuration. I should
         //       look into integrating this. Right now it remains unused.
 
         private static string serializeBrickColorMtl(Material mat)
@@ -182,10 +181,12 @@ namespace Rbx2Source.Assembler
                     if (BrickColors.NumericalSearch.ContainsKey(brickColor))
                     {
                         BrickColor color = BrickColors.NumericalSearch[brickColor];
+
                         float r = color.R / 255.0f;
                         float g = color.G / 255.0f;
                         float b = color.B / 255.0f;
-                        material.VertexColor = new Vector3(r, 0, 0);
+
+                        material.VertexColor = new Vector3(r, g, b);
                         bcName = color.Name;
                     }
                     else
@@ -224,6 +225,7 @@ namespace Rbx2Source.Assembler
         public AssemblerData Assemble(object metadata)
         {
             long assetId = (long)metadata;
+
             Asset asset = Asset.Get(assetId);
             string assetName = asset.ProductInfo.WindowsSafeName;
 
@@ -235,18 +237,19 @@ namespace Rbx2Source.Assembler
             string modelDir = Path.Combine(rootDir, "Model");
             string texturesDir = Path.Combine(rootDir, "Textures");
             string materialsDir = Path.Combine(rootDir, "Materials");
+
             FileUtility.InitiateEmptyDirectories(modelDir, texturesDir, materialsDir);
             Rbx2Source.ScheduleTasks("BuildModel", "BuildTextures", "BuildMaterials", "BuildCompilerScript");
 
             // Build Model
-
             StudioMdlWriter writer = AssembleModel(asset);
+
             string studioMdl = writer.BuildFile();
             string modelPath = Path.Combine(modelDir, "Asset.smd");
+
             FileUtility.WriteFile(modelPath, studioMdl);
 
             // Build Reference Sequence
-
             Triangle[] triangles = writer.Triangles.ToArray();
             writer.Triangles.Clear();
 
@@ -256,8 +259,8 @@ namespace Rbx2Source.Assembler
             Rbx2Source.MarkTaskCompleted("BuildModel");
 
             // Build Textures
-
             Rbx2Source.PrintHeader("BUILDING TEXTURES");
+
             Dictionary<string, Material> materials = writer.Materials;
             string compileDirectory = "roblox_assets/" + assetName;
 
@@ -285,8 +288,8 @@ namespace Rbx2Source.Assembler
             Rbx2Source.MarkTaskCompleted("BuildTextures");
 
             // Build Materials
-
             Rbx2Source.PrintHeader("BUILDING MATERIAL FILES");
+
             string mtlDir = "models/" + compileDirectory;
 
             Dictionary<string, string> matLinks = texAssembly.MatLinks;
@@ -297,13 +300,17 @@ namespace Rbx2Source.Assembler
                 Material mtl = materials[mtlName];
                 string vtfTarget = matLinks[mtlName];
                 string vmtPath = Path.Combine(materialsDir, mtlName + ".vmt");
+
                 if (!File.Exists(vmtPath))
                 {
                     Rbx2Source.Print("Building VMT {0}.vmt", mtlName);
+
                     ValveMaterial vmt = new ValveMaterial(mtl);
                     vmt.SetField("basetexture", mtlDir + "/" + vtfTarget);
+
                     string vmtContent = vmt.ToString();
                     FileUtility.WriteFile(vmtPath, vmtContent);
+
                     matLookup[mtlName] = mtl;
                 }
             }
@@ -311,7 +318,6 @@ namespace Rbx2Source.Assembler
             Rbx2Source.MarkTaskCompleted("BuildMaterials");
 
             // Build Compiler Script
-
             Rbx2Source.PrintHeader("WRITING COMPILER SCRIPT");
             QCWriter qc = new QCWriter();
 

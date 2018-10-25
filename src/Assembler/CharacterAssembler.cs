@@ -274,9 +274,9 @@ namespace Rbx2Source.Assembler
             Rbx2Source.MarkTaskCompleted(task);
         }
 
-        public static Folder AppendCharacterAssets(UserAvatar avatar, string avatarType)
+        public static Folder AppendCharacterAssets(UserAvatar avatar, string avatarType, string context = "CHARACTER")
         {
-            Rbx2Source.PrintHeader("GATHERING CHARACTER ASSETS");
+            Rbx2Source.PrintHeader("GATHERING " + context + " ASSETS");
 
             Folder characterAssets = new Folder();
             List<long> assetIds = avatar.AccessoryVersionIds;
@@ -294,6 +294,29 @@ namespace Rbx2Source.Assembler
             }
 
             return characterAssets;
+        }
+
+        public static Folder AppendCollisionAssets(UserAvatar avatar, string avatarType)
+        {
+            Folder collisionAssets = AppendCharacterAssets(avatar, avatarType, "COLLISION");
+
+            // Replace the head mesh with a low-poly head
+            DataModelMesh oldHeadMesh = collisionAssets.FindFirstChildOfClass<DataModelMesh>();
+
+            if (oldHeadMesh != null)
+            {
+                oldHeadMesh.Destroy();
+                oldHeadMesh = null;
+            }
+
+            SpecialMesh lowPolyHead = new SpecialMesh();
+            lowPolyHead.MeshId = "rbxassetid://582002794";
+            lowPolyHead.MeshType = MeshType.FileMesh;
+            lowPolyHead.Scale = new Vector3(1, 1, 1);
+            lowPolyHead.Offset = new Vector3();
+            lowPolyHead.Parent = collisionAssets;
+
+            return collisionAssets;
         }
 
         public static Dictionary<string,string> GatherAnimations(AvatarType avatarType)
@@ -351,7 +374,7 @@ namespace Rbx2Source.Assembler
         {
             UserAvatar avatar = metadata as UserAvatar;
             if (avatar == null)
-                throw new Exception("bad cast");
+                throw new InvalidDataException("bad cast");
 
             UserInfo userInfo = avatar.UserInfo;
             string userName = FileUtility.MakeNameWindowsSafe(userInfo.Username);
@@ -390,7 +413,6 @@ namespace Rbx2Source.Assembler
 
             // Clear the triangles so we can build a reference pose .smd file.
             writer.Triangles.Clear();
-
             string staticPose = writer.BuildFile();
             string refPath = Path.Combine(modelDir, "ReferencePos.smd");
 
@@ -399,20 +421,12 @@ namespace Rbx2Source.Assembler
 
             Rbx2Source.PrintHeader("BUILDING COLLISION MODEL");
 
-            Folder lowPoly = new Folder();
-
-            SpecialMesh lowPolyHead = new SpecialMesh();
-            lowPolyHead.MeshId = "rbxassetid://582002794";
-            lowPolyHead.MeshType = MeshType.FileMesh;
-            lowPolyHead.Scale = new Vector3(1, 1, 1);
-            lowPolyHead.Offset = new Vector3();
-            lowPolyHead.Parent = lowPoly;
-
-            StudioMdlWriter collisionWriter = assembler.AssembleModel(lowPoly, avatar.Scales);
+            Folder collisionAssets = AppendCollisionAssets(avatar, avatarTypeName);
+            StudioMdlWriter collisionWriter = assembler.AssembleModel(collisionAssets, avatar.Scales, true);
 
             string collisionModel = collisionWriter.BuildFile();
             string cmodelPath = Path.Combine(modelDir, "CollisionModel.smd");
-            FileUtility.WriteFile(cmodelPath, collisionModel);
+            FileUtility.WriteFile(cmodelPath, collisionModel); 
 
             byte[] collisionJoints = assembler.CollisionModelScript;
             string cjointsPath = Path.Combine(modelDir,"CollisionJoints.qc");
@@ -451,7 +465,6 @@ namespace Rbx2Source.Assembler
             string compileDirectory = "roblox_avatars/" + userName;
 
             TextureCompositor texCompositor = assembler.ComposeTextureMap(characterAssets, avatar.BodyColors);
-
             TextureAssembly texAssembly = assembler.AssembleTextures(texCompositor, materials);
             texAssembly.MaterialDirectory = compileDirectory;
             
@@ -460,8 +473,10 @@ namespace Rbx2Source.Assembler
             foreach (string imageName in images.Keys)
             {
                 Rbx2Source.Print("Writing Image {0}.png", imageName);
+
                 Image image = images[imageName];
                 string imagePath = Path.Combine(texturesDir,imageName + ".png");
+
                 try
                 {
                     image.Save(imagePath, ImageFormat.Png);
@@ -470,6 +485,7 @@ namespace Rbx2Source.Assembler
                 {
                     Rbx2Source.Print("IMAGE {0}.png FAILED TO SAVE!", imageName);
                 }
+
                 FileUtility.LockFile(imagePath);
             }
 
@@ -483,11 +499,15 @@ namespace Rbx2Source.Assembler
             {
                 Rbx2Source.Print("Building VMT {0}.vmt", mtlName);
                 string targetVtf = matLinks[mtlName];
+
                 Material mtl = materials[mtlName];
+
                 ValveMaterial vmt = new ValveMaterial(mtl);
                 vmt.SetField("basetexture", "models/" + compileDirectory + "/" + targetVtf);
+
                 string vmtPath = Path.Combine(materialsDir, mtlName + ".vmt");
                 string vmtContent = vmt.ToString();
+
                 FileUtility.WriteFile(vmtPath, vmtContent);
             }
 

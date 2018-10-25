@@ -52,7 +52,7 @@
     <StartupObject>Rbx2Source.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Rbx2Source.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\Images\Rbx2Source.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup>
@@ -246,6 +246,7 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="Rbx2Source.ico" />
+    <None Include="Resources\Images\Rbx2Source.ico" />
     <EmbeddedResource Include="Resources\Images\face.png" />
     <EmbeddedResource Include="Resources\Libraries\LZ4.dll" />
     <EmbeddedResource Include="Resources\Libraries\Newtonsoft.Json.dll" />

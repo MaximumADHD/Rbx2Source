@@ -30,8 +30,10 @@ namespace Rbx2Source.StudioMdl
             {
                 int boneIndex = keyframe.Bones.IndexOf(bone);
                 fileBuffer.Write(boneIndex + " ");
+
                 int parentIndex = bone.Node.ParentIndex;
                 CFrame boneCFrame = bone.C0;
+
                 if (DeltaSequence)
                 {
                     Bone refBone = BaseRig[boneIndex];

@@ -19,8 +19,6 @@ namespace Rbx2Source.StudioMdl
 
     class StudioMdlWriter
     {
-        public BasePart PrimaryPart;
-
         public List<Node> Nodes;
         public List<BoneKeyframe> Skeleton;
         public List<Triangle> Triangles;
