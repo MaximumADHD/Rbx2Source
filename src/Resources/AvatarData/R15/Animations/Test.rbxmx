@@ -1,0 +1,172 @@
+<roblox xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.roblox.com/roblox.xsd" version="4">
+	<Meta name="ExplicitAutoJoints">false</Meta>
+	<External>null</External>
+	<External>nil</External>
+	<Item class="KeyframeSequence" referent="RBX3037EFF94EEC4512B59667C6D222C66A">
+		<Properties>
+			<bool name="Loop">false</bool>
+			<string name="Name">Test</string>
+			<token name="Priority">1000</token>
+			<BinaryString name="Tags"></BinaryString>
+		</Properties>
+		<Item class="Keyframe" referent="RBX6C452053851F4B7AB0CA6DDA978BA1DC">
+			<Properties>
+				<string name="Name">Keyframe</string>
+				<BinaryString name="Tags"></BinaryString>
+				<float name="Time">0</float>
+			</Properties>
+			<Item class="Pose" referent="RBXFDED5E4E516441CBB59DBD558B33FED0">
+				<Properties>
+					<CoordinateFrame name="CFrame">
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+						<R00>1</R00>
+						<R01>0</R01>
+						<R02>0</R02>
+						<R10>0</R10>
+						<R11>1</R11>
+						<R12>0</R12>
+						<R20>0</R20>
+						<R21>0</R21>
+						<R22>1</R22>
+					</CoordinateFrame>
+					<token name="EasingDirection">1</token>
+					<token name="EasingStyle">0</token>
+					<string name="Name">UpperTorso</string>
+					<BinaryString name="Tags"></BinaryString>
+					<float name="Weight">0</float>
+				</Properties>
+				<Item class="Pose" referent="RBXB234F02BC5BF405EBA3B8BA41A1C5081">
+					<Properties>
+						<CoordinateFrame name="CFrame">
+							<X>-7.4505806e-07</X>
+							<Y>-4.76837158e-07</Y>
+							<Z>-5.36441803e-07</Z>
+							<R00>0.70710665</R00>
+							<R01>0</R01>
+							<R02>0.707106888</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>-0.707106888</R20>
+							<R21>0</R21>
+							<R22>0.70710665</R22>
+						</CoordinateFrame>
+						<token name="EasingDirection">1</token>
+						<token name="EasingStyle">0</token>
+						<string name="Name">LeftUpperArm</string>
+						<BinaryString name="Tags"></BinaryString>
+						<float name="Weight">1</float>
+					</Properties>
+				</Item>
+				<Item class="Pose" referent="RBX009D7694572A4ED0898349F362B36F02">
+					<Properties>
+						<CoordinateFrame name="CFrame">
+							<X>-2.08616257e-07</X>
+							<Y>-4.76837158e-07</Y>
+							<Z>-1.1920929e-07</Z>
+							<R00>0.70710665</R00>
+							<R01>0</R01>
+							<R02>-0.707106888</R02>
+							<R10>0</R10>
+							<R11>1</R11>
+							<R12>0</R12>
+							<R20>0.707106888</R20>
+							<R21>0</R21>
+							<R22>0.70710665</R22>
+						</CoordinateFrame>
+						<token name="EasingDirection">1</token>
+						<token name="EasingStyle">0</token>
+						<string name="Name">RightUpperArm</string>
+						<BinaryString name="Tags"></BinaryString>
+						<float name="Weight">1</float>
+					</Properties>
+				</Item>
+			</Item>
+		</Item>
+		<Item class="Keyframe" referent="RBX615F3A9AD5CB44819511B351DA82A8E8">
+			<Properties>
+				<string name="Name">Keyframe</string>
+				<BinaryString name="Tags"></BinaryString>
+				<float name="Time">1</float>
+			</Properties>
+			<Item class="Pose" referent="RBXD27DED3665154C5F93A068977CA14B98">
+				<Properties>
+					<CoordinateFrame name="CFrame">
+						<X>0</X>
+						<Y>0</Y>
+						<Z>0</Z>
+						<R00>1</R00>
+						<R01>0</R01>
+						<R02>0</R02>
+						<R10>0</R10>
+						<R11>1</R11>
+						<R12>0</R12>
+						<R20>0</R20>
+						<R21>0</R21>
+						<R22>1</R22>
+					</CoordinateFrame>
+					<token name="EasingDirection">1</token>
+					<token name="EasingStyle">0</token>
+					<string name="Name">UpperTorso</string>
+					<BinaryString name="Tags"></BinaryString>
+					<float name="Weight">0</float>
+				</Properties>
+				<Item class="Pose" referent="RBX7F5A01B8534F4FD2B5FF1E489888D101">
+					<Properties>
+						<CoordinateFrame name="CFrame">
+							<X>-7.15255737e-07</X>
+							<Y>-5.06639481e-07</Y>
+							<Z>-5.51342964e-07</Z>
+							<R00>0.70710665</R00>
+							<R01>0.500000119</R01>
+							<R02>0.500000119</R02>
+							<R10>0</R10>
+							<R11>0.707106769</R11>
+							<R12>-0.707106769</R12>
+							<R20>-0.707106948</R20>
+							<R21>0.499999911</R21>
+							<R22>0.499999911</R22>
+						</CoordinateFrame>
+						<token name="EasingDirection">1</token>
+						<token name="EasingStyle">0</token>
+						<string name="Name">LeftUpperArm</string>
+						<BinaryString name="Tags"></BinaryString>
+						<float name="Weight">1</float>
+					</Properties>
+				</Item>
+				<Item class="Pose" referent="RBX9BFD5B3856C54189A997BDA83EBC8186">
+					<Properties>
+						<CoordinateFrame name="CFrame">
+							<X>-2.38418579e-07</X>
+							<Y>-4.47034836e-07</Y>
+							<Z>-1.63912773e-07</Z>
+							<R00>0.70710665</R00>
+							<R01>-0.500000179</R01>
+							<R02>-0.5</R02>
+							<R10>0</R10>
+							<R11>0.70710665</R11>
+							<R12>-0.707106888</R12>
+							<R20>0.707106948</R20>
+							<R21>0.49999997</R21>
+							<R22>0.499999821</R22>
+						</CoordinateFrame>
+						<token name="EasingDirection">1</token>
+						<token name="EasingStyle">0</token>
+						<string name="Name">RightUpperArm</string>
+						<BinaryString name="Tags"></BinaryString>
+						<float name="Weight">1</float>
+					</Properties>
+				</Item>
+			</Item>
+		</Item>
+		<Item class="Keyframe" referent="RBX9E45D29B7D214DE99FD79E5400761557">
+			<Properties>
+				<string name="Name">KF10</string>
+				<BinaryString name="Tags"></BinaryString>
+				<float name="Time">10</float>
+			</Properties>
+		</Item>
+	</Item>
+</roblox>

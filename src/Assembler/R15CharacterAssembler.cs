@@ -287,8 +287,6 @@ namespace Rbx2Source.Assembler
             Bitmap uvMap = compositor.BakeTextureMap();
             Rbx2Source.SetDebugImage(uvMap);
 
-            ImageAttributes blankAtt = new ImageAttributes();
-
             foreach (string materialName in materials.Keys)
             {
                 Rbx2Source.Print("Building Material {0}", materialName);

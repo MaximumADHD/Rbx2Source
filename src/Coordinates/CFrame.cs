@@ -273,20 +273,23 @@ namespace Rbx2Source.Coordinates
 
         private static CFrame lerpinternal(CFrame a, CFrame b, float t)
         {
-            CFrame cf = a.inverse() * b;
-            float[] q = quaternionFromCFrame(cf);
-            float w = q[0], i = q[1], j = q[2], k = q[3];
-            float theta = (float)Math.Acos(w) * 2;
-            Vector3 v = new Vector3(i, j, k);
-            Vector3 p = a.p.Lerp(b.p, t);
-            if (theta != 0)
+            if (t == 0.0f)
             {
-                CFrame r = a * fromAxisAngle(v, theta * t);
-                return (r - r.p) + p;
+                return a;
+            }
+            else if (t == 1.0f)
+            {
+                return b;
             }
             else
             {
-                return (a - a.p) + p;
+                Quaternion q1 = new Quaternion(a);
+                Quaternion q2 = new Quaternion(b);
+
+                CFrame rot = q1.Slerp(q2, t).ToCFrame();
+                CFrame pos = new CFrame(a.p.Lerp(b.p, t));
+
+                return pos * rot;
             }
         }
 
@@ -332,7 +335,7 @@ namespace Rbx2Source.Coordinates
 
         public CFrame toObjectSpace(CFrame cf2)
         {
-            return this.inverse() * cf2;
+            return inverse() * cf2;
         }
 
         public Vector3 pointToWorldSpace(Vector3 v)
@@ -347,12 +350,12 @@ namespace Rbx2Source.Coordinates
 
         public Vector3 vectorToWorldSpace(Vector3 v)
         {
-            return (this - this.p) * v;
+            return (this - p) * v;
         }
 
         public Vector3 vectorToObjectSpace(Vector3 v)
         {
-            return (this - this.p).inverse() * v;
+            return (this - p).inverse() * v;
         }
 
         public float[] components()
@@ -372,7 +375,8 @@ namespace Rbx2Source.Coordinates
         {
             string pos = p.ToStudioMdlString() + " ";
             float[] ang = toEulerAnglesXYZ();
-            string rotation = string.Join(" ", truncate(ang));
+
+            string rotation = string.Join(" ", truncate(ang[0], ang[2], ang[1]));
             return pos + rotation;
         }
     }

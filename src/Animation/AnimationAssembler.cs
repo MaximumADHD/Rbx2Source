@@ -73,8 +73,8 @@ namespace Rbx2Source.Animation
                 
 
             // Get max.
-
             int maxFrame = frame;
+
             while (maxFrame < keyFrameMap.Count)
             {
                 if (keyFrameMap[maxFrame].ContainsKey(poseName))
@@ -136,18 +136,20 @@ namespace Rbx2Source.Animation
             StudioMdlWriter animWriter = new StudioMdlWriter();
             List<Keyframe> keyframes = new List<Keyframe>();
 
-            Dictionary<string, Bone> boneLookup = new Dictionary<string, Bone>();
-            List<Node> nodes = animWriter.Nodes;
+            var boneLookup = new Dictionary<string, Bone>();
+            var nodes = animWriter.Nodes;
 
             foreach (Bone bone in rig)
             {
                 Node node = bone.Node;
                 if (node != null)
                 {
-                    nodes.Add(node);
                     string boneName = node.Name;
+
                     if (!boneLookup.ContainsKey(boneName))
                         boneLookup.Add(boneName, bone);
+
+                    nodes.Add(node);
                 }
             }
 
@@ -171,23 +173,27 @@ namespace Rbx2Source.Animation
             keyframes.Sort(0, keyframes.Count, sorter);
 
             Keyframe lastKeyframe = keyframes[keyframes.Count - 1];
+
             float fLength = lastKeyframe.Time;
             int frameCount = ToFrameRate(fLength);
 
-            // Animations in source are kinda dumb, because theres no frame interpolation.
+            // Animations in source are kinda dumb, because there is no in-between frame interpolation.
             // I have to account for every single CFrame for every single frame.
 
-            Dictionary<int, Dictionary<string, Pose>> keyframeMap = new Dictionary<int, Dictionary<string, Pose>>();
+            var keyframeMap = new Dictionary<int, Dictionary<string, Pose>>();
             for (int i = 0; i <= frameCount; i++)
                 keyframeMap[i] = new Dictionary<string, Pose>();
 
             foreach (Keyframe kf in keyframes)
             {
                 int frame = ToFrameRate(kf.Time);
-                Dictionary<string, Pose> poseMap = keyframeMap[frame];
-                List<Pose> poses = GatherPoses(kf);
+                var poses = GatherPoses(kf);
+                var poseMap = keyframeMap[frame];
+
                 foreach (Pose pose in poses)
+                {
                     poseMap[pose.Name] = pose;
+                }
             }
 
             List<BoneKeyframe> boneKeyframes = animWriter.Skeleton;
@@ -198,34 +204,38 @@ namespace Rbx2Source.Animation
             {
                 BoneKeyframe frame = new BoneKeyframe();
                 frame.Time = i;
+
                 if (sequence.AvatarType == AvatarType.R15)
                 {
                     frame.DeltaSequence = true;
                     frame.BaseRig = rig;
                 }
+
                 List<Bone> bones = frame.Bones;
+
                 foreach (Node node in nodes)
                 {
                     PosePair closestPoses = GetClosestPoses(keyframeMap, i, node.Name);
+
                     float current = i;
                     float min = closestPoses.Min.Frame;
                     float max = closestPoses.Max.Frame;
+
                     float alpha = (min == max ? 0 : (current - min) / (max - min));
+
                     Pose pose0 = closestPoses.Min.Pose;
                     Pose pose1 = closestPoses.Max.Pose;
-                    float weight = EasingUtil.GetEasing(pose1.PoseEasingStyle, pose1.PoseEasingDirection, 1-alpha);
 
                     CFrame lastCFrame = pose0.CFrame;
                     CFrame nextCFrame = pose1.CFrame;
 
                     Bone baseBone = boneLookup[node.Name];
-                    CFrame c0 = baseBone.C0;
-                    CFrame c1 = baseBone.C1;
-                    
-                    CFrame interp = lastCFrame.lerp(nextCFrame, weight);
+                    CFrame interp = lastCFrame.lerp(nextCFrame, alpha);
+
                     // some ugly manual fixes.
                     // todo: make this unnecessary :(
-                    if (sequence.AvatarType == AvatarType.R6)
+
+                    /*if (sequence.AvatarType == AvatarType.R6)
                     {
                         Vector3 pos = interp.p;
                         CFrame rot = interp - pos;
@@ -252,18 +262,20 @@ namespace Rbx2Source.Animation
                         {
                             Vector3 pos = interp.p;
                             CFrame rot = interp - pos;
+
                             float[] ang = rot.toEulerAnglesXYZ();
-                            if (sequence.Name == "Climb" || sequence.Name == "Swim")
-                                rot = CFrame.Angles(ang[0], -ang[2], -ang[1]);
+                            rot = CFrame.Angles(ang[0], -ang[2], -ang[1]);
                             
                             interp = new CFrame(pos) * rot;
                         }
-                    }
+                    }*/
 
                     Bone bone = new Bone(node.Name, i, interp);
                     bone.Node = node;
+
                     bones.Add(bone);
                 }
+
                 boneKeyframes.Add(frame);
             }
 

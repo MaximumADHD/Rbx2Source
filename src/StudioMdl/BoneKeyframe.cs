@@ -38,8 +38,10 @@ namespace Rbx2Source.StudioMdl
                 {
                     Bone refBone = BaseRig[boneIndex];
                     boneCFrame = refBone.C0 * boneCFrame;
+
                     Node refNode = refBone.Node;
                     int refParentIndex = refNode.ParentIndex;
+
                     if (refParentIndex >= 0)
                     {
                         Bone refParent = BaseRig[refParentIndex];

@@ -100,6 +100,7 @@
   <ItemGroup>
     <Compile Include="Animation\AnimationAssembler.cs" />
     <Compile Include="Animation\EasingUtil.cs" />
+    <Compile Include="Coordinates\Quaternion.cs" />
     <Compile Include="Textures\BrickColor.cs" />
     <Compile Include="Assembler\Headers.cs" />
     <Compile Include="Assembler\CatalogItemAssembler.cs" />
@@ -226,6 +227,7 @@
     <EmbeddedResource Include="Resources\AvatarData\R15\Compositing\R15CompositTorsoBase.mesh" />
     <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositPantsTemplate.mesh" />
     <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositShirtTemplate.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Test.rbxmx" />
     <None Include="web.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Resources\AvatarData\R15\ASSEMBLY.rbxmx" />
@@ -245,7 +247,6 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <Content Include="Rbx2Source.ico" />
     <None Include="Resources\Images\Rbx2Source.ico" />
     <EmbeddedResource Include="Resources\Images\face.png" />
     <EmbeddedResource Include="Resources\Libraries\LZ4.dll" />

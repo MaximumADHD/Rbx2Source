@@ -4,7 +4,6 @@ using System.Xml;
 
 namespace Rbx2Source.Coordinates
 {
-
     class Vector3 : BaseCoordinates
     {
         public readonly float x, y, z;
@@ -58,33 +57,6 @@ namespace Rbx2Source.Coordinates
             x = p[0];
             y = p[1];
             z = p[2];
-        }
-
-        public static Vector3 FromNormalId(int normalId)
-        {
-            Vector3 result = null;
-            switch(normalId)
-            {
-                case 0:
-                    result = new Vector3(1, 0, 0);
-                    break;
-                case 1:
-                    result = new Vector3(0, 1, 0);
-                    break;
-                case 2:
-                    result = new Vector3(0, 0, 1);
-                    break;
-                case 3:
-                    result = new Vector3(-1, 0, 0);
-                    break;
-                case 4:
-                    result = new Vector3(0, -1, 0);
-                    break;
-                case 5:
-                    result = new Vector3(0, 0, -1);
-                    break;
-            }
-            return result;
         }
 
         // operator overloads
@@ -177,5 +149,14 @@ namespace Rbx2Source.Coordinates
             return (1 - t) * this + t * b;
         }
 
+        public Vector3 Cross(Vector3 other)
+        {
+            return Cross(this, other);
+        }
+
+        public float Dot(Vector3 other)
+        {
+            return Dot(this, other);
+        }
     }
 }

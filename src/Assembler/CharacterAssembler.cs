@@ -200,11 +200,10 @@ namespace Rbx2Source.Assembler
 
         public static void OverwriteHead(Instance asset, BasePart head)
         {
-            DataModelMesh mesh = (DataModelMesh)asset;
-
             DataModelMesh currentMesh = head.FindFirstChild<DataModelMesh>("Mesh");
             if (currentMesh != null) currentMesh.Destroy();
 
+            DataModelMesh mesh = (DataModelMesh)asset;
             mesh.Name = "Mesh";
             mesh.Parent = head;
 
