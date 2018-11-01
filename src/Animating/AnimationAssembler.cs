@@ -197,12 +197,6 @@ namespace Rbx2Source.Animating
             }
 
             List<BoneKeyframe> boneKeyframes = animWriter.Skeleton;
-            
-            Keyframe baseFrame = keyframes[0];
-
-            var prevAng = new Dictionary<Node, Quaternion>();
-            foreach (Node node in nodes)
-                prevAng.Add(node, new Quaternion(0, 0, 0, 1));
 
             for (int i = 0; i < frameCount; i++)
             {
@@ -269,17 +263,20 @@ namespace Rbx2Source.Animating
                     {
                         float[] ang = interp.toEulerAnglesXYZ();
 
-                        if (node.Name.EndsWith("UpperArm"))
+                        if (sequence.Name != "Fall" && sequence.Name != "Jump") // I NEED TO FIND A WAY TO DELETE THIS ASDALKSDJALKSJDlk
                         {
-                            rot = CFrame.Angles(ang[0], -ang[2], ang[1]);
-                        }
-                        else if (node.Name == "Head")
-                        {
-                            rot = CFrame.Angles(ang[0], ang[1], -ang[2]);
-                        }
-                        else if (node.Name == "LeftUpperLeg")
-                        {
-                            rot = CFrame.Angles(ang[0], -ang[2], 0); // ???
+                            if (node.Name.EndsWith("UpperArm"))
+                            {
+                                rot = CFrame.Angles(ang[0], -ang[2], ang[1]);
+                            }
+                            else if (node.Name == "Head")
+                            {
+                                rot = CFrame.Angles(ang[0], ang[1], -ang[2]);
+                            }
+                            else if (node.Name == "LeftUpperLeg")
+                            {
+                                rot = CFrame.Angles(ang[0], -ang[2], 0);
+                            }
                         }
                     }
 

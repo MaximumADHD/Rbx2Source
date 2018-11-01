@@ -9,7 +9,6 @@ using Rbx2Source.Animating;
 using Rbx2Source.Coordinates;
 using Rbx2Source.Geometry;
 using Rbx2Source.Reflection;
-using Rbx2Source.Resources;
 using Rbx2Source.QC;
 using Rbx2Source.StudioMdl;
 using Rbx2Source.Textures;
@@ -32,7 +31,7 @@ namespace Rbx2Source.Assembler
 
     class CharacterAssembler : IAssembler
     {
-        private static bool DEBUG_RAPID_ASSEMBLY = true;
+        private static bool DEBUG_RAPID_ASSEMBLY = false;
 
         public static Limb GetLimb(BasePart part)
         {
@@ -101,6 +100,22 @@ namespace Rbx2Source.Assembler
                             bone.IsAvatarBone = !prep.AllowNonRigs;
                             prep.Bones.Add(bone);
 
+                            // .________________.
+                            // I honestly have no clue whats going on here.
+
+                            if (part0.Name == "UpperTorso" && part1.Name != "Head")
+                            {
+                                CFrame cf = a0.CFrame;
+                                float x = cf.x;
+                                float w = part0.Size.X / 2f;
+
+                                if (Math.Abs(x) > w)
+                                {
+                                    int sign = Math.Sign(x);
+                                    bone.C0 = new CFrame(w * sign, cf.y, cf.z) * (cf - cf.p);
+                                }
+                            }
+
                             Node node = bone.Node;
                             node.NodeIndex = prep.Bones.IndexOf(bone);
                             prep.Nodes.Add(node);
@@ -111,7 +126,9 @@ namespace Rbx2Source.Assembler
                             prep.Completed.Add(a1);
 
                             if (!prep.AllowNonRigs)
+                            {
                                 GenerateBones(prep, part1.GetChildrenOfClass<Attachment>());
+                            }
                         }
                         else // We'll deal with Accessory attachments afterwards.
                         {
@@ -420,7 +437,7 @@ namespace Rbx2Source.Assembler
             #region Build Character Model
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            StudioMdlWriter writer = assembler.AssembleModel(characterAssets, avatar.Scales, true);
+            StudioMdlWriter writer = assembler.AssembleModel(characterAssets, avatar.Scales, DEBUG_RAPID_ASSEMBLY);
 
             string studioMdl = writer.BuildFile();
             string modelPath = Path.Combine(modelDir,"CharacterModel.smd");
