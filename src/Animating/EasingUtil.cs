@@ -1,7 +1,7 @@
 ﻿using System;
 using Rbx2Source.Reflection;
 
-namespace Rbx2Source.Animation
+namespace Rbx2Source.Animating
 {
     static class EasingUtil
     {

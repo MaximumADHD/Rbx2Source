@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 using Rbx2Source.Coordinates;
@@ -9,6 +10,12 @@ using Rbx2Source.Web;
 
 namespace Rbx2Source.Assembler
 {
+    enum AnimationType
+    {
+        KeyframeSequence,
+        R15AnimFolder
+    }
+
     struct TextureAssembly
     {
         public Dictionary<string, Image> Images;
@@ -33,6 +40,27 @@ namespace Rbx2Source.Assembler
         public Asset TextureAsset;
     }
 
+    class AnimationId
+    {
+        public AnimationType AnimationType;
+        public long AssetId;
+
+        public Asset GetAsset()
+        {
+            if (AnimationType == AnimationType.R15AnimFolder)
+                return Asset.Get(AssetId, "/asset/?assetversionid=");
+            else if (AnimationType == AnimationType.KeyframeSequence)
+                return Asset.Get(AssetId);
+            else
+                throw new NotImplementedException();
+        }
+
+        public override string ToString()
+        {
+            return Rbx2Source.GetEnumName(AnimationType) + ' ' + AssetId;
+        }
+    }
+
     class AssemblerData
     {
         public StudioMdlWriter ModelData;
@@ -50,6 +78,7 @@ namespace Rbx2Source.Assembler
         StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale, bool collisionModel = false);
         TextureCompositor ComposeTextureMap(Folder characterAssets, BodyColors bodyColors);
         TextureAssembly AssembleTextures(TextureCompositor compositor, Dictionary<string, Material> materials);
+        Dictionary<string, AnimationId> CollectAnimationIds(UserAvatar avatar);
         byte[] CollisionModelScript { get; }
     }
 

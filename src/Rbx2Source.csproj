@@ -37,7 +37,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>true</UseVSHostingProcess>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -98,8 +99,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Animation\AnimationAssembler.cs" />
-    <Compile Include="Animation\EasingUtil.cs" />
+    <Compile Include="Animating\AnimationAssembler.cs" />
+    <Compile Include="Animating\EasingUtil.cs" />
     <Compile Include="Coordinates\Quaternion.cs" />
     <Compile Include="Textures\BrickColor.cs" />
     <Compile Include="Assembler\Headers.cs" />

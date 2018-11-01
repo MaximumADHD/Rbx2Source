@@ -10,7 +10,7 @@ using Rbx2Source.StudioMdl;
 using Rbx2Source.Reflection;
 using Rbx2Source.Web;
 
-namespace Rbx2Source.Animation
+namespace Rbx2Source.Animating
 {
     class KeyframeSorter : IComparer<Keyframe>
     {
@@ -199,7 +199,11 @@ namespace Rbx2Source.Animation
             List<BoneKeyframe> boneKeyframes = animWriter.Skeleton;
             
             Keyframe baseFrame = keyframes[0];
-            
+
+            var prevAng = new Dictionary<Node, Quaternion>();
+            foreach (Node node in nodes)
+                prevAng.Add(node, new Quaternion(0, 0, 0, 1));
+
             for (int i = 0; i < frameCount; i++)
             {
                 BoneKeyframe frame = new BoneKeyframe();
@@ -232,47 +236,57 @@ namespace Rbx2Source.Animation
                     Bone baseBone = boneLookup[node.Name];
                     CFrame interp = lastCFrame.lerp(nextCFrame, alpha);
 
-                    // some ugly manual fixes.
-                    // todo: make this unnecessary :(
+                    // Make some patches to the interpolation offsets. Unfortunately I can't
+                    // identify any single fix that I can apply to each joint, so I have to get crafty.
+                    // At some point in the future, I want to find a more practical solution for this problem,
+                    // but it is extremely difficult to isolate if any single solution exists.
 
-                    /*if (sequence.AvatarType == AvatarType.R6)
+                    Vector3 pos = interp.p;
+                    CFrame rot = interp - pos;
+
+                    if (sequence.AvatarType == AvatarType.R6)
                     {
-                        Vector3 pos = interp.p;
-                        CFrame rot = interp - pos;
                         if (node.Name == "Torso")
                         {
+                            // Flip the YZ axis of the Torso.
                             float[] ang = interp.toEulerAnglesXYZ();
                             rot = CFrame.Angles(ang[0], ang[2], ang[1]);
-                            pos = new Vector3(pos.x, pos.z, pos.y);
+                            pos = new Vector3(pos.X, pos.Z, pos.Y);
                         }
                         else if (node.Name.StartsWith("Right"))
+                        {
+                            // X-axis is inverted for the right arm/leg.
                             pos *= new Vector3(-1, 1, 1);
+                        }
 
-                        if (node.Name.Contains("Arm") || node.Name.Contains("Leg"))
-                            pos = new Vector3(pos.z, pos.y, pos.x);
-
-                        if (sequence.Name == "Climb" && node.Name.Contains("Leg")) // https://www.youtube.com/watch?v=vfJ7DqyDl9w
-                            pos += new Vector3(-.1f, 0, 0);
-
-                        interp = new CFrame(pos) * rot;
+                        if (node.Name.EndsWith("Arm") || node.Name.EndsWith("Leg"))
+                        {
+                            // Rotate position offset of the arms & legs 90* counter-clockwise.
+                            pos = new Vector3(-pos.Z, pos.Y, pos.X);
+                        }
                     }
                     else if (sequence.AvatarType == AvatarType.R15)
                     {
-                        if (node.Name.Contains("UpperArm") )
-                        {
-                            Vector3 pos = interp.p;
-                            CFrame rot = interp - pos;
+                        float[] ang = interp.toEulerAnglesXYZ();
 
-                            float[] ang = rot.toEulerAnglesXYZ();
-                            rot = CFrame.Angles(ang[0], -ang[2], -ang[1]);
-                            
-                            interp = new CFrame(pos) * rot;
+                        if (node.Name.EndsWith("UpperArm"))
+                        {
+                            rot = CFrame.Angles(ang[0], -ang[2], ang[1]);
                         }
-                    }*/
+                        else if (node.Name == "Head")
+                        {
+                            rot = CFrame.Angles(ang[0], ang[1], -ang[2]);
+                        }
+                        else if (node.Name == "LeftUpperLeg")
+                        {
+                            rot = CFrame.Angles(ang[0], -ang[2], 0); // ???
+                        }
+                    }
+
+                    interp = new CFrame(pos) * rot;
 
                     Bone bone = new Bone(node.Name, i, interp);
                     bone.Node = node;
-
                     bones.Add(bone);
                 }
 

@@ -5,7 +5,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
-using Rbx2Source.Animation;
+using Rbx2Source.Animating;
 using Rbx2Source.Coordinates;
 using Rbx2Source.Geometry;
 using Rbx2Source.Reflection;
@@ -32,6 +32,8 @@ namespace Rbx2Source.Assembler
 
     class CharacterAssembler : IAssembler
     {
+        private static bool DEBUG_RAPID_ASSEMBLY = true;
+
         public static Limb GetLimb(BasePart part)
         {
             string name = part.Name;
@@ -174,6 +176,12 @@ namespace Rbx2Source.Assembler
 
         public static void PrepareAccessory(Instance asset, Folder assembly)
         {
+            if (DEBUG_RAPID_ASSEMBLY)
+            {
+                asset.Destroy();
+                return;
+            }
+
             BasePart handle = asset.FindFirstChild<BasePart>("Handle");
 
             if (handle != null)
@@ -297,7 +305,11 @@ namespace Rbx2Source.Assembler
 
         public static Folder AppendCollisionAssets(UserAvatar avatar, string avatarType)
         {
-            Folder collisionAssets = AppendCharacterAssets(avatar, avatarType, "COLLISION");
+            Folder collisionAssets;
+            if (DEBUG_RAPID_ASSEMBLY)
+                collisionAssets = new Folder();
+            else
+                collisionAssets = AppendCharacterAssets(avatar, avatarType, "COLLISION");
 
             // Replace the head mesh with a low-poly head
             DataModelMesh oldHeadMesh = collisionAssets.FindFirstChildOfClass<DataModelMesh>();
@@ -316,24 +328,6 @@ namespace Rbx2Source.Assembler
             lowPolyHead.Parent = collisionAssets;
 
             return collisionAssets;
-        }
-
-        public static Dictionary<string,string> GatherAnimations(AvatarType avatarType)
-        {
-            Dictionary<string, string> animations = new Dictionary<string, string>();
-
-            string avatarTypeName = Enum.GetName(typeof(AvatarType), avatarType);
-            string animFilesDir = "AvatarData/" + avatarTypeName + "/Animations";
-
-            List<string> animFilePaths = ResourceUtility.GetFiles(animFilesDir);
-
-            foreach (string animFilePath in animFilePaths)
-            {
-                string animName = animFilePath.Replace(animFilesDir + "/", "").Replace(".rbxmx","");
-                animations[animName] = animFilePath;
-            }
-
-            return animations;
         }
 
         public static Asset GetAvatarFace(Folder characterAssets)
@@ -369,6 +363,24 @@ namespace Rbx2Source.Assembler
                 return Asset.FromResource("Images/face.png");
         }
 
+        public static float ComputeFloorLevel(Folder assembly)
+        {
+            BasePart lowest = null;
+            float lowestY = float.MaxValue;
+
+            foreach (BasePart part in assembly.GetChildrenOfClass<BasePart>())
+            {
+                float y = part.Position.Y;
+                if (y < lowestY)
+                {
+                    lowest = part;
+                    lowestY = y;
+                }
+            }
+
+            return (lowestY - (lowest.Size.Y / 2f)) * Rbx2Source.MODEL_SCALE;
+        }
+
         public AssemblerData Assemble(object metadata)
         {
             UserAvatar avatar = metadata as UserAvatar;
@@ -400,25 +412,32 @@ namespace Rbx2Source.Assembler
 
             string avatarTypeName = Rbx2Source.GetEnumName(avatar.ResolvedAvatarType);
             Folder characterAssets = AppendCharacterAssets(avatar, avatarTypeName);
+            string compileDirectory = "roblox_avatars/" + userName;
 
             Rbx2Source.ScheduleTasks("BuildCharacter", "BuildCollisionModel", "BuildAnimations", "BuildTextures", "BuildMaterials", "BuildCompilerScript");
-            Rbx2Source.PrintHeader("BUILDING CHARACTER MODEL");
 
-            StudioMdlWriter writer = assembler.AssembleModel(characterAssets, avatar.Scales);
+            Rbx2Source.PrintHeader("BUILDING CHARACTER MODEL");
+            #region Build Character Model
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            StudioMdlWriter writer = assembler.AssembleModel(characterAssets, avatar.Scales, true);
 
             string studioMdl = writer.BuildFile();
             string modelPath = Path.Combine(modelDir,"CharacterModel.smd");
             FileUtility.WriteFile(modelPath, studioMdl);
 
-            // Clear the triangles so we can build a reference pose .smd file.
-            writer.Triangles.Clear();
-            string staticPose = writer.BuildFile();
+            string staticPose = writer.BuildFile(false);
             string refPath = Path.Combine(modelDir, "ReferencePos.smd");
-
             FileUtility.WriteFile(refPath, staticPose);
+
             Rbx2Source.MarkTaskCompleted("BuildCharacter");
 
-            Rbx2Source.PrintHeader("BUILDING COLLISION MODEL");
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
+            #endregion
+
+            Rbx2Source.PrintHeader("BUILDING CHARACTER COLLISIONS");
+            #region Build Character Collisions
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
             Folder collisionAssets = AppendCollisionAssets(avatar, avatarTypeName);
             StudioMdlWriter collisionWriter = assembler.AssembleModel(collisionAssets, avatar.Scales, true);
@@ -433,41 +452,134 @@ namespace Rbx2Source.Assembler
             FileUtility.WriteFile(cjointsPath, collisionJoints);
             Rbx2Source.MarkTaskCompleted("BuildCollisionModel");
 
-            Rbx2Source.PrintHeader("BUILDING CHARACTER ANIMATIONS");
-            Dictionary<string, string> animations = GatherAnimations(avatarType);
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
+            #endregion
 
-            if (animations.Count > 0)
+            Rbx2Source.PrintHeader("BUILDING CHARACTER ANIMATIONS");
+            #region Build Character Animations
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            Dictionary<string, AnimationId> animIds = assembler.CollectAnimationIds(avatar);
+            Dictionary<string, Asset> compileAnims = new Dictionary<string, Asset>();
+                
+            if (animIds.Count > 0)
             {
-                foreach (string animName in animations.Keys)
+                Rbx2Source.Print("Collecting Animations...");
+                Rbx2Source.IncrementStack();
+
+                Action<string, Asset> collectAnimation = (animName, animAsset) =>
                 {
-                    Rbx2Source.Print("Building Animation {0}", animName);
-                    string localAnimPath = animations[animName];
-                    Asset animAsset = Asset.FromResource(localAnimPath);
+                    if (!compileAnims.ContainsKey(animName))
+                    {
+                        Rbx2Source.Print("Collected animation {0} with id {1}", animName, animAsset.Id);
+                        compileAnims.Add(animName, animAsset);
+                    }
+                };
+
+                foreach (string animName in animIds.Keys)
+                {
+                    AnimationId animId = animIds[animName];
+                    Asset animAsset = animId.GetAsset();
                     Folder import = RBXM.LoadFromAsset(animAsset);
-                    KeyframeSequence sequence = import.FindFirstChildOfClass<KeyframeSequence>();
-                    sequence.Name = animName;
-                    sequence.AvatarType = avatarType;
-                    string animation = AnimationAssembler.Assemble(sequence, writer.Skeleton[0].Bones);
-                    string animPath = Path.Combine(animDir, animName + ".smd");
-                    FileUtility.WriteFile(animPath, animation);
+
+                    if (animId.AnimationType == AnimationType.R15AnimFolder)
+                    {
+                        Folder r15Anim = import.FindFirstChild<Folder>("R15Anim");
+                        if (r15Anim != null)
+                        {
+                            foreach (Instance animDef in r15Anim.GetChildren())
+                            {
+                                string compileName = animName;
+                                if (animDef.Name == "swimidle")
+                                    compileName = "Float";
+
+                                if (animDef.Name == "idle")
+                                {
+                                    Animation[] anims = animDef.GetChildrenOfClass<Animation>();
+                                    if (anims.Length == 2)
+                                    {
+                                        Animation lookAnim = anims.OrderBy(anim => anim.Weight).First();
+                                        lookAnim.Destroy();
+
+                                        Asset lookAsset = Asset.GetByAssetId(lookAnim.AnimationId);
+                                        collectAnimation("Idle2", lookAsset);
+                                    }
+                                }
+
+                                Animation compileAnim = animDef.FindFirstChildOfClass<Animation>();
+                                if (compileAnim != null)
+                                {
+                                    Asset compileAsset = Asset.GetByAssetId(compileAnim.AnimationId);
+                                    collectAnimation(compileName, compileAsset);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        collectAnimation(animName, animAsset);
+                    }
                 }
+
+                Rbx2Source.DecrementStack();
             }
             else
             {
                 Rbx2Source.Print("No animations found :(");
             }
 
+            if (compileAnims.Count > 0)
+            {
+                Rbx2Source.Print("Assembling Animations...");
+                Rbx2Source.IncrementStack();
+
+                foreach (string animName in compileAnims.Keys)
+                {
+                    Rbx2Source.Print("Building Animation {0}...", animName);
+
+                    Asset animAsset = compileAnims[animName];
+                    Folder import = RBXM.LoadFromAsset(animAsset);
+
+                    KeyframeSequence sequence = import.FindFirstChildOfClass<KeyframeSequence>();
+                    sequence.Name = animName;
+                    sequence.AvatarType = avatar.ResolvedAvatarType;
+
+                    string animation = AnimationAssembler.Assemble(sequence, writer.Skeleton[0].Bones);
+                    string animPath = Path.Combine(animDir, animName + ".smd");
+
+                    FileUtility.WriteFile(animPath, animation);
+                }
+            }
+
             Rbx2Source.MarkTaskCompleted("BuildAnimations");
-            Dictionary<string, Material> materials = writer.Materials;
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
+            #endregion
+
             Rbx2Source.PrintHeader("BUILDING CHARACTER TEXTURES");
+            #region Build Character Textures
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            string compileDirectory = "roblox_avatars/" + userName;
+            Dictionary<string, Material> materials = writer.Materials;
 
-            TextureCompositor texCompositor = assembler.ComposeTextureMap(characterAssets, avatar.BodyColors);
-            TextureAssembly texAssembly = assembler.AssembleTextures(texCompositor, materials);
-            texAssembly.MaterialDirectory = compileDirectory;
-            
+            TextureAssembly texAssembly;
+
+            if (DEBUG_RAPID_ASSEMBLY)
+            {
+                texAssembly = new TextureAssembly();
+                texAssembly.MatLinks = new Dictionary<string, string>();
+                texAssembly.Images = new Dictionary<string, Image>();
+
+                materials.Clear();
+            }
+            else
+            {
+                TextureCompositor texCompositor = assembler.ComposeTextureMap(characterAssets, avatar.BodyColors);
+                texAssembly = assembler.AssembleTextures(texCompositor, materials);
+            }
+
             Dictionary<string, Image> images = texAssembly.Images;
+            texAssembly.MaterialDirectory = compileDirectory;
 
             foreach (string imageName in images.Keys)
             {
@@ -491,7 +603,13 @@ namespace Rbx2Source.Assembler
             CompositData.FreeAllocatedTextures();
             Rbx2Source.MarkTaskCompleted("BuildTextures");
 
-            Rbx2Source.PrintHeader("BUILDING MATERIAL FILES");
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
+            #endregion
+
+            Rbx2Source.PrintHeader("WRITING MATERIAL FILES");
+            #region Write Material Files
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
+
             Dictionary<string, string> matLinks = texAssembly.MatLinks;
 
             foreach (string mtlName in matLinks.Keys)
@@ -511,7 +629,13 @@ namespace Rbx2Source.Assembler
             }
 
             Rbx2Source.MarkTaskCompleted("BuildMaterials");
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
+            #endregion
+
             Rbx2Source.PrintHeader("WRITING COMPILER SCRIPT");
+            #region Write Compiler Script
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
             QCWriter qc = new QCWriter();
 
@@ -527,22 +651,8 @@ namespace Rbx2Source.Assembler
 
             if (assembly != null)
             {
-                BasePart lowest = null;
-                float lowestY = float.MaxValue;
-
-                foreach (BasePart part in assembly.GetChildrenOfClass<BasePart>())
-                {
-                    float y = part.Position.Y;
-                    if (y < lowestY)
-                    {
-                        lowest = part;
-                        lowestY = y;
-                    }
-                }
-
-                float ground = (lowestY - (lowest.Size.Y / 2f)) * Rbx2Source.MODEL_SCALE;
-                string originStr = "0 " + ground.ToString(Rbx2Source.NormalParse) + " 0";
-
+                float floor = ComputeFloorLevel(assembly);
+                string originStr = "0 " + floor.ToString(Rbx2Source.NormalParse) + " 0";
                 qc.WriteBasicCmd("origin", originStr, false);
             }
 
@@ -556,12 +666,13 @@ namespace Rbx2Source.Assembler
 
             qc.AddCommand(reference);
 
-            foreach (string animName in animations.Keys)
+            foreach (string animName in compileAnims.Keys)
             {
                 QCommand sequence = new QCommand("sequence", animName.ToLower(), "Animations/" + animName + ".smd");
                 sequence.AddParameter("fps", AnimationAssembler.FrameRate.ToString());
                 sequence.AddParameter("loop");
-                if (avatarType == AvatarType.R6) // TODO: Find a work around so I can get rid of this.
+
+                if (avatarType == AvatarType.R6)
                     sequence.AddParameter("delta");
 
                 qc.AddCommand(sequence);
@@ -572,6 +683,9 @@ namespace Rbx2Source.Assembler
 
             FileUtility.WriteFile(qcPath, qcFile);
             Rbx2Source.MarkTaskCompleted("BuildCompilerScript");
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////
+            #endregion
 
             AssemblerData data = new AssemblerData();
             data.ModelData = writer;

@@ -210,7 +210,7 @@ namespace Rbx2Source.Geometry
                 if (part.IsA("MeshPart"))
                 {
                     MeshPart meshPart = (MeshPart)part;
-                    if (meshPart.MeshID == null)
+                    if (meshPart.MeshId == null)
                     {
                         string partName = meshPart.Name;
                         if (StandardLimbs.ContainsKey(partName))
@@ -218,11 +218,11 @@ namespace Rbx2Source.Geometry
                     }
                     else
                     {
-                        meshAsset = Asset.GetByAssetId(meshPart.MeshID);
+                        meshAsset = Asset.GetByAssetId(meshPart.MeshId);
                     }
 
-                    if (meshPart.TextureID != null)
-                        textureAsset = Asset.GetByAssetId(meshPart.TextureID);
+                    if (meshPart.TextureId != null)
+                        textureAsset = Asset.GetByAssetId(meshPart.TextureId);
 
                     scale = meshPart.Size / meshPart.InitialSize;
                     offset = part.CFrame;

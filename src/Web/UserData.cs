@@ -35,14 +35,17 @@ namespace Rbx2Source.Web
 
     class UserAvatar
     {
-        public AvatarType ResolvedAvatarType;
-        public List<long> AccessoryVersionIds;
-        public AvatarScale Scales;
-        public BodyColors BodyColors;
+        public bool UserExists;
         public UserInfo UserInfo;
 
-        public bool UserExists = false;
+        public AvatarScale Scales;
+        public BodyColors BodyColors;
 
+        public AvatarType ResolvedAvatarType;
+        public List<long> AccessoryVersionIds;
+
+        public Dictionary<string, long> Animations;
+        
         private static UserAvatar createUserAvatar(UserInfo info)
         {
             UserAvatar avatar = WebUtility.DownloadRbxApiJSON<UserAvatar>("v1.1/avatar-fetch?placeId=0&userId=" + info.Id);

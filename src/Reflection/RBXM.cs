@@ -66,7 +66,7 @@ namespace Rbx2Source.Reflection
 
                     FieldInfo field = objType.GetField(propertyName, fieldInfoFlags);
 
-                    if (field != null)
+                    if (field != null && property.FirstChild != null)
                     {
                         string propertyType = property.Name;
                         object value = null;

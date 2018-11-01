@@ -82,8 +82,8 @@ namespace Rbx2Source.Reflection
 
     class MeshPart : BasePart
     {
-        public string MeshID;
-        public string TextureID;
+        public string MeshId;
+        public string TextureId;
         public Vector3 InitialSize;
     }
 
@@ -112,13 +112,23 @@ namespace Rbx2Source.Reflection
         public string Texture;
     }
 
-    class StringValue : Instance
+    class ValueBase<T> : Instance
     {
-        public string Value;
+        public T Value;
     }
 
-    class Vector3Value : Instance
+    class Animation : Instance
     {
-        public Vector3 Value;
+        public string AnimationId;
+
+        // Hack to make it easier for me to do a Linq query of weighted user animations
+        public double Weight
+        {
+            get
+            {
+                NumberValue weight = FindFirstChild<NumberValue>("Weight");
+                return weight != null ? weight.Value : 1;
+            }
+        }
     }
 }

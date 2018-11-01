@@ -234,43 +234,6 @@ namespace Rbx2Source.Coordinates
             return new CFrame(b14, b24, b34, b11, b12, b13, b21, b22, b23, b31, b32, b33);
         }
 
-        private static float[] quaternionFromCFrame(CFrame a)
-        {
-            float[] ac = a.components();
-            float mx = ac[0], my = ac[1], mz = ac[2], m11 = ac[3], m12 = ac[4], m13 = ac[5], m21 = ac[6], m22 = ac[7], m23 = ac[8], m31 = ac[9], m32 = ac[10], m33 = ac[11];
-            float trace = m11 + m22 + m33;
-            float w = 1, i = 0, j = 0, k = 0;
-            if (trace > 0)
-            {
-                float s = (float)Math.Sqrt(1 + trace);
-                float r = 0.5f / s;
-                w = s * 0.5f; i = (m32 - m23) * r; j = (m13 - m31) * r; k = (m21 - m12) * r;
-            }
-            else
-            {
-                float big = Math.Max(Math.Max(m11, m22), m33);
-                if (big == m11)
-                {
-                    float s = (float)Math.Sqrt(1 + m11 - m22 - m33);
-                    float r = 0.5f / s;
-                    w = (m32 - m23) * r; i = 0.5f * s; j = (m21 + m12) * r; k = (m13 + m31) * r;
-                }
-                else if (big == m22)
-                {
-                    float s = (float)Math.Sqrt(1 - m11 + m22 - m33);
-                    float r = 0.5f / s;
-                    w = (m13 - m31) * r; i = (m21 + m12) * r; j = 0.5f * s; k = (m32 + m23) * r;
-                }
-                else if (big == m33)
-                {
-                    float s = (float)Math.Sqrt(1 - m11 - m22 + m33);
-                    float r = 0.5f / s;
-                    w = (m21 - m12) * r; i = (m13 + m31) * r; j = (m32 + m23) * r; k = 0.5f * s;
-                }
-            }
-            return new float[] { w, i, j, k };
-        }
-
         private static CFrame lerpinternal(CFrame a, CFrame b, float t)
         {
             if (t == 0.0f)
@@ -368,6 +331,7 @@ namespace Rbx2Source.Coordinates
             float x = (float)Math.Atan2(-m23, m33);
             float y = (float)Math.Asin(m13);
             float z = (float)Math.Atan2(-m12, m11);
+
             return new float[] { x, y, z };
         }
 
@@ -376,7 +340,7 @@ namespace Rbx2Source.Coordinates
             string pos = p.ToStudioMdlString() + " ";
             float[] ang = toEulerAnglesXYZ();
 
-            string rotation = string.Join(" ", truncate(ang[0], ang[2], ang[1]));
+            string rotation = string.Join(" ", truncate(ang));
             return pos + rotation;
         }
     }

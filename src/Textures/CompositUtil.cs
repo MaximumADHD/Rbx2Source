@@ -29,8 +29,8 @@ namespace Rbx2Source.Textures
 
         public static Point VertexToPoint(Vertex vert)
         {
-            int x = (int)vert.Pos.X;
-            int y = (int)vert.Pos.Y;
+            int x = (int)(vert.Pos.X + 0.5f);
+            int y = (int)(vert.Pos.Y + 0.5f);
 
             return new Point(x, y);
         }

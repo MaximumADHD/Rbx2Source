@@ -61,21 +61,21 @@ namespace Rbx2Source.Assembler
         // Alternative proportions for rthro, blended between BODY_TYPE_SCALES using the BodyProportionScale value
         private static Dictionary<string, Vector3> BODY_PROPORTION_SCALES = new Dictionary<string, Vector3>()
         {
-            {"LeftHand",      new Vector3(0.948f, 1.151f, 1.094f) },
-            {"LeftLowerArm",  new Vector3(1.004f, 1.184f, 1.006f) },
-            {"LeftUpperArm",  new Vector3(1.004f, 1.184f, 1.006f) },
-            {"RightHand",     new Vector3(0.948f, 1.151f, 1.094f) },
-            {"RightLowerArm", new Vector3(1.004f, 1.184f, 1.006f) },
-            {"RightUpperArm", new Vector3(1.004f, 1.184f, 1.006f) },
-            {"UpperTorso",    new Vector3(0.905f, 1.180f, 1.013f) },
-            {"LeftFoot",      new Vector3(1.030f, 1.111f, 1.004f) },
-            {"LeftLowerLeg",  new Vector3(0.976f, 1.275f, 0.909f) },
-            {"LeftUpperLeg",  new Vector3(0.976f, 1.373f, 0.909f) },
-            {"RightFoot",     new Vector3(1.030f, 1.111f, 1.004f) },
-            {"RightLowerLeg", new Vector3(0.976f, 1.275f, 0.909f) },
-            {"RightUpperLeg", new Vector3(0.976f, 1.373f, 0.909f) },
-            {"LowerTorso",    new Vector3(0.986f, 0.985f, 1.013f) },
-            {"Head",          new Vector3(0.896f, 0.942f, 0.896f) },
+            { "LeftHand",      new Vector3(0.948f, 1.151f, 1.094f) },
+            { "LeftLowerArm",  new Vector3(1.004f, 1.184f, 1.006f) },
+            { "LeftUpperArm",  new Vector3(1.004f, 1.184f, 1.006f) },
+            { "RightHand",     new Vector3(0.948f, 1.151f, 1.094f) },
+            { "RightLowerArm", new Vector3(1.004f, 1.184f, 1.006f) },
+            { "RightUpperArm", new Vector3(1.004f, 1.184f, 1.006f) },
+            { "UpperTorso",    new Vector3(0.905f, 1.180f, 1.013f) },
+            { "LeftFoot",      new Vector3(1.030f, 1.111f, 1.004f) },
+            { "LeftLowerLeg",  new Vector3(0.976f, 1.275f, 0.909f) },
+            { "LeftUpperLeg",  new Vector3(0.976f, 1.373f, 0.909f) },
+            { "RightFoot",     new Vector3(1.030f, 1.111f, 1.004f) },
+            { "RightLowerLeg", new Vector3(0.976f, 1.275f, 0.909f) },
+            { "RightUpperLeg", new Vector3(0.976f, 1.373f, 0.909f) },
+            { "LowerTorso",    new Vector3(0.986f, 0.985f, 1.013f) },
+            { "Head",          new Vector3(0.896f, 0.942f, 0.896f) },
         };
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -91,6 +91,23 @@ namespace Rbx2Source.Assembler
             { Limb.LeftLeg,  RECT_LEFT_LEG  },
             { Limb.RightArm, RECT_RIGHT_ARM },
             { Limb.RightLeg, RECT_RIGHT_LEG },
+        };
+
+        private static Dictionary<string, long> R15_ANIMATION_IDS = new Dictionary<string, long>()
+        {
+            { "Climb", 507765644  },
+            { "Fall",  507767968  },
+            { "Idle",  507766388  },
+            { "Jump",  507765000  },
+            { "Idle2", 507766666  },
+            { "Run",   913376220  },
+            { "Walk",  913402848  },
+            { "Sit",   2506281703 },
+            { "Wave",  507770239  },
+            { "Point", 507770453  },
+            { "Cheer", 507770677  },
+            { "Swim",  913384386  },
+            { "Float", 913389285  },
         };
 
         public static Vector3 ComputeLimbScale(AvatarScale avatarScale, BasePart part)
@@ -137,6 +154,39 @@ namespace Rbx2Source.Assembler
             }
 
             return scale * rthroScale;
+        }
+
+        public Dictionary<string, AnimationId> CollectAnimationIds(UserAvatar avatar)
+        {
+            var animIds = new Dictionary<string, AnimationId>();
+            var userAnims = avatar.Animations;
+
+            foreach (string animName in R15_ANIMATION_IDS.Keys)
+            {
+                AnimationId animId = new AnimationId();
+
+                if (userAnims.ContainsKey(animName))
+                {
+                    animId.AnimationType = AnimationType.R15AnimFolder;
+                    animId.AssetId = userAnims[animName];
+                }
+                else
+                {
+                    animId.AnimationType = AnimationType.KeyframeSequence;
+                    animId.AssetId = R15_ANIMATION_IDS[animName];
+                }
+
+                animIds.Add(animName, animId);
+            }
+
+            // Some user animations are bundled together, so they will be handled differently if they are in the user's animation table.
+            if (userAnims.ContainsKey("Swim") && animIds.ContainsKey("Float"))
+                animIds.Remove("Float"); // Remove default swimidle
+
+            if (userAnims.ContainsKey("Idle") && animIds.ContainsKey("Idle2"))
+                animIds.Remove("Idle2"); // Remove default lookaround
+
+            return animIds;
         }
 
         public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale, bool collisionModel = false)
@@ -264,7 +314,7 @@ namespace Rbx2Source.Assembler
             foreach (MeshPart part in avatarParts.GetChildrenOfClass<MeshPart>())
             {
                 Limb limb = GetLimb(part);
-                string textureId = part.TextureID;
+                string textureId = part.TextureId;
 
                 if (textureId != null && textureId.Length > 0 && !overlainLimbs.Contains(limb))
                 {
@@ -278,7 +328,7 @@ namespace Rbx2Source.Assembler
             return compositor;
         }
 
-        public TextureAssembly AssembleTextures(TextureCompositor compositor, Dictionary<string,Material> materials)
+        public TextureAssembly AssembleTextures(TextureCompositor compositor, Dictionary<string, Material> materials)
         {
             TextureAssembly assembly = new TextureAssembly();
             assembly.Images = new Dictionary<string, Image>();

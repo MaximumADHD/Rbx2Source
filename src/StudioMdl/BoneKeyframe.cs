@@ -51,7 +51,7 @@ namespace Rbx2Source.StudioMdl
                 else if (parentIndex >= 0)
                 {
                     Bone parentBone = keyframe.Bones[parentIndex];
-                    boneCFrame = parentBone.C1.inverse() * boneCFrame;
+                    boneCFrame *= parentBone.C1.inverse();
                 }
                 
                 fileBuffer.Write(boneCFrame.ToStudioMdlString());

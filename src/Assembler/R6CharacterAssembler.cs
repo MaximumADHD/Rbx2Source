@@ -26,12 +26,12 @@ namespace Rbx2Source.Assembler
         private static string COMPOSIT_SHIRT     = "CompositShirtTemplate";
         private static string COMPOSIT_PANTS     = "CompositPantsTemplate";
 
-        private static Rectangle CANVAS_RECT     = new Rectangle(  0,   0, 1024, 768);
-        private static Rectangle CANVAS_HEAD     = new Rectangle(400,   0,  200, 200);
-        private static Rectangle CANVAS_BODY     = new Rectangle(  0, 256, 1024, 512);
-        private static Rectangle CANVAS_ITEM     = new Rectangle(  0,   0,  512, 512);
+        private static Rectangle RECT_FULL     = new Rectangle(  0,   0, 1024, 768);
+        private static Rectangle RECT_HEAD     = new Rectangle(400,   0,  200, 200);
+        private static Rectangle RECT_BODY     = new Rectangle(  0, 256, 1024, 512);
+        private static Rectangle RECT_ITEM     = new Rectangle(  0,   0,  512, 512);
 
-        private static Rectangle CANVAS_TSHIRT   = new Rectangle( 32, 321,  128, 128);
+        private static Rectangle RECT_TSHIRT   = new Rectangle( 32, 321,  128, 128);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -48,9 +48,37 @@ namespace Rbx2Source.Assembler
             {Limb.Torso,    "Torso"}
         };
 
+        private static Dictionary<string, long> R6_ANIMATION_IDS = new Dictionary<string, long>()
+        {
+            {"Climb", 180436334},
+            {"Fall",  180436148},
+            {"Idle",  180435571},
+            {"Jump",  125750702},
+            {"Look",  180435792},
+            {"Run",   180426354},
+            {"Sit",   178130996},
+            {"Wave",  128777973},
+            {"Point", 128853357},
+        };
+
         private static string GetBodyMaterialName(long id)
         {
             return id == 0 ? "Body" : "PackageOverlay" + id;
+        }
+
+        public Dictionary<string, AnimationId> CollectAnimationIds(UserAvatar avatar)
+        {
+            var animIds = new Dictionary<string, AnimationId>();
+
+            foreach (string animName in R6_ANIMATION_IDS.Keys)
+            {
+                AnimationId animId = new AnimationId();
+                animId.AssetId = R6_ANIMATION_IDS[animName];
+                animId.AnimationType = AnimationType.KeyframeSequence;
+                animIds.Add(animName, animId);
+            }
+
+            return animIds;
         }
 
         public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale, bool collisionModel = false)
@@ -75,7 +103,7 @@ namespace Rbx2Source.Assembler
 
                     MeshPart limb = assembly.FindFirstChild<MeshPart>(limbName);
                     if (limb != null)
-                        limb.MeshID = "rbxassetid://" + characterMesh.MeshId;
+                        limb.MeshId = "rbxassetid://" + characterMesh.MeshId;
 
                 }
                 else if (asset.IsA("Accoutrement") && !collisionModel)
@@ -98,27 +126,27 @@ namespace Rbx2Source.Assembler
 
         public TextureCompositor ComposeTextureMap(Folder characterAssets, BodyColors bodyColors)
         {
-            TextureCompositor compositor = new TextureCompositor(AvatarType.R6, CANVAS_RECT);
+            TextureCompositor compositor = new TextureCompositor(AvatarType.R6, RECT_FULL);
             compositor.CharacterAssets = characterAssets;
 
             // Append BodyColors
-            compositor.AppendColor(bodyColors.TorsoColor,    COMPOSIT_TORSO,     CANVAS_RECT);
-            compositor.AppendColor(bodyColors.LeftArmColor,  COMPOSIT_LEFT_ARM,  CANVAS_RECT);
-            compositor.AppendColor(bodyColors.LeftLegColor,  COMPOSIT_LEFT_LEG,  CANVAS_RECT);
-            compositor.AppendColor(bodyColors.RightArmColor, COMPOSIT_RIGHT_ARM, CANVAS_RECT);
-            compositor.AppendColor(bodyColors.RightLegColor, COMPOSIT_RIGHT_LEG, CANVAS_RECT);
+            compositor.AppendColor(bodyColors.TorsoColor,    COMPOSIT_TORSO,     RECT_FULL);
+            compositor.AppendColor(bodyColors.LeftArmColor,  COMPOSIT_LEFT_ARM,  RECT_FULL);
+            compositor.AppendColor(bodyColors.LeftLegColor,  COMPOSIT_LEFT_LEG,  RECT_FULL);
+            compositor.AppendColor(bodyColors.RightArmColor, COMPOSIT_RIGHT_ARM, RECT_FULL);
+            compositor.AppendColor(bodyColors.RightLegColor, COMPOSIT_RIGHT_LEG, RECT_FULL);
 
             // Append Head & Face
             Asset faceAsset = GetAvatarFace(characterAssets);
-            compositor.AppendColor(bodyColors.HeadColor, CANVAS_HEAD);
-            compositor.AppendTexture(faceAsset, CANVAS_HEAD, 1);
+            compositor.AppendColor(bodyColors.HeadColor, RECT_HEAD);
+            compositor.AppendTexture(faceAsset, RECT_HEAD, 1);
 
             // Append Shirt
             Shirt shirt = characterAssets.FindFirstChildOfClass<Shirt>();
             if (shirt != null)
             {
                 Asset shirtAsset = Asset.GetByAssetId(shirt.ShirtTemplate);
-                compositor.AppendTexture(shirtAsset,  COMPOSIT_SHIRT,  CANVAS_RECT, 2);
+                compositor.AppendTexture(shirtAsset, COMPOSIT_SHIRT, RECT_FULL, 2);
             }
 
             // Append Pants
@@ -126,7 +154,7 @@ namespace Rbx2Source.Assembler
             if (pants != null)
             {
                 Asset pantsAsset = Asset.GetByAssetId(pants.PantsTemplate);
-                compositor.AppendTexture(pantsAsset,  COMPOSIT_PANTS,  CANVAS_RECT, 1);
+                compositor.AppendTexture(pantsAsset, COMPOSIT_PANTS, RECT_FULL, 1);
             }
 
             // Append T-Shirt
@@ -134,7 +162,7 @@ namespace Rbx2Source.Assembler
             if (tshirt != null)
             {
                 Asset tshirtAsset = Asset.GetByAssetId(tshirt.Graphic);
-                compositor.AppendTexture(tshirtAsset, CANVAS_TSHIRT, 3, RotateFlipType.Rotate90FlipNone);
+                compositor.AppendTexture(tshirtAsset, RECT_TSHIRT, 3, RotateFlipType.Rotate90FlipNone);
             }
 
             return compositor;
@@ -149,10 +177,10 @@ namespace Rbx2Source.Assembler
             Bitmap core = compositor.BakeTextureMap();
             Rbx2Source.SetDebugImage(core);
 
-            Bitmap head = TextureCompositor.CropBitmap(core, CANVAS_HEAD);
+            Bitmap head = TextureCompositor.CropBitmap(core, RECT_HEAD);
             assembly.LinkDirectly("Head", head);
 
-            Bitmap body = TextureCompositor.CropBitmap(core, CANVAS_BODY);
+            Bitmap body = TextureCompositor.CropBitmap(core, RECT_BODY);
             Folder characterAssets = compositor.CharacterAssets;
 
             Rbx2Source.Print("Processing Package Textures...");
@@ -179,12 +207,10 @@ namespace Rbx2Source.Assembler
                     // Check the CharacterMesh textures.
                     CharacterMesh mesh = packagedLimbs[limb];
 
-                    long baseId = mesh.BaseTextureId;
-                    long overlayId = mesh.OverlayTextureId;
-
-                    if (overlayId > 0)
+                    if (mesh.OverlayTextureId > 0)
                     {
                         // Use the overlay texture for this limb.
+                        long overlayId = mesh.OverlayTextureId;
                         limbOverlays.Add(limb, overlayId);
 
                         // Compose this overlay texture with the body texture if it doesn't exist yet.
@@ -192,20 +218,21 @@ namespace Rbx2Source.Assembler
                         {
                             Asset overlayAsset = Asset.Get(overlayId);
 
-                            TextureCompositor overlayCompositor = new TextureCompositor(AvatarType.R6, CANVAS_RECT);
-                            overlayCompositor.AppendTexture(body, CANVAS_BODY);
-                            overlayCompositor.AppendTexture(overlayAsset, CANVAS_BODY, 1);
+                            TextureCompositor overlayCompositor = new TextureCompositor(AvatarType.R6, RECT_FULL);
+                            overlayCompositor.AppendTexture(body, RECT_BODY);
+                            overlayCompositor.AppendTexture(overlayAsset, RECT_BODY, 1);
                             overlayCompositor.SetContext("Overlay Texture " + overlayId);
 
-                            Bitmap overlayTex = overlayCompositor.BakeTextureMap(CANVAS_BODY);
+                            Bitmap overlayTex = overlayCompositor.BakeTextureMap(RECT_BODY);
                             limbBitmaps.Add(overlayId, overlayTex);
                         }
 
                         continue;
                     }
-                    else if (baseId > 0)
+                    else if (mesh.BaseTextureId > 0)
                     {
                         // Use the base texture for this limb.
+                        long baseId = mesh.BaseTextureId;
                         limbOverlays.Add(limb, baseId);
 
                         // Compose the base texture if it doesn't exist yet.
@@ -213,11 +240,11 @@ namespace Rbx2Source.Assembler
                         {
                             Asset baseAsset = Asset.Get(baseId);
 
-                            TextureCompositor baseCompositor = new TextureCompositor(AvatarType.R6, CANVAS_RECT);
-                            baseCompositor.AppendTexture(baseAsset, CANVAS_BODY);
+                            TextureCompositor baseCompositor = new TextureCompositor(AvatarType.R6, RECT_FULL);
+                            baseCompositor.AppendTexture(baseAsset, RECT_BODY);
                             baseCompositor.SetContext("Base Texture " + baseId);
 
-                            Bitmap baseTex = baseCompositor.BakeTextureMap(CANVAS_BODY);
+                            Bitmap baseTex = baseCompositor.BakeTextureMap(RECT_BODY);
                             limbBitmaps.Add(baseId, baseTex);
                         }
 
@@ -256,8 +283,8 @@ namespace Rbx2Source.Assembler
                     Material material = materials[materialName];
                     Asset texture = material.TextureAsset;
 
-                    TextureCompositor matComp = new TextureCompositor(AvatarType.R6, CANVAS_ITEM);
-                    matComp.AppendTexture(texture, CANVAS_ITEM);
+                    TextureCompositor matComp = new TextureCompositor(AvatarType.R6, RECT_ITEM);
+                    matComp.AppendTexture(texture, RECT_ITEM);
                     matComp.SetContext("Accessory Texture " + materialName);
 
                     Bitmap bitmap = matComp.BakeTextureMap();
