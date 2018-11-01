@@ -506,10 +506,6 @@ namespace Rbx2Source.Assembler
                         {
                             foreach (Instance animDef in r15Anim.GetChildren())
                             {
-                                string compileName = animName;
-                                if (animDef.Name == "swimidle")
-                                    compileName = "Float";
-
                                 if (animDef.Name == "idle")
                                 {
                                     Animation[] anims = animDef.GetChildrenOfClass<Animation>();
@@ -527,7 +523,7 @@ namespace Rbx2Source.Assembler
                                 if (compileAnim != null)
                                 {
                                     Asset compileAsset = Asset.GetByAssetId(compileAnim.AnimationId);
-                                    collectAnimation(compileName, compileAsset);
+                                    collectAnimation(animName, compileAsset);
                                 }
                             }
                         }

@@ -94,7 +94,6 @@ namespace Rbx2Source.Assembler
             { "Climb", 507765644  },
             { "Fall",  507767968  },
             { "Idle",  507766388  },
-            { "Jump",  507765000  },
             { "Idle2", 507766666  },
             { "Run",   913376220  },
             { "Walk",  913402848  },
@@ -102,8 +101,6 @@ namespace Rbx2Source.Assembler
             { "Wave",  507770239  },
             { "Point", 507770453  },
             { "Cheer", 507770677  },
-            { "Swim",  913384386  },
-            { "Float", 913389285  },
         };
 
         public static Vector3 ComputeLimbScale(AvatarScale avatarScale, BasePart part)
@@ -174,10 +171,6 @@ namespace Rbx2Source.Assembler
 
                 animIds.Add(animName, animId);
             }
-
-            // Some user animations are bundled together, so they will be handled differently if they are in the user's animation table.
-            if (userAnims.ContainsKey("Swim") && animIds.ContainsKey("Float"))
-                animIds.Remove("Float"); // Remove default swimidle
 
             if (userAnims.ContainsKey("Idle") && animIds.ContainsKey("Idle2"))
                 animIds.Remove("Idle2"); // Remove default lookaround

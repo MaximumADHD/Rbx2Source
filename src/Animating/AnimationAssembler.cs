@@ -263,7 +263,7 @@ namespace Rbx2Source.Animating
                     {
                         float[] ang = interp.toEulerAnglesXYZ();
 
-                        if (sequence.Name != "Fall" && sequence.Name != "Jump") // I NEED TO FIND A WAY TO DELETE THIS ASDALKSDJALKSJDlk
+                        if (sequence.Name != "Fall") // I NEED TO FIND A WAY TO DELETE THIS
                         {
                             if (node.Name.EndsWith("UpperArm"))
                             {
