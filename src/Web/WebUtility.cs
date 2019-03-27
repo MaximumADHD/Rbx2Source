@@ -12,19 +12,19 @@ using Newtonsoft.Json;
 
 namespace Rbx2Source.Web
 {
-    struct WebApiError
+    public struct WebApiError
     {
         public int Code;
         public string Message;
     }
 
-    struct CdnPender
+    public struct CdnPender
     {
         public string Url;
         public bool Final;
     }
 
-    class WebUtility
+    public class WebUtility
     {
         private static byte[] ReadFullStream(Stream stream, bool close = true)
         {

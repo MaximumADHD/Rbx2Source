@@ -9,25 +9,25 @@ using Rbx2Source.Web;
 
 namespace Rbx2Source.Textures
 {
-    enum DrawMode
+    public enum DrawMode
     {
         Guide,
         Rect
     }
 
-    enum DrawType
+    public enum DrawType
     {
         Texture,
         Color,
     }
 
-    class TextureAllocation
+    public class TextureAllocation
     {
         public MemoryStream Stream;
         public Bitmap Texture;
     }
 
-    class CompositData : IComparable
+    public class CompositData : IComparable
     {
         public DrawMode DrawMode { get; private set; }
         public DrawType DrawType { get; private set; }

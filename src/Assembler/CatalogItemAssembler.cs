@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Security.Cryptography;
-using System.Text;
 
 using Rbx2Source.Coordinates;
 using Rbx2Source.Geometry;
@@ -17,7 +15,7 @@ using Rbx2Source.Web;
 
 namespace Rbx2Source.Assembler
 {
-    class CatalogItemAssembler : IAssembler
+    public class CatalogItemAssembler : IAssembler
     {
         // TODO: When I wrote this function about 2 years ago, I think I had the intention of
         //       filtering redundant material files based on the material configuration. I should
@@ -49,8 +47,7 @@ namespace Rbx2Source.Assembler
                 }
             }
 
-            foreach (Instance inst in scan.GetChildren())
-                AddParts(parts, inst);
+            scan.ForEachChild(inst => AddParts(parts, inst));
         }
 
         public static StudioMdlWriter AssembleModel(Asset asset)
@@ -84,6 +81,7 @@ namespace Rbx2Source.Assembler
 
             // Mark the primaryPart's location as the center.
             CFrame rootCoord = primaryPart.CFrame;
+
             foreach (BasePart part in parts)
                 part.CFrame = rootCoord.toObjectSpace(part.CFrame);
 
@@ -97,17 +95,18 @@ namespace Rbx2Source.Assembler
 
             List<Bone> bones = skeleton.Bones;
             List<Node> nodes = writer.Nodes;
+
             List<Triangle> triangles = writer.Triangles;
-
-            Dictionary<string, Material> materials = writer.Materials;
-            Dictionary<string, int> nameCounts = new Dictionary<string, int>();
-
             int numAssembledParts = 0;
+
+            var materials = writer.Materials;
+            var nameCounts = new Dictionary<string, int>();
 
             foreach (BasePart part in parts)
             {
                 // Make sure this part has a unique name.
                 string name = part.Name;
+
                 if (nameCounts.ContainsKey(name))
                 {
                     int count = ++nameCounts[name];
@@ -121,7 +120,7 @@ namespace Rbx2Source.Assembler
                 
                 // Assemble the part.
                 Material material = new Material();
-                Mesh geometry = Mesh.BakePart(part,material);
+                Mesh geometry = Mesh.BakePart(part, material);
 
                 if (geometry != null && geometry.FaceCount > 0)
                 {
@@ -140,11 +139,14 @@ namespace Rbx2Source.Assembler
 
                     for (int i = 0; i < geometry.FaceCount; i++)
                     {
-                        Triangle tri = new Triangle();
-                        tri.Node = node;
-                        tri.Mesh = geometry;
-                        tri.FaceIndex = i;
-                        tri.Material = name;
+                        Triangle tri = new Triangle()
+                        {
+                            Node = node,
+                            Mesh = geometry,
+                            FaceIndex = i,
+                            Material = name,
+                        };
+
                         triangles.Add(tri);
                     }
 
@@ -161,12 +163,8 @@ namespace Rbx2Source.Assembler
         public static TextureAssembly AssembleTextures(Dictionary<string,Material> materials)
         {
             TextureAssembly assembly = new TextureAssembly();
-
-            Dictionary<string, Image> images = new Dictionary<string,Image>();
-            assembly.Images = images;
-
-            Dictionary<string, string> matLinks = new Dictionary<string, string>();
-            assembly.MatLinks = matLinks;
+            var images = assembly.Images;
+            var matLinks = assembly.MatLinks;
 
             foreach (string mtlName in materials.Keys)
             {
@@ -197,6 +195,7 @@ namespace Rbx2Source.Assembler
                     if (!images.ContainsKey("BrickColor"))
                     {
                         byte[] rawImg = ResourceUtility.GetResource("Images/BlankWhite.png");
+
                         using (MemoryStream imgStream = new MemoryStream(rawImg))
                         {
                             Image image = Image.FromStream(imgStream);
@@ -210,6 +209,7 @@ namespace Rbx2Source.Assembler
                 else
                 {
                     byte[] rawImg = textureAsset.GetContent();
+
                     using (MemoryStream imgStream = new MemoryStream(rawImg))
                     {
                         Image image = Image.FromStream(imgStream);
@@ -243,124 +243,128 @@ namespace Rbx2Source.Assembler
 
             Rbx2Source.PrintHeader("BUILDING MODEL");
             #region Build Model
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                StudioMdlWriter writer = AssembleModel(asset);
+            StudioMdlWriter writer = AssembleModel(asset);
 
-                string studioMdl = writer.BuildFile();
-                string modelPath = Path.Combine(modelDir, "Asset.smd");
-                FileUtility.WriteFile(modelPath, studioMdl);
+            string studioMdl = writer.BuildFile();
+            string modelPath = Path.Combine(modelDir, "Asset.smd");
+            FileUtility.WriteFile(modelPath, studioMdl);
 
-                string reference = writer.BuildFile(false);
-                string refPath = Path.Combine(modelDir, "Reference.smd");
-                FileUtility.WriteFile(refPath, reference);
+            string reference = writer.BuildFile(false);
+            string refPath = Path.Combine(modelDir, "Reference.smd");
+            FileUtility.WriteFile(refPath, reference);
                 
-                Rbx2Source.MarkTaskCompleted("BuildModel");
+            Rbx2Source.MarkTaskCompleted("BuildModel");
+            
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
             Rbx2Source.PrintHeader("BUILDING TEXTURES");
             #region Build Textures
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                Dictionary<string, Material> materials = writer.Materials;
-                string compileDirectory = "roblox_assets/" + assetName;
+            var materials = writer.Materials;
+            var texAssembly = AssembleTextures(materials);
 
-                TextureAssembly texAssembly = AssembleTextures(materials);
-                texAssembly.MaterialDirectory = compileDirectory;
+            var images = texAssembly.Images;
+            var compileDir = "roblox_assets/" + assetName;
 
-                Dictionary<string, Image> images = texAssembly.Images;
-
-                foreach (string imageName in images.Keys)
+            foreach (string imageName in images.Keys)
+            {
+                Rbx2Source.Print("Writing Image {0}", imageName);
+                Image image = images[imageName];
+                    
+                string imagePath = Path.Combine(texturesDir, imageName + ".png");
+                    
+                try
                 {
-                    Rbx2Source.Print("Writing Image {0}", imageName);
-                    Image image = images[imageName];
-                    string imagePath = Path.Combine(texturesDir, imageName + ".png");
-                    try
-                    {
-                        image.Save(imagePath, ImageFormat.Png);
-                    }
-                    catch
-                    {
-                        Rbx2Source.Print("IMAGE {0}.png FAILED TO SAVE!", imageName);
-                    }
-                    FileUtility.LockFile(imagePath);
+                    image.Save(imagePath, ImageFormat.Png);
                 }
+                catch
+                {
+                    Rbx2Source.Print("IMAGE {0}.png FAILED TO SAVE!", imageName);
+                }
+                FileUtility.LockFile(imagePath);
+            }
 
-                Rbx2Source.MarkTaskCompleted("BuildTextures");
+            texAssembly.MaterialDirectory = compileDir;
+            Rbx2Source.MarkTaskCompleted("BuildTextures");
+
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
-            
+
             Rbx2Source.PrintHeader("WRITING MATERIAL FILES");
             #region Write Materials
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                string mtlDir = "models/" + compileDirectory;
+            string mtlDir = "models/" + compileDir;
 
-                Dictionary<string, string> matLinks = texAssembly.MatLinks;
-                Dictionary<string, Material> matLookup = new Dictionary<string, Material>();
+            var matLinks = texAssembly.MatLinks;
+            var matLookup = new Dictionary<string, Material>();
 
-                foreach (string mtlName in matLinks.Keys)
-                {
-                    Material mtl = materials[mtlName];
-                    string vtfTarget = matLinks[mtlName];
-                    string vmtPath = Path.Combine(materialsDir, mtlName + ".vmt");
+            foreach (string matName in matLinks.Keys)
+            {
+                string vtfTarget = matLinks[matName];
+                string vmtPath = Path.Combine(materialsDir, matName + ".vmt");
 
-                    if (!File.Exists(vmtPath))
-                    {
-                        Rbx2Source.Print("Building VMT {0}.vmt", mtlName);
+                Material mat = materials[matName];
+                mat.SetVmtField("basetexture", mtlDir + "/" + vtfTarget);
+                mat.WriteVmtFile(vmtPath);
+            }
 
-                        ValveMaterial vmt = new ValveMaterial(mtl);
-                        vmt.SetField("basetexture", mtlDir + "/" + vtfTarget);
-
-                        string vmtContent = vmt.ToString();
-                        FileUtility.WriteFile(vmtPath, vmtContent);
-
-                        matLookup[mtlName] = mtl;
-                    }
-                }
-
-                Rbx2Source.MarkTaskCompleted("BuildMaterials");
-
+            Rbx2Source.MarkTaskCompleted("BuildMaterials");
+            
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
             Rbx2Source.PrintHeader("WRITING COMPILER SCRIPT");
             #region Write Compiler Script
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                QCWriter qc = new QCWriter();
+            QCWriter qc = new QCWriter();
 
-                QCommand model = new QCommand("body", assetName, "Asset.smd");
-                qc.AddCommand(model);
+            QCommand model = new QCommand("body", assetName, "Asset.smd");
+            qc.AddCommand(model);
 
-                string modelNameStr = compileDirectory + ".mdl";
-                qc.WriteBasicCmd("modelname", modelNameStr);
-                qc.WriteBasicCmd("upaxis", "y");
-                qc.WriteBasicCmd("cdmaterials", mtlDir);
+            string modelNameStr = compileDir + ".mdl";
+            qc.WriteBasicCmd("modelname", modelNameStr);
+            qc.WriteBasicCmd("upaxis", "y");
+            qc.WriteBasicCmd("cdmaterials", mtlDir);
 
-                QCommand collision = new QCommand("collisionjoints", "Asset.smd");
-                collision.AddParameter("$mass", 115.0);
-                collision.AddParameter("$inertia", 2.00);
-                collision.AddParameter("$damping", 0.01);
-                collision.AddParameter("$rotdamping", 0.40);
-                qc.AddCommand(collision);
+            QCommand collision = new QCommand("collisionjoints", "Asset.smd");
+            collision.AddParameter("$mass", 115.0);
+            collision.AddParameter("$inertia", 2.00);
+            collision.AddParameter("$damping", 0.01);
+            collision.AddParameter("$rotdamping", 0.40);
+            qc.AddCommand(collision);
 
-                QCommand sequence = new QCommand("sequence", "reference", "Reference.smd");
-                sequence.AddParameter("fps", 1);
-                sequence.AddParameter("loop");
-                qc.AddCommand(sequence);
+            QCommand sequence = new QCommand("sequence", "reference", "Reference.smd");
+            sequence.AddParameter("fps", 1);
+            sequence.AddParameter("loop");
+            qc.AddCommand(sequence);
 
-                string qcFile = qc.BuildFile();
-                string qcPath = Path.Combine(modelDir, "Compile.qc");
-                FileUtility.WriteFile(qcPath, qcFile);
+            string qcFile = qc.BuildFile();
+            string qcPath = Path.Combine(modelDir, "Compile.qc");
+            FileUtility.WriteFile(qcPath, qcFile);
 
-                Rbx2Source.MarkTaskCompleted("BuildCompilerScript");
+            Rbx2Source.MarkTaskCompleted("BuildCompilerScript");
 
+            ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
-            AssemblerData data = new AssemblerData();
-            data.ModelData = writer;
-            data.TextureData = texAssembly;
-            data.CompilerScript = qcPath;
-            data.RootDirectory = rootDir;
-            data.MaterialDirectory = materialsDir;
-            data.TextureDirectory = texturesDir;
-            data.CompileDirectory = compileDirectory;
-            data.ModelName = modelNameStr;
+            AssemblerData data = new AssemblerData()
+            {
+                ModelData = writer,
+                CompilerScript = qcPath,
+                ModelName = modelNameStr,
+                TextureData = texAssembly,
+
+                RootDirectory = rootDir,
+                CompileDirectory = compileDir,
+                TextureDirectory = texturesDir,
+                MaterialDirectory = materialsDir,
+            };
 
             return data;
         }

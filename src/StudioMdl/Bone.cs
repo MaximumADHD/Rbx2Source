@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Rbx2Source.Coordinates;
-using Rbx2Source.Reflection;
+﻿using Rbx2Source.Coordinates;
 using Rbx2Source.StudioMdl;
 
 namespace Rbx2Source.Reflection
 {
-    class Bone : Instance
+    public class Bone : Instance
     {
         public BasePart Part0;
         public BasePart Part1;
+
         public CFrame C0;
         public CFrame C1;
+
         public Node Node;
         public bool IsAvatarBone;
 
@@ -25,22 +20,21 @@ namespace Rbx2Source.Reflection
             Node.Bone = this;
 
             Part0 = parent;
-            if (attachTo != null)
-                Part1 = attachTo;
-            else
-                Part1 = parent;
+            Part1 = attachTo ?? parent;
 
             if (Part1 != null)
                 Node.Name = Part1.Name;
 
             C0 = new CFrame();
             C1 = new CFrame();
+
             Parent = parent;
         }
 
-        public Bone(string name, int frame, CFrame cframe)
+        public Bone(Node node, CFrame interp)
         {
-            C0 = cframe;
+            Node = node;
+            C0 = interp;
             C1 = new CFrame();
         }
     }

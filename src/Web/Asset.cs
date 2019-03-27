@@ -10,14 +10,14 @@ using Rbx2Source.Resources;
 
 namespace Rbx2Source.Web
 {
-    struct ProductInfo
+    public struct ProductInfo
     {
         public string Name;
         public string WindowsSafeName;
         public AssetType AssetTypeId;
     }
 
-    class Asset
+    public class Asset
     {
         public long Id;
         public AssetType AssetType;

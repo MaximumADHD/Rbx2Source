@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rbx2Source.Reflection
 {
-    enum AnimationPriority
+    public enum AnimationPriority
     {
         Idle = 0,
         Movement = 1,
@@ -14,14 +14,14 @@ namespace Rbx2Source.Reflection
         Core = 1000
     }
 
-    enum EasingDirection
+    public enum EasingDirection
     {
         In = 0,
         Out = 1,
         InOut = 2,
     }
 
-    enum EasingStyle
+    public enum EasingStyle
     {
         Linear = 0,
         Constant = 1,
@@ -30,7 +30,7 @@ namespace Rbx2Source.Reflection
         Bounce = 4
     }
 
-    enum MeshType
+    public enum MeshType
     {
         Head = 0,
         Torso = 1,
@@ -41,7 +41,7 @@ namespace Rbx2Source.Reflection
         Brick = 6,
     }
 
-    enum PartType
+    public enum PartType
     {
         Ball = 0,
         Block = 1,

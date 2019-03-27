@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rbx2Source.Web
 {
-    enum AssetGroup
+    public enum AssetGroup
     {
         PackageLimbs = 0,
         Accessories = 1

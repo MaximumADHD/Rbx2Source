@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Rbx2Source.Web
 {
-    enum AvatarType { R6, R15, Unknown }
+    public enum AvatarType { R6, R15, Unknown }
 
-    struct AvatarScale
+    public struct AvatarScale
     {
         public float Width;
         public float Height;
@@ -15,7 +15,7 @@ namespace Rbx2Source.Web
         public float BodyType;
     }
 
-    struct UserInfo
+    public struct UserInfo
     {
         public long Id;
         public string Username;
@@ -23,7 +23,7 @@ namespace Rbx2Source.Web
         public List<WebApiError> Errors;
     }
 
-    struct BodyColors
+    public struct BodyColors
     {
         public int HeadColor;
         public int LeftArmColor;
@@ -33,7 +33,7 @@ namespace Rbx2Source.Web
         public int TorsoColor;
     }
 
-    class UserAvatar
+    public class UserAvatar
     {
         public bool UserExists;
         public UserInfo UserInfo;

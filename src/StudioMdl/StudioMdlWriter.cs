@@ -17,7 +17,7 @@ namespace Rbx2Source.StudioMdl
     /// See: https://developer.valvesoftware.com/wiki/Studiomdl_Data
     /// </summary>
 
-    class StudioMdlWriter
+    public class StudioMdlWriter
     {
         public List<Node> Nodes;
         public List<BoneKeyframe> Skeleton;

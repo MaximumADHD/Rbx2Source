@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Threading.Tasks;
+using System.Linq;
 
+using Rbx2Source.Animating;
 using Rbx2Source.Coordinates;
 using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
@@ -11,7 +12,7 @@ using Rbx2Source.Web;
 
 namespace Rbx2Source.Assembler
 {
-    class R6CharacterAssembler : CharacterAssembler, ICharacterAssembler
+    public class R6CharacterAssembler : CharacterAssembler, ICharacterAssembler
     {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // TEXTURE COMPOSITION CONSTANTS
@@ -61,7 +62,7 @@ namespace Rbx2Source.Assembler
             {"Point", 128853357},
         };
 
-        private static string GetBodyMaterialName(long id)
+        private static string GetBodyMatName(long id)
         {
             return id == 0 ? "Body" : "PackageOverlay" + id;
         }
@@ -171,14 +172,11 @@ namespace Rbx2Source.Assembler
         public TextureAssembly AssembleTextures(TextureCompositor compositor, Dictionary<string, Material> materials)
         {
             TextureAssembly assembly = new TextureAssembly();
-            assembly.Images = new Dictionary<string, Image>();
-            assembly.MatLinks = new Dictionary<string, string>();
-
             Bitmap core = compositor.BakeTextureMap();
             Rbx2Source.SetDebugImage(core);
 
             Bitmap head = TextureCompositor.CropBitmap(core, RECT_HEAD);
-            assembly.LinkDirectly("Head", head);
+            assembly.BindTexture("Head", head);
 
             Bitmap body = TextureCompositor.CropBitmap(core, RECT_BODY);
             Folder characterAssets = compositor.CharacterAssets;
@@ -187,10 +185,10 @@ namespace Rbx2Source.Assembler
             Rbx2Source.IncrementStack();
 
             // Collect CharacterMeshes
-            var packagedLimbs = new Dictionary<Limb, CharacterMesh>();
-            foreach (CharacterMesh mesh in characterAssets.GetChildrenOfClass<CharacterMesh>())
-                packagedLimbs.Add(mesh.BodyPart, mesh);
-
+            var packagedLimbs = characterAssets
+                .GetChildrenOfClass<CharacterMesh>()
+                .ToDictionary(mesh => mesh.BodyPart);
+            
             // Compose the textures that will be used
             var limbOverlays = new Dictionary<Limb, long>();
             var limbBitmaps = new Dictionary<long, Bitmap>() { {0, body} };
@@ -219,10 +217,10 @@ namespace Rbx2Source.Assembler
                             Asset overlayAsset = Asset.Get(overlayId);
 
                             TextureCompositor overlayCompositor = new TextureCompositor(AvatarType.R6, RECT_FULL);
-                            overlayCompositor.AppendTexture(body, RECT_BODY);
-                            overlayCompositor.AppendTexture(overlayAsset, RECT_BODY, 1);
                             overlayCompositor.SetContext("Overlay Texture " + overlayId);
-
+                            overlayCompositor.AppendTexture(overlayAsset, RECT_BODY, 1);
+                            overlayCompositor.AppendTexture(body, RECT_BODY);
+                            
                             Bitmap overlayTex = overlayCompositor.BakeTextureMap(RECT_BODY);
                             limbBitmaps.Add(overlayId, overlayTex);
                         }
@@ -241,9 +239,9 @@ namespace Rbx2Source.Assembler
                             Asset baseAsset = Asset.Get(baseId);
 
                             TextureCompositor baseCompositor = new TextureCompositor(AvatarType.R6, RECT_FULL);
-                            baseCompositor.AppendTexture(baseAsset, RECT_BODY);
                             baseCompositor.SetContext("Base Texture " + baseId);
-
+                            baseCompositor.AppendTexture(baseAsset, RECT_BODY);
+                            
                             Bitmap baseTex = baseCompositor.BakeTextureMap(RECT_BODY);
                             limbBitmaps.Add(baseId, baseTex);
                         }
@@ -260,35 +258,35 @@ namespace Rbx2Source.Assembler
             // Add the images into the texture assembly.
             foreach (long id in limbBitmaps.Keys)
             {
-                string materialName = GetBodyMaterialName(id);
                 Bitmap bitmap = limbBitmaps[id];
-                assembly.Images.Add(materialName, bitmap);
+                string matName = GetBodyMatName(id);
+                assembly.AddTexture(matName, bitmap);
             }
 
             // Link the limbs to their textures.
             foreach (Limb limb in limbOverlays.Keys)
             {
                 long id = limbOverlays[limb];
-                string materialName = GetBodyMaterialName(id);
+                string matName = GetBodyMatName(id);
 
                 string limbName = Rbx2Source.GetEnumName(limb);
-                assembly.MatLinks.Add(limbName, materialName);
+                assembly.BindName(limbName, matName);
             }
 
             // Handle the rest of the materials
-            foreach (string materialName in materials.Keys)
+            foreach (string matName in materials.Keys)
             {
-                if (!assembly.MatLinks.ContainsKey(materialName))
+                if (!assembly.MatLinks.ContainsKey(matName))
                 {
-                    Material material = materials[materialName];
+                    Material material = materials[matName];
                     Asset texture = material.TextureAsset;
 
                     TextureCompositor matComp = new TextureCompositor(AvatarType.R6, RECT_ITEM);
+                    matComp.SetContext("Accessory Texture " + matName);
                     matComp.AppendTexture(texture, RECT_ITEM);
-                    matComp.SetContext("Accessory Texture " + materialName);
-
+                    
                     Bitmap bitmap = matComp.BakeTextureMap();
-                    assembly.LinkDirectly(materialName, bitmap);
+                    assembly.BindTexture(matName, bitmap);
                 }
             }
 

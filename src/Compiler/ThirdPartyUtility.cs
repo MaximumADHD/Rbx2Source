@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Rbx2Source.Compiler
 {
-    class UtilParameter
+    public class UtilParameter
     {
         public string Name;
         public string Value;
@@ -51,7 +51,7 @@ namespace Rbx2Source.Compiler
         }
     }
 
-    class ThirdPartyUtility
+    public class ThirdPartyUtility
     {
 
         private string appPath;

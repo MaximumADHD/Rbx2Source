@@ -9,7 +9,7 @@ using Rbx2Source.Geometry;
 
 namespace Rbx2Source.StudioMdl
 {
-    class Node : IStudioMdlEntity
+    public class Node : IStudioMdlEntity
     {
         public string Name;
         public Bone Bone;

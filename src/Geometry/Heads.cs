@@ -8,9 +8,9 @@ using Rbx2Source.Web;
 
 namespace Rbx2Source.Geometry
 {
-    enum BevelType { Unknown, Block, Cylinder }
+    public enum BevelType { Unknown, Block, Cylinder }
 
-    class Head
+    public class Head
     {
 
         public BevelType BevelType;

@@ -52,53 +52,73 @@ namespace Rbx2Source.Animating
 
         private static float easeInOut(float t, Func<float,float> func)
         {
+            float result;
             t *= 2f;
+
             if (t < 1)
-                return easeIn(t, func) * 0.5f;
+                result = easeIn(t, func) * 0.5f;
             else
-                return 0.5f + (easeOut(t - 1, func) * 0.5f);
+                result = 0.5f + (easeOut(t - 1, func) * 0.5f);
+
+            return result;
         }
 
         public static float GetEasing(EasingStyle style, EasingDirection direction, float percent)
         {
             if (style == EasingStyle.Bounce)
             {
+                float result;
+
                 if (direction == EasingDirection.Out)
-                    return 1 - easeOut(percent, bounce);
+                    result = 1 - easeOut(percent, bounce);
                 else if (direction == EasingDirection.In)
-                    return 1 - bounce(percent);
+                    result = 1 - bounce(percent);
                 else
-                    return 1 - easeInOut(percent, bounce);
+                    result = 1 - easeInOut(percent, bounce);
+
+                return result;
             }
             else if (style == EasingStyle.Elastic)
             {
                 double result;
+
                 if (direction == EasingDirection.InOut)
                 {
                     double t = ((double)percent * 2) - 1;
-                    result = Math.Pow(2, 10 * t) * Math.Sin((t - 0.1125) * tau / 0.45);
+                    double inOut = Math.Pow(2, 10 * t) * Math.Sin((t - 0.1125) * tau / 0.45);
+
                     if (t < 0)
-                        result = 1 - (-.5 * result);
+                        inOut = 1 - (-.5 * inOut);
                     else
-                        result = 1 - (1 + .5 * result);
+                        inOut = 1 - (1 + .5 * inOut);
+
+                    result = inOut;
                 }
                 else
                 {
-                    double t = (double)percent;
-                    result = (1 + Math.Pow(2, -10 * t) * Math.Sin((t - 0.925) * tau / 0.3));
+                    double t = percent;
+                    double value = (1 + Math.Pow(2, -10 * t) * Math.Sin((t - 0.925) * tau / 0.3));
+
                     if (direction == EasingDirection.In)
-                        result = 1 - result;
+                        value = 1 - value;
+
+                    result = value;
                 }
+
                 return (float)result;
             }
             else if (style == EasingStyle.Cubic)
             {
+                float result;
+
                 if (direction == EasingDirection.Out)
-                    return 1 - easeOut(percent, cubic);
+                    result = 1 - easeOut(percent, cubic);
                 else if (direction == EasingDirection.In)
-                    return 1 - cubic(percent);
+                    result = 1 - cubic(percent);
                 else
-                    return 1 - easeInOut(percent, cubic);
+                    result = 1 - easeInOut(percent, cubic);
+
+                return result;
             }
             else if (style == EasingStyle.Linear)
             {
@@ -106,12 +126,16 @@ namespace Rbx2Source.Animating
             }
             else // Constant
             {
+                float result;
+
                 if (direction == EasingDirection.Out)
-                    return 1;
+                    result = 1;
                 else if (direction == EasingDirection.In)
-                    return 0;
+                    result = 0;
                 else
-                    return 0.5f;
+                    result = 0.5f;
+
+                return result;
             }
         }
     }

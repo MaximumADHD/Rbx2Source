@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rbx2Source.Coordinates
 {
-    interface IBaseCoordinates
+    public interface IBaseCoordinates
     {
         string ToStudioMdlString(bool excludeZ = false);
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
+using Rbx2Source.Animating;
 using Rbx2Source.Coordinates;
 using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
@@ -12,7 +13,7 @@ using Rbx2Source.Web;
 
 namespace Rbx2Source.Assembler
 {
-    class R15CharacterAssembler : CharacterAssembler, ICharacterAssembler
+    public class R15CharacterAssembler : CharacterAssembler, ICharacterAssembler
     {
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // TEXTURE COMPOSITION CONSTANTS
@@ -185,10 +186,10 @@ namespace Rbx2Source.Assembler
             // Build Character
             Folder import = RBXM.LoadFromAsset(R15AssemblyAsset);
             Folder assembly = import.FindFirstChild<Folder>("ASSEMBLY");
-            assembly.Parent = characterAssets;
 
             BasePart head = assembly.FindFirstChild<BasePart>("Head");
-
+            assembly.Parent = characterAssets;
+            
             foreach (Instance asset in characterAssets.GetChildren())
             {
                 if (asset.IsA("BasePart"))
@@ -228,10 +229,11 @@ namespace Rbx2Source.Assembler
                 if (limb != Limb.Unknown)
                 {
                     Vector3 limbScale = ComputeLimbScale(scale, part);
-                    part.Size *= limbScale;
 
-                    foreach (Attachment attachment in part.GetChildrenOfClass<Attachment>())
-                        attachment.CFrame = CFrame.Scale(attachment.CFrame, limbScale);
+                    foreach (Attachment att in part.GetChildrenOfClass<Attachment>())
+                        att.CFrame = CFrame.Scale(att.CFrame, limbScale);
+
+                    part.Size *= limbScale;
                 }
             }
 
@@ -320,22 +322,20 @@ namespace Rbx2Source.Assembler
         public TextureAssembly AssembleTextures(TextureCompositor compositor, Dictionary<string, Material> materials)
         {
             TextureAssembly assembly = new TextureAssembly();
-            assembly.Images = new Dictionary<string, Image>();
-            assembly.MatLinks = new Dictionary<string, string>();
-
             Bitmap uvMap = compositor.BakeTextureMap();
             Rbx2Source.SetDebugImage(uvMap);
 
-            foreach (string materialName in materials.Keys)
+            foreach (string matName in materials.Keys)
             {
-                Rbx2Source.Print("Building Material {0}", materialName);
-                Material material = materials[materialName];
+                Rbx2Source.Print("Building Material {0}", matName);
+                Material material = materials[matName];
                 Image image = null;
 
                 if (material.UseAvatarMap)
                 {
                     Limb limb;
-                    if (Enum.TryParse(materialName, out limb))
+
+                    if (Enum.TryParse(matName, out limb))
                     {
                         Rectangle cropRegion = UVCrops[limb];
                         image = TextureCompositor.CropBitmap(uvMap, cropRegion);
@@ -344,19 +344,18 @@ namespace Rbx2Source.Assembler
                 else
                 {
                     Asset texture = material.TextureAsset;
+
                     if (texture != null)
                     {
                         byte[] textureData = texture.GetContent();
                         MemoryStream textureStream = new MemoryStream(textureData);
+                        
                         image = Image.FromStream(textureStream);
+                        textureStream.Dispose();
                     }
                 }
 
-                if (image != null)
-                    assembly.LinkDirectly(materialName, image);
-                else
-                    Rbx2Source.Print("Missing Image for Material {0}?", materialName);
-
+                assembly.BindTexture(matName, image);
             }
 
             return assembly;

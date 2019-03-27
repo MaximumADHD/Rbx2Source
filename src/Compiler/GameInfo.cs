@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Rbx2Source.Compiler
 {
-    class GameInfo
+    public class GameInfo
     {
         public string GameInfoPath = null;
         public string GameDirectory = null;

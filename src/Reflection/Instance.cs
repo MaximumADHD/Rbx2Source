@@ -10,63 +10,69 @@ namespace Rbx2Source.Reflection
     /// Lazy implementation of Roblox's Instance functionality.
     /// </summary>
 
-    class Instance
+    public class Instance
     {
-        private Instance _parent;
-        private List<Instance> _children = new List<Instance>();
+        private Instance rawParent;
+        private HashSet<Instance> children = new HashSet<Instance>();
+
         public string Name;
+        public string ClassName => GetType().Name;
 
         public Instance[] GetChildren()
         {
-            return _children.ToArray();
+            return children.ToArray();
         }
 
         public T[] GetChildrenOfClass<T>() where T : Instance
         {
-            T[] result = _children.OfType<T>().ToArray();
+            T[] result = children.OfType<T>().ToArray();
             return result;
         }
 
-        protected void AddChild(Instance child)
+        public void ForEachChild(Action<Instance> action)
         {
-            if (!_children.Contains(child))
-                _children.Add(child);
+            children.ToList().ForEach(action);
         }
 
-        protected void RemoveChild(Instance child)
+        public void ForEachChildOfClass<T>(Action<T> action) where T : Instance
         {
-            if (_children.Contains(child))
-                _children.Remove(child);
+            children.OfType<T>().ToList().ForEach(action);
         }
 
-        public bool IsDescendantOf(Instance obj)
+        protected bool AddChild(Instance child)
         {
-            foreach (Instance child in obj.GetChildren())
+            return children.Add(child);
+        }
+
+        protected bool RemoveChild(Instance child)
+        {
+            return children.Remove(child);
+        }
+
+        public bool IsAncestorOf(Instance desc = null)
+        {
+            while (desc != null)
             {
-                if (child == obj)
+                if (desc == this)
                     return true;
-                else
-                    return IsDescendantOf(child);
+
+                desc = desc.Parent;
             }
 
             return false;
         }
 
-        public bool IsAncestorOf(Instance obj)
+        public bool IsDescendantOf(Instance obj)
         {
-            return obj.IsDescendantOf(this);
+            return obj.IsAncestorOf(this);
         }
-
+        
         public string GetFullName()
         {
             string fullName = Name;
-            Instance current = Parent;
 
-            while (current != null)
-            {
-                fullName += '.' + current.Name;
-                current = current.Parent;
-            }
+            if (Parent != null)
+                fullName = Parent.GetFullName() + '.' + fullName;
 
             return fullName;
         }
@@ -74,15 +80,14 @@ namespace Rbx2Source.Reflection
         public void Destroy()
         {
             Parent = null;
-            foreach (Instance child in GetChildren())
-                child.Destroy();
+            ForEachChild(child => child.Destroy());
         }
 
         public T FindFirstChildOfClass<T>() where T : Instance
         {
             T result = null;
 
-            foreach (Instance child in _children)
+            foreach (Instance child in children)
             {
                 if (child is T)
                 {
@@ -98,7 +103,7 @@ namespace Rbx2Source.Reflection
         {
             T firstChild = null;
 
-            foreach (Instance child in _children)
+            foreach (Instance child in children)
             {
                 if (child.Name == name && child is T)
                 {
@@ -108,6 +113,7 @@ namespace Rbx2Source.Reflection
                 else if (recursive)
                 {
                     T descendingChild = child.FindFirstChild<T>(name, true);
+
                     if (descendingChild != null)
                     {
                         firstChild = descendingChild;
@@ -119,44 +125,40 @@ namespace Rbx2Source.Reflection
             return firstChild;
         }
 
-        public Instance FindFirstChild(string name, bool recursive = false) => FindFirstChild<Instance>(name, recursive);
+        public Instance FindFirstChild(string name, bool recursive = false)
+        {
+            return FindFirstChild<Instance>(name, recursive);
+        }
 
         public Instance Parent
         {
             get
             {
-                return _parent;
+                return rawParent;
             }
             set
             {
+                if (value == this)
+                    throw new Exception("Attempt to set " + GetFullName() + " as its own parent");
+                else if (IsAncestorOf(value))
+                    throw new Exception("Attempt to set rawParent of " + GetFullName() + " to " + value.GetFullName() + " would result in circular reference");
+                
+                if (rawParent != null)
+                    rawParent.RemoveChild(this);
+
                 if (value != null)
-                {
-                    if (value == this)
-                        throw new Exception("Attempt to set " + GetFullName() + " as its own parent");
-                    else if (value.IsDescendantOf(this))
-                        throw new Exception("Attempt to set parent of " + GetFullName() + " to " + value.GetFullName() + " would result in circular reference");
-                }
+                    value.AddChild(this);
 
-                if (_parent != null)
-                    _parent.RemoveChild(this);
-
-                _parent = value;
-
-                if (_parent != null)
-                    _parent.AddChild(this);
+                rawParent = value;
             }
         }
-
-        public string ClassName => GetType().Name;
-
+        
         public bool IsA(string className)
         {
-            Type myType = this.GetType();
+            Type myType = GetType();
             Type specType = Type.GetType("Rbx2Source.Reflection." + className);
-            if (specType != null)
-                return specType.IsAssignableFrom(myType);
-            else
-                return false;
+
+            return (specType != null && specType.IsAssignableFrom(myType));
         }
 
         public override string ToString()

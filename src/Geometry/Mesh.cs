@@ -11,7 +11,7 @@ using Rbx2Source.Web;
 
 namespace Rbx2Source.Geometry
 {
-    class Mesh
+    public class Mesh
     {
         public Vertex[] Verts;
         public int[][] Faces;
@@ -31,16 +31,10 @@ namespace Rbx2Source.Geometry
             {"Torso",       Asset.FromResource("Meshes/StandardLimbs/torso.mesh")}
         };
 
-        private static float parseFloat(string f)
-        {
-            return float.Parse(f, Rbx2Source.NormalParse);
-        }
-
-        private static Converter<string, float> toFloat = new Converter<string, float>(parseFloat);
-
         private static void loadGeometryV1(StringReader reader, Mesh mesh)
         {
             string header = reader.ReadLine();
+
             if (!header.StartsWith("version 1"))
                 throw new Exception("Expected version 1 header, got: " + header);
 
@@ -59,9 +53,10 @@ namespace Rbx2Source.Geometry
 
             int face = 0;
             int index = 0;
-            int state = 0;
+            int target = 0;
 
             Vertex currentVertex = new Vertex();
+            var toFloat = new Converter<string, float>(f => float.Parse(f, Rbx2Source.NormalParse));
 
             foreach (Match m in matches)
             {
@@ -69,18 +64,20 @@ namespace Rbx2Source.Geometry
                 float[] coords = Array.ConvertAll(vectorStr.Split(','), toFloat);
                 Vector3 vector = new Vector3(coords);
 
-                if (state == 0)
+                if (target == 0)
                     currentVertex.Pos = new Vector3(coords) * vertScale;
-                else if (state == 1)
+                else if (target == 1)
                     currentVertex.Norm = new Vector3(coords);
-                else if (state == 2)
+                else if (target == 2)
                     currentVertex.UV = new Vector3(coords[0], 1 - coords[1], 0);
 
-                state = (state + 1) % 3;
-                if (state == 0)
+                target = (target + 1) % 3;
+
+                if (target == 0)
                 {
                     mesh.Verts[index++] = currentVertex;
                     currentVertex = new Vertex();
+
                     if (index % 3 == 0)
                     {
                         int v = face * 3;
@@ -116,14 +113,17 @@ namespace Rbx2Source.Geometry
                 vert.Pos = new Vector3(reader);
                 vert.Norm = new Vector3(reader);
                 vert.UV = new Vector3(reader);
-                mesh.Verts[i] = vert;
+
                 if (vertBytesToSkip > 0)
                     reader.ReadBytes(vertBytesToSkip);
+
+                mesh.Verts[i] = vert;
             }
 
             for (int p = 0; p < mesh.FaceCount; p++)
             {
                 int[] face = new int[3];
+
                 for (int i = 0; i < 3; i++)
                     face[i] = reader.ReadInt32();
 
@@ -166,7 +166,9 @@ namespace Rbx2Source.Geometry
         public void BakeGeometry(Vector3 scale, CFrame offset)
         {
             for (int i = 0; i < VertCount; i++)
+            {
                 Verts[i].Pos = (offset * new CFrame(Verts[i].Pos * scale)).p;
+            }
         }
 
         public static Mesh FromFile(string path)
@@ -209,12 +211,12 @@ namespace Rbx2Source.Geometry
             {
                 if (part.IsA("MeshPart"))
                 {
-                    MeshPart meshPart = (MeshPart)part;
+                    MeshPart meshPart = part as MeshPart;
+
                     if (meshPart.MeshId == null)
                     {
                         string partName = meshPart.Name;
-                        if (StandardLimbs.ContainsKey(partName))
-                            meshAsset = StandardLimbs[partName];
+                        StandardLimbs.TryGetValue(partName, out meshAsset);
                     }
                     else
                     {
@@ -232,11 +234,13 @@ namespace Rbx2Source.Geometry
                     offset = part.CFrame;
 
                     SpecialMesh specialMesh = part.FindFirstChildOfClass<SpecialMesh>();
+
                     if (specialMesh != null && specialMesh.MeshType == MeshType.FileMesh)
                     {
                         meshAsset = Asset.GetByAssetId(specialMesh.MeshId);
                         scale = specialMesh.Scale;
                         offset *= new CFrame(specialMesh.Offset);
+
                         if (material != null)
                         {
                             textureAsset = Asset.GetByAssetId(specialMesh.TextureId);
@@ -246,6 +250,7 @@ namespace Rbx2Source.Geometry
                     else
                     {
                         DataModelMesh legacy = part.FindFirstChildOfClass<DataModelMesh>();
+
                         if (legacy != null)
                         {
                             meshAsset = Head.ResolveHeadMeshAsset(legacy);

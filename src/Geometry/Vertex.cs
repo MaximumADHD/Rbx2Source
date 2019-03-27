@@ -3,7 +3,7 @@ using Rbx2Source.Coordinates;
 
 namespace Rbx2Source.Geometry
 {
-    struct Vertex
+    public struct Vertex
     {
         public Vector3 Pos;
         public Vector3 Norm;

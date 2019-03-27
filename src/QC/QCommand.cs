@@ -1,19 +1,17 @@
-﻿using System;
+﻿// TODO: This needs to be rewritten really badly...
+
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Rbx2Source.QC
 {
-    struct QCParam
+    public struct QCParam
     {
         public string Name;
         public List<string> Values;
     }
 
-    class QCommand
+    public class QCommand
     {
         public string Name;
         protected List<string> Options = new List<string>();

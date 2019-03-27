@@ -16,9 +16,9 @@ using Rbx2Source.Web;
 
 namespace Rbx2Source.Assembler
 {
-    enum Limb { Head, Torso, LeftArm, RightArm, LeftLeg, RightLeg, Unknown }
+    public enum Limb { Head, Torso, LeftArm, RightArm, LeftLeg, RightLeg, Unknown }
 
-    struct BoneAssemblePrep
+    public struct BoneAssemblePrep
     {
         public List<Attachment> NonRigs;
         public List<Attachment> Completed;
@@ -29,7 +29,7 @@ namespace Rbx2Source.Assembler
         public bool AllowNonRigs;
     }
 
-    class CharacterAssembler : IAssembler
+    public class CharacterAssembler : IAssembler
     {
         private static bool DEBUG_RAPID_ASSEMBLY = false;
 
@@ -257,13 +257,14 @@ namespace Rbx2Source.Assembler
         {
             string task = "BuildGeometry_" + bone.Node.Name;
             Rbx2Source.ScheduleTasks(task);
+
             Node node = bone.Node;
             BasePart part = bone.Part1;
-            bool IsAvatarLimb = bone.IsAvatarBone;
 
+            bool isAvatarLimb = bone.IsAvatarBone;
             string materialName;
 
-            if (IsAvatarLimb)
+            if (isAvatarLimb)
             {
                 Limb limb = GetLimb(part);
                 materialName = Rbx2Source.GetEnumName(limb);
@@ -274,21 +275,20 @@ namespace Rbx2Source.Assembler
             }
 
             Material material = new Material();
-            material.UseAvatarMap = IsAvatarLimb;
+            material.UseAvatarMap = isAvatarLimb;
 
             Rbx2Source.Print("Building Geometry for {0}",part.Name);
             Rbx2Source.IncrementStack();
 
             Mesh geometry = Mesh.BakePart(part, material);
-            if (!meshBuilder.Materials.ContainsKey(materialName))
-                meshBuilder.Materials.Add(materialName, material);
-
+            meshBuilder.Materials[materialName] = material;
+            
             for (int i = 0; i < geometry.FaceCount; i++)
             {
                 Triangle tri = new Triangle();
                 tri.Node = node;
-                tri.Mesh = geometry;
                 tri.FaceIndex = i;
+                tri.Mesh = geometry;
                 tri.Material = materialName;
 
                 meshBuilder.Triangles.Add(tri);
@@ -307,9 +307,11 @@ namespace Rbx2Source.Assembler
 
             foreach (long id in assetIds)
             {
-                Asset asset = Asset.Get(id,"/asset/?assetversionid=");
+                Asset asset = Asset.Get(id, "/asset/?assetversionid=");
+
                 Folder import = RBXM.LoadFromAsset(asset);
                 Folder typeSpecific = import.FindFirstChild<Folder>(avatarType);
+
                 if (typeSpecific != null)
                     import = typeSpecific;
 
@@ -323,6 +325,7 @@ namespace Rbx2Source.Assembler
         public static Folder AppendCollisionAssets(UserAvatar avatar, string avatarType)
         {
             Folder collisionAssets;
+
             if (DEBUG_RAPID_ASSEMBLY)
                 collisionAssets = new Folder();
             else
@@ -351,6 +354,7 @@ namespace Rbx2Source.Assembler
         {
             // Check if this avatar is using an Rthro head with a texture overlay.
             Folder assembly = characterAssets.FindFirstChild<Folder>("ASSEMBLY");
+
             if (assembly != null)
             {
                 BasePart head = assembly.FindFirstChild<BasePart>("Head");
@@ -358,12 +362,14 @@ namespace Rbx2Source.Assembler
                 if (head != null)
                 {
                     SpecialMesh headMesh = head.FindFirstChildOfClass<SpecialMesh>();
+
                     if (headMesh != null && headMesh.TextureId != null && headMesh.TextureId.Length > 0)
                     {
                         // One last check to make sure this is *probably* an Rthro head.
                         // The reason this check is necessary is due to the iBot Head, which has a texture and allows a face to be drawn on it.
                         // I suspect Roblox will expand this behavior later, so I need to keep an eye on it.
                         StringValue scaleType = head.FindFirstChild<StringValue>("AvatarPartScaleType");
+
                         if (scaleType != null && scaleType.Value != "Classic")
                         {
                             return Asset.GetByAssetId(headMesh.TextureId);
@@ -374,10 +380,14 @@ namespace Rbx2Source.Assembler
 
             // Fall back to normal behavior.
             Decal face = characterAssets.FindFirstChild<Decal>("face");
+            Asset result;
+
             if (face != null && face.Texture != "rbxasset://textures/face.png")
-                return Asset.GetByAssetId(face.Texture);
+                result = Asset.GetByAssetId(face.Texture);
             else
-                return Asset.FromResource("Images/face.png");
+                result = Asset.FromResource("Images/face.png");
+
+            return result;
         }
 
         public static float ComputeFloorLevel(Folder assembly)
@@ -408,16 +418,16 @@ namespace Rbx2Source.Assembler
             string userName = FileUtility.MakeNameWindowsSafe(userInfo.Username);
 
             string appData = Environment.GetEnvironmentVariable("AppData");
-            string rbx2Source = Path.Combine(appData, "Rbx2Source");
-            string avatars = Path.Combine(rbx2Source, "Avatars");
+            string rbx2Src = Path.Combine(appData, "Rbx2Source");
+            string avatars = Path.Combine(rbx2Src, "Avatars");
             string userBin = Path.Combine(avatars, userName);
 
             string modelDir = Path.Combine(userBin, "Model");
-            string animDir = Path.Combine(modelDir, "Animations");
+            string anim8Dir = Path.Combine(modelDir, "Animations");
             string texturesDir = Path.Combine(userBin, "Textures");
             string materialsDir = Path.Combine(userBin, "Materials");
 
-            FileUtility.InitiateEmptyDirectories(modelDir, animDir, texturesDir, materialsDir);
+            FileUtility.InitiateEmptyDirectories(modelDir, anim8Dir, texturesDir, materialsDir);
 
             AvatarType avatarType = avatar.ResolvedAvatarType;
             ICharacterAssembler assembler;
@@ -440,7 +450,7 @@ namespace Rbx2Source.Assembler
             StudioMdlWriter writer = assembler.AssembleModel(characterAssets, avatar.Scales, DEBUG_RAPID_ASSEMBLY);
 
             string studioMdl = writer.BuildFile();
-            string modelPath = Path.Combine(modelDir,"CharacterModel.smd");
+            string modelPath = Path.Combine(modelDir, "CharacterModel.smd");
             FileUtility.WriteFile(modelPath, studioMdl);
 
             string staticPose = writer.BuildFile(false);
@@ -452,7 +462,7 @@ namespace Rbx2Source.Assembler
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
-            Rbx2Source.PrintHeader("BUILDING CHARACTER COLLISIONS");
+            Rbx2Source.PrintHeader("BUILDING COLLISION MODEL");
             #region Build Character Collisions
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -464,7 +474,7 @@ namespace Rbx2Source.Assembler
             FileUtility.WriteFile(cmodelPath, collisionModel); 
 
             byte[] collisionJoints = assembler.CollisionModelScript;
-            string cjointsPath = Path.Combine(modelDir,"CollisionJoints.qc");
+            string cjointsPath = Path.Combine(modelDir, "CollisionJoints.qc");
 
             FileUtility.WriteFile(cjointsPath, collisionJoints);
             Rbx2Source.MarkTaskCompleted("BuildCollisionModel");
@@ -476,8 +486,8 @@ namespace Rbx2Source.Assembler
             #region Build Character Animations
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            Dictionary<string, AnimationId> animIds = assembler.CollectAnimationIds(avatar);
-            Dictionary<string, Asset> compileAnims = new Dictionary<string, Asset>();
+            var animIds = assembler.CollectAnimationIds(avatar);
+            var compileAnims = new Dictionary<string, Asset>();
                 
             if (animIds.Count > 0)
             {
@@ -520,6 +530,7 @@ namespace Rbx2Source.Assembler
                                 }
 
                                 Animation compileAnim = animDef.FindFirstChildOfClass<Animation>();
+
                                 if (compileAnim != null)
                                 {
                                     Asset compileAsset = Asset.GetByAssetId(compileAnim.AnimationId);
@@ -554,11 +565,11 @@ namespace Rbx2Source.Assembler
                     Folder import = RBXM.LoadFromAsset(animAsset);
 
                     KeyframeSequence sequence = import.FindFirstChildOfClass<KeyframeSequence>();
-                    sequence.Name = animName;
                     sequence.AvatarType = avatar.ResolvedAvatarType;
+                    sequence.Name = animName;
 
                     string animation = AnimationAssembler.Assemble(sequence, writer.Skeleton[0].Bones);
-                    string animPath = Path.Combine(animDir, animName + ".smd");
+                    string animPath = Path.Combine(anim8Dir, animName + ".smd");
 
                     FileUtility.WriteFile(animPath, animation);
                 }
@@ -580,9 +591,6 @@ namespace Rbx2Source.Assembler
             if (DEBUG_RAPID_ASSEMBLY)
             {
                 texAssembly = new TextureAssembly();
-                texAssembly.MatLinks = new Dictionary<string, string>();
-                texAssembly.Images = new Dictionary<string, Image>();
-
                 materials.Clear();
             }
             else
@@ -591,7 +599,7 @@ namespace Rbx2Source.Assembler
                 texAssembly = assembler.AssembleTextures(texCompositor, materials);
             }
 
-            Dictionary<string, Image> images = texAssembly.Images;
+            var images = texAssembly.Images;
             texAssembly.MaterialDirectory = compileDirectory;
 
             foreach (string imageName in images.Keys)
@@ -623,22 +631,18 @@ namespace Rbx2Source.Assembler
             #region Write Material Files
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            Dictionary<string, string> matLinks = texAssembly.MatLinks;
+            var matLinks = texAssembly.MatLinks;
 
             foreach (string mtlName in matLinks.Keys)
             {
                 Rbx2Source.Print("Building VMT {0}.vmt", mtlName);
+
                 string targetVtf = matLinks[mtlName];
+                string vmtPath = Path.Combine(materialsDir, mtlName + ".vmt");
 
                 Material mtl = materials[mtlName];
-
-                ValveMaterial vmt = new ValveMaterial(mtl);
-                vmt.SetField("basetexture", "models/" + compileDirectory + "/" + targetVtf);
-
-                string vmtPath = Path.Combine(materialsDir, mtlName + ".vmt");
-                string vmtContent = vmt.ToString();
-
-                FileUtility.WriteFile(vmtPath, vmtContent);
+                mtl.SetVmtField("basetexture", "models/" + compileDirectory + "/" + targetVtf);
+                mtl.WriteVmtFile(vmtPath);
             }
 
             Rbx2Source.MarkTaskCompleted("BuildMaterials");
@@ -682,7 +686,7 @@ namespace Rbx2Source.Assembler
             foreach (string animName in compileAnims.Keys)
             {
                 QCommand sequence = new QCommand("sequence", animName.ToLower(), "Animations/" + animName + ".smd");
-                sequence.AddParameter("fps", AnimationAssembler.FrameRate.ToString());
+                sequence.AddParameter("fps", AnimationAssembler.FrameRate);
                 sequence.AddParameter("loop");
 
                 if (avatarType == AvatarType.R6)
@@ -700,15 +704,16 @@ namespace Rbx2Source.Assembler
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
-            AssemblerData data = new AssemblerData();
-            data.ModelData = writer;
-            data.TextureData = texAssembly;
-            data.CompilerScript = qcPath;
-            data.RootDirectory = userBin;
-            data.MaterialDirectory = materialsDir;
-            data.TextureDirectory = texturesDir;
-            data.CompileDirectory = compileDirectory;
-            data.ModelName = modelNameStr;
+            AssemblerData data = new AssemblerData()
+            {
+                ModelData = writer,
+                TextureData = texAssembly,
+                CompilerScript = qcPath,
+                RootDirectory = userBin,
+                MaterialDirectory = materialsDir,
+                TextureDirectory = compileDirectory,
+                ModelName = modelNameStr
+            };
 
             return data;
         }

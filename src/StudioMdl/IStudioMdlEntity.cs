@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Rbx2Source.StudioMdl
 {
-    interface IStudioMdlEntity
+    public interface IStudioMdlEntity
     {
         void Write(StringWriter fileBuffer, IList rawArray, object rawEntity);
         string GroupName { get; }

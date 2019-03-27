@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rbx2Source.Web
 {
-    class LegacyAssets
+    public class LegacyAssets
     {
         private static Dictionary<string, long> Database = new Dictionary<string, long>()
         {

@@ -11,7 +11,7 @@ using Rbx2Source.Resources;
 namespace Rbx2Source.Compiler
 {
 
-    class ModelCompiler
+    public class ModelCompiler
     {
         private static ThirdPartyUtility vtfCompiler;
 		private static string vtfCompilerPath;

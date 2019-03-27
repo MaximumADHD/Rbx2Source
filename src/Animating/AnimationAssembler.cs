@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Rbx2Source.Coordinates;
 using Rbx2Source.StudioMdl;
@@ -12,31 +8,9 @@ using Rbx2Source.Web;
 
 namespace Rbx2Source.Animating
 {
-    class KeyframeSorter : IComparer<Keyframe>
+    public class AnimationAssembler
     {
-        public int Compare(Keyframe a, Keyframe b)
-        {
-            int aFrameTime = AnimationAssembler.ToFrameRate(a.Time);
-            int bFrameTime = AnimationAssembler.ToFrameRate(b.Time);
-            return (aFrameTime - bFrameTime);
-        }
-    }
-
-    struct PoseMapEntity
-    {
-        public int Frame;
-        public Pose Pose;
-    }
-
-    struct PosePair
-    {
-        public PoseMapEntity Min;
-        public PoseMapEntity Max;
-    }
-
-    class AnimationAssembler
-    {
-        public static int FrameRate = 60;
+        public const int FrameRate = 60;
         private static KeyframeSorter sorter = new KeyframeSorter();
 
         public static int ToFrameRate(float time)
@@ -67,11 +41,10 @@ namespace Rbx2Source.Animating
             {
                 if (keyFrameMap[minFrame].ContainsKey(poseName))
                     break;
-                else
-                    minFrame--;
-            }
-                
 
+                minFrame++;
+            }
+            
             // Get max.
             int maxFrame = frame;
 
@@ -79,20 +52,15 @@ namespace Rbx2Source.Animating
             {
                 if (keyFrameMap[maxFrame].ContainsKey(poseName))
                     break;
-                else
-                    maxFrame++;
+
+                maxFrame--;
             }
 
             if (maxFrame == keyFrameMap.Count)
                 maxFrame = minFrame;
 
             // Return data
-
-            PosePair pair = new PosePair();
-            pair.Min = new PoseMapEntity();
-            pair.Min.Frame = minFrame;
-            pair.Max = new PoseMapEntity();
-            pair.Max.Frame = maxFrame;
+            PosePair pair = new PosePair(minFrame, maxFrame);
 
             if (minFrame == -1 )
             {
@@ -100,16 +68,21 @@ namespace Rbx2Source.Animating
                 Pose stubPose = new Pose();
                 stubPose.Name = poseName;
                 stubPose.CFrame = new CFrame();
+
                 pair.Min.Pose = stubPose;
                 pair.Max.Pose = stubPose;
             }
             else
             {
-                pair.Min.Pose = keyFrameMap[minFrame][poseName];
+                var min = keyFrameMap[minFrame];
+                var max = keyFrameMap[maxFrame];
+
                 if (keyFrameMap.ContainsKey(maxFrame))
-                    pair.Max.Pose = keyFrameMap[maxFrame][poseName];
+                    pair.Max.Pose = max[poseName];
                 else
-                    pair.Max.Pose = pair.Min.Pose;
+                    pair.Max.Pose = min[poseName];
+
+                pair.Min.Pose = min[poseName];
             }
 
             return pair;
@@ -125,10 +98,11 @@ namespace Rbx2Source.Animating
 
             int nodeIndex = nodes.IndexOf(node);
             node.NodeIndex = nodeIndex;
-            
-            foreach (Pose nextPose in pose.GetChildrenOfClass<Pose>())
-                SetupNodeHierarchy(nextPose, nodes, nodeIndex);
 
+            foreach (Pose nextPose in pose.GetChildrenOfClass<Pose>())
+            {
+                SetupNodeHierarchy(nextPose, nodes, nodeIndex);
+            }
         }
 
         public static string Assemble(KeyframeSequence sequence, List<Bone> rig)
@@ -181,35 +155,28 @@ namespace Rbx2Source.Animating
             // I have to account for every single CFrame for every single frame.
 
             var keyframeMap = new Dictionary<int, Dictionary<string, Pose>>();
-            for (int i = 0; i <= frameCount; i++)
-                keyframeMap[i] = new Dictionary<string, Pose>();
 
             foreach (Keyframe kf in keyframes)
             {
                 int frame = ToFrameRate(kf.Time);
                 var poses = GatherPoses(kf);
-                var poseMap = keyframeMap[frame];
 
-                foreach (Pose pose in poses)
-                {
-                    poseMap[pose.Name] = pose;
-                }
+                var poseMap = poses.ToDictionary(pose => pose.Name);
+                keyframeMap[frame] = poseMap;
             }
 
             List<BoneKeyframe> boneKeyframes = animWriter.Skeleton;
 
             for (int i = 0; i < frameCount; i++)
             {
-                BoneKeyframe frame = new BoneKeyframe();
-                frame.Time = i;
+                BoneKeyframe frame = new BoneKeyframe(i);
+                List<Bone> bones = frame.Bones;
 
                 if (sequence.AvatarType == AvatarType.R15)
                 {
-                    frame.DeltaSequence = true;
                     frame.BaseRig = rig;
+                    frame.DeltaSequence = true;
                 }
-
-                List<Bone> bones = frame.Bones;
 
                 foreach (Node node in nodes)
                 {
@@ -265,25 +232,22 @@ namespace Rbx2Source.Animating
 
                         if (sequence.Name != "Fall") // I NEED TO FIND A WAY TO DELETE THIS
                         {
+                            CFrame useRot;
+
                             if (node.Name.EndsWith("UpperArm"))
-                            {
-                                rot = CFrame.Angles(ang[0], -ang[2], ang[1]);
-                            }
+                                useRot = CFrame.Angles(ang[0], -ang[2], ang[1]);
                             else if (node.Name == "Head")
-                            {
-                                rot = CFrame.Angles(ang[0], ang[1], -ang[2]);
-                            }
+                                useRot = CFrame.Angles(ang[0], ang[1], -ang[2]);
                             else if (node.Name == "LeftUpperLeg")
-                            {
-                                rot = CFrame.Angles(ang[0], -ang[2], 0);
-                            }
+                                useRot = CFrame.Angles(ang[0], -ang[2], 0);
+                            else
+                                useRot = rot;
+
+                            rot = useRot;
                         }
                     }
 
-                    interp = new CFrame(pos) * rot;
-
-                    Bone bone = new Bone(node.Name, i, interp);
-                    bone.Node = node;
+                    Bone bone = new Bone(node, new CFrame(pos) * rot);
                     bones.Add(bone);
                 }
 

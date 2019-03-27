@@ -11,7 +11,7 @@ using Rbx2Source.Geometry;
 
 namespace Rbx2Source.StudioMdl
 {
-    class Triangle : IStudioMdlEntity
+    public class Triangle : IStudioMdlEntity
     {
         public string Material;
         public Node Node;

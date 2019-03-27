@@ -7,7 +7,7 @@ using Rbx2Source.Web;
 
 namespace Rbx2Source.Textures
 {
-    class TextureCompositor
+    public class TextureCompositor
     {
         private List<CompositData> layers = new List<CompositData>();
         private Rectangle canvas;

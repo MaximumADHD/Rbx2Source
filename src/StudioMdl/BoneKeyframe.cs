@@ -11,7 +11,7 @@ using Rbx2Source.Reflection;
 
 namespace Rbx2Source.StudioMdl
 {
-    class BoneKeyframe : IStudioMdlEntity
+    public class BoneKeyframe : IStudioMdlEntity
     {
         public int Time;
         public List<Bone> Bones;

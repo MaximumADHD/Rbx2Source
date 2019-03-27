@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Rbx2Source.QC
 {
-    class QCWriter
+    public class QCWriter
     {
         private List<QCommand> commands = new List<QCommand>();
 

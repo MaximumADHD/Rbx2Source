@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Rbx2Source.Assembler
 {
-    class FileUtility
+    static class FileUtility
     {
         public static string MakeNameWindowsSafe(string name, string replaceWith = "", bool doExtraStuff = true)
         {
@@ -22,29 +17,34 @@ namespace Rbx2Source.Assembler
         public static void UnlockFile(string path)
         {
             if (File.Exists(path))
+            {
                 File.SetAttributes(path, FileAttributes.Normal);
+            }
         }
 
         public static void LockFile(string path)
         {
             if (File.Exists(path))
+            {
                 File.SetAttributes(path, FileAttributes.ReadOnly);
+            }
         }
 
         public static byte[] ReadFullStream(Stream stream, bool close = true)
         {
-            MemoryStream streamBuffer = new MemoryStream();
-            int count = 1;
-            while (stream.CanRead && count > 0)
+            byte[] result;
+
+            using (MemoryStream streamBuffer = new MemoryStream())
             {
-                byte[] buffer = new byte[2048];
-                count = stream.Read(buffer, 0, 2048);
-                streamBuffer.Write(buffer, 0, count);
+                stream.CopyTo(streamBuffer);
+                result = streamBuffer.ToArray();
             }
 
-            byte[] result = streamBuffer.ToArray();
-            streamBuffer.Close();
-            if (close) stream.Close();
+            if (close)
+            {
+                stream.Close();
+                stream.Dispose();
+            }
 
             return result;
         }
@@ -53,6 +53,7 @@ namespace Rbx2Source.Assembler
         {
             DirectoryInfo info = new DirectoryInfo(folder);
             info.Attributes = FileAttributes.Normal;
+
             foreach (FileInfo file in info.GetFiles())
             {
                 try
@@ -65,6 +66,7 @@ namespace Rbx2Source.Assembler
                     Rbx2Source.Print("{0} is locked.", file.Name);
                 }
             }
+
             if (recursive)
             {
                 foreach (DirectoryInfo directory in info.GetDirectories())
@@ -78,13 +80,7 @@ namespace Rbx2Source.Assembler
         public static void WriteFile(string path, byte[] data)
         {
             UnlockFile(path);
-
-            FileStream fileStream = (File.Exists(path) ? File.OpenWrite(path) : File.Create(path));
-            fileStream.SetLength(data.LongLength);
-            fileStream.Write(data, 0, data.Length);
-            fileStream.Flush();
-            fileStream.Close();
-
+            File.WriteAllBytes(path, data);
             LockFile(path);
         }
 
@@ -94,14 +90,14 @@ namespace Rbx2Source.Assembler
             {
                 if (!Directory.Exists(directory))
                     Directory.CreateDirectory(directory);
-                else
-                    EmptyOutFiles(directory);
+
+                EmptyOutFiles(directory);
             }
         }
 
         public static void WriteFile(string path, string content)
         {
-            WriteFile(path, Encoding.UTF8.GetBytes(content));
+            File.WriteAllText(path, content);
         }
     }
 }

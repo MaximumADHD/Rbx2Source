@@ -5,7 +5,7 @@ using Rbx2Source.Geometry;
 
 namespace Rbx2Source.Textures
 {
-    class BarycentricPoint
+    public class BarycentricPoint
     {
         public double U;
         public double V;

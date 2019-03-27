@@ -3,7 +3,7 @@ using System.Xml;
 
 namespace Rbx2Source.Coordinates
 {
-    class CFrame : BaseCoordinates
+    public class CFrame : BaseCoordinates
     {
         private float m11 = 1, m12 = 0, m13 = 0, m14 = 0;
         private float m21 = 0, m22 = 1, m23 = 0, m24 = 0;

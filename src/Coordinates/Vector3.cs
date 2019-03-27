@@ -4,7 +4,7 @@ using System.Xml;
 
 namespace Rbx2Source.Coordinates
 {
-    class Vector3 : BaseCoordinates
+    public class Vector3 : BaseCoordinates
     {
         public readonly float x, y, z;
         public Vector3 unit => normalize(this);

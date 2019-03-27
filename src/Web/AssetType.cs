@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Rbx2Source.Web
 {
-    enum AssetType
+    public enum AssetType
     {
         Image = 1,
         TShirt = 2,
