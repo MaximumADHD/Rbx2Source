@@ -98,6 +98,7 @@ namespace Rbx2Source.Assembler
         public static void WriteFile(string path, string content)
         {
             File.WriteAllText(path, content);
+            Rbx2Source.Print("Wrote file: {0}", path);
         }
     }
 }

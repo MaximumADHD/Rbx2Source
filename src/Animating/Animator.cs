@@ -8,7 +8,7 @@ using Rbx2Source.Web;
 
 namespace Rbx2Source.Animating
 {
-    public class AnimationAssembler
+    public class Animator
     {
         public const int FrameRate = 60;
         private static KeyframeSorter sorter = new KeyframeSorter();
@@ -42,7 +42,7 @@ namespace Rbx2Source.Animating
                 if (keyFrameMap[minFrame].ContainsKey(poseName))
                     break;
 
-                minFrame++;
+                minFrame--;
             }
             
             // Get max.
@@ -53,7 +53,7 @@ namespace Rbx2Source.Animating
                 if (keyFrameMap[maxFrame].ContainsKey(poseName))
                     break;
 
-                maxFrame--;
+                maxFrame++;
             }
 
             if (maxFrame == keyFrameMap.Count)
@@ -62,7 +62,12 @@ namespace Rbx2Source.Animating
             // Return data
             PosePair pair = new PosePair(minFrame, maxFrame);
 
-            if (minFrame == -1 )
+            if (minFrame >= 0)
+            {
+                pair.Min.Pose = keyFrameMap[minFrame][poseName];
+                pair.Max.Pose = keyFrameMap[maxFrame][poseName];
+            }
+            else
             {
                 // Generate dummy data so we don't do anything with this bone.
                 Pose stubPose = new Pose();
@@ -72,37 +77,8 @@ namespace Rbx2Source.Animating
                 pair.Min.Pose = stubPose;
                 pair.Max.Pose = stubPose;
             }
-            else
-            {
-                var min = keyFrameMap[minFrame];
-                var max = keyFrameMap[maxFrame];
-
-                if (keyFrameMap.ContainsKey(maxFrame))
-                    pair.Max.Pose = max[poseName];
-                else
-                    pair.Max.Pose = min[poseName];
-
-                pair.Min.Pose = min[poseName];
-            }
 
             return pair;
-        }
-
-        private static void SetupNodeHierarchy(Pose pose, List<Node> nodes, int lastNode = -1)
-        {
-            Node node = new Node();
-            node.Name = pose.Name;
-            node.UseParentIndex = true;
-            node.ParentIndex = lastNode;
-            nodes.Add(node);
-
-            int nodeIndex = nodes.IndexOf(node);
-            node.NodeIndex = nodeIndex;
-
-            foreach (Pose nextPose in pose.GetChildrenOfClass<Pose>())
-            {
-                SetupNodeHierarchy(nextPose, nodes, nodeIndex);
-            }
         }
 
         public static string Assemble(KeyframeSequence sequence, List<Bone> rig)
@@ -116,6 +92,7 @@ namespace Rbx2Source.Animating
             foreach (Bone bone in rig)
             {
                 Node node = bone.Node;
+
                 if (node != null)
                 {
                     string boneName = node.Name;
@@ -155,6 +132,12 @@ namespace Rbx2Source.Animating
             // I have to account for every single CFrame for every single frame.
 
             var keyframeMap = new Dictionary<int, Dictionary<string, Pose>>();
+
+            for (int i = 0; i < frameCount; i++)
+            {
+                var emptyState = new Dictionary<string, Pose>();
+                keyframeMap.Add(i, emptyState);
+            }
 
             foreach (Keyframe kf in keyframes)
             {

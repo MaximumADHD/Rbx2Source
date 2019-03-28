@@ -279,16 +279,19 @@ namespace Rbx2Source
         private bool TrySetUsername(string userName)
         {
             UserAvatar avatar = UserAvatar.FromUsername(userName);
+
             if (avatar.UserExists)
             {
-                Settings.SetSetting("Username", userName, true);
+                Settings.SaveSetting("Username", userName);
                 assetPreview.Image = loadingImage;
                 currentUser = avatar.UserInfo;
                 return true;
             }
             else
             {
-                showError("An error occurred while trying to fetch this user!\nEither the user does not exist, or something went wrong with the request.");
+                showError("An error occurred while trying to fetch this user!\n" +
+                          "Either the user does not exist, or something went wrong with the request.");
+
                 return false;
             }
         }
@@ -296,28 +299,36 @@ namespace Rbx2Source
         private bool TrySetAssetId(object value)
         {
             string text = value.ToString();
+
             long assetId = -1;
             long.TryParse(text, out assetId);
+
             if (assetId > 0)
             {
                 Asset asset = null;
+
                 try
                 {
                     asset = Asset.Get(assetId);
                 }
                 catch
                 {
-                    showError("This AssetId isn't configured correctly on Roblox's end.\n\nThis error usually happens if you input a very old AssetId that doesn't exist on their servers.\n\nTry something else!");
+                    showError("This AssetId isn't configured correctly on Roblox's end.\n\n" + 
+                              "This error usually happens if you input a very old AssetId that doesn't exist on their servers.\n\n" +
+                              "Try something else!");
                 }
+
                 if (asset != null)
                 {
                     AssetType assetType = asset.AssetType;
                     bool isAccessory = AssetGroups.IsTypeInGroup(assetType, AssetGroup.Accessories);
+
                     if (isAccessory || assetType == AssetType.Gear)
                     {
                         assetPreview.Image = loadingImage;
-                        Settings.SetSetting("AssetId64", assetId, true);
                         currentAssetId = assetId;
+
+                        Settings.SaveSetting("AssetId64", assetId);
                         return true;
                     }
                     else
@@ -330,6 +341,7 @@ namespace Rbx2Source
             {
                 showError("Invalid AssetId!");
             }
+
             return false;
         }
 
@@ -374,6 +386,7 @@ namespace Rbx2Source
             {
                 OutputLog next = outputQueue[0];
                 outputQueue.RemoveAt(0);
+
                 if (!output.IsDisposed) // Prevents a crash if the user quits during the compilation.
                 {
                     output.SelectionFont = new Font(output.Font, next.FontStyle);
@@ -389,10 +402,10 @@ namespace Rbx2Source
                 foreach (string task in progressQueue.Keys)
                 {
                     bool completed = progressQueue[task];
-                    if (completed) tasksDone++;
+                    tasksDone += (completed ? 1 : 0);
                 }
 
-                double progress = ((double)tasksDone / (double)totalTasks) * 100.0;
+                double progress = ((double)tasksDone / totalTasks) * 100.0;
                 compileProgress.Value = (int)progress;
                 updateProgressQueue = false;
             }
@@ -403,9 +416,12 @@ namespace Rbx2Source
         private async void LogException(Task brokenTask, string context)
         {
             string baseErrorMsg = "Failed to " + context + " model!";
+
             string errorMsg = baseErrorMsg;
             string exceptionMsg = "No message was given.";
+
             AggregateException aException = brokenTask.Exception;
+
             if (aException != null)
             {
                 Exception exception = aException.InnerException;
@@ -463,7 +479,9 @@ namespace Rbx2Source
                 await UpdateCompilerState();
 
             if (buildModel.IsFaulted)
-                LogException(buildModel,"assemble");
+            {
+                LogException(buildModel, "assemble");
+            }
             else
             {
                 AssemblerData data = buildModel.Result;
@@ -473,12 +491,16 @@ namespace Rbx2Source
                     await UpdateCompilerState();
 
                 if (compileModel.IsFaulted)
+                {
                     LogException(compileModel, "compile");
+                }
                 else
                 {
                     PrintHeader("FINISHED MODEL!");
                     trackCompileTime.Stop();
+
                     Print("Assembled in {0} seconds.", trackCompileTime.Elapsed.TotalSeconds);
+
                     await UpdateCompilerState();
                     compileModel.Wait();
 
@@ -490,11 +512,11 @@ namespace Rbx2Source
             foreach (Control control in CONTROLS_TO_DISABLE_WHEN_COMPILING)
                 control.Enabled = true;
 
-            Compiler.UseWaitCursor = false;
-            progressQueue.Clear();
-
             if (trackCompileTime.IsRunning)
                 trackCompileTime.Stop();
+
+            Compiler.UseWaitCursor = false;
+            progressQueue.Clear();
         }
 
         private void viewCompiledModel_Click(object sender, EventArgs e)
@@ -502,14 +524,18 @@ namespace Rbx2Source
             if (latestCompiledOnGame != null)
             {
                 string hlmvPath = latestCompiledOnGame.HLMVPath;
+
                 if (File.Exists(hlmvPath))
                 {
                     ThirdPartyUtility hlmv = new ThirdPartyUtility(hlmvPath);
                     hlmv.AddParameter("game", latestCompiledOnGame.GameDirectory);
                     hlmv.AddParameter("model", latestCompiledModel);
-                    hlmv.RunSimple();
+                    hlmv.Run();
                 }
-                else showError("This Source Engine game doesn't have a model viewer for some reason :P");
+                else
+                {
+                    showError("This Source Engine game doesn't have a model viewer for some reason :P");
+                }
             }
             else
             {
@@ -521,15 +547,20 @@ namespace Rbx2Source
         private void loadComboBox(ComboBox comboBox, string settingsKey, int defaultValue = 0)
         {
             string value = Settings.GetSetting<string>(settingsKey);
+
             if (value != null && comboBox.Items.Contains(value))
+            {
                 comboBox.Text = value;
+            }
             else
+            {
                 comboBox.SelectedIndex = defaultValue;
+            }
         }
 
         private void compilerTypeSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Settings.SetSetting("CompilerType", compilerTypeSelect.Text, true);
+            Settings.SaveSetting("CompilerType", compilerTypeSelect.Text);
             updateDisplays();
         }
 
@@ -537,17 +568,19 @@ namespace Rbx2Source
         {
             GameInfo game = sourceGames[gameSelect.Text];
             selectedGame = game;
+
             if (game.GameIcon != null)
                 gameIcon.Image = game.GameIcon.ToBitmap();
             else
                 gameIcon.Image = gameIcon.InitialImage;
 
-            Settings.SetSetting("SelectedGame", gameSelect.Text, true);
+            Settings.SaveSetting("SelectedGame", gameSelect.Text);
         }
 
         private void onLinkClicked(object sender, EventArgs e)
         {
             Control control = (Control)sender;
+
             if (control != null && Links.ContainsKey(control))
             {
                 string link = Links[control];
@@ -559,6 +592,7 @@ namespace Rbx2Source
         {
             string steamDir = null;
             Process[] steamProcesses = Process.GetProcessesByName("Steam");
+
             if (steamProcesses.Length > 0)
             {
                 foreach (Process process in steamProcesses)
@@ -573,7 +607,9 @@ namespace Rbx2Source
                         {
                             string apps = Path.Combine(directory, "steamapps");
                             if (Directory.Exists(apps))
+                            {
                                 steamDir = directory;
+                            }
                         }
                     }
                     catch
@@ -589,9 +625,7 @@ namespace Rbx2Source
                 {
                     RegistryKey classesRoot = Registry.ClassesRoot;
                     RegistryKey steam = classesRoot.OpenSubKey(@"SOFTWARE\Valve\Steam");
-                    steamDir = (string)steam.GetValue("SteamPath");
-                    if (steamDir == null)
-                        throw new Exception();
+                    steamDir = steam.GetValue("SteamPath") as string;
                 }
                 catch
                 {
@@ -608,7 +642,6 @@ namespace Rbx2Source
                     }
                 }
             }
-
 
             string steamPath = steamDir.Replace('/', '\\');
             gatherSourceGames(steamPath);
@@ -627,11 +660,14 @@ namespace Rbx2Source
                     foreach (string line in lines)
                     {
                         string[] kvPair = getStringsInQuotes(line);
+
                         if (kvPair.Length == 2)
                         {
                             string key = kvPair[0];
                             string value = kvPair[1];
+
                             int index = -1;
+
                             if (int.TryParse(key, out index))
                             {
                                 value = value.Replace("\\\\", "\\");
@@ -643,6 +679,7 @@ namespace Rbx2Source
             }
 
             string savedGameSelection = Settings.GetSetting<string>("SelectedGame");
+
             int gameCount = 0;
             gameSelect.Items.Clear();
 
@@ -686,11 +723,12 @@ namespace Rbx2Source
 
             Task.Run(async() =>
             {
-                while (true)
+                while (!IsDisposed)
                 {
                     if (assetPreview.ImageLocation != assetPreviewImage)
                     {
                         CdnPender check = WebUtility.DownloadJSON<CdnPender>(assetPreviewImage);
+
                         if (check.Final)
                         {
                             assetPreviewImage = check.Url;
@@ -700,13 +738,20 @@ namespace Rbx2Source
                         {
                             string currentPending = assetPreviewImage; // localize this in case it changes.
                             assetPreview.Image = loadingImage;
-                            Task<string> pend = Task.Run(() => WebUtility.PendCdnUrl(currentPending,false));
+
+                            Task<string> pend = Task.Run(() => WebUtility.PendCdnUrl(currentPending, false));
+
                             while (!pend.IsCompleted)
                             {
-                                if (assetPreviewImage != currentPending) break;
-                                if (pend.IsFaulted) break;
+                                if (assetPreviewImage != currentPending)
+                                    break;
+
+                                if (pend.IsFaulted)
+                                    break;
+
                                 await Task.Delay(100);
                             }
+
                             if (assetPreviewImage == currentPending)
                             {
                                 if (pend.IsFaulted) // mark the preview as broken.
@@ -725,11 +770,8 @@ namespace Rbx2Source
                         }
                     }
 
-                    if (Debugger.IsAttached)
-                    {
-                        if (debugImg.Image != debugImage)
-                            debugImg.Image = debugImage;
-                    }
+                    if (Debugger.IsAttached && debugImg.Image != debugImage)
+                        debugImg.Image = debugImage;
 
                     await Task.Delay(10);
                 }
@@ -738,9 +780,7 @@ namespace Rbx2Source
 
         private void Rbx2Source_FormClosed(object sender, FormClosedEventArgs e)
         {
-            if (baseProcess != null && !baseProcess.IsDisposed)
-                baseProcess.Dispose();
+            baseProcess?.Dispose();
         }
-
     }
 }

@@ -136,6 +136,7 @@ namespace Rbx2Source.Geometry
         private static Mesh load(byte[] data)
         {
             string file = Encoding.ASCII.GetString(data);
+
             if (!file.StartsWith("version "))
                 throw new Exception("Invalid .mesh header!");
 
@@ -213,16 +214,17 @@ namespace Rbx2Source.Geometry
                 {
                     MeshPart meshPart = part as MeshPart;
 
-                    if (meshPart.MeshId == null)
+                    if (meshPart.MeshId != null)
+                    {
+                        string meshId = meshPart.MeshId;
+                        meshAsset = Asset.GetByAssetId(meshId);
+                    }
+                    else
                     {
                         string partName = meshPart.Name;
                         StandardLimbs.TryGetValue(partName, out meshAsset);
                     }
-                    else
-                    {
-                        meshAsset = Asset.GetByAssetId(meshPart.MeshId);
-                    }
-
+                    
                     if (meshPart.TextureId != null)
                         textureAsset = Asset.GetByAssetId(meshPart.TextureId);
 

@@ -18,6 +18,16 @@ namespace Rbx2Source.Reflection
         public string Name;
         public string ClassName => GetType().Name;
 
+        public Instance()
+        {
+            Name = ClassName;
+        }
+
+        public override string ToString()
+        {
+            return Name;
+        }
+        
         public Instance[] GetChildren()
         {
             return children.ToArray();
@@ -161,14 +171,15 @@ namespace Rbx2Source.Reflection
             return (specType != null && specType.IsAssignableFrom(myType));
         }
 
-        public override string ToString()
+        public static bool TrySetParent(Instance child = null, Instance parent = null)
         {
-            return Name;
-        }
+            if (child != null)
+            {
+                child.Parent = parent;
+                return true;
+            }
 
-        public Instance()
-        {
-            Name = ClassName;
+            return false;
         }
     }
 }

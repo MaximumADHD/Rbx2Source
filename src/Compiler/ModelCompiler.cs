@@ -10,11 +10,10 @@ using Rbx2Source.Resources;
 
 namespace Rbx2Source.Compiler
 {
-
     public class ModelCompiler
     {
         private static ThirdPartyUtility vtfCompiler;
-		private static string vtfCompilerPath;
+        private static string vtfCompilerPath;
         private static string utilityDir;
 
         static ModelCompiler()
@@ -22,6 +21,7 @@ namespace Rbx2Source.Compiler
             string appData = Environment.GetEnvironmentVariable("AppData");
             string rbx2Source = Path.Combine(appData, "Rbx2Source");
             utilityDir = Path.Combine(rbx2Source, "Utility");
+
             Directory.CreateDirectory(utilityDir);
             vtfCompilerPath = Path.Combine(utilityDir, "vtfcmd.exe");
         }
@@ -38,54 +38,91 @@ namespace Rbx2Source.Compiler
                 throw new Exception("This gameinfo.txt file isn't ready to use!");
 
             Rbx2Source.PrintHeader("COMPILING MODEL");
+            #region Compile Model
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
             string studioMdlPath = gameInfo.StudioMdlPath;
 			
             ThirdPartyUtility studioMdl = new ThirdPartyUtility(studioMdlPath);
-			studioMdl.AddParameter("game",gameInfo.GameDirectory);
+            studioMdl.AddParameter("game", gameInfo.GameDirectory);
             studioMdl.AddParameter("nop4");
-			studioMdl.AddParameter(UtilParameter.FilePush(data.CompilerScript));
-			await studioMdl.Run();
+            studioMdl.AddFile(data.CompilerScript);
+
+            await studioMdl.RunWithOutput();
             Rbx2Source.MarkTaskCompleted("CompileModel");
 
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            #endregion
+
             Rbx2Source.PrintHeader("COMPILING TEXTURES");
+            #region Compile Textures
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
             if (!File.Exists(vtfCompilerPath))
             {
                 byte[] vtfZip = ResourceUtility.GetResource("VTFCmd.zip");
-                MemoryStream extract = new MemoryStream(vtfZip);
-                ZipArchive archive = new ZipArchive(extract);
-                foreach (ZipArchiveEntry entry in archive.Entries)
+
+                using (MemoryStream extract = new MemoryStream(vtfZip))
+                using (ZipArchive archive = new ZipArchive(extract))
                 {
-                    string name = entry.Name;
-                    string path = Path.Combine(utilityDir, name);
-                    Stream stream = entry.Open();
-                    byte[] file = FileUtility.ReadFullStream(stream);
-                    FileUtility.WriteFile(path, file);
+                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    {
+                        string name = entry.Name;
+                        string path = Path.Combine(utilityDir, name);
+
+                        using (Stream stream = entry.Open())
+                        {
+                            byte[] file = FileUtility.ReadFullStream(stream);
+                            FileUtility.WriteFile(path, file);
+                        }
+                    }
                 }
             }
 
-            string pngWildcard = Path.Combine(data.TextureDirectory,"*.png");
-			vtfCompiler = new ThirdPartyUtility(vtfCompilerPath);
-			vtfCompiler.AddParameter("folder",pngWildcard);
-			vtfCompiler.AddParameter("resize");
-			vtfCompiler.AddParameter("format", "ABGR8888"); // No compression? THIS IS FINE.png
-			vtfCompiler.AddParameter("output",data.MaterialDirectory);
-            await vtfCompiler.Run();
+            string pngWildcard = Path.Combine(data.TextureDirectory, "*.png");
+            vtfCompiler = new ThirdPartyUtility(vtfCompilerPath);
+
+            vtfCompiler.AddParameter("resize");
+            vtfCompiler.AddParameter("folder", pngWildcard);
+            vtfCompiler.AddParameter("format", "ABGR8888"); // No compression? THIS IS FINE
+            vtfCompiler.AddParameter("output", data.MaterialDirectory);
+
+            await vtfCompiler.RunWithOutput();
             Rbx2Source.MarkTaskCompleted("CompileTextures");
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            #endregion
+
+            Rbx2Source.PrintHeader("MOVING TEXTURES");
+            #region Move Textures
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             string gameDirectory = gameInfo.GameDirectory;
             string modelPath = Path.Combine(gameDirectory, "models", data.ModelName);
             string materialPath = Path.Combine(gameDirectory, "materials", "models", data.CompileDirectory);
+
             FileUtility.InitiateEmptyDirectories(materialPath);
 
             foreach (string filePath in Directory.GetFiles(data.MaterialDirectory))
             {
                 FileInfo info = new FileInfo(filePath);
+
                 string fileName = info.Name;
-                string destFileName = Path.Combine(materialPath, fileName);
-                info.CopyTo(destFileName);
+                Rbx2Source.Print("Moving File: {0}", fileName);
+
+                Rbx2Source.IncrementStack();
+                Rbx2Source.Print("From: {0}", filePath);
+
+                string destFilePath = Path.Combine(materialPath, fileName);
+                info.CopyTo(destFilePath);
+
+                Rbx2Source.Print("To:   {0}", destFilePath);
+                Rbx2Source.DecrementStack();
             }
 
             Rbx2Source.MarkTaskCompleted("MoveTextures");
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            #endregion
+
             return modelPath;
         }
     }

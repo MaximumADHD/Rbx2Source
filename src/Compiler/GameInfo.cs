@@ -8,22 +8,35 @@ namespace Rbx2Source.Compiler
 {
     public class GameInfo
     {
+        public string GameName = null;
         public string GameInfoPath = null;
+
         public string GameDirectory = null;
         public string RootDirectory = null;
-        public string GameName = null;
+        
         public string StudioMdlPath = null;
+
         public string HLMVPath;
         public Icon GameIcon;
 
+        public bool ReadyToUse => (GameInfoPath != null && StudioMdlPath != null);
+
         private static Dictionary<string, string> PREFERRED_GAMEINFO_DIRECTORIES = new Dictionary<string, string>()
         {
-            {"Half-Life 2","hl2"}
+            {"Half-Life 2", "hl2"}
         };
+
+        private void usePathIfExists(string path, ref string setTo)
+        {
+            if (File.Exists(path))
+            {
+                setTo = path;
+            }
+        }
 
         public GameInfo(string path)
         {
-            string fileName = System.IO.Path.GetFileName(path);
+            string fileName = Path.GetFileName(path);
             if (fileName != "gameinfo.txt")
                 throw new Exception("Expected gameinfo.txt file.");
 
@@ -37,13 +50,15 @@ namespace Rbx2Source.Compiler
                 line = line.Replace("\t", "");
                 line = line.TrimStart(' ');
                 line = line.Replace("\"game\"", "game");
+
                 if (line.StartsWith("game"))
                 {
                     int firstQuote = line.IndexOf('"');
+
                     if (firstQuote > 0)
                     {
-                        firstQuote++;
-                        int lastQuote = line.IndexOf('"', firstQuote);
+                        int lastQuote = line.IndexOf('"', ++firstQuote);
+
                         if (lastQuote > 0)
                         {
                             GameName = line.Substring(firstQuote, lastQuote - firstQuote);
@@ -87,26 +102,30 @@ namespace Rbx2Source.Compiler
                 GameInfoPath = Path.Combine(GameDirectory, "gameinfo.txt");
             }
             
-
             string binPath = Path.Combine(RootDirectory, "bin");
+
             if (Directory.Exists(binPath))
             {
                 string studioMdlPath = Path.Combine(binPath, "studiomdl.exe");
-                if (File.Exists(studioMdlPath))
-                    StudioMdlPath = studioMdlPath;
-
+                usePathIfExists(studioMdlPath, ref StudioMdlPath);
+                
                 string hlmvPath = Path.Combine(binPath, "hlmv.exe");
-                if (File.Exists(hlmvPath))
-                    HLMVPath = hlmvPath;
+                usePathIfExists(hlmvPath, ref HLMVPath);
             }
 
             string resources = Path.Combine(GameDirectory, "resource");
+
             if (Directory.Exists(resources))
             {
-                string gameIco = Path.Combine(resources,"game.ico");
+                string gameIco = Path.Combine(resources, "game.ico");
+                
                 if (File.Exists(gameIco))
-                    GameIcon = Icon.ExtractAssociatedIcon(gameIco);
+                {
+                    Icon iconFile = Icon.ExtractAssociatedIcon(gameIco);
+                    GameIcon = iconFile;
+                }
             }
+
             if (GameIcon == null)
             {
                 foreach (string file in Directory.GetFiles(RootDirectory))
@@ -119,7 +138,5 @@ namespace Rbx2Source.Compiler
                 }
             }
         }
-
-        public bool ReadyToUse => (GameInfoPath != null && StudioMdlPath != null);
     }
 }

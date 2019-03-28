@@ -6,7 +6,7 @@ namespace Rbx2Source.Resources
 {
     static class Settings
     {
-        private static Dictionary<string,object> cache;
+        private static Dictionary<string, object> cache;
         private static RegistryKey rbx2Source;
 
         public static object GetSetting(string key)
@@ -20,24 +20,35 @@ namespace Rbx2Source.Resources
         public static T GetSetting<T>(string key)
         {
             object value = GetSetting(key);
-            if (value != null)
-                return (T)value;
-            else
-                return default(T);
-        }
+            T result;
 
-        public static void SetSetting(string key, object value, bool save = false)
-        {
-            cache[key] = value;
-            if (save) Save();
+            if (value != null)
+                result = (T)value;
+            else
+                result = default(T);
+
+            return result;
         }
 
         public static void Save()
         {
             foreach (string key in cache.Keys)
+            {
                 rbx2Source.SetValue(key, cache[key]);
+            }
         }
 
+        public static void SetSetting(string key, object value)
+        {
+            cache[key] = value;
+        }
+
+        public static void SaveSetting(string key, object value)
+        {
+            SetSetting(key, value);
+            Save();
+        }
+        
         private static RegistryKey Open(RegistryKey current, string target)
         {
             return current.CreateSubKey(target, RegistryKeyPermissionCheck.ReadWriteSubTree);
@@ -63,8 +74,16 @@ namespace Rbx2Source.Resources
             }
             else if (GetSetting("MigratedToInt64") == null)
             {
-                int assetId = GetSetting<int>("AssetId");
-                SetSetting("AssetId64", (long)assetId);
+                try
+                {
+                    int assetId = GetSetting<int>("AssetId");
+                    SetSetting("AssetId64", (long)assetId);
+                }
+                catch
+                {
+                    SetSetting("AssetId64", (long)19027209);
+                }
+
                 SetSetting("MigratedToInt64", true);
             }
         }

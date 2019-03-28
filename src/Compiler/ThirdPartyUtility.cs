@@ -1,125 +1,77 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Rbx2Source.Compiler
 {
-    public class UtilParameter
-    {
-        public string Name;
-        public string Value;
-        private static string inQuotes(string str)
-        {
-            return "\"" + str + "\"";
-        }
-
-        public override string ToString()
-        {
-            string result = "";
-            if (Name != null)
-                result += "-" + Name;
-
-            if (Value != null)
-                result += " \"" + Value + '"';
-
-            return result;
-        }
-
-        public UtilParameter() { }
-
-        public UtilParameter(string name)
-        {
-            Name = name;
-        }
-
-        public UtilParameter(string name, string value)
-        {
-            Name = name;
-            Value = value;
-        }
-
-        public static UtilParameter FilePush(string value)
-        {
-            UtilParameter parameter = new UtilParameter();
-            parameter.Value = value;
-            return parameter;
-        }
-    }
-
     public class ThirdPartyUtility
     {
-
         private string appPath;
-        private List<UtilParameter> parameters;
+        private HashSet<UtilParameter> parameters;
+
         public ThirdPartyUtility(string path)
         {
             appPath = path;
-            parameters = new List<UtilParameter>();
+            parameters = new HashSet<UtilParameter>();
         }
 
         public void AddParameter(UtilParameter parameter)
         {
-            if (!parameters.Contains(parameter))
-                parameters.Add(parameter);
+            parameters.Add(parameter);
         }
 		
-		public void AddParameter(string name)
+		public void AddParameter(string name = "", string value = "")
 		{
-			UtilParameter parameter = new UtilParameter(name);
-			parameters.Add(parameter);
-		}
-		
-		public void AddParameter(string name, string val)
-		{
-			UtilParameter parameter = new UtilParameter(name,val);
-            parameters.Add(parameter);
+			var param = new UtilParameter(name, value);
+            AddParameter(param);
 		}
 
-        public Process RunSimple()
+        public void AddFile(string filePath)
         {
-            List<string> paramStrings = new List<string>();
-            foreach (UtilParameter parameter in parameters)
-                paramStrings.Add(parameter.ToString());
+            var file = new UtilParameter("", filePath);
+            AddParameter(file);
+        }
 
-            ProcessStartInfo info = new ProcessStartInfo();
-            info.Arguments = string.Join(" ", paramStrings.ToArray());
-            info.FileName = appPath;
-            info.CreateNoWindow = true;
-            info.UseShellExecute = false;
-            info.RedirectStandardOutput = true;
+        public Process Run()
+        {
+            var paramStrings = parameters
+                .Select(param => param.ToString())
+                .ToArray();
+
+            ProcessStartInfo info = new ProcessStartInfo()
+            {
+                Arguments = string.Join(" ", paramStrings),
+                FileName = appPath,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            };
+
             return Process.Start(info);
         }
 
-        public Task Run()
+        public Task RunWithOutput()
         {
-            List<string> paramStrings = new List<string>();
-            foreach (UtilParameter parameter in parameters)
-                paramStrings.Add(parameter.ToString());
-
-            ProcessStartInfo info = new ProcessStartInfo();
-            info.Arguments = string.Join(" ", paramStrings.ToArray());
-            info.FileName = appPath;
-            info.CreateNoWindow = true;
-            info.UseShellExecute = false;
-            info.RedirectStandardOutput = true;
-            Process process = Process.Start(info);
+            Process process = Run();
             StreamReader output = process.StandardOutput;
+
             Task runTask = Task.Run(() =>
             {
                 while (true)
                 {
                     Task<string> nextLineAsync = output.ReadLineAsync();
                     nextLineAsync.Wait(1000);
+
                     string nextLine = nextLineAsync.Result;
-                    if (nextLine == null) break;
+                    if (nextLine == null)
+                        break;
+
                     Rbx2Source.Print(nextLine);
                 }
             });
+
             return runTask;
         }
     }

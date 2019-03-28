@@ -6,7 +6,7 @@ using System.IO;
 
 using Rbx2Source.Coordinates;
 using Rbx2Source.Geometry;
-using Rbx2Source.QC;
+using Rbx2Source.QuakeC;
 using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.StudioMdl;
@@ -55,7 +55,6 @@ namespace Rbx2Source.Assembler
             Folder content = RBXM.LoadFromAsset(asset);
 
             Rbx2Source.ScheduleTasks("GatherParts", "BuildMesh");
-            Rbx2Source.PrintHeader("GATHERING PARTS");
 
             List<BasePart> parts = new List<BasePart>();
             AddParts(parts, content);
@@ -273,10 +272,10 @@ namespace Rbx2Source.Assembler
             foreach (string imageName in images.Keys)
             {
                 Rbx2Source.Print("Writing Image {0}", imageName);
+
                 Image image = images[imageName];
-                    
                 string imagePath = Path.Combine(texturesDir, imageName + ".png");
-                    
+
                 try
                 {
                     image.Save(imagePath, ImageFormat.Png);
@@ -285,6 +284,7 @@ namespace Rbx2Source.Assembler
                 {
                     Rbx2Source.Print("IMAGE {0}.png FAILED TO SAVE!", imageName);
                 }
+
                 FileUtility.LockFile(imagePath);
             }
 
@@ -322,32 +322,28 @@ namespace Rbx2Source.Assembler
             #region Write Compiler Script
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            QCWriter qc = new QCWriter();
+            string modelName = compileDir + ".mdl";
+            QuakeCWriter qc = new QuakeCWriter();
 
-            QCommand model = new QCommand("body", assetName, "Asset.smd");
-            qc.AddCommand(model);
+            qc.Add("body", assetName, "Asset.smd");
+            qc.Add("modelname", modelName);
+            qc.Add("upaxis", "y");
+            qc.Add("cdmaterials", mtlDir);
 
-            string modelNameStr = compileDir + ".mdl";
-            qc.WriteBasicCmd("modelname", modelNameStr);
-            qc.WriteBasicCmd("upaxis", "y");
-            qc.WriteBasicCmd("cdmaterials", mtlDir);
+            QuakeCItem phys = qc.Add("collisionjoints", "Asset.smd");
+            phys.AddSubItem("$mass", 115.0);
+            phys.AddSubItem("$inertia", 2.00);
+            phys.AddSubItem("$damping", 0.01);
+            phys.AddSubItem("$rotdamping", 0.40);
 
-            QCommand collision = new QCommand("collisionjoints", "Asset.smd");
-            collision.AddParameter("$mass", 115.0);
-            collision.AddParameter("$inertia", 2.00);
-            collision.AddParameter("$damping", 0.01);
-            collision.AddParameter("$rotdamping", 0.40);
-            qc.AddCommand(collision);
+            QuakeCItem refAnim = qc.Add("sequence", "reference", "Reference.smd");
+            refAnim.AddSubItem("fps", 1);
+            refAnim.AddSubItem("loop");
 
-            QCommand sequence = new QCommand("sequence", "reference", "Reference.smd");
-            sequence.AddParameter("fps", 1);
-            sequence.AddParameter("loop");
-            qc.AddCommand(sequence);
-
-            string qcFile = qc.BuildFile();
+            string qcFile = qc.ToString();
             string qcPath = Path.Combine(modelDir, "Compile.qc");
-            FileUtility.WriteFile(qcPath, qcFile);
 
+            FileUtility.WriteFile(qcPath, qcFile);
             Rbx2Source.MarkTaskCompleted("BuildCompilerScript");
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -357,7 +353,7 @@ namespace Rbx2Source.Assembler
             {
                 ModelData = writer,
                 CompilerScript = qcPath,
-                ModelName = modelNameStr,
+                ModelName = modelName,
                 TextureData = texAssembly,
 
                 RootDirectory = rootDir,

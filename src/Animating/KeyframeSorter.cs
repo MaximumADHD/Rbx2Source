@@ -7,8 +7,8 @@ namespace Rbx2Source.Animating
     {
         public int Compare(Keyframe a, Keyframe b)
         {
-            int aFrameTime = AnimationAssembler.ToFrameRate(a.Time);
-            int bFrameTime = AnimationAssembler.ToFrameRate(b.Time);
+            int aFrameTime = Animator.ToFrameRate(a.Time);
+            int bFrameTime = Animator.ToFrameRate(b.Time);
 
             return (aFrameTime - bFrameTime);
         }

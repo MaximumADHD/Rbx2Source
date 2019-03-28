@@ -99,11 +99,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Animating\AnimationAssembler.cs" />
+    <Compile Include="Animating\Animator.cs" />
     <Compile Include="Animating\EasingUtil.cs" />
+    <Compile Include="Animating\AnimationId.cs" />
+    <Compile Include="Animating\KeyframeSorter.cs" />
+    <Compile Include="Animating\PoseMapEntity.cs" />
+    <Compile Include="Animating\PosePair.cs" />
+    <Compile Include="Assembler\Utility\AssemblerData.cs" />
+    <Compile Include="Assembler\Interfaces\IAssembler.cs" />
+    <Compile Include="Assembler\Interfaces\ICharacterAssembler.cs" />
+    <Compile Include="Assembler\Utility\BoneAssemblePrep.cs" />
+    <Compile Include="Assembler\Utility\Material.cs" />
+    <Compile Include="Assembler\Utility\TextureAssembly.cs" />
+    <Compile Include="Compiler\UtilParameter.cs" />
     <Compile Include="Coordinates\Quaternion.cs" />
+    <Compile Include="QuakeC\QuakeCItem.cs" />
+    <Compile Include="QuakeC\QuakeCWriter.cs" />
     <Compile Include="Textures\BrickColor.cs" />
-    <Compile Include="Assembler\Headers.cs" />
     <Compile Include="Assembler\CatalogItemAssembler.cs" />
     <Compile Include="Textures\CompositData.cs" />
     <Compile Include="Textures\CompositUtil.cs" />
@@ -128,16 +140,13 @@
       <DependentUpon>Rbx2Source.cs</DependentUpon>
     </Compile>
     <Compile Include="Assembler\CharacterAssembler.cs" />
-    <Compile Include="Assembler\FileUtility.cs" />
+    <Compile Include="Assembler\Utility\FileUtility.cs" />
     <Compile Include="Assembler\R15CharacterAssembler.cs" />
     <Compile Include="Assembler\R6CharacterAssembler.cs" />
-    <Compile Include="Assembler\ValveMaterial.cs" />
     <Compile Include="Compiler\GameInfo.cs" />
     <Compile Include="Compiler\ModelCompiler.cs" />
     <Compile Include="Compiler\ThirdPartyUtility.cs" />
     <Compile Include="Coordinates\Coordinates.cs" />
-    <Compile Include="QC\QCommand.cs" />
-    <Compile Include="QC\QCWriter.cs" />
     <Compile Include="Reflection\BinaryFormat\BinaryChunk.cs" />
     <Compile Include="Reflection\BinaryFormat\BinaryFile.cs" />
     <Compile Include="Reflection\BinaryFormat\Chunks\HEAD.cs" />
