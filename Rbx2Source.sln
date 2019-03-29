@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rbx2Source", "src\Rbx2Source.csproj", "{C42F6CEA-EC45-4869-B3F1-411DA756F7F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rbx2Source", "Rbx2Source.csproj", "{C42F6CEA-EC45-4869-B3F1-411DA756F7F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

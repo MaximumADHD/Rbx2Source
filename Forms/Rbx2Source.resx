@@ -1,0 +1,390 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="changeLogBox.Text" xml:space="preserve">
+    <value>[v2.40] (March 28th, 2019)
+
+• Added mostly-complete support for animation
+  packs! Some of the animation data still isn't quite 
+  mapped correctly, and it will need further work
+  before it is 100% accurate to how it looks on
+  Roblox.
+• Did a large-scale clean-up pass to the project's
+  code-base so that its significantly cleaner and
+  much easier to read. Some things have been 
+  rewritten, while others have just been adjusted 
+  and branched up into smaller chunks.
+• Reduced the output's tendency to jerk around
+  violently when text was being written off-screen.
+• Made a few minor adjustments to the splash screen 
+  so that it doesn't freeze up while the main
+  window is initializing.
+______________________________________________________
+
+[v2.30] (October 25th, 2018)
+
+• Integrated support for Roblox's new avatar scaling
+  system, and full support for Rthro characters.
+• Improved the collision geometry for ragdolls.
+• Avatars will now properly align to the ground when
+  being shown in the model viewer.
+• New logo and splash screen to be more up to speed
+  with Roblox's new logo.
+• Fixed a regression introduced in  the preliminary 
+  Rthro support patch. Face textures shouldn't 
+  throw errors in some cases anymore..
+• Fixed some coloring problems pertaining to meshes
+  that have vertex color data.
+• Cleaned up more of the code backend for the sake
+  of readability.
+______________________________________________________
+
+[v2.22] (October 23rd, 2018)
+
+• Fixed a bug where package limbs using the 
+  artist-intent mode would not be detected properly
+  during compilation
+• Fixed a bug where 64-bit integers were not being
+  handled correctly in the binary file format
+• Added partial support for Rthro avatars. I still 
+  need to integrate scaling support for avatar 
+  limbs, so some results might still look weird.
+  I'm investigating the specs for these characters
+  and hopefully should have some results soon.
+• Cleaned up some of the backend code.
+______________________________________________________
+
+[v2.21] (September 3rd, 2018)
+
+• Fixed an issue where the binary file format was not
+  correctly reading non-orthogonal CFrame rotations.
+  This should fix geometry corruption cases for newer
+  Roblox catalog items.
+______________________________________________________
+
+[v2.20] (September 3rd, 2018)
+
+• Humanoid texture compositing is now done within
+  the program instead of snatching from Roblox's
+  3D avatar thumbnails. This change will open the
+  door to more customization for avatar importing
+  later down the road.
+• Fixed a bug where attempting to compile some
+  users would result in an HTTP 400 error.
+______________________________________________________
+
+[v2.14] (August 23rd, 2018)
+
+• Fixed a bug that was preventing users from viewing
+  their compiled models in Garry's Mod.
+• Fixed a bug that was making Accessories and Gear
+  fail to compile.
+• Worked around an issue that was preventing
+  terminated Roblox users from being compiled.
+______________________________________________________
+
+[v2.13] (August 21st, 2018)
+
+• Fixed a bug where localization was interfering with
+  the generated model data. 
+• Refactored the runtime reflection code to make
+  more use of templates, so the code for working with
+  instances requires less downcasting behind the
+  scenes.
+• Improved the accuracy of the R15 floor level.
+______________________________________________________
+
+[v2.12] (August 14th, 2018)
+
+• Patching up a few more small issues with head
+  meshes.
+• Fixed a regression with R6 avatars.
+______________________________________________________
+
+[v2.11] (August 14th, 2018)
+
+• Fixed a regression involving SpecialMesh 
+  VertexColors.
+• Fixed a regression where the main screen would say
+  "User does not exist" upon initially launching the
+  program.
+• Updated the default Head mesh to use significantly
+  better normal mapping.
+• Reduced the verbosity of asset retrieval in the
+  compiler log.
+• Attempted to improve detection of Steam.
+______________________________________________________
+
+[v2.10] (August 14th, 2018)
+
+• Fixed a bug where the program would sometimes
+  claim a user doesn't exist, even though it does.
+• Updated the program backend to use 64-bit
+  UserIds and AssetIds.
+• Implemented support for Roblox's binary file
+  format, as it is now required going forward with
+  R15 avatars. Implementing this was a massive
+  undertaking, hence why it took awhile for me to
+  properly fix this program.
+• Ported over the lookup table functionality of avatar
+  heads, so they should now compile consistently no
+  matter what.
+______________________________________________________
+
+[v2.08] (February 15th, 2018)
+• Fixed a bug where the R15 texture assembler 
+  wasn't using the right texture.
+• Fixed a bug where invisible limbs would be
+  generated when using R15 package limbs, like the 
+  peg leg.
+• Replaced spellings of "ROBLOX" with "Roblox".
+______________________________________________________
+
+[v2.07] (June 4th, 2017)
+
+• Refactored a lot of the model compiler code,
+  so models should compile MUCH faster now.
+• Rewrote the asset fetcher so that it properly caches
+  assets that have been loaded at least once from the
+  website. 
+• Fixed some parser issues that could occur due to
+  some weird culture localization features.
+• If a user is wearing the "Blockhead" head, it should
+  be generated correctly now.
+______________________________________________________
+
+[v2.06] (May 31st, 2017)
+
+• Fixed a compiler crash that was caused by the 
+  introduction of vertex color metadata to the binary
+  mesh file format.
+• Reformatted some of the mesh parser code to make
+  it faster.
+______________________________________________________
+
+[v2.05] (January 31st, 2017)
+
+• Fixed a compiler crash that was caused by the
+  removal of an important web API that I used.
+• Updated to use the new avatar web APIs.
+
+______________________________________________________
+
+[v2.04] (January 21st, 2017)
+
+• Rbx2Source will now fallback to finding a running
+  instance of Steam, if it cannot find the directory.
+______________________________________________________
+
+[v2.03] (January 1st, 2017)
+
+• Fixed a small bug that was causing the compiler to 
+  fail with users who glitched a space after their 
+  name.
+______________________________________________________
+
+[v2.02] (January 1st, 2017)
+
+• Added a "Change Log" tab!
+• Improved the appearance of objects with
+  transparency.
+• Added some safeguards while I investigate whatever
+  is causing the "generic error in GDI+" stuff to 
+  popup for some people.
+______________________________________________________
+
+[v2.01] (December 30th, 2016)
+
+• If you are using multiple folders for your steam 
+  library, Rbx2Source will now properly detect 
+  Source engine games in there.
+• Cleaned up some unused code tidbits.
+______________________________________________________
+
+[v2.00] (December 29th, 2016)
+
+• Completely rewrote Rbx2Source from the ground up.
+• Support for both R6 and R15 characters
+• Geometry is assembled directly from the source mesh 
+  files, instead of doing some clever hacks with 3D 
+  thumbnail data.
+• Source Engine games are automatically listed, you no 
+  longer have to set it up manually
+• Brand new interface, with a much better presentation 
+  and more responsive controls.
+• Written entirely in C#, no more Lua!
+• R6 Characters are assembled much more accurately 
+  than they were in v1
+* Animations are emulated directly from Roblox into 
+  Source.
+• The foundation I've laid for this version is much 
+  stronger than it was before, and will allow me 
+  to add more features with relative ease.
+• The launcher is no longer a seperate application
+______________________________________________________
+
+[v1.60] (June 18th, 2015)
+
+• Textures are now compiled simultaneously
+• Improved the compiler logs to show more 
+   information about whats going on.
+______________________________________________________
+
+[v1.50] (May 22nd, 2015)
+
+• Added support to auto-scan for Source Engine games.
+• Collision models are now generated for each model.
+______________________________________________________
+
+[v1.40] (January 26th, 2015)
+
+• Updated files to stop being rewritten if they didn't 
+  change
+• Attempted to prevent the main program from being
+  pinned to the task bar, as the launcher should be 
+  pinned instead.
+• Added more animations to the character model
+______________________________________________________
+
+[v1.30] (January 9th, 2015)
+
+• User's arm will no longer get stuck in the up position 
+   if they were wearing a gear.
+• Added idle &amp; walking animation.
+• Cleaned up some of the backend code.
+______________________________________________________
+
+[v1.20] (December 31st, 2015)
+
+• Introduced the launcher application, so Rbx2Source 
+  can update itself when they are available.
+______________________________________________________
+
+[v1.10] (December 29th, 2015)
+
+• Resources are now loaded from github instead of 
+  pastebin.
+______________________________________________________
+
+[v1.00] (December 25th, 2015)
+
+• Initial release.
+</value>
+  </data>
+</root>
