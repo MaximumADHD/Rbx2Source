@@ -34,7 +34,12 @@ namespace Rbx2Source.Resources
         {
             foreach (string key in cache.Keys)
             {
-                rbx2Source.SetValue(key, cache[key]);
+                object value = cache[key];
+
+                if (value != null)
+                {
+                    rbx2Source.SetValue(key, cache[key]);
+                }
             }
         }
 
@@ -65,26 +70,12 @@ namespace Rbx2Source.Resources
             foreach (string key in rbx2Source.GetValueNames())
                 SetSetting(key, rbx2Source.GetValue(key));
 
-            if (GetSetting("Initialized") == null)
+            if (GetSetting("InitializedV2") == null)
             {
                 SetSetting("Username", "CloneTrooper1019");
-                SetSetting("AssetId64", (long)19027209);
+                SetSetting("AssetId", "19027209");
                 SetSetting("CompilerType", "Avatar");
-                SetSetting("Initialized", true);
-            }
-            else if (GetSetting("MigratedToInt64") == null)
-            {
-                try
-                {
-                    int assetId = GetSetting<int>("AssetId");
-                    SetSetting("AssetId64", (long)assetId);
-                }
-                catch
-                {
-                    SetSetting("AssetId64", (long)19027209);
-                }
-
-                SetSetting("MigratedToInt64", true);
+                SetSetting("InitializedV2", true);
             }
         }
     }

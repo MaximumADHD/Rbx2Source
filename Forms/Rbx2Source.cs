@@ -356,7 +356,7 @@ namespace Rbx2Source
                         assetPreview.Image = loadingImage;
                         currentAssetId = assetId;
 
-                        Settings.SaveSetting("AssetId64", assetId);
+                        Settings.SaveSetting("AssetId", assetId.ToString());
                         return true;
                     }
                     else
@@ -734,7 +734,7 @@ namespace Rbx2Source
             if (userName != null)
                 TrySetUsername(userName);
 
-            string assetId = Settings.GetSetting<string>("AssetId64");
+            string assetId = Settings.GetSetting<string>("AssetId");
             TrySetAssetId(assetId);
 
             selectedGame = sourceGames[gameSelect.Text];
