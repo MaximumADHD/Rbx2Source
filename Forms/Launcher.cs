@@ -113,7 +113,10 @@ namespace Rbx2Source
             }
 
             if (addedLibraries)
+            {
+                await Task.Delay(1000);
                 Application.Restart();
+            }
 
             setStatus("Starting Rbx2Source");
             await Task.Delay(500);
