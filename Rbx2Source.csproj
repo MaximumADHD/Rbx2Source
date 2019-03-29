@@ -1,0 +1,301 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C42F6CEA-EC45-4869-B3F1-411DA756F7F3}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Rbx2Source</RootNamespace>
+    <AssemblyName>Rbx2Source</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Rbx2Source.Program</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\Images\Rbx2Source.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="LZ4, Version=1.0.15.93, Culture=neutral, PublicKeyToken=62e1b5ec1eec9bdd, processorArchitecture=MSIL">
+      <HintPath>..\packages\lz4net.1.0.15.93\lib\net4-client\LZ4.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Animating\Animator.cs" />
+    <Compile Include="Animating\EasingUtil.cs" />
+    <Compile Include="Animating\AnimationId.cs" />
+    <Compile Include="Animating\KeyframeSorter.cs" />
+    <Compile Include="Animating\PoseMapEntity.cs" />
+    <Compile Include="Animating\PosePair.cs" />
+    <Compile Include="Assembler\Utility\AssemblerData.cs" />
+    <Compile Include="Assembler\Interfaces\IAssembler.cs" />
+    <Compile Include="Assembler\Interfaces\ICharacterAssembler.cs" />
+    <Compile Include="Assembler\Utility\BoneAssemblePrep.cs" />
+    <Compile Include="Assembler\Utility\Material.cs" />
+    <Compile Include="Assembler\Utility\TextureBindings.cs" />
+    <Compile Include="Compiler\UtilParameter.cs" />
+    <Compile Include="Coordinates\Functionality\IBaseCoordinates.cs" />
+    <Compile Include="Coordinates\Quaternion.cs" />
+    <Compile Include="QuakeC\QuakeCItem.cs" />
+    <Compile Include="QuakeC\QuakeCWriter.cs" />
+    <Compile Include="Reflection\BinaryFormat\RobloxBinaryReader.cs" />
+    <Compile Include="Reflection\BinaryFormat\Tree\FileInstance.cs" />
+    <Compile Include="Reflection\BinaryFormat\Tree\FileProperty.cs" />
+    <Compile Include="Textures\BrickColor.cs" />
+    <Compile Include="Assembler\CatalogItemAssembler.cs" />
+    <Compile Include="Textures\CompositData.cs" />
+    <Compile Include="Textures\CompositUtil.cs" />
+    <Compile Include="Textures\TextureCompositor.cs" />
+    <Compile Include="Forms\Launcher.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Launcher.Designer.cs">
+      <DependentUpon>Launcher.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Geometry\Heads.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Rbx2Source.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Rbx2Source.Designer.cs">
+      <DependentUpon>Rbx2Source.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Assembler\CharacterAssembler.cs" />
+    <Compile Include="Assembler\Utility\FileUtility.cs" />
+    <Compile Include="Assembler\R15CharacterAssembler.cs" />
+    <Compile Include="Assembler\R6CharacterAssembler.cs" />
+    <Compile Include="Compiler\GameInfo.cs" />
+    <Compile Include="Compiler\ModelCompiler.cs" />
+    <Compile Include="Compiler\ThirdPartyUtility.cs" />
+    <Compile Include="Coordinates\Functionality\Coordinates.cs" />
+    <Compile Include="Reflection\BinaryFormat\RobloxBinaryChunk.cs" />
+    <Compile Include="Reflection\BinaryFormat\RobloxBinaryFile.cs" />
+    <Compile Include="Reflection\BinaryFormat\Chunks\INST.cs" />
+    <Compile Include="Reflection\BinaryFormat\Chunks\META.cs" />
+    <Compile Include="Reflection\BinaryFormat\Chunks\PRNT.cs" />
+    <Compile Include="Reflection\BinaryFormat\Chunks\PROP.cs" />
+    <Compile Include="Reflection\Classes\Membered.cs" />
+    <Compile Include="Reflection\Enums.cs" />
+    <Compile Include="Reflection\Classes\Empty.cs" />
+    <Compile Include="Resources\ResourceUtility.cs" />
+    <Compile Include="Resources\Settings.cs" />
+    <Compile Include="StudioMdl\Bone.cs" />
+    <Compile Include="StudioMdl\BoneKeyframe.cs" />
+    <Compile Include="StudioMdl\IStudioMdlEntity.cs" />
+    <Compile Include="StudioMdl\Node.cs" />
+    <Compile Include="StudioMdl\StudioMdlWriter.cs" />
+    <Compile Include="Reflection\Instance.cs" />
+    <Compile Include="Reflection\RBXM.cs" />
+    <Compile Include="StudioMdl\Triangle.cs" />
+    <Compile Include="Web\AssetGroups.cs" />
+    <Compile Include="Web\AssetType.cs" />
+    <Compile Include="Web\LegacyAssets.cs" />
+    <Compile Include="Web\WebUtility.cs" />
+    <Compile Include="Web\UserData.cs" />
+    <Compile Include="Coordinates\CFrame.cs" />
+    <Compile Include="Coordinates\Vector3.cs" />
+    <Compile Include="Geometry\Mesh.cs" />
+    <Compile Include="Geometry\Vertex.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Web\Asset.cs" />
+    <EmbeddedResource Include="Forms\Launcher.resx">
+      <DependentUpon>Launcher.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Rbx2Source.resx">
+      <DependentUpon>Rbx2Source.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Climb.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Idle.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Animations\LookAround.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Sit.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Walk.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Animations\Walk.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Animations\Climb.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Dance.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Animations\Fall.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Animations\Idle.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Animations\Sit.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Animations\WaveArms.rbxmx" />
+    <EmbeddedResource Include="Resources\VTFCmd.zip" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\CollisionJoints.qc" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\CollisionJoints.qc" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Barrel.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Blockhead.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Cool Thing.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Cylinder Madness.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Diamond.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Eraser Head.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Fat Head.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Flat Top.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Hex.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Octoblox.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Peabrain.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Perfection.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\ROX BOX.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Roll.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Roundy.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Trim.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Heads\Default.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Primitives\Ball.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Primitives\Block.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\Primitives\Cylinder.mesh" />
+    <None Include="Properties\app.manifest" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Swim.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositLeftArm.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositLeftLeg.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositRightArm.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositRightLeg.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositTorso.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Compositing\R15CompositLeftArmBase.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Compositing\R15CompositRightArmBase.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Compositing\R15CompositTorsoBase.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositPantsTemplate.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositShirtTemplate.mesh" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Test.rbxmx" />
+    <None Include="web.config" />
+    <None Include="packages.config" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\ASSEMBLY.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\ASSEMBLY.rbxmx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Meshes\StandardLimbs\leftarm.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\StandardLimbs\leftleg.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\StandardLimbs\rightarm.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\StandardLimbs\rightleg.mesh" />
+    <EmbeddedResource Include="Resources\Meshes\StandardLimbs\torso.mesh" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\Images\Rbx2Source.ico" />
+    <EmbeddedResource Include="Resources\Images\face.png" />
+    <EmbeddedResource Include="Resources\Libraries\LZ4.dll" />
+    <EmbeddedResource Include="Resources\Libraries\Newtonsoft.Json.dll" />
+    <None Include="Resources\Images\Accoutrement_icon.png" />
+    <None Include="Resources\Images\Humanoid_icon.png" />
+    <None Include="Resources\Images\Rbx2Source.png" />
+    <EmbeddedResource Include="Resources\Images\BlankWhite.png" />
+    <None Include="Resources\Images\BrokenPreview.png" />
+    <EmbeddedResource Include="Resources\Images\Loading.gif" />
+    <EmbeddedResource Include="Resources\Images\Rbx2SourceLogo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.5">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
