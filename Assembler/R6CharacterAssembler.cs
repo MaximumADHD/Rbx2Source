@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
@@ -104,8 +104,9 @@ namespace Rbx2Source.Assembler
 
                     MeshPart limb = assembly.FindFirstChild<MeshPart>(limbName);
                     if (limb != null)
+                    {
                         limb.MeshId = "rbxassetid://" + characterMesh.MeshId;
-
+                    }
                 }
                 else if (asset.IsA("Accoutrement") && !collisionModel)
                 {
