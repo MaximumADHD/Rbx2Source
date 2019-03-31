@@ -14,11 +14,11 @@ namespace Rbx2Source.Coordinates
         public float Y => m24;
         public float Z => m34;
 
-        public Vector3 Position => new Vector3(X, Y, Z);
+        public Vector3 Position    => new Vector3(X, Y, Z);
 
-        public Vector3 LookVector => new Vector3(-m13, -m23, -m33);
+        public Vector3 LookVector  => new Vector3(-m13, -m23, -m33);
         public Vector3 RightVector => new Vector3(m11, m21, m31);
-        public Vector3 UpVector => new Vector3(m12, m22, m32);
+        public Vector3 UpVector    => new Vector3(m12, m22, m32);
 
         public CFrame()
         {
@@ -51,9 +51,9 @@ namespace Rbx2Source.Coordinates
             {
                 if (zAxis.Y < 0)
                 {
-                    xAxis = new Vector3(0, 0, -1);
-                    yAxis = new Vector3(1, 0, 0);
-                    zAxis = new Vector3(0, -1, 0);
+                    xAxis = new Vector3(0,  0, -1);
+                    yAxis = new Vector3(1,  0,  0);
+                    zAxis = new Vector3(0, -1,  0);
                 }
                 else
                 {
@@ -104,9 +104,9 @@ namespace Rbx2Source.Coordinates
             if (comp.Length < 12)
                 throw new Exception("There should be 12 floats provided to construct CFrame with an array of floats");
 
-            m14 = comp[0]; m24 = comp[1]; m34 = comp[2];
-            m11 = comp[3]; m12 = comp[4]; m13 = comp[5];
-            m21 = comp[6]; m22 = comp[7]; m23 = comp[8];
+            m14 = comp[0]; m24 = comp[1];  m34 = comp[2];
+            m11 = comp[3]; m12 = comp[4];  m13 = comp[5];
+            m21 = comp[6]; m22 = comp[7];  m23 = comp[8];
             m31 = comp[9]; m32 = comp[10]; m33 = comp[11];
         }
 
@@ -124,9 +124,9 @@ namespace Rbx2Source.Coordinates
         {
             float[] ac = a.GetComponents();
 
-            float x = ac[0], y = ac[1], z = ac[2],
-                  m11 = ac[3], m12 = ac[4], m13 = ac[5],
-                  m21 = ac[6], m22 = ac[7], m23 = ac[8],
+            float   x = ac[0],   y = ac[1],    z = ac[2],
+                  m11 = ac[3], m12 = ac[4],  m13 = ac[5],
+                  m21 = ac[6], m22 = ac[7],  m23 = ac[8],
                   m31 = ac[9], m32 = ac[10], m33 = ac[11];
 
             return new CFrame(x + b.X, y + b.Y, z + b.Z, m11, m12, m13, m21, m22, m23, m31, m32, m33);
@@ -136,9 +136,9 @@ namespace Rbx2Source.Coordinates
         {
             float[] ac = a.GetComponents();
 
-            float x = ac[0], y = ac[1], z = ac[2],
-                  m11 = ac[3], m12 = ac[4], m13 = ac[5],
-                  m21 = ac[6], m22 = ac[7], m23 = ac[8],
+            float   x = ac[0],   y = ac[1],    z = ac[2],
+                  m11 = ac[3], m12 = ac[4],  m13 = ac[5],
+                  m21 = ac[6], m22 = ac[7],  m23 = ac[8],
                   m31 = ac[9], m32 = ac[10], m33 = ac[11];
 
             return new CFrame(x - b.X, y - b.Y, z - b.Z, m11, m12, m13, m21, m22, m23, m31, m32, m33);
@@ -147,14 +147,16 @@ namespace Rbx2Source.Coordinates
         public static Vector3 operator *(CFrame a, Vector3 b)
         {
             float[] ac = a.GetComponents();
-            float x = ac[0], y = ac[1], z = ac[2],
-                  m11 = ac[3], m12 = ac[4], m13 = ac[5],
-                  m21 = ac[6], m22 = ac[7], m23 = ac[8],
+            
+            float   x = ac[0],   y = ac[1],    z = ac[2],
+                  m11 = ac[3], m12 = ac[4],  m13 = ac[5],
+                  m21 = ac[6], m22 = ac[7],  m23 = ac[8],
                   m31 = ac[9], m32 = ac[10], m33 = ac[11];
 
             Vector3 right = new Vector3(m11, m21, m31);
-            Vector3 up = new Vector3(m12, m22, m32);
-            Vector3 back = new Vector3(m13, m23, m33);
+            Vector3 up    = new Vector3(m12, m22, m32);
+            Vector3 back  = new Vector3(m13, m23, m33);
+            
             return a.Position + b.X * right + b.Y * up + b.Z * back;
         }
 
@@ -163,14 +165,14 @@ namespace Rbx2Source.Coordinates
             float[] ac = a.GetComponents();
             float[] bc = b.GetComponents();
 
-            float a14 = ac[0], a24 = ac[1], a34 = ac[2],
-                  a11 = ac[3], a12 = ac[4], a13 = ac[5],
-                  a21 = ac[6], a22 = ac[7], a23 = ac[8],
+            float a14 = ac[0], a24 = ac[1],  a34 = ac[2],
+                  a11 = ac[3], a12 = ac[4],  a13 = ac[5],
+                  a21 = ac[6], a22 = ac[7],  a23 = ac[8],
                   a31 = ac[9], a32 = ac[10], a33 = ac[11];
 
-            float b14 = bc[0], b24 = bc[1], b34 = bc[2],
-                  b11 = bc[3], b12 = bc[4], b13 = bc[5],
-                  b21 = bc[6], b22 = bc[7], b23 = bc[8],
+            float b14 = bc[0], b24 = bc[1],  b34 = bc[2],
+                  b11 = bc[3], b12 = bc[4],  b13 = bc[5],
+                  b21 = bc[6], b22 = bc[7],  b23 = bc[8],
                   b31 = bc[9], b32 = bc[10], b33 = bc[11];
 
             float n11 = a11 * b11 + a12 * b21 + a13 * b31 + a14 * m41;
@@ -216,19 +218,19 @@ namespace Rbx2Source.Coordinates
         {
             float[] ac = GetComponents();
 
-            float a14 = ac[0], a24 = ac[1], a34 = ac[2],
-                  a11 = ac[3], a12 = ac[4], a13 = ac[5],
-                  a21 = ac[6], a22 = ac[7], a23 = ac[8],
+            float a14 = ac[0], a24 = ac[1],  a34 = ac[2],
+                  a11 = ac[3], a12 = ac[4],  a13 = ac[5],
+                  a21 = ac[6], a22 = ac[7],  a23 = ac[8],
                   a31 = ac[9], a32 = ac[10], a33 = ac[11];
 
-            float det = (a11 * a22 * a33 * m44 + a11 * a23 * a34 * m42 + a11 * a24 * a32 * m43
+            float det = ( a11 * a22 * a33 * m44 + a11 * a23 * a34 * m42 + a11 * a24 * a32 * m43
                         + a12 * a21 * a34 * m43 + a12 * a23 * a31 * m44 + a12 * a24 * a33 * m41
                         + a13 * a21 * a32 * m44 + a13 * a22 * a34 * m41 + a13 * a24 * a31 * m42
                         + a14 * a21 * a33 * m42 + a14 * a22 * a31 * m43 + a14 * a23 * a32 * m41
                         - a11 * a22 * a34 * m43 - a11 * a23 * a32 * m44 - a11 * a24 * a33 * m42
                         - a12 * a21 * a33 * m44 - a12 * a23 * a34 * m41 - a12 * a24 * a31 * m43
                         - a13 * a21 * a34 * m42 - a13 * a22 * a31 * m44 - a13 * a24 * a32 * m41
-                        - a14 * a21 * a32 * m43 - a14 * a22 * a33 * m41 - a14 * a23 * a31 * m42);
+                        - a14 * a21 * a32 * m43 - a14 * a22 * a33 * m41 - a14 * a23 * a31 * m42 );
 
             if (det == 0)
                 return this;
@@ -268,8 +270,8 @@ namespace Rbx2Source.Coordinates
         public static CFrame Angles(float x, float y, float z)
         {
             CFrame cfx = FromAxisAngle(Vector3.Right, x);
-            CFrame cfy = FromAxisAngle(Vector3.Up, y);
-            CFrame cfz = FromAxisAngle(Vector3.Back, z);
+            CFrame cfy = FromAxisAngle(Vector3.Up,    y);
+            CFrame cfz = FromAxisAngle(Vector3.Back,  z);
 
             return cfx * cfy * cfz;
         }
