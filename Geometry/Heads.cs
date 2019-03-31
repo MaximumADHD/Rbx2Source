@@ -12,18 +12,18 @@ namespace Rbx2Source.Geometry
 
     public class Head
     {
-
         public BevelType BevelType;
+        
         public double Bevel;
-        public double Roundness;
         public double Buldge;
-
+        public double Roundness;
+        
         public Head(BevelType bevelType, double bevel, double roundness, double buldge)
         {
-            BevelType = bevelType;
             Bevel = bevel;
-            Roundness = roundness;
             Buldge = buldge;
+            BevelType = bevelType;
+            Roundness = roundness;
         }
 
         private bool fuzzyEq(double a, double b)
@@ -32,30 +32,34 @@ namespace Rbx2Source.Geometry
             return (diff < 0.001);
         }
 
-        public bool paramsMatchWith(BevelMesh mesh)
+        public bool FieldsMatchWith(BevelMesh mesh)
         {
-            return fuzzyEq(mesh.Bevel,           Bevel) &&
-                   fuzzyEq(mesh.Bevel_Roundness, Roundness) &&
-                   fuzzyEq(mesh.Buldge,          Buldge);
+            float bevel = mesh.Bevel;
+            float buldge = mesh.Buldge;
+            float roundness = mesh.Bevel_Roundness;
+            
+            return fuzzyEq(bevel,     Bevel)   &&
+                   fuzzyEq(buldge,    Buldge)  &&
+                   fuzzyEq(roundness, Roundness);
         }
 
         public static Dictionary<Head,string> Lookup = new Dictionary<Head,string>()
         {
-            { new Head(BevelType.Block,    0.0,   0.0,   0.0), "Blockhead"        },
-            { new Head(BevelType.Block,    0.5,   0.0,   0.0), "Hex"              },
-            { new Head(BevelType.Block,    0.3,   0.0,   0.0), "Octoblox"         },
-            { new Head(BevelType.Block,    0.05,  0.0,   0.0), "Roll"             },
+            { new Head(BevelType.Block,    0.00, 0.00, 0.00), "Blockhead"        },
+            { new Head(BevelType.Block,    0.50, 0.00, 0.00), "Hex"              },
+            { new Head(BevelType.Block,    0.30, 0.00, 0.00), "Octoblox"         },
+            { new Head(BevelType.Block,    0.05, 0.00, 0.00), "Roll"             },
 
-            { new Head(BevelType.Cylinder, 0.0,   0.0,   0.5), "Barrel"           },
-            { new Head(BevelType.Cylinder, 0.1,   0.0,   0.5), "Cool Thing"       },
-            { new Head(BevelType.Cylinder, 0.4,   0.0,   0.0), "Cylinder Madness" },
-            { new Head(BevelType.Cylinder, 0.66,  0.0,   0.5), "Diamond"          },
-            { new Head(BevelType.Cylinder, 0.0,   0.0,   0.0), "Eraser Head"      },
-            { new Head(BevelType.Cylinder, 0.0,   0.0,   1.0), "Fat Head"         },
-            { new Head(BevelType.Cylinder, 0.2,   0.0,   1.0), "Flat Top"         },
-            { new Head(BevelType.Cylinder, 0.4,   1.0,   0.0), "Roundy"           },
-            { new Head(BevelType.Cylinder, 0.2,   0.0,   0.5), "ROX BOX"          },
-            { new Head(BevelType.Cylinder, 0.1,   0.0,   0.0), "Trim"             },
+            { new Head(BevelType.Cylinder, 0.00, 0.00, 0.50), "Barrel"           },
+            { new Head(BevelType.Cylinder, 0.10, 0.00, 0.50), "Cool Thing"       },
+            { new Head(BevelType.Cylinder, 0.40, 0.00, 0.00), "Cylinder Madness" },
+            { new Head(BevelType.Cylinder, 0.66, 0.00, 0.50), "Diamond"          },
+            { new Head(BevelType.Cylinder, 0.00, 0.00, 0.00), "Eraser Head"      },
+            { new Head(BevelType.Cylinder, 0.00, 0.00, 1.00), "Fat Head"         },
+            { new Head(BevelType.Cylinder, 0.20, 0.00, 1.00), "Flat Top"         },
+            { new Head(BevelType.Cylinder, 0.40, 1.00, 0.00), "Roundy"           },
+            { new Head(BevelType.Cylinder, 0.20, 0.00, 0.50), "ROX BOX"          },
+            { new Head(BevelType.Cylinder, 0.10, 0.00, 0.00), "Trim"             },
         };
 
         public static Asset ResolveHeadMeshAsset(DataModelMesh mesh)
@@ -65,14 +69,18 @@ namespace Rbx2Source.Geometry
             if (mesh.IsA("BevelMesh"))
             {
                 BevelMesh bevelMesh = mesh as BevelMesh;
-                
                 BevelType bevelType = BevelType.Unknown;
+                
                 if (mesh.IsA("BlockMesh"))
                     bevelType = BevelType.Block;
                 else if (mesh.IsA("CylinderMesh"))
                     bevelType = BevelType.Cylinder;
 
-                Head match = Lookup.Keys.Where(head => head.BevelType == bevelType && head.paramsMatchWith(bevelMesh)).First();
+                Head match = Lookup.Keys
+                    .Where((head) => bevelType == head.BevelType)
+                    .Where((head) => head.FieldsMatchWith(bevelMesh))
+                    .First();
+                
                 if (match != null)
                     result = Lookup[match];
 
@@ -82,6 +90,7 @@ namespace Rbx2Source.Geometry
             else if (mesh.IsA("SpecialMesh"))
             {
                 SpecialMesh specialMesh = mesh as SpecialMesh;
+                
                 if (specialMesh.MeshType == MeshType.Sphere)
                 {
                     result = "Perfection";
