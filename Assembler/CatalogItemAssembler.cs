@@ -153,8 +153,7 @@ namespace Rbx2Source.Assembler
                     numAssembledParts++;
                 }
             }
-                
-
+            
             Rbx2Source.MarkTaskCompleted("BuildMesh");
             return writer;
         }
@@ -203,7 +202,6 @@ namespace Rbx2Source.Assembler
 
                     material.UseReflectance = true;
                     textures.BindTextureAlias(mtlName, "BrickColor");
-                    // matLinks.Add(mtlName, "BrickColor");
                 }
                 else
                 {
