@@ -1,11 +1,13 @@
 ﻿#pragma warning disable 0649
+
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Reflection;
 using System.Text;
 using System.Xml;
 
-using Rbx2Source.Coordinates;
+using Rbx2Source.DataTypes;
 using Rbx2Source.Reflection.BinaryFormat;
 using Rbx2Source.Web;
 
@@ -79,11 +81,11 @@ namespace Rbx2Source.Reflection
                         if (propertyType == "string")
                             value = sValue;
                         else if (propertyType == "float")
-                            value = float.Parse(sValue, Rbx2Source.NormalParse);
+                            value = Format.ParseFloat(sValue);
                         else if (propertyType == "double")
-                            value = double.Parse(sValue, Rbx2Source.NormalParse);
+                            value = Format.ParseDouble(sValue);
                         else if (propertyType == "int")
-                            value = int.Parse(sValue, Rbx2Source.NormalParse);
+                            value = Format.ParseInt(sValue);
                         else if (propertyType == "CoordinateFrame")
                             value = CFrame.FromXml(property);
                         else if (propertyType == "Vector3")
@@ -94,15 +96,32 @@ namespace Rbx2Source.Reflection
                         if (propertyType == "token")
                         {
                             Type fieldType = field.FieldType;
+
                             if (fieldType.IsEnum)
                             {
                                 int index = int.Parse(sValue);
                                 value = Enum.ToObject(fieldType, index);
                             }
                         }
+                        else if (propertyType == "Color3uint8")
+                        {
+                            uint rgb = uint.Parse(sValue);
+
+                            int r = (int)(rgb / 65536) % 256;
+                            int g = (int)(rgb / 256) % 256;
+                            int b = (int)(rgb % 256);
+
+                            value = Color.FromArgb(r, g, b);
+                        }
 
                         if (value != null)
                         {
+                            if (field.FieldType == typeof(BrickColor))
+                            {
+                                int brickColorId = (int)value;
+                                value = BrickColor.FromNumber(brickColorId);
+                            }
+
                             field.SetValue(obj, value);
                         }
                     }

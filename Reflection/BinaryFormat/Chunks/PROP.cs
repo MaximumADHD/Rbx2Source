@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Drawing;
 using System.Linq;
 
-using Rbx2Source.Coordinates;
+using Rbx2Source.DataTypes;
+using Rbx2Source.Textures;
 
 namespace Rbx2Source.Reflection.BinaryFormat
 {
@@ -80,7 +82,6 @@ namespace Rbx2Source.Reflection.BinaryFormat
                     loadProperties(i => Reader.ReadBoolean());
                     break;
                 case PropertyType.Int:
-                case PropertyType.BrickColor:
                     int[] ints = readInts();
                     loadProperties(i => ints[i]);
                     break;
@@ -103,6 +104,16 @@ namespace Rbx2Source.Reflection.BinaryFormat
                               z = Vector3_Z[i];
 
                         return new Vector3(x, y, z);
+                    });
+
+                    break;
+                case PropertyType.BrickColor:
+                    int[] brickColorIds = readInts();
+
+                    loadProperties(i =>
+                    {
+                        int brickColorId = brickColorIds[i];
+                        return BrickColor.FromNumber(brickColorId);
                     });
 
                     break;
@@ -174,7 +185,9 @@ namespace Rbx2Source.Reflection.BinaryFormat
                               z = CFrame_Z[i];
 
                         float[] position = new float[3] { x, y, z };
-                        float[] components = position.Concat(matrix).ToArray();
+                        float[] components = position
+                            .Concat(matrix)
+                            .ToArray();
 
                         return new CFrame(components);
                     });
@@ -192,6 +205,21 @@ namespace Rbx2Source.Reflection.BinaryFormat
                     {
                         int instId = instIds[i];
                         return instId >= 0 ? file.Instances[instId] : null;
+                    });
+
+                    break;
+                case PropertyType.Color3uint8:
+                    byte[] Color3uint8_R = Reader.ReadBytes(instCount),
+                           Color3uint8_G = Reader.ReadBytes(instCount),
+                           Color3uint8_B = Reader.ReadBytes(instCount);
+
+                    loadProperties(i =>
+                    {
+                        byte r = Color3uint8_R[i],
+                             g = Color3uint8_G[i],
+                             b = Color3uint8_B[i];
+
+                        return Color.FromArgb(r, g, b);
                     });
 
                     break;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Rbx2Source.Coordinates;
+using Rbx2Source.DataTypes;
 using Rbx2Source.Reflection;
 using Rbx2Source.Web;
 
@@ -34,13 +34,11 @@ namespace Rbx2Source.Geometry
 
         public bool FieldsMatchWith(BevelMesh mesh)
         {
-            float bevel = mesh.Bevel;
-            float buldge = mesh.Buldge;
-            float roundness = mesh.Bevel_Roundness;
-            
-            return fuzzyEq(bevel,     Bevel)   &&
-                   fuzzyEq(buldge,    Buldge)  &&
-                   fuzzyEq(roundness, Roundness);
+            bool bevelEq = fuzzyEq(Bevel, mesh.Bevel);
+            bool buldgeEq = fuzzyEq(Buldge, mesh.Buldge);
+            bool roundnessEq = fuzzyEq(Roundness, mesh.Bevel_Roundness);
+
+            return (bevelEq && buldgeEq && roundnessEq);
         }
 
         public static Dictionary<Head,string> Lookup = new Dictionary<Head,string>()

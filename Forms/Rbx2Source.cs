@@ -36,8 +36,6 @@ namespace Rbx2Source
         }
 
         public const float MODEL_SCALE = 10;
-
-        public static IFormatProvider NormalParse = CultureInfo.InvariantCulture;
         public Launcher baseProcess;
 
         private UserInfo currentUser;
@@ -489,21 +487,21 @@ namespace Rbx2Source
             Compiler.UseWaitCursor = true;
             ModelCompiler.PreScheduleTasks();
 
-            IAssembler assembler;
-            object metadata;
+            Func<AssemblerData> assemble;
 
             if (compilerTypeSelect.Text == "Avatar")
             {
-                assembler = new CharacterAssembler();
-                metadata = UserAvatar.FromUsername(currentUser.Username);
+                var assembler = new CharacterAssembler();
+                var userAvatar = UserAvatar.FromUsername(currentUser.Username);
+                assemble = new Func<AssemblerData>(() => assembler.Assemble(userAvatar));
             }
             else
             {
-                assembler = new CatalogItemAssembler();
-                metadata = currentAssetId;
+                var assembler = new CatalogItemAssembler();
+                assemble = new Func<AssemblerData>(() => assembler.Assemble(currentAssetId));
             }
 
-            Task<AssemblerData> buildModel = Task.Run(() => assembler.Assemble(metadata));
+            Task<AssemblerData> buildModel = Task.Run(assemble);
 
             while (!buildModel.IsCompleted)
                 await UpdateCompilerState();

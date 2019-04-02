@@ -1,29 +1,22 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-using Rbx2Source.Coordinates;
+using Rbx2Source.DataTypes;
 using Rbx2Source.Reflection;
 
 namespace Rbx2Source.StudioMdl
 {
-    public class BoneKeyframe : IStudioMdlEntity
+    public class BoneKeyframe : IStudioMdlEntity<BoneKeyframe>
     {
-        public int Time;
-        public List<Bone> Bones;
-
-        public bool DeltaSequence = false;
-        public List<Bone> BaseRig;
-
         public string GroupName => "skeleton";
 
-        public void Write(StringWriter fileBuffer, IList rawSkeleton, object rawKeyframe)
+        public int Time;
+        public List<Bone> Bones;
+        public List<Bone> BaseRig;
+        public bool DeltaSequence = false;
+
+        public void WriteStudioMdl(StringWriter fileBuffer, BoneKeyframe keyframe, List<BoneKeyframe> skeleton)
         {
-            BoneKeyframe keyframe = rawKeyframe as BoneKeyframe;
             fileBuffer.WriteLine("time " + keyframe.Time);
 
             foreach (Bone bone in keyframe.Bones)
@@ -53,8 +46,9 @@ namespace Rbx2Source.StudioMdl
                     Bone parentBone = keyframe.Bones[parentIndex];
                     boneCFrame *= parentBone.C1.Inverse();
                 }
-                
-                fileBuffer.Write(boneCFrame.ToStudioMdlString());
+
+                string studioMdl = boneCFrame.WriteStudioMdl();
+                fileBuffer.Write(studioMdl);
                 fileBuffer.WriteLine();
             }
         }

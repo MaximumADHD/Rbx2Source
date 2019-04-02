@@ -9,7 +9,7 @@ using Rbx2Source.Geometry;
 
 namespace Rbx2Source.StudioMdl
 {
-    public class Node : IStudioMdlEntity
+    public class Node : IStudioMdlEntity<Node>
     {
         public string Name;
 
@@ -36,6 +36,7 @@ namespace Rbx2Source.StudioMdl
                 foreach (Node n in nodes)
                 {
                     Bone b = n.Bone;
+
                     if (b != bone && b.Part1 == part0)
                     {
                         parent = n;
@@ -49,11 +50,8 @@ namespace Rbx2Source.StudioMdl
             return -1;
         }
 
-        public void Write(StringWriter fileBuffer, IList rawNodes, object rawNode)
+        public void WriteStudioMdl(StringWriter fileBuffer, Node node, List<Node> nodes)
         {
-            List<Node> nodes = rawNodes as List<Node>;
-            Node node = rawNode as Node;
-
             int nodeIndex = nodes.IndexOf(node);
             node.NodeIndex = nodeIndex;
 

@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Rbx2Source</RootNamespace>
     <AssemblyName>Rbx2Source</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
@@ -113,17 +113,17 @@
     <Compile Include="Assembler\Utility\Material.cs" />
     <Compile Include="Assembler\Utility\TextureBindings.cs" />
     <Compile Include="Compiler\UtilParameter.cs" />
-    <Compile Include="Coordinates\Functionality\IBaseCoordinates.cs" />
-    <Compile Include="Coordinates\Quaternion.cs" />
+    <Compile Include="DataTypes\Quaternion.cs" />
     <Compile Include="QuakeC\QuakeCItem.cs" />
     <Compile Include="QuakeC\QuakeCWriter.cs" />
     <Compile Include="Reflection\BinaryFormat\RobloxBinaryReader.cs" />
     <Compile Include="Reflection\BinaryFormat\Tree\FileInstance.cs" />
     <Compile Include="Reflection\BinaryFormat\Tree\FileProperty.cs" />
-    <Compile Include="Textures\BrickColor.cs" />
+    <Compile Include="Formatting.cs" />
+    <Compile Include="DataTypes\BrickColor.cs" />
     <Compile Include="Assembler\CatalogItemAssembler.cs" />
     <Compile Include="Textures\CompositData.cs" />
-    <Compile Include="Textures\CompositUtil.cs" />
+    <Compile Include="Textures\CompositUtility.cs" />
     <Compile Include="Textures\TextureCompositor.cs" />
     <Compile Include="Forms\Launcher.cs">
       <SubType>Form</SubType>
@@ -151,7 +151,6 @@
     <Compile Include="Compiler\GameInfo.cs" />
     <Compile Include="Compiler\ModelCompiler.cs" />
     <Compile Include="Compiler\ThirdPartyUtility.cs" />
-    <Compile Include="Coordinates\Functionality\Coordinates.cs" />
     <Compile Include="Reflection\BinaryFormat\RobloxBinaryChunk.cs" />
     <Compile Include="Reflection\BinaryFormat\RobloxBinaryFile.cs" />
     <Compile Include="Reflection\BinaryFormat\Chunks\INST.cs" />
@@ -176,8 +175,8 @@
     <Compile Include="Web\LegacyAssets.cs" />
     <Compile Include="Web\WebUtility.cs" />
     <Compile Include="Web\UserData.cs" />
-    <Compile Include="Coordinates\CFrame.cs" />
-    <Compile Include="Coordinates\Vector3.cs" />
+    <Compile Include="DataTypes\CFrame.cs" />
+    <Compile Include="DataTypes\Vector3.cs" />
     <Compile Include="Geometry\Mesh.cs" />
     <Compile Include="Geometry\Vertex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

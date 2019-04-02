@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Rbx2Source.Assembler
 {
-    public interface IAssembler
+    public interface IAssembler<T>
     {
-        AssemblerData Assemble(object metadata);
+        AssemblerData Assemble(T metadata);
     }
 }

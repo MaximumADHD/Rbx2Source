@@ -8,6 +8,7 @@ namespace Rbx2Source.Assembler
         public static string MakeNameWindowsSafe(string name, string replaceWith = "", bool doExtraStuff = true)
         {
             string result = Regex.Replace(name, @"[^A-Za-z0-9 _]", replaceWith).Trim();
+
             if (doExtraStuff)
                 result = result.Replace(" ","_").ToLower();
 

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Xml;
 
-namespace Rbx2Source.Coordinates
+namespace Rbx2Source.DataTypes
 {
-    public class CFrame : BaseCoordinates
+    public class CFrame
     {
         private float m11 = 1, m12 = 0, m13 = 0, m14 = 0;
         private float m21 = 0, m22 = 1, m23 = 0, m24 = 0;
@@ -112,12 +112,17 @@ namespace Rbx2Source.Coordinates
 
         public static CFrame FromXml(XmlNode cfData)
         {
-            float[] comp = new float[12];
+            float[] components = new float[12];
+            var childNodes = cfData.ChildNodes;
 
             for (int i = 0; i < 12; i++)
-                comp[i] = float.Parse(cfData.ChildNodes[i].InnerText, Rbx2Source.NormalParse);
+            {
+                var childNode = childNodes[i];
+                string value = childNode.InnerText;
+                components[i] = Format.ParseFloat(value);
+            }
 
-            return new CFrame(comp);
+            return new CFrame(components);
         }
         
         public static CFrame operator +(CFrame a, Vector3 b)
@@ -347,13 +352,18 @@ namespace Rbx2Source.Coordinates
             return new float[] { x, y, z };
         }
 
-        protected override string ToStudioMdlString_Impl(bool excludeZ = false)
+        public string WriteStudioMdl()
         {
-            string pos = Position.ToStudioMdlString() + " ";
             float[] ang = ToEulerAnglesXYZ();
 
-            string rotation = string.Join(" ", truncate(ang));
-            return pos + rotation;
+            Vector3 pos = Position * Rbx2Source.MODEL_SCALE;
+            Vector3 rot = new Vector3(ang);
+
+            return Format.FormatFloats
+            (
+                pos.X, pos.Y, pos.Z,
+                rot.X, rot.Y, rot.Z
+            );
         }
     }
 }

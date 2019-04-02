@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
+using Rbx2Source.DataTypes;
 using Rbx2Source.Geometry;
 using Rbx2Source.Web;
 
@@ -69,15 +70,15 @@ namespace Rbx2Source.Textures
 
         public bool SetDrawColor(int brickColorId)
         {
-            bool valid = BrickColors.NumericalSearch.ContainsKey(brickColorId);
+            BrickColor bc;
 
-            if (valid)
+            if (BrickColor.TryFromNumber(brickColorId, out bc))
             {
-                BrickColor bc = BrickColors.NumericalSearch[brickColorId];
                 DrawColor = bc.Color;
+                return true;
             }
 
-            return valid;
+            return false;
         }
 
         public int CompareTo(object other)

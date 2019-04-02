@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Linq;
 
 using Rbx2Source.Animating;
-using Rbx2Source.Coordinates;
+using Rbx2Source.DataTypes;
 using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.StudioMdl;

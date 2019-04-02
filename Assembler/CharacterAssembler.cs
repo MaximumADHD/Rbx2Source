@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 
 using Rbx2Source.Animating;
-using Rbx2Source.Coordinates;
+using Rbx2Source.DataTypes;
 using Rbx2Source.Geometry;
 using Rbx2Source.Reflection;
 using Rbx2Source.QuakeC;
@@ -18,7 +18,7 @@ namespace Rbx2Source.Assembler
 {
     public enum Limb { Head, Torso, LeftArm, RightArm, LeftLeg, RightLeg, Unknown }
     
-    public class CharacterAssembler : IAssembler
+    public class CharacterAssembler : IAssembler<UserAvatar>
     {
         private static bool DEBUG_RAPID_ASSEMBLY = false;
 
@@ -378,12 +378,8 @@ namespace Rbx2Source.Assembler
             return (lowestY - (lowest.Size.Y / 2f)) * Rbx2Source.MODEL_SCALE;
         }
 
-        public AssemblerData Assemble(object metadata)
+        public AssemblerData Assemble(UserAvatar avatar)
         {
-            UserAvatar avatar = metadata as UserAvatar;
-            if (avatar == null)
-                throw new InvalidDataException("bad cast");
-
             UserInfo userInfo = avatar.UserInfo;
             string userName = FileUtility.MakeNameWindowsSafe(userInfo.Username);
 
@@ -646,7 +642,7 @@ namespace Rbx2Source.Assembler
             if (assembly != null)
             {
                 float floor = ComputeFloorLevel(assembly);
-                string origin = "0 " + floor.ToString(Rbx2Source.NormalParse) + " 0";
+                string origin = "0 " + floor.ToInvariantString() + " 0";
                 qc.Add("origin", origin);
             }
 
