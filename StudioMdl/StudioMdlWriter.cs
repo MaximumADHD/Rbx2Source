@@ -32,7 +32,6 @@ namespace Rbx2Source.StudioMdl
 
                 buffer.WriteLine("end");
             }
-            
         }
 
         public string BuildFile(bool writeGeometry = true)
