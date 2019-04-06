@@ -11,23 +11,21 @@ namespace Rbx2Source.StudioMdl
 {
     public class Node : IStudioMdlEntity<Node>
     {
+        public string GroupName => "nodes";
+
+        public int NodeIndex;
         public string Name;
 
         public Bone Bone;
         public Mesh Mesh;
 
-        public int NodeIndex;
         public int ParentIndex = -1;
         public bool UseParentIndex = false;
         
-        public string GroupName => "nodes";
-
-        private int FindParent(List<Node> nodes, Node node)
+        private int FindParent(List<Node> nodes)
         {
-            Bone bone = node.Bone;
-
-            BasePart part0 = bone.Part0;
-            BasePart part1 = bone.Part1;
+            BasePart part0 = Bone.Part0,
+                     part1 = Bone.Part1;
 
             if (part0 != part1)
             {
@@ -37,7 +35,7 @@ namespace Rbx2Source.StudioMdl
                 {
                     Bone b = n.Bone;
 
-                    if (b != bone && b.Part1 == part0)
+                    if (b != Bone && b.Part1 == part0)
                     {
                         parent = n;
                         break;
@@ -50,16 +48,12 @@ namespace Rbx2Source.StudioMdl
             return -1;
         }
 
-        public void WriteStudioMdl(StringWriter fileBuffer, Node node, List<Node> nodes)
+        public void WriteStudioMdl(StringWriter fileBuffer, List<Node> nodes)
         {
-            int nodeIndex = nodes.IndexOf(node);
-            node.NodeIndex = nodeIndex;
+            NodeIndex = nodes.IndexOf(this);
+            ParentIndex = UseParentIndex ? ParentIndex : FindParent(nodes);
 
-            string nodeName = '"' + node.Name + '"';
-            int parentIndex = UseParentIndex ? ParentIndex : FindParent(nodes, node);
-            ParentIndex = parentIndex;
-
-            string joined = string.Join(" ", nodeIndex, nodeName, parentIndex);
+            string joined = string.Join(" ", NodeIndex, '"' + Name + '"', ParentIndex);
             fileBuffer.WriteLine(joined);
         }
     }

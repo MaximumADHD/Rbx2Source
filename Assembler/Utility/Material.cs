@@ -61,7 +61,7 @@ namespace Rbx2Source.Assembler
 
         private void updateVmtFields()
         {
-            if (Transparency != 0.0)
+            if (Transparency != 0.0 && Transparency != 1.0)
             {
                 SetVmtField("alpha", 1 - Transparency);
                 SetVmtField("translucent", 1);

@@ -15,15 +15,12 @@ namespace Rbx2Source.StudioMdl
         public Node Node;
         public Mesh Mesh;
         
-        public void WriteStudioMdl(StringWriter buffer, Triangle triangle, List<Triangle> triangles)
+        public void WriteStudioMdl(StringWriter buffer, List<Triangle> triangles)
         {
-            Mesh mesh = triangle.Mesh;
-            Vertex[] verts = mesh.Verts;
+            Vertex[] verts = Mesh.Verts;
+            int bone = Node.NodeIndex;
 
-            Node node = triangle.Node;
-            int bone = node.NodeIndex;
-
-            int[] face = mesh.Faces[FaceIndex];
+            int[] face = Mesh.Faces[FaceIndex];
             buffer.WriteLine(Material);
 
             for (int i = 0; i < 3; i++)

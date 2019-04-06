@@ -15,13 +15,19 @@ namespace Rbx2Source.StudioMdl
         public List<Bone> BaseRig;
         public bool DeltaSequence = false;
 
-        public void WriteStudioMdl(StringWriter fileBuffer, BoneKeyframe keyframe, List<BoneKeyframe> skeleton)
+        public BoneKeyframe(int time = 0)
         {
-            fileBuffer.WriteLine("time " + keyframe.Time);
+            Time = time;
+            Bones = new List<Bone>();
+        }
 
-            foreach (Bone bone in keyframe.Bones)
+        public void WriteStudioMdl(StringWriter fileBuffer, List<BoneKeyframe> skeleton)
+        {
+            fileBuffer.WriteLine("time " + Time);
+
+            foreach (Bone bone in Bones)
             {
-                int boneIndex = keyframe.Bones.IndexOf(bone);
+                int boneIndex = Bones.IndexOf(bone);
                 fileBuffer.Write(boneIndex + " ");
 
                 int parentIndex = bone.Node.ParentIndex;
@@ -43,7 +49,7 @@ namespace Rbx2Source.StudioMdl
                 }
                 else if (parentIndex >= 0)
                 {
-                    Bone parentBone = keyframe.Bones[parentIndex];
+                    Bone parentBone = Bones[parentIndex];
                     boneCFrame *= parentBone.C1.Inverse();
                 }
 
@@ -51,12 +57,6 @@ namespace Rbx2Source.StudioMdl
                 fileBuffer.Write(studioMdl);
                 fileBuffer.WriteLine();
             }
-        }
-
-        public BoneKeyframe(int time = 0)
-        {
-            Time = time;
-            Bones = new List<Bone>();
         }
     }
 }

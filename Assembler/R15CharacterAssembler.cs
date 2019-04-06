@@ -77,7 +77,7 @@ namespace Rbx2Source.Assembler
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private static Asset R15AssemblyAsset = Asset.FromResource("AvatarData/R15/ASSEMBLY.rbxmx");
+        private static Asset R15AssemblyAsset = Asset.FromResource("AvatarData/R15/CharacterBase.rbxm");
         public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R15/CollisionJoints.qc");
 
         private static Dictionary<Limb, Rectangle> UVCrops = new Dictionary<Limb, Rectangle>()
@@ -93,15 +93,15 @@ namespace Rbx2Source.Assembler
         private static Dictionary<string, long> R15_ANIMATION_IDS = new Dictionary<string, long>()
         {
             { "Climb", 507765644  },
+            { "Jump",  507765000  },
             { "Fall",  507767968  },
             { "Idle",  507766388  },
             { "Idle2", 507766666  },
+            { "Laugh", 507770818  },
             { "Run",   913376220  },
             { "Walk",  913402848  },
-            { "Sit",   2506281703 },
-            { "Wave",  507770239  },
             { "Point", 507770453  },
-            { "Cheer", 507770677  },
+            { "Sit",   2506281703 },
         };
 
         public static Vector3 ComputeLimbScale(AvatarScale avatarScale, BasePart part)

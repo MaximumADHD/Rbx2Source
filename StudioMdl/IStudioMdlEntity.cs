@@ -6,6 +6,6 @@ namespace Rbx2Source.StudioMdl
     public interface IStudioMdlEntity<T>
     {
         string GroupName { get; }
-        void WriteStudioMdl(StringWriter fileBuffer, T entity, List<T> array);
+        void WriteStudioMdl(StringWriter buffer, List<T> group);
     }
 }

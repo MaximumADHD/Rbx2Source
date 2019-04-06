@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Rbx2Source.DataTypes;
@@ -81,6 +82,22 @@ namespace Rbx2Source.Animating
             return pair;
         }
 
+        public static void PatchAngles(ref CFrame applyTo, int axis, float[] angles)
+        {
+            float halfPi = (float)Math.PI / 2f;
+
+            float[] applyRepair = new float[3];
+            applyRepair[axis] = halfPi;
+
+            float[] applyRotate = new float[3];
+            applyRotate[axis] = angles[axis];
+
+            CFrame repair = CFrame.Angles(applyRepair);
+            CFrame rotate = CFrame.Angles(applyRotate);
+
+            applyTo *= repair * rotate * repair.Inverse();
+        }
+
         public static string Assemble(KeyframeSequence sequence, List<Bone> rig)
         {
             StudioMdlWriter animWriter = new StudioMdlWriter();
@@ -128,16 +145,10 @@ namespace Rbx2Source.Animating
             float fLength = lastKeyframe.Time;
             int frameCount = ToFrameRate(fLength);
 
-            // Animations in source are kinda dumb, because there is no in-between frame interpolation.
-            // I have to account for every single CFrame for every single frame.
+            // As far as I can tell, models in Source require you to store poses for every
+            // single frame, so I need to fill in the gaps with interpolated pose CFrames.
 
             var keyframeMap = new Dictionary<int, Dictionary<string, Pose>>();
-
-            for (int i = 0; i < frameCount; i++)
-            {
-                var emptyState = new Dictionary<string, Pose>();
-                keyframeMap.Add(i, emptyState);
-            }
 
             foreach (Keyframe kf in keyframes)
             {
@@ -146,6 +157,16 @@ namespace Rbx2Source.Animating
 
                 var poseMap = poses.ToDictionary(pose => pose.Name);
                 keyframeMap[frame] = poseMap;
+            }
+
+            // Make sure there are no holes in the data.
+            for (int i = 0; i < frameCount; i++)
+            {
+                if (!keyframeMap.ContainsKey(i))
+                {
+                    var emptyState = new Dictionary<string, Pose>();
+                    keyframeMap.Add(i, emptyState);
+                }
             }
 
             List<BoneKeyframe> boneKeyframes = animWriter.Skeleton;
@@ -165,11 +186,10 @@ namespace Rbx2Source.Animating
                 {
                     PosePair closestPoses = GetClosestPoses(keyframeMap, i, node.Name);
 
-                    float current = i;
                     float min = closestPoses.Min.Frame;
                     float max = closestPoses.Max.Frame;
 
-                    float alpha = (min == max ? 0 : (current - min) / (max - min));
+                    float alpha = (min == max ? 0 : (i - min) / (max - min));
 
                     Pose pose0 = closestPoses.Min.Pose;
                     Pose pose1 = closestPoses.Max.Pose;
@@ -185,11 +205,11 @@ namespace Rbx2Source.Animating
                     // At some point in the future, I want to find a more practical solution for this problem,
                     // but it is extremely difficult to isolate if any single solution exists.
 
-                    Vector3 pos = interp.Position;
-                    CFrame rot = interp - pos;
-
                     if (sequence.AvatarType == AvatarType.R6)
                     {
+                        Vector3 pos = interp.Position;
+                        CFrame rot = interp - pos;
+                        
                         if (node.Name == "Torso")
                         {
                             // Flip the YZ axis of the Torso.
@@ -208,30 +228,27 @@ namespace Rbx2Source.Animating
                             // Rotate position offset of the arms & legs 90* counter-clockwise.
                             pos = new Vector3(-pos.Z, pos.Y, pos.X);
                         }
+
+                        interp = new CFrame(pos) * rot;
                     }
                     else if (sequence.AvatarType == AvatarType.R15)
                     {
-                        // This is a MESS
                         float[] ang = interp.ToEulerAnglesXYZ();
 
-                        if (sequence.Name != "Fall") // I NEED TO FIND A WAY TO DELETE THIS
-                        {
-                            CFrame useRot;
+                        // Cancel out the rotations
+                        interp *= CFrame.Angles(-ang[0], -ang[1], -ang[2]);
 
-                            if (node.Name.EndsWith("UpperArm"))
-                                useRot = CFrame.Angles(ang[0], -ang[2], ang[1]);
-                            else if (node.Name == "Head")
-                                useRot = CFrame.Angles(ang[0], ang[1], -ang[2]);
-                            else if (node.Name == "LeftUpperLeg")
-                                useRot = CFrame.Angles(ang[0], -ang[2], 0); // wtF
-                            else
-                                useRot = rot;
+                        // Patch the Y-axis
+                        PatchAngles(ref interp, 1, ang);
 
-                            rot = useRot;
-                        }
+                        // Patch the Z-axis
+                        PatchAngles(ref interp, 2, ang);
+
+                        // Patch the X-axis
+                        PatchAngles(ref interp, 0, ang);
                     }
 
-                    Bone bone = new Bone(node, new CFrame(pos) * rot);
+                    Bone bone = new Bone(node, interp);
                     bones.Add(bone);
                 }
 

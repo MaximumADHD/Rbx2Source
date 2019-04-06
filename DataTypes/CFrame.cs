@@ -281,6 +281,24 @@ namespace Rbx2Source.DataTypes
             return cfx * cfy * cfz;
         }
 
+        public static CFrame Angles(float[] ang)
+        {
+            float x = 0,
+                  y = 0,
+                  z = 0;
+
+            if (ang.Length >= 0)
+                x = ang[0];
+
+            if (ang.Length >= 1)
+                y = ang[1];
+
+            if (ang.Length >= 2)
+                z = ang[2];
+
+            return Angles(x, y, z);
+        }
+
         public static CFrame FromEulerAnglesXYZ(float x, float y, float z)
         {
             return Angles(x, y, z);

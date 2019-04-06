@@ -37,7 +37,7 @@ namespace Rbx2Source.Assembler
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R6/CollisionJoints.qc");
-        private static Asset R6AssemblyAsset = Asset.FromResource("AvatarData/R6/ASSEMBLY.rbxmx");
+        private static Asset R6AssemblyAsset = Asset.FromResource("AvatarData/R6/CharacterBase.rbxm");
 
         private static Dictionary<Limb, string> LimbMatcher = new Dictionary<Limb, string>()
         {

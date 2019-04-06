@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -71,6 +70,7 @@ namespace Rbx2Source
 
             if (!Debugger.IsAttached)
             {
+                quickCompile.Visible = false;
                 MainTab.Controls.Remove(Debug);
             }
         }
@@ -811,6 +811,11 @@ namespace Rbx2Source
         private void Rbx2Source_FormClosed(object sender, FormClosedEventArgs e)
         {
             baseProcess?.Dispose();
+        }
+
+        private void quickCompile_CheckedChanged(object sender, EventArgs e)
+        {
+            CharacterAssembler.DEBUG_RAPID_ASSEMBLY = quickCompile.Checked;
         }
     }
 }

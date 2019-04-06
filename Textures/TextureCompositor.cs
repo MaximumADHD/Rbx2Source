@@ -32,8 +32,8 @@ namespace Rbx2Source.Textures
         public void AppendColor(int brickColorId, string guide, Rectangle guideSize, byte layer = 0)
         {
             CompositData composit = new CompositData(DrawMode.Guide, DrawType.Color);
-            composit.SetDrawColor(brickColorId);
             composit.SetGuide(guide, guideSize, avatarType);
+            composit.SetDrawColor(brickColorId);
             composit.Layer = layer;
 
             layers.Add(composit);
@@ -62,11 +62,11 @@ namespace Rbx2Source.Textures
         public void AppendTexture(object img, Rectangle rect, byte layer = 0, RotateFlipType flipMode = RotateFlipType.RotateNoneFlipNone)
         {
             CompositData composit = new CompositData(DrawMode.Rect, DrawType.Texture);
+            composit.FlipMode = flipMode;
             composit.Texture = img;
             composit.Layer = layer;
             composit.Rect = rect;
-            composit.FlipMode = flipMode;
-
+            
             layers.Add(composit);
         }
 
@@ -102,6 +102,7 @@ namespace Rbx2Source.Textures
                     else if (drawType == DrawType.Texture)
                     {
                         Bitmap image = composit.GetTextureBitmap();
+
                         if (composit.FlipMode > 0)
                             image.RotateFlip(composit.FlipMode);
 

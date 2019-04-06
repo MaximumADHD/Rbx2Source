@@ -163,13 +163,13 @@
     <Compile Include="Resources\ResourceUtility.cs" />
     <Compile Include="Resources\Settings.cs" />
     <Compile Include="StudioMdl\Bone.cs" />
-    <Compile Include="StudioMdl\BoneKeyframe.cs" />
+    <Compile Include="StudioMdl\Groups\Skeleton.cs" />
     <Compile Include="StudioMdl\IStudioMdlEntity.cs" />
-    <Compile Include="StudioMdl\Node.cs" />
+    <Compile Include="StudioMdl\Groups\Node.cs" />
     <Compile Include="StudioMdl\StudioMdlWriter.cs" />
     <Compile Include="Reflection\Instance.cs" />
     <Compile Include="Reflection\RBXM.cs" />
-    <Compile Include="StudioMdl\Triangle.cs" />
+    <Compile Include="StudioMdl\Groups\Triangle.cs" />
     <Compile Include="Web\AssetGroups.cs" />
     <Compile Include="Web\AssetType.cs" />
     <Compile Include="Web\LegacyAssets.cs" />
@@ -240,13 +240,11 @@
     <EmbeddedResource Include="Resources\AvatarData\R15\Compositing\R15CompositTorsoBase.mesh" />
     <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositPantsTemplate.mesh" />
     <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositShirtTemplate.mesh" />
-    <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Test.rbxmx" />
+    <EmbeddedResource Include="Resources\AvatarData\R15\CharacterBase.rbxm" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\CharacterBase.rbxm" />
+    <EmbeddedResource Include="Resources\AvatarData\R6\ASSEMBLY.rbxmx" />
     <None Include="web.config" />
     <None Include="packages.config" />
-    <EmbeddedResource Include="Resources\AvatarData\R15\ASSEMBLY.rbxmx" />
-    <EmbeddedResource Include="Resources\AvatarData\R6\ASSEMBLY.rbxmx">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="Resources\Meshes\StandardLimbs\leftarm.mesh" />
     <EmbeddedResource Include="Resources\Meshes\StandardLimbs\leftleg.mesh" />
     <EmbeddedResource Include="Resources\Meshes\StandardLimbs\rightarm.mesh" />

@@ -20,7 +20,7 @@ namespace Rbx2Source.Assembler
     
     public class CharacterAssembler : IAssembler<UserAvatar>
     {
-        private static bool DEBUG_RAPID_ASSEMBLY = false;
+        public static bool DEBUG_RAPID_ASSEMBLY = false;
 
         public static Limb GetLimb(BasePart part)
         {

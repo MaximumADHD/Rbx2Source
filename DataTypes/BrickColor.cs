@@ -17,8 +17,8 @@ namespace Rbx2Source.DataTypes
 
         public override string ToString() => Name;
 
-        private static List<BrickColor> ByPalette;
-        private static Dictionary<int, BrickColor> ByNumber;
+        private static IReadOnlyList<BrickColor> ByPalette;
+        private static IReadOnlyDictionary<int, BrickColor> ByNumber;
 
         private static Random RNG = new Random();
 
@@ -70,31 +70,6 @@ namespace Rbx2Source.DataTypes
             color = (valid ? FromNumber(number) : null);
 
             return valid;
-        }
-
-        public static BrickColor FromRGB(float r = 0, float g = 0, float b = 0)
-        {
-            BrickColor bestMatch = FromNumber(-1);
-            float closest = float.MaxValue;
-
-            foreach (BrickColor brickColor in BrickColors.ColorMap)
-            {
-                float dist = Math.Abs(brickColor.R - r)
-                           + Math.Abs(brickColor.G - g)
-                           + Math.Abs(brickColor.B - b);
-
-                if (dist < closest)
-                {
-                    // Return this BrickColor if its an exact match.
-                    if (dist == 0.0f)
-                        return brickColor;
-
-                    bestMatch = brickColor;
-                    closest = dist;
-                }
-            }
-
-            return bestMatch;
         }
 
         public static explicit operator BrickColor(int brickColorId)

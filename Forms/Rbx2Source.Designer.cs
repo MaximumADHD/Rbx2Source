@@ -66,6 +66,7 @@
             this.changeLogBox = new System.Windows.Forms.RichTextBox();
             this.Debug = new System.Windows.Forms.TabPage();
             this.debugImg = new System.Windows.Forms.PictureBox();
+            this.quickCompile = new System.Windows.Forms.CheckBox();
             this.About.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nemsTools)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.egoMooseIcon)).BeginInit();
@@ -300,6 +301,7 @@
             // 
             // Compiler
             // 
+            this.Compiler.Controls.Add(this.quickCompile);
             this.Compiler.Controls.Add(this.compilerTypeIcon);
             this.Compiler.Controls.Add(this.gameIcon);
             this.Compiler.Controls.Add(this.compileProgress);
@@ -465,9 +467,9 @@
             this.compilerType.Location = new System.Drawing.Point(6, 41);
             this.compilerType.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.compilerType.Name = "compilerType";
-            this.compilerType.Size = new System.Drawing.Size(77, 13);
+            this.compilerType.Size = new System.Drawing.Size(66, 13);
             this.compilerType.TabIndex = 1;
-            this.compilerType.Text = "Compiler Type:";
+            this.compilerType.Text = "Model Type:";
             // 
             // compilerTypeSelect
             // 
@@ -544,6 +546,17 @@
             this.debugImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.debugImg.TabIndex = 0;
             this.debugImg.TabStop = false;
+            // 
+            // quickCompile
+            // 
+            this.quickCompile.AutoSize = true;
+            this.quickCompile.Location = new System.Drawing.Point(239, 69);
+            this.quickCompile.Name = "quickCompile";
+            this.quickCompile.Size = new System.Drawing.Size(116, 17);
+            this.quickCompile.TabIndex = 16;
+            this.quickCompile.Text = "Use Quick Compile";
+            this.quickCompile.UseVisualStyleBackColor = true;
+            this.quickCompile.CheckedChanged += new System.EventHandler(this.quickCompile_CheckedChanged);
             // 
             // Rbx2Source
             // 
@@ -622,5 +635,6 @@
         private System.Windows.Forms.RichTextBox changeLogBox;
         private System.Windows.Forms.TabPage Debug;
         private System.Windows.Forms.PictureBox debugImg;
+        private System.Windows.Forms.CheckBox quickCompile;
     }
 }
