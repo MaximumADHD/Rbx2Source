@@ -629,8 +629,10 @@ namespace Rbx2Source
                     {
                         ProcessModule module = process.MainModule;
                         string exePath = module.FileName;
+
                         FileInfo info = new FileInfo(exePath);
                         string directory = info.DirectoryName;
+
                         if (info.Name == "Steam.exe")
                         {
                             string apps = Path.Combine(directory, "steamapps");
@@ -685,7 +687,7 @@ namespace Rbx2Source
                     string file = File.ReadAllText(libraryFolders);
 
                     string[] newlines = new string[] {"\r\n","\n"};
-                    string[] lines = file.Split(newlines,StringSplitOptions.None);
+                    string[] lines = file.Split(newlines, StringSplitOptions.None);
 
                     foreach (string line in lines)
                     {
@@ -738,7 +740,7 @@ namespace Rbx2Source
             selectedGame = sourceGames[gameSelect.Text];
             updateDisplays();
 
-            CONTROLS_TO_DISABLE_WHEN_COMPILING = new List<Control>() { compile, compilerInputField, gameSelect, viewCompiledModel, compilerTypeSelect };
+            CONTROLS_TO_DISABLE_WHEN_COMPILING = new List<Control>() { compile, compilerInputField, gameSelect, viewCompiledModel, compilerTypeSelect, quickCompile };
             
             Links = new Dictionary<Control, string>() 
             {

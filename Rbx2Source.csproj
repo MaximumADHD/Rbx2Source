@@ -109,6 +109,7 @@
     <Compile Include="Assembler\Utility\AssemblerData.cs" />
     <Compile Include="Assembler\Interfaces\IAssembler.cs" />
     <Compile Include="Assembler\Interfaces\ICharacterAssembler.cs" />
+    <Compile Include="Assembler\Utility\AvatarScaleRules.cs" />
     <Compile Include="Assembler\Utility\BoneAssemblePrep.cs" />
     <Compile Include="Assembler\Utility\Material.cs" />
     <Compile Include="Assembler\Utility\TextureBindings.cs" />
@@ -242,7 +243,6 @@
     <EmbeddedResource Include="Resources\AvatarData\R6\Compositing\CompositShirtTemplate.mesh" />
     <EmbeddedResource Include="Resources\AvatarData\R15\CharacterBase.rbxm" />
     <EmbeddedResource Include="Resources\AvatarData\R6\CharacterBase.rbxm" />
-    <EmbeddedResource Include="Resources\AvatarData\R6\ASSEMBLY.rbxmx" />
     <None Include="web.config" />
     <None Include="packages.config" />
     <EmbeddedResource Include="Resources\Meshes\StandardLimbs\leftarm.mesh" />

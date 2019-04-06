@@ -28,7 +28,7 @@ namespace Rbx2Source.StudioMdl
                 buffer.WriteLine('\n' + groupName);
 
                 foreach (T entity in entities)
-                    entity.WriteStudioMdl(buffer, entity, entities);
+                    entity.WriteStudioMdl(buffer, entities);
 
                 buffer.WriteLine("end");
             }
