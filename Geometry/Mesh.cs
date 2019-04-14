@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using Rbx2Source.Assembler;
-using Rbx2Source.Coordinates;
+using Rbx2Source.DataTypes;
 using Rbx2Source.Reflection;
 using Rbx2Source.Web;
 
@@ -56,7 +56,7 @@ namespace Rbx2Source.Geometry
             int target = 0;
 
             Vertex currentVertex = new Vertex();
-            var toFloat = new Converter<string, float>(f => float.Parse(f, Rbx2Source.NormalParse));
+            var toFloat = new Converter<string, float>(f => Format.ParseFloat(f));
 
             foreach (Match m in matches)
             {
@@ -65,9 +65,9 @@ namespace Rbx2Source.Geometry
                 Vector3 vector = new Vector3(coords);
 
                 if (target == 0)
-                    currentVertex.Pos = new Vector3(coords) * vertScale;
+                    currentVertex.Position = new Vector3(coords) * vertScale;
                 else if (target == 1)
-                    currentVertex.Norm = new Vector3(coords);
+                    currentVertex.Normal = new Vector3(coords);
                 else if (target == 2)
                     currentVertex.UV = new Vector3(coords[0], 1 - coords[1], 0);
 
@@ -109,10 +109,12 @@ namespace Rbx2Source.Geometry
 
             for (int i = 0; i < mesh.VertCount; i++)
             {
-                Vertex vert = new Vertex();
-                vert.Pos = new Vector3(reader);
-                vert.Norm = new Vector3(reader);
-                vert.UV = new Vector3(reader);
+                Vertex vert = new Vertex()
+                {
+                    Position = new Vector3(reader),
+                    Normal = new Vector3(reader),
+                    UV = new Vector3(reader)
+                };
 
                 if (vertBytesToSkip > 0)
                     reader.ReadBytes(vertBytesToSkip);
@@ -141,8 +143,10 @@ namespace Rbx2Source.Geometry
                 throw new Exception("Invalid .mesh header!");
 
             Mesh mesh = new Mesh();
-            double version = double.Parse(file.Substring(8, 4), Rbx2Source.NormalParse);
-
+            
+            string versionStr = file.Substring(8, 4);
+            double version = Format.ParseDouble(versionStr);
+            
             mesh.Version = (int)version;
 
             if (mesh.Version == 1)
@@ -168,20 +172,23 @@ namespace Rbx2Source.Geometry
         {
             for (int i = 0; i < VertCount; i++)
             {
-                Verts[i].Pos = (offset * new CFrame(Verts[i].Pos * scale)).Position;
+                Verts[i].Position = (offset * new CFrame(Verts[i].Position * scale)).Position;
             }
         }
 
         public static Mesh FromFile(string path)
         {
-            FileStream meshStream = File.OpenRead(path);
+            byte[] data;
 
-            long length = meshStream.Length;
-
-            byte[] data = new byte[length];
-            meshStream.Read(data, 0, (int)length);
-            meshStream.Close();
-
+            using (FileStream meshStream = File.OpenRead(path))
+            {
+                using (MemoryStream buffer = new MemoryStream())
+                {
+                    meshStream.CopyTo(buffer);
+                    data = buffer.ToArray();
+                }
+            }
+            
             return load(data);
         }
 

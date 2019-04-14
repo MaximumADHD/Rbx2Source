@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -36,8 +35,6 @@ namespace Rbx2Source
         }
 
         public const float MODEL_SCALE = 10;
-
-        public static IFormatProvider NormalParse = CultureInfo.InvariantCulture;
         public Launcher baseProcess;
 
         private UserInfo currentUser;
@@ -73,6 +70,7 @@ namespace Rbx2Source
 
             if (!Debugger.IsAttached)
             {
+                quickCompile.Visible = false;
                 MainTab.Controls.Remove(Debug);
             }
         }
@@ -143,7 +141,7 @@ namespace Rbx2Source
             for (int i = 0; i < values.Length; i++)
             {
                 string match = "{" + i + "}";
-                msgFormat = msgFormat.Replace(match, values[i].ToString());
+                msgFormat = msgFormat.Replace(match, values[i].ToInvariantString());
             }
 
             Print(msgFormat);
@@ -489,21 +487,21 @@ namespace Rbx2Source
             Compiler.UseWaitCursor = true;
             ModelCompiler.PreScheduleTasks();
 
-            IAssembler assembler;
-            object metadata;
+            Func<AssemblerData> assemble;
 
             if (compilerTypeSelect.Text == "Avatar")
             {
-                assembler = new CharacterAssembler();
-                metadata = UserAvatar.FromUsername(currentUser.Username);
+                var assembler = new CharacterAssembler();
+                var userAvatar = UserAvatar.FromUsername(currentUser.Username);
+                assemble = new Func<AssemblerData>(() => assembler.Assemble(userAvatar));
             }
             else
             {
-                assembler = new CatalogItemAssembler();
-                metadata = currentAssetId;
+                var assembler = new CatalogItemAssembler();
+                assemble = new Func<AssemblerData>(() => assembler.Assemble(currentAssetId));
             }
 
-            Task<AssemblerData> buildModel = Task.Run(() => assembler.Assemble(metadata));
+            Task<AssemblerData> buildModel = Task.Run(assemble);
 
             while (!buildModel.IsCompleted)
                 await UpdateCompilerState();
@@ -631,8 +629,10 @@ namespace Rbx2Source
                     {
                         ProcessModule module = process.MainModule;
                         string exePath = module.FileName;
+
                         FileInfo info = new FileInfo(exePath);
                         string directory = info.DirectoryName;
+
                         if (info.Name == "Steam.exe")
                         {
                             string apps = Path.Combine(directory, "steamapps");
@@ -687,7 +687,7 @@ namespace Rbx2Source
                     string file = File.ReadAllText(libraryFolders);
 
                     string[] newlines = new string[] {"\r\n","\n"};
-                    string[] lines = file.Split(newlines,StringSplitOptions.None);
+                    string[] lines = file.Split(newlines, StringSplitOptions.None);
 
                     foreach (string line in lines)
                     {
@@ -740,7 +740,7 @@ namespace Rbx2Source
             selectedGame = sourceGames[gameSelect.Text];
             updateDisplays();
 
-            CONTROLS_TO_DISABLE_WHEN_COMPILING = new List<Control>() { compile, compilerInputField, gameSelect, viewCompiledModel, compilerTypeSelect };
+            CONTROLS_TO_DISABLE_WHEN_COMPILING = new List<Control>() { compile, compilerInputField, gameSelect, viewCompiledModel, compilerTypeSelect, quickCompile };
             
             Links = new Dictionary<Control, string>() 
             {
@@ -813,6 +813,11 @@ namespace Rbx2Source
         private void Rbx2Source_FormClosed(object sender, FormClosedEventArgs e)
         {
             baseProcess?.Dispose();
+        }
+
+        private void quickCompile_CheckedChanged(object sender, EventArgs e)
+        {
+            CharacterAssembler.DEBUG_RAPID_ASSEMBLY = quickCompile.Checked;
         }
     }
 }

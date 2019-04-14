@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 using Rbx2Source.Geometry;
@@ -29,11 +30,37 @@ namespace Rbx2Source.Textures
             canvas = rect;
         }
 
+        public static Rectangle GetBoundingBox(params Point[] points)
+        {
+            int min_X = int.MaxValue,
+                min_Y = int.MaxValue;
+
+            int max_X = int.MinValue,
+                max_Y = int.MinValue;
+
+            foreach (Point point in points)
+            {
+                int point_X = point.X,
+                    point_Y = point.Y;
+
+                min_X = Math.Min(min_X, point_X);
+                min_Y = Math.Min(min_Y, point_Y);
+
+                max_X = Math.Max(max_X, point_X);
+                max_Y = Math.Max(max_Y, point_Y);
+            }
+
+            int width = max_X - min_X,
+                height = max_Y - min_Y;
+
+            return new Rectangle(min_X, min_Y, width, height);
+        }
+
         public void AppendColor(int brickColorId, string guide, Rectangle guideSize, byte layer = 0)
         {
             CompositData composit = new CompositData(DrawMode.Guide, DrawType.Color);
-            composit.SetDrawColor(brickColorId);
             composit.SetGuide(guide, guideSize, avatarType);
+            composit.SetDrawColor(brickColorId);
             composit.Layer = layer;
 
             layers.Add(composit);
@@ -61,11 +88,13 @@ namespace Rbx2Source.Textures
 
         public void AppendTexture(object img, Rectangle rect, byte layer = 0, RotateFlipType flipMode = RotateFlipType.RotateNoneFlipNone)
         {
-            CompositData composit = new CompositData(DrawMode.Rect, DrawType.Texture);
-            composit.Texture = img;
-            composit.Layer = layer;
-            composit.Rect = rect;
-            composit.FlipMode = flipMode;
+            CompositData composit = new CompositData(DrawMode.Rect, DrawType.Texture)
+            {
+                FlipMode = flipMode,
+                Texture = img,
+                Layer = layer,
+                Rect = rect
+            };
 
             layers.Add(composit);
         }
@@ -88,7 +117,7 @@ namespace Rbx2Source.Textures
             foreach (CompositData composit in layers)
             {
                 Graphics buffer = Graphics.FromImage(bitmap);
-                Rectangle compositCanvas = composit.Rect;
+                Rectangle canvas = composit.Rect;
 
                 DrawMode drawMode = composit.DrawMode;
                 DrawType drawType = composit.DrawType;
@@ -97,15 +126,16 @@ namespace Rbx2Source.Textures
                 {
                     if (drawType == DrawType.Color)
                     {
-                        composit.UseBrush(brush => buffer.FillRectangle(brush, compositCanvas));
+                        composit.UseBrush(brush => buffer.FillRectangle(brush, canvas));
                     }
                     else if (drawType == DrawType.Texture)
                     {
                         Bitmap image = composit.GetTextureBitmap();
+
                         if (composit.FlipMode > 0)
                             image.RotateFlip(composit.FlipMode);
 
-                        buffer.DrawImage(image, compositCanvas);
+                        buffer.DrawImage(image, canvas);
                     }
                 }
                 else if (drawMode == DrawMode.Guide)
@@ -115,11 +145,11 @@ namespace Rbx2Source.Textures
                     for (int face = 0; face < guide.FaceCount; face++)
                     {
                         Vertex[] verts = composit.GetGuideVerts(face);
-                        Point offset = compositCanvas.Location;
+                        Point offset = canvas.Location;
 
-                        Point vert_a = CompositUtil.VertexToPoint(verts[0], compositCanvas, offset);
-                        Point vert_b = CompositUtil.VertexToPoint(verts[1], compositCanvas, offset);
-                        Point vert_c = CompositUtil.VertexToPoint(verts[2], compositCanvas, offset);
+                        Point vert_a = verts[0].ToPoint(canvas, offset),
+                              vert_b = verts[1].ToPoint(canvas, offset),
+                              vert_c = verts[2].ToPoint(canvas, offset);
 
                         Point[] polygon = new Point[3] { vert_a, vert_b, vert_c };
 
@@ -130,30 +160,30 @@ namespace Rbx2Source.Textures
                         else if (drawType == DrawType.Texture)
                         {
                             Bitmap texture = composit.GetTextureBitmap();
-                            Rectangle bbox = CompositUtil.GetBoundingBox(vert_a, vert_b, vert_c);
+                            Rectangle bbox = GetBoundingBox(polygon);
 
                             Point origin = bbox.Location;
-                            int width = bbox.Width;
-                            int height = bbox.Height;
+                            Bitmap drawLayer = new Bitmap(bbox.Width, bbox.Height);
 
-                            Bitmap drawLayer = new Bitmap(width, height);
+                            Point uv_a = verts[0].ToUV(texture),
+                                  uv_b = verts[1].ToUV(texture),
+                                  uv_c = verts[2].ToUV(texture);
 
-                            Point uv_a = CompositUtil.VertexToUV(verts[0], texture);
-                            Point uv_b = CompositUtil.VertexToUV(verts[1], texture);
-                            Point uv_c = CompositUtil.VertexToUV(verts[2], texture);
+                            int origin_X = origin.X, 
+                                origin_Y = origin.Y;
 
                             for (int x = bbox.Left; x < bbox.Right; x++)
                             {
                                 for (int y = bbox.Top; y < bbox.Bottom; y++)
                                 {
-                                    Point pixel = new Point(x, y);
-                                    BarycentricPoint bcPixel = CompositUtil.ToBarycentric(pixel, vert_a, vert_b, vert_c);
+                                    var pixel = new Point(x, y);
+                                    var bcPoint = new BarycentricPoint(pixel, vert_a, vert_b, vert_c);
 
-                                    if (CompositUtil.InTriangle(bcPixel))
+                                    if (bcPoint.InBounds())
                                     {
-                                        Point uvPixel = CompositUtil.ToCartesian(bcPixel, uv_a, uv_b, uv_c);
+                                        var uvPixel = bcPoint.ToCartesian(uv_a, uv_b, uv_c);
                                         Color color = texture.GetPixel(uvPixel.X, uvPixel.Y);
-                                        drawLayer.SetPixel(x - origin.X, y - origin.Y, color);
+                                        drawLayer.SetPixel(x - origin_X, y - origin_Y, color);
                                     }
                                 }
                             }

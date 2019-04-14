@@ -1,34 +1,33 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-using Rbx2Source.Coordinates;
+using Rbx2Source.DataTypes;
 using Rbx2Source.Reflection;
 
 namespace Rbx2Source.StudioMdl
 {
-    public class BoneKeyframe : IStudioMdlEntity
+    public class BoneKeyframe : IStudioMdlEntity<BoneKeyframe>
     {
-        public int Time;
-        public List<Bone> Bones;
-
-        public bool DeltaSequence = false;
-        public List<Bone> BaseRig;
-
         public string GroupName => "skeleton";
 
-        public void Write(StringWriter fileBuffer, IList rawSkeleton, object rawKeyframe)
-        {
-            BoneKeyframe keyframe = rawKeyframe as BoneKeyframe;
-            fileBuffer.WriteLine("time " + keyframe.Time);
+        public int Time;
+        public List<Bone> Bones;
+        public List<Bone> BaseRig;
+        public bool DeltaSequence = false;
 
-            foreach (Bone bone in keyframe.Bones)
+        public BoneKeyframe(int time = 0)
+        {
+            Time = time;
+            Bones = new List<Bone>();
+        }
+
+        public void WriteStudioMdl(StringWriter fileBuffer, List<BoneKeyframe> skeleton)
+        {
+            fileBuffer.WriteLine("time " + Time);
+
+            foreach (Bone bone in Bones)
             {
-                int boneIndex = keyframe.Bones.IndexOf(bone);
+                int boneIndex = Bones.IndexOf(bone);
                 fileBuffer.Write(boneIndex + " ");
 
                 int parentIndex = bone.Node.ParentIndex;
@@ -50,19 +49,14 @@ namespace Rbx2Source.StudioMdl
                 }
                 else if (parentIndex >= 0)
                 {
-                    Bone parentBone = keyframe.Bones[parentIndex];
+                    Bone parentBone = Bones[parentIndex];
                     boneCFrame *= parentBone.C1.Inverse();
                 }
-                
-                fileBuffer.Write(boneCFrame.ToStudioMdlString());
+
+                string studioMdl = boneCFrame.WriteStudioMdl();
+                fileBuffer.Write(studioMdl);
                 fileBuffer.WriteLine();
             }
-        }
-
-        public BoneKeyframe(int time = 0)
-        {
-            Time = time;
-            Bones = new List<Bone>();
         }
     }
 }

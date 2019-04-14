@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-using Rbx2Source.Coordinates;
+using Rbx2Source.DataTypes;
 using Rbx2Source.Reflection;
 using Rbx2Source.Web;
 
@@ -15,7 +15,7 @@ namespace Rbx2Source.Assembler
         public Asset TextureAsset;
 
         public bool UseAvatarMap = false;
-        public bool UseReflectance = false;
+        public bool UseEnvMap = false;
 
         public double Transparency = 0.0;
         public double Reflectance = 0.0;
@@ -61,13 +61,13 @@ namespace Rbx2Source.Assembler
 
         private void updateVmtFields()
         {
-            if (Transparency != 0.0)
+            if (Transparency != 0.0 && Transparency != 1.0)
             {
                 SetVmtField("alpha", 1 - Transparency);
                 SetVmtField("translucent", 1);
             }
 
-            if (UseReflectance)
+            if (UseEnvMap)
             {
                 double r = Reflectance;
                 string tint = '[' + string.Join(" ", r, r, r) + ']';
@@ -103,7 +103,7 @@ namespace Rbx2Source.Assembler
                 foreach (string fieldName in VmtFields.Keys)
                 {
                     object value = VmtFields[fieldName];
-                    buffer.WriteLine("\t$" + fieldName.ToLower() + " \"" + value.ToString() + '"');
+                    buffer.WriteLine("\t$" + fieldName.ToLower() + " \"" + value.ToInvariantString() + '"');
                 }
 
                 buffer.WriteLine("}");

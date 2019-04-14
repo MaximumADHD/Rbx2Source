@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
+using Rbx2Source.DataTypes;
 using Rbx2Source.Geometry;
 using Rbx2Source.Web;
 
@@ -69,15 +70,15 @@ namespace Rbx2Source.Textures
 
         public bool SetDrawColor(int brickColorId)
         {
-            bool valid = BrickColors.NumericalSearch.ContainsKey(brickColorId);
+            BrickColor bc;
 
-            if (valid)
+            if (BrickColor.TryFromNumber(brickColorId, out bc))
             {
-                BrickColor bc = BrickColors.NumericalSearch[brickColorId];
                 DrawColor = bc.Color;
+                return true;
             }
 
-            return valid;
+            return false;
         }
 
         public int CompareTo(object other)
@@ -93,18 +94,9 @@ namespace Rbx2Source.Textures
 
         public Vertex[] GetGuideVerts(int faceIndex)
         {
-            int[] face = Guide.Faces[faceIndex];
-
-            int a = face[0];
-            int b = face[1];
-            int c = face[2];
-
-            return new Vertex[3]
-            {
-                Guide.Verts[a],
-                Guide.Verts[b],
-                Guide.Verts[c]
-            };
+            return Guide.Faces[faceIndex]
+                .Select((face) => Guide.Verts[face])
+                .ToArray();
         }
 
         public void UseBrush(Action<Brush> handler)
@@ -128,7 +120,15 @@ namespace Rbx2Source.Textures
 
                     var alloc = new TextureAllocation();
                     alloc.Stream = new MemoryStream(buffer);
-                    alloc.Texture = Image.FromStream(alloc.Stream) as Bitmap;
+
+                    try
+                    {
+                        alloc.Texture = Image.FromStream(alloc.Stream) as Bitmap;
+                    }
+                    catch
+                    {
+                        alloc.Texture = new Bitmap(512, 512);
+                    }
 
                     TextureAlloc.Add(assetId, alloc);
                 }

@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Linq;
 
 using Rbx2Source.Animating;
-using Rbx2Source.Coordinates;
+using Rbx2Source.DataTypes;
 using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.StudioMdl;
@@ -37,7 +37,7 @@ namespace Rbx2Source.Assembler
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R6/CollisionJoints.qc");
-        private static Asset R6AssemblyAsset = Asset.FromResource("AvatarData/R6/ASSEMBLY.rbxmx");
+        private static Asset R6AssemblyAsset = Asset.FromResource("AvatarData/R6/CharacterBase.rbxm");
 
         private static Dictionary<Limb, string> LimbMatcher = new Dictionary<Limb, string>()
         {
@@ -51,15 +51,13 @@ namespace Rbx2Source.Assembler
 
         private static Dictionary<string, long> R6_ANIMATION_IDS = new Dictionary<string, long>()
         {
-            {"Climb", 180436334},
-            {"Fall",  180436148},
-            {"Idle",  180435571},
-            {"Jump",  125750702},
-            {"Look",  180435792},
-            {"Run",   180426354},
-            {"Sit",   178130996},
-            {"Wave",  128777973},
-            {"Point", 128853357},
+            { "Climb", 180436334 },
+            { "Fall",  180436148 },
+            { "Idle",  180435571 },
+            { "Jump",  125750702 },
+            { "Look",  180435792 },
+            { "Run",   180426354 },
+            { "Sit",   178130996 },
         };
 
         private static string GetBodyMatName(long id)

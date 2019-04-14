@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Xml;
 
-namespace Rbx2Source.Coordinates
+namespace Rbx2Source.DataTypes
 {
-    public class CFrame : BaseCoordinates
+    public class CFrame
     {
         private float m11 = 1, m12 = 0, m13 = 0, m14 = 0;
         private float m21 = 0, m22 = 1, m23 = 0, m24 = 0;
@@ -112,12 +113,17 @@ namespace Rbx2Source.Coordinates
 
         public static CFrame FromXml(XmlNode cfData)
         {
-            float[] comp = new float[12];
+            float[] components = new float[12];
+            var childNodes = cfData.ChildNodes;
 
             for (int i = 0; i < 12; i++)
-                comp[i] = float.Parse(cfData.ChildNodes[i].InnerText, Rbx2Source.NormalParse);
+            {
+                var childNode = childNodes[i];
+                string value = childNode.InnerText;
+                components[i] = Format.ParseFloat(value);
+            }
 
-            return new CFrame(comp);
+            return new CFrame(components);
         }
         
         public static CFrame operator +(CFrame a, Vector3 b)
@@ -200,7 +206,11 @@ namespace Rbx2Source.Coordinates
 
         public override string ToString()
         {
-            return string.Join(", ", GetComponents());
+            string[] components = GetComponents()
+                .Select((comp) => comp.ToInvariantString())
+                .ToArray();
+                
+            return string.Join(", ", components);
         }
 
         private static Vector3 VectorAxisAngle(Vector3 vec, Vector3 axis, float theta)
@@ -276,6 +286,24 @@ namespace Rbx2Source.Coordinates
             return cfx * cfy * cfz;
         }
 
+        public static CFrame Angles(float[] ang)
+        {
+            float x = 0,
+                  y = 0,
+                  z = 0;
+
+            if (ang.Length >= 0)
+                x = ang[0];
+
+            if (ang.Length >= 1)
+                y = ang[1];
+
+            if (ang.Length >= 2)
+                z = ang[2];
+
+            return Angles(x, y, z);
+        }
+
         public static CFrame FromEulerAnglesXYZ(float x, float y, float z)
         {
             return Angles(x, y, z);
@@ -347,13 +375,18 @@ namespace Rbx2Source.Coordinates
             return new float[] { x, y, z };
         }
 
-        protected override string ToStudioMdlString_Impl(bool excludeZ = false)
+        public string WriteStudioMdl()
         {
-            string pos = Position.ToStudioMdlString() + " ";
             float[] ang = ToEulerAnglesXYZ();
 
-            string rotation = string.Join(" ", truncate(ang));
-            return pos + rotation;
+            Vector3 pos = Position * Rbx2Source.MODEL_SCALE;
+            Vector3 rot = new Vector3(ang);
+
+            return Format.FormatFloats
+            (
+                pos.X, pos.Y, pos.Z,
+                rot.X, rot.Y, rot.Z
+            );
         }
     }
 }

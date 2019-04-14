@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Rbx2Source.Coordinates
+namespace Rbx2Source.DataTypes
 {
     // Quaternion acts as a utility for handling the interpolation of CFrame rotations.
-    // it is not actually serialized into any model files, so it does not implement BaseCoordinates
     public class Quaternion
     {
         public readonly float X, Y, Z, W;

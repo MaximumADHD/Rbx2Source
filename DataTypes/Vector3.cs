@@ -4,9 +4,9 @@ using System.Xml;
 
 using Rbx2Source.Reflection;
 
-namespace Rbx2Source.Coordinates
+namespace Rbx2Source.DataTypes
 {
-    public class Vector3 : BaseCoordinates
+    public class Vector3
     {
         public readonly float X, Y, Z;
 
@@ -57,9 +57,14 @@ namespace Rbx2Source.Coordinates
         public Vector3(XmlNode vecData)
         {
             float[] p = new float[3];
+            var childNodes = vecData.ChildNodes;
 
             for (int i = 0; i < 3; i++)
-                p[i] = float.Parse(vecData.ChildNodes[i].InnerText, Rbx2Source.NormalParse);
+            {
+                var childNode = childNodes[i];
+                string value = childNode.InnerText;
+                p[i] = Format.ParseFloat(value);
+            }
 
             X = p[0];
             Y = p[1];
@@ -118,7 +123,11 @@ namespace Rbx2Source.Coordinates
 
         public override string ToString()
         {
-            return string.Join(", ", X, Y, Z);
+            string x = X.ToInvariantString();
+            string y = Y.ToInvariantString();
+            string z = Z.ToInvariantString();
+
+            return string.Join(", ", x, y, z);
         }
 
         public float Dot(Vector3 other)
@@ -147,19 +156,6 @@ namespace Rbx2Source.Coordinates
         public bool isClose(Vector3 other, float epsilon = 0.0f)
         {
             return (other - this).Magnitude <= Math.Abs(epsilon);
-        }
-
-        protected override string ToStudioMdlString_Impl(bool excludeZ = false)
-        {
-            float[] values;
-            float scale = Rbx2Source.MODEL_SCALE;
-
-            if (excludeZ)
-                values = new float[2] { X, 1 - Y };
-            else
-                values = new float[3] { X * scale, Y * scale, Z * scale };
-
-            return string.Join(" ", truncate(values));
         }
     }
 }

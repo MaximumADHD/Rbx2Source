@@ -1,7 +1,10 @@
 ﻿#pragma warning disable 0649
 
+using System.Drawing;
+
 using Rbx2Source.Assembler;
-using Rbx2Source.Coordinates;
+using Rbx2Source.DataTypes;
+using Rbx2Source.Textures;
 using Rbx2Source.Web;
 
 namespace Rbx2Source.Reflection
@@ -19,9 +22,9 @@ namespace Rbx2Source.Reflection
 
     public class CharacterMesh : CharacterAppearance
     {
-        public long BaseTextureId;
-        public Limb BodyPart;
         public long MeshId;
+        public Limb BodyPart;
+        public long BaseTextureId;
         public long OverlayTextureId;
     }
 
@@ -43,8 +46,8 @@ namespace Rbx2Source.Reflection
     public class BevelMesh : DataModelMesh
     {
         public double Bevel;
-        public double Bevel_Roundness;
         public double Buldge;
+        public double Bevel_Roundness;
     }
 
     public class DataModelMesh : Instance
@@ -62,14 +65,15 @@ namespace Rbx2Source.Reflection
     public class KeyframeSequence : Instance
     {
         public bool Loop = true;
-        public AnimationPriority Priority = AnimationPriority.Core;
-        public AvatarType AvatarType = AvatarType.Unknown;
         public float TimeScale = 1f;
+        public AvatarType AvatarType = AvatarType.Unknown;
+        public AnimationPriority Priority = AnimationPriority.Core;
     }
 
     public class BasePart : Instance
     {
-        public int BrickColor;
+        public BrickColor BrickColor;
+        public Color Color3uint8;
 
         public CFrame CFrame;
         public Vector3 Position => CFrame.Position;
@@ -94,10 +98,10 @@ namespace Rbx2Source.Reflection
 
     public class Pose : Instance
     {
-        public CFrame CFrame;
-        public EasingDirection PoseEasingDirection;
-        public EasingStyle PoseEasingStyle;
         public float Weight;
+        public CFrame CFrame;
+        public EasingStyle PoseEasingStyle;
+        public EasingDirection PoseEasingDirection;
     }
 
     public class SpecialMesh : DataModelMesh
@@ -121,7 +125,7 @@ namespace Rbx2Source.Reflection
     {
         public string AnimationId;
 
-        // Hack to make it easier for me to do a Linq query of weighted user animations
+        // Hack to make it easier to do a Linq query of weighted user animations
         public double Weight
         {
             get

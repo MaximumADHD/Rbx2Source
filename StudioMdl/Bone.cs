@@ -1,4 +1,4 @@
-﻿using Rbx2Source.Coordinates;
+﻿using Rbx2Source.DataTypes;
 using Rbx2Source.StudioMdl;
 
 namespace Rbx2Source.Reflection

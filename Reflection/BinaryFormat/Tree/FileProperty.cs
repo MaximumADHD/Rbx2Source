@@ -77,7 +77,7 @@ namespace Rbx2Source.Reflection.BinaryFormat
         public override string ToString()
         {
             string typeName = Enum.GetName(typeof(PropertyType), Type);
-            string valueLabel = (Value != null ? Value.ToString() : "null");
+            string valueLabel = (Value != null ? Value.ToInvariantString() : "null");
 
             if (Type == PropertyType.String)
                 valueLabel = '"' + valueLabel + '"';

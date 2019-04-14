@@ -4,38 +4,18 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
-using Rbx2Source.Coordinates;
+using Rbx2Source.DataTypes;
 using Rbx2Source.Geometry;
 using Rbx2Source.QuakeC;
 using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.StudioMdl;
-using Rbx2Source.Textures;
 using Rbx2Source.Web;
 
 namespace Rbx2Source.Assembler
 {
-    public class CatalogItemAssembler : IAssembler
+    public class CatalogItemAssembler : IAssembler<long>
     {
-        // TODO: When I wrote this function about 2 years ago, I think I had the intention of
-        //       filtering redundant material files based on the material configuration. I should
-        //       look into integrating this. Right now it remains unused.
-
-        private static string serializeBrickColorMtl(Material mat)
-        {
-            long refl = (byte)(mat.Reflectance * 255);
-            long trsp = (byte)(mat.Transparency * 255);
-
-            long R = (byte)(mat.VertexColor.X * 255);
-            long G = (byte)(mat.VertexColor.Y * 255);
-            long B = (byte)(mat.VertexColor.Z * 255);
-
-            long hash = (refl << 32) | (trsp << 24) | (R << 16) | (G << 8) | B;
-            string key = hash.ToString("X2");
-
-            return "PartStyle-" + key.ToString();
-        }
-
         private static void AddParts(List<BasePart> parts, Instance scan)
         {
             foreach (BasePart part in scan.GetChildrenOfClass<BasePart>())
@@ -76,7 +56,7 @@ namespace Rbx2Source.Assembler
             if (primaryPart == null) // k lol
                 primaryPart = parts[0];
 
-            primaryPart.Name = asset.ProductInfo.Name;
+            primaryPart.Name = asset.ProductInfo.Name.Trim();
 
             // Mark the primaryPart's location as the center.
             CFrame rootCoord = primaryPart.CFrame;
@@ -109,7 +89,7 @@ namespace Rbx2Source.Assembler
                 if (nameCounts.ContainsKey(name))
                 {
                     int count = ++nameCounts[name];
-                    name += count.ToString();
+                    name += count.ToInvariantString();
                     part.Name = name;
                 }
                 else
@@ -153,7 +133,8 @@ namespace Rbx2Source.Assembler
                     numAssembledParts++;
                 }
             }
-            
+                
+
             Rbx2Source.MarkTaskCompleted("BuildMesh");
             return writer;
         }
@@ -170,24 +151,27 @@ namespace Rbx2Source.Assembler
 
                 if (textureAsset == null || textureAsset.Id == 9854798)
                 {
-                    string bcName = "Institutional white";
-                    int brickColor = material.LinkedTo.BrickColor;
+                    var linkedTo = material.LinkedTo;
+                    Color color;
 
-                    if (BrickColors.NumericalSearch.ContainsKey(brickColor))
+                    if (linkedTo.BrickColor != null)
                     {
-                        BrickColor color = BrickColors.NumericalSearch[brickColor];
-
-                        float r = color.R / 255.0f;
-                        float g = color.G / 255.0f;
-                        float b = color.B / 255.0f;
-
-                        material.VertexColor = new Vector3(r, g, b);
-                        bcName = color.Name;
+                        BrickColor bc = linkedTo.BrickColor;
+                        color = bc.Color;
+                    }
+                    else if (linkedTo.Color3uint8 != null)
+                    {
+                        color = linkedTo.Color3uint8;
                     }
                     else
                     {
-                        material.VertexColor = new Vector3(1, 1, 1);
+                        BrickColor def = BrickColor.FromNumber(-1);
+                        color = def.Color;
                     }
+
+                    float r = color.R / 255f,
+                          g = color.G / 255f,
+                          b = color.B / 255f;
 
                     if (!images.ContainsKey("BrickColor"))
                     {
@@ -200,7 +184,9 @@ namespace Rbx2Source.Assembler
                         }
                     }
 
-                    material.UseReflectance = true;
+                    material.UseEnvMap = true;
+                    material.VertexColor = new Vector3(r, g, b);
+
                     textures.BindTextureAlias(mtlName, "BrickColor");
                 }
                 else
@@ -218,12 +204,10 @@ namespace Rbx2Source.Assembler
             return textures;
         }
 
-        public AssemblerData Assemble(object metadata)
+        public AssemblerData Assemble(long assetId)
         {
-            long assetId = (long)metadata;
-
             Asset asset = Asset.Get(assetId);
-            string assetName = asset.ProductInfo.WindowsSafeName;
+            string assetName = asset.ProductInfo.WindowsSafeName.Trim();
 
             string appData = Environment.GetEnvironmentVariable("LocalAppData");
             string rbx2Source = Path.Combine(appData, "Rbx2Source");
@@ -304,7 +288,7 @@ namespace Rbx2Source.Assembler
                 string vmtPath = Path.Combine(materialsDir, matName + ".vmt");
 
                 Material mat = materials[matName];
-                mat.SetVmtField("basetexture", mtlDir + "/" + vtfTarget);
+                mat.SetVmtField("basetexture", mtlDir + '/' + vtfTarget);
                 mat.WriteVmtFile(vmtPath);
             }
 
