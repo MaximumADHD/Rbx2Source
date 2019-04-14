@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 
 using Rbx2Source.Animating;
 using Rbx2Source.DataTypes;
@@ -34,7 +35,7 @@ namespace Rbx2Source.Assembler
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // RTHRO CONSTANTS 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+        
         // Scale R15 -> Rthro Normal
         private static AvatarScaleRules R15_TO_RTHRO_NORMAL = new AvatarScaleRules()
         {
@@ -154,11 +155,58 @@ namespace Rbx2Source.Assembler
             { "Idle",  507766388  },
             { "Idle2", 507766666  },
             { "Laugh", 507770818  },
+            { "Pose",  532421348  },
             { "Run",   913376220  },
             { "Walk",  913402848  },
             { "Point", 507770453  },
             { "Sit",   2506281703 },
         };
+
+        public static string GetAvatarPartScaleType(BasePart part)
+        {
+            StringValue scaleType = part.FindFirstChild<StringValue>("AvatarPartScaleType");
+            string result = "Classic";
+
+            if (scaleType != null)
+                result = scaleType.Value;
+
+            return result.Replace("Proportions", "");
+        }
+
+        public static void SampleScales(BasePart limb, string scaleType, out Vector3 scaleR15, out Vector3 scaleNormal, out Vector3 scaleSlender)
+        {
+            string limbName = limb.Name;
+            Vector3 sampleNoChange = new Vector3(1, 1, 1);
+
+            // Sample the scaling tables
+            Vector3 sampleR15ToNormal = R15_TO_RTHRO_NORMAL[limbName];
+            Vector3 sampleNormalToR15 = RTHRO_NORMAL_TO_R15[limbName];
+
+            Vector3 sampleR15ToSlender = R15_TO_RTHRO_SLENDER[limbName];
+            Vector3 sampleSlenderToR15 = RTHRO_SLENDER_TO_R15[limbName];
+
+            Vector3 sampleNormalToSlender = (sampleR15ToNormal / sampleR15ToSlender);
+            Vector3 sampleSlenderToNormal = (sampleR15ToSlender / sampleR15ToNormal);
+
+            if (scaleType == "Normal")
+            {
+                scaleR15 = sampleNormalToR15;
+                scaleNormal = sampleNoChange;
+                scaleSlender = sampleNormalToSlender;
+            }
+            else if (scaleType == "Slender")
+            {
+                scaleR15 = sampleSlenderToR15;
+                scaleNormal = sampleSlenderToNormal;
+                scaleSlender = sampleNoChange;
+            }
+            else
+            {
+                scaleR15 = sampleNoChange;
+                scaleNormal = sampleR15ToNormal;
+                scaleSlender = sampleR15ToSlender;
+            }
+        }
 
         public static Vector3 ComputeLimbScale(AvatarScale avatarScale, BasePart part)
         {
@@ -173,47 +221,97 @@ namespace Rbx2Source.Assembler
             // Compute the base scale
             Vector3 baseScale = new Vector3(avatarScale.Width, avatarScale.Height, avatarScale.Depth);
 
-            // Sample the scaling tables
-            Vector3 sampleR15ToNormal = R15_TO_RTHRO_NORMAL[limbName];
-            Vector3 sampleNormalToR15 = RTHRO_NORMAL_TO_R15[limbName];
-
-            Vector3 sampleR15ToSlender = R15_TO_RTHRO_SLENDER[limbName];
-            Vector3 sampleSlenderToR15 = RTHRO_SLENDER_TO_R15[limbName];
-
-            Vector3 sampleNormalToSlender = (sampleR15ToNormal / sampleR15ToSlender);
-            Vector3 sampleSlenderToNormal = (sampleR15ToSlender / sampleR15ToNormal);
-
             // Determine the AvatarPartScaleType for this part.
-            StringValue avatarPartScaleType = part.FindFirstChild<StringValue>("AvatarPartScaleType");
-            string partScaleType = (avatarPartScaleType != null ? avatarPartScaleType.Value : "Classic");
+            string scaleType = GetAvatarPartScaleType(part);
 
             // Select the scales we will interpolate.
             Vector3 scaleR15, scaleNormal, scaleSlender;
 
-            if (partScaleType == "ProportionsNormal")
-            {
-                scaleR15 = sampleNormalToR15;
-                scaleNormal = sampleNoChange;
-                scaleSlender = sampleNormalToSlender;
-            }
-            else if (partScaleType == "ProportionsSlender")
-            {
-                scaleR15 = sampleSlenderToR15;
-                scaleNormal = sampleSlenderToNormal;
-                scaleSlender = sampleNoChange;
-            }
-            else
-            {
-                scaleR15 = sampleNoChange;
-                scaleNormal = sampleR15ToNormal;
-                scaleSlender = sampleR15ToSlender;
-            }
+            SampleScales
+            (
+                part,
+                scaleType,
+
+                out scaleR15, 
+                out scaleNormal, 
+                out scaleSlender
+            );
 
             // Compute the Rthro scaling based on the current proportions and body-type.
             Vector3 scaleProportions = scaleNormal.Lerp(scaleSlender, avatarScale.Proportion);
             Vector3 scaleBodyType = scaleR15.Lerp(scaleProportions, avatarScale.BodyType);
 
-            return baseScale * scaleBodyType;
+            Vector3 result = scaleBodyType;
+
+            if (limbName == "Head")
+                result *= avatarScale.Head;
+            else
+                result *= baseScale;
+
+            return result;
+        }
+        
+        public static Vector3 ComputeAccessoryScale(AvatarScale scale, BasePart limb, BasePart handle)
+        {
+            string limbScaleType = GetAvatarPartScaleType(limb);
+            string handleScaleType = GetAvatarPartScaleType(handle);
+
+            Vector3 limbScale = ComputeLimbScale(scale, limb);
+            if (limbScaleType == handleScaleType)
+                return limbScale;
+
+            // Okay so... the goal here is to figure out what the scale of this accessory would be when
+            // the limb is at its original size, and then multiply it by the current scale of the limb.
+
+            Vector3 limbR15, limbNormal, limbSlender,
+                    handleR15, handleNormal, handleSlender;
+
+            SampleScales
+            (
+                limb,
+                limbScaleType,
+
+                out limbR15,
+                out limbNormal,
+                out limbSlender
+            );
+
+            SampleScales
+            (
+                limb,
+                handleScaleType,
+
+                out handleR15,
+                out handleNormal,
+                out handleSlender
+            );
+
+            Vector3 originScale;
+
+            if (handleScaleType == "Normal")
+                originScale = handleNormal / limbNormal;
+            else if (handleScaleType == "Slender")
+                originScale = handleSlender / limbSlender;
+            else
+                originScale = handleR15 / limbR15;
+
+            return originScale * limbScale;
+        }
+
+
+        public static void ScalePart(BasePart part, Vector3 scale)
+        {
+            foreach (Attachment att in part.GetChildrenOfClass<Attachment>())
+            {
+                CFrame cf = att.CFrame;
+                Vector3 pos = cf.Position;
+                att.CFrame = new CFrame(pos * scale) * (cf - pos);
+            }
+
+            foreach (SpecialMesh mesh in part.GetChildrenOfClass<SpecialMesh>())
+                mesh.Scale *= scale;
+            
+            part.Size *= scale;
         }
 
         public Dictionary<string, AnimationId> CollectAnimationIds(UserAvatar avatar)
@@ -239,8 +337,31 @@ namespace Rbx2Source.Assembler
                 animIds.Add(animName, animId);
             }
 
-            if (userAnims.ContainsKey("Idle") && animIds.ContainsKey("Idle2"))
-                animIds.Remove("Idle2"); // Remove default lookaround
+            if (userAnims.ContainsKey("Idle"))
+            {
+                // Remove default lookaround
+                if (animIds.ContainsKey("Idle2"))
+                    animIds.Remove("Idle2");
+
+                // If this isn't rthro idle...
+                long animId = userAnims["Idle"];
+
+                if (animId != 2510235063)
+                {
+                    // Remove default pose
+                    if (animIds.ContainsKey("Pose"))
+                        animIds.Remove("Pose");
+
+                    // Append the pose animation
+                    AnimationId pose = new AnimationId()
+                    {
+                        AnimationType = AnimationType.R15AnimFolder,
+                        AssetId = animId
+                    };
+
+                    animIds.Add("Pose", pose);
+                }
+            }
 
             return animIds;
         }
@@ -261,6 +382,7 @@ namespace Rbx2Source.Assembler
                 if (asset.IsA("BasePart"))
                 {
                     BasePart existing = assembly.FindFirstChild<BasePart>(asset.Name);
+
                     if (existing != null)
                         existing.Destroy();
 
@@ -271,6 +393,7 @@ namespace Rbx2Source.Assembler
                     foreach (BasePart child in asset.GetChildrenOfClass<BasePart>())
                     {
                         BasePart existing = assembly.FindFirstChild<BasePart>(child.Name);
+
                         if (existing != null)
                             existing.Destroy();
 
@@ -288,25 +411,39 @@ namespace Rbx2Source.Assembler
             }
 
             // Apply limb scaling
-            foreach (BasePart part in assembly.GetChildrenOfClass<BasePart>())
+            var parts = assembly.GetChildrenOfClass<BasePart>();
+            var attachMap = new Dictionary<string, Attachment>();
+
+            var avatarParts = parts.Where(part => GetLimb(part) != Limb.Unknown);
+            var accessoryParts = parts.Except(avatarParts);
+            
+            foreach (BasePart avatarPart in avatarParts)
             {
-                Limb limb = GetLimb(part);
+                Vector3 limbScale = ComputeLimbScale(scale, avatarPart);
 
-                if (limb != Limb.Unknown)
+                foreach (Attachment att in avatarPart.GetChildrenOfClass<Attachment>())
+                    attachMap[att.Name] = att;
+
+                ScalePart(avatarPart, limbScale);
+            }
+
+            // Apply accessory scaling
+            foreach (BasePart handle in accessoryParts)
+            {
+                Attachment handleAtt = handle.FindFirstChildOfClass<Attachment>();
+                
+                if (handleAtt != null)
                 {
-                    Vector3 limbScale = ComputeLimbScale(scale, part);
-
-                    foreach (Attachment att in part.GetChildrenOfClass<Attachment>())
+                    string attName = handleAtt.Name;
+                    
+                    if (attachMap.ContainsKey(attName))
                     {
-                        CFrame cf = att.CFrame;
-                        Vector3 pos = cf.Position;
-                        att.CFrame = new CFrame(pos * limbScale) * (cf - pos);
+                        Attachment avatarAtt = attachMap[attName];
+                        BasePart avatarPart = avatarAtt.Parent as BasePart;
+
+                        Vector3 accessoryScale = ComputeAccessoryScale(scale, avatarPart, handle);
+                        ScalePart(handle, accessoryScale);
                     }
-
-                    foreach (SpecialMesh mesh in part.GetChildrenOfClass<SpecialMesh>())
-                        mesh.Scale *= limbScale;
-
-                    part.Size *= limbScale;
                 }
             }
 

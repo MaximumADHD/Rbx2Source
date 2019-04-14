@@ -2,7 +2,10 @@
 
 namespace Rbx2Source.Geometry
 {
-    public class Vertex
+    // 3D Geometry components of the Vertex class
+    // The 2D Texture components are defined in Textures/Vertex2D.cs
+
+    public partial class Vertex
     {
         public Vector3 Position;
         public Vector3 Normal;

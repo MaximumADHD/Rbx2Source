@@ -89,7 +89,7 @@ namespace Rbx2Source.Assembler
                 if (nameCounts.ContainsKey(name))
                 {
                     int count = ++nameCounts[name];
-                    name += count.ToString();
+                    name += count.ToInvariantString();
                     part.Name = name;
                 }
                 else

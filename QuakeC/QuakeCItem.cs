@@ -13,7 +13,7 @@ namespace Rbx2Source.QuakeC
 
         public QuakeCItem(string type, params object[] attributes)
         {
-            var strings = attributes.Select((attr) => attr.ToString());
+            var strings = attributes.Select((attr) => attr.ToInvariantString());
             Attributes.AddRange(strings);
             Type = type;
         }
@@ -32,7 +32,7 @@ namespace Rbx2Source.QuakeC
 
         public void AddAttribute(object value)
         {
-            Attributes.Add(value.ToString());
+            Attributes.Add(value.ToInvariantString());
         }
 
         public override string ToString()

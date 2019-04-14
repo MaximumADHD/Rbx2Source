@@ -141,7 +141,7 @@ namespace Rbx2Source
             for (int i = 0; i < values.Length; i++)
             {
                 string match = "{" + i + "}";
-                msgFormat = msgFormat.Replace(match, values[i].ToString());
+                msgFormat = msgFormat.Replace(match, values[i].ToInvariantString());
             }
 
             Print(msgFormat);

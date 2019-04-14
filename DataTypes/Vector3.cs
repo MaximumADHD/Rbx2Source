@@ -123,7 +123,11 @@ namespace Rbx2Source.DataTypes
 
         public override string ToString()
         {
-            return string.Join(", ", X, Y, Z);
+            string x = X.ToInvariantString();
+            string y = Y.ToInvariantString();
+            string z = Z.ToInvariantString();
+
+            return string.Join(", ", x, y, z);
         }
 
         public float Dot(Vector3 other)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Xml;
 
 namespace Rbx2Source.DataTypes
@@ -205,7 +206,11 @@ namespace Rbx2Source.DataTypes
 
         public override string ToString()
         {
-            return string.Join(", ", GetComponents());
+            string[] components = GetComponents()
+                .Select((comp) => comp.ToInvariantString())
+                .ToArray();
+                
+            return string.Join(", ", components);
         }
 
         private static Vector3 VectorAxisAngle(Vector3 vec, Vector3 axis, float theta)

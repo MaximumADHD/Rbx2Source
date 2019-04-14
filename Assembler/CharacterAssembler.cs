@@ -58,6 +58,7 @@ namespace Rbx2Source.Assembler
             foreach (Instance child in bin.GetChildren())
             {
                 Attachment b = child.FindFirstChild<Attachment>(a.Name);
+
                 if (b != null && a != b)
                 {
                     result.Add(b);
@@ -92,6 +93,7 @@ namespace Rbx2Source.Assembler
                             Bone bone = new Bone(part1.Name, part0, part1);
                             bone.C0 = a0.CFrame;
                             bone.C1 = a1.CFrame;
+
                             bone.IsAvatarBone = !prep.AllowNonRigs;
                             prep.Bones.Add(bone);
 
@@ -508,7 +510,12 @@ namespace Rbx2Source.Assembler
                                 if (compileAnim != null)
                                 {
                                     Asset compileAsset = Asset.GetByAssetId(compileAnim.AnimationId);
-                                    collectAnimation(animName, compileAsset);
+                                    string compileName = animName;
+
+                                    if (animDef.Name == "pose")
+                                        compileName = "Pose";
+
+                                    collectAnimation(compileName, compileAsset);
                                 }
                             }
                         }

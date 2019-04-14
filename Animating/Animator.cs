@@ -229,6 +229,9 @@ namespace Rbx2Source.Animating
                             pos = new Vector3(-pos.Z, pos.Y, pos.X);
                         }
 
+                        if (node.Name != "Head")
+                            rot = rot.Inverse();
+
                         interp = new CFrame(pos) * rot;
                     }
                     else if (sequence.AvatarType == AvatarType.R15)

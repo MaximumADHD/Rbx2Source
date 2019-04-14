@@ -120,11 +120,12 @@
     <Compile Include="Reflection\BinaryFormat\RobloxBinaryReader.cs" />
     <Compile Include="Reflection\BinaryFormat\Tree\FileInstance.cs" />
     <Compile Include="Reflection\BinaryFormat\Tree\FileProperty.cs" />
-    <Compile Include="Formatting.cs" />
+    <Compile Include="Resources\Formatting.cs" />
     <Compile Include="DataTypes\BrickColor.cs" />
     <Compile Include="Assembler\CatalogItemAssembler.cs" />
+    <Compile Include="Textures\BarycentricPoint.cs" />
     <Compile Include="Textures\CompositData.cs" />
-    <Compile Include="Textures\CompositUtility.cs" />
+    <Compile Include="Textures\PointExtensions.cs" />
     <Compile Include="Textures\TextureCompositor.cs" />
     <Compile Include="Forms\Launcher.cs">
       <SubType>Form</SubType>
@@ -171,6 +172,7 @@
     <Compile Include="Reflection\Instance.cs" />
     <Compile Include="Reflection\RBXM.cs" />
     <Compile Include="StudioMdl\Groups\Triangle.cs" />
+    <Compile Include="Textures\Vertex2D.cs" />
     <Compile Include="Web\AssetGroups.cs" />
     <Compile Include="Web\AssetType.cs" />
     <Compile Include="Web\LegacyAssets.cs" />
@@ -179,7 +181,7 @@
     <Compile Include="DataTypes\CFrame.cs" />
     <Compile Include="DataTypes\Vector3.cs" />
     <Compile Include="Geometry\Mesh.cs" />
-    <Compile Include="Geometry\Vertex.cs" />
+    <Compile Include="Geometry\Vertex3D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Web\Asset.cs" />
     <EmbeddedResource Include="Forms\Launcher.resx">

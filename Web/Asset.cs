@@ -20,12 +20,16 @@ namespace Rbx2Source.Web
     public class Asset
     {
         public long Id;
+
         public AssetType AssetType;
         public ProductInfo ProductInfo;
+
         public bool Loaded = false;
         public bool IsLocal = false;
+
         public string CdnUrl;
         public string CdnCacheId;
+
         public byte[] Content;
         public bool ContentLoaded = false;
 
@@ -36,24 +40,32 @@ namespace Rbx2Source.Web
         {
             if (!ContentLoaded)
             {
-                HttpWebRequest request = WebRequest.CreateHttp(CdnUrl);
-                request.UserAgent = "Roblox";
-                request.Proxy = null;
-                request.UseDefaultCredentials = true;
-                request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip");
+                try
+                {
+                    HttpWebRequest request = WebRequest.CreateHttp(CdnUrl);
+                    request.UserAgent = "Roblox";
+                    request.Proxy = null;
+                    request.UseDefaultCredentials = true;
+                    request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip");
 
-                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-                Stream responseStream = response.GetResponseStream();
+                    HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+                    Stream responseStream = response.GetResponseStream();
 
-                string encoding = response.ContentEncoding;
-                if (encoding == "gzip")
-                    responseStream = new GZipStream(responseStream, CompressionMode.Decompress);
+                    string encoding = response.ContentEncoding;
+                    if (encoding == "gzip")
+                        responseStream = new GZipStream(responseStream, CompressionMode.Decompress);
 
-                Content = FileUtility.ReadFullStream(responseStream);
-                ContentLoaded = true;
+                    Content = FileUtility.ReadFullStream(responseStream);
+                    ContentLoaded = true;
 
-                responseStream.Close();
-                response.Close();
+                    responseStream.Close();
+                    response.Close();
+                }
+                catch
+                {
+                    Content = new byte[0];
+                    ContentLoaded = false;
+                }
             }
 
             return Content;
@@ -80,31 +92,38 @@ namespace Rbx2Source.Web
                 string identifier = "";
                 string cachedFile = "";
 
-                using (var response = ping.GetResponse() as HttpWebResponse)
+                try
                 {
-                    location = response.GetResponseHeader("Location");
-                    identifier = location.Remove(0, 7).Replace(".rbxcdn.com/", "-");
-                    cachedFile = assetCacheDir + identifier.Replace('/', '\\');
-
-                    if (File.Exists(cachedFile))
+                    using (var response = ping.GetResponse() as HttpWebResponse)
                     {
-                        string cachedContent = File.ReadAllText(cachedFile);
+                        location = response.GetResponseHeader("Location");
+                        identifier = location.Remove(0, 7).Replace(".rbxcdn.com/", "-");
+                        cachedFile = assetCacheDir + identifier.Replace('/', '\\');
 
-                        try
+                        if (File.Exists(cachedFile))
                         {
-                            asset = JsonConvert.DeserializeObject<Asset>(cachedContent);
-                            Rbx2Source.Print("Fetched pre-cached asset {0}", assetId);
-                        }
-                        catch
-                        {
-                            // Corrupted file?
-                            if (File.Exists(cachedFile))
+                            string cachedContent = File.ReadAllText(cachedFile);
+
+                            try
                             {
-                                Rbx2Source.Print("Deleting corrupted file {0}", cachedFile);
-                                File.Delete(cachedFile);
+                                asset = JsonConvert.DeserializeObject<Asset>(cachedContent);
+                                Rbx2Source.Print("Fetched pre-cached asset {0}", assetId);
+                            }
+                            catch
+                            {
+                                // Corrupted file?
+                                if (File.Exists(cachedFile))
+                                {
+                                    Rbx2Source.Print("Deleting corrupted file {0}", cachedFile);
+                                    File.Delete(cachedFile);
+                                }
                             }
                         }
                     }
+                }
+                catch
+                {
+                    Console.WriteLine("Failed to fetch {0}?", assetId);
                 }
 
                 if (asset == null)

@@ -51,15 +51,13 @@ namespace Rbx2Source.Assembler
 
         private static Dictionary<string, long> R6_ANIMATION_IDS = new Dictionary<string, long>()
         {
-            {"Climb", 180436334},
-            {"Fall",  180436148},
-            {"Idle",  180435571},
-            {"Jump",  125750702},
-            {"Look",  180435792},
-            {"Run",   180426354},
-            {"Sit",   178130996},
-            {"Wave",  128777973},
-            {"Point", 128853357},
+            { "Climb", 180436334 },
+            { "Fall",  180436148 },
+            { "Idle",  180435571 },
+            { "Jump",  125750702 },
+            { "Look",  180435792 },
+            { "Run",   180426354 },
+            { "Sit",   178130996 },
         };
 
         private static string GetBodyMatName(long id)

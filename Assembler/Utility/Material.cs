@@ -103,7 +103,7 @@ namespace Rbx2Source.Assembler
                 foreach (string fieldName in VmtFields.Keys)
                 {
                     object value = VmtFields[fieldName];
-                    buffer.WriteLine("\t$" + fieldName.ToLower() + " \"" + value.ToString() + '"');
+                    buffer.WriteLine("\t$" + fieldName.ToLower() + " \"" + value.ToInvariantString() + '"');
                 }
 
                 buffer.WriteLine("}");

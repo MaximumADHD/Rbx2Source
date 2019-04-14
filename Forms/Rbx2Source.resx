@@ -118,7 +118,30 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.41] (March 28th, 2019)
+    <value>[v2.50] (April 13th, 2019)
+
+• Rewrote the Rthro scaling logic so that avatars
+  are scaled 100% accurately across the board.
+• Improved the emulation of avatar animations.
+  It still isn't 100% perfect, but it should be A LOT
+  more accurate than it was previously.
+• Added the avatar pose animation to the set of
+  animations exported for R15 avatars.
+• (Hopefully) put the final nail in the coffin to any
+  localization related formatting issues.
+• Fixed a bug where the compiler would fail if the
+  inputted user was wearing an invalid asset.
+• Fixed a bug where untextured parts would not be
+  colored if they were using Color3uint8 instead of 
+  BrickColor to store their color.
+• Fixed a bug where limbs could become invisible if
+  one of their parts was fully transparent.
+• Fixed a bug where untrimmed asset names would
+  cause problems with material file linkage.
+______________________________________________________
+
+
+[v2.41] (March 28th, 2019)
 
 • Fixed some regressions pertaining to the settings
   initialization phase.

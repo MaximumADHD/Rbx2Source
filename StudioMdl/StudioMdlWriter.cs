@@ -7,7 +7,7 @@ using Rbx2Source.Assembler;
 namespace Rbx2Source.StudioMdl
 {
     /// <summary>
-    /// Implementation for writing Source's StudioMdl Data format.
+    /// Writer Implementation for Source's Studiomdl Data format.
     /// See: https://developer.valvesoftware.com/wiki/Studiomdl_Data
     /// </summary>
 
@@ -18,6 +18,7 @@ namespace Rbx2Source.StudioMdl
         public List<Node> Nodes;
         public List<Triangle> Triangles;
         public List<BoneKeyframe> Skeleton;
+
         public Dictionary<string, Material> Materials;
 
         private void writeEntities<T>(List<T> entities) where T : IStudioMdlEntity<T>
