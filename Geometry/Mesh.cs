@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -13,12 +15,14 @@ namespace Rbx2Source.Geometry
 {
     public class Mesh
     {
-        public Vertex[] Verts;
-        public int[][] Faces;
         public int Version;
 
-        public uint FaceCount = 0;
-        public uint VertCount = 0;
+        public Vertex[] Verts;
+        public int[][] Faces;
+        public Mesh[] LODs;
+
+        public int NumVerts = 0;
+        public int NumFaces = 0;
 
         public bool Loaded = false;
 
@@ -31,7 +35,7 @@ namespace Rbx2Source.Geometry
             {"Torso",       Asset.FromResource("Meshes/StandardLimbs/torso.mesh")}
         };
 
-        private static void loadGeometryV1(StringReader reader, Mesh mesh)
+        private static void LoadGeometry_Ascii(StringReader reader, Mesh mesh)
         {
             string header = reader.ReadLine();
 
@@ -39,14 +43,15 @@ namespace Rbx2Source.Geometry
                 throw new Exception("Expected version 1 header, got: " + header);
 
             string version = header.Substring(8);
-            float vertScale = (version == "1.00" ? 0.5f : 1); // well, thats awkward.
+            float vertScale = (version == "1.00" ? 0.5f : 1);
 
-            if (!uint.TryParse(reader.ReadLine(), out mesh.FaceCount))
+            if (int.TryParse(reader.ReadLine(), out mesh.NumFaces))
+                mesh.NumVerts = mesh.NumFaces * 3;
+            else
                 throw new Exception("Expected 2nd line to be the polygon count.");
 
-            mesh.VertCount = mesh.FaceCount * 3;
-            mesh.Faces = new int[mesh.FaceCount][];
-            mesh.Verts = new Vertex[mesh.VertCount];
+            mesh.Faces = new int[mesh.NumFaces][];
+            mesh.Verts = new Vertex[mesh.NumVerts];
 
             string polyBuffer = reader.ReadLine();
             MatchCollection matches = Regex.Matches(polyBuffer, @"\[(.*?)\]");
@@ -56,13 +61,14 @@ namespace Rbx2Source.Geometry
             int target = 0;
 
             Vertex currentVertex = new Vertex();
-            var toFloat = new Converter<string, float>(f => Format.ParseFloat(f));
 
             foreach (Match m in matches)
             {
                 string vectorStr = m.Groups[1].ToString();
-                float[] coords = Array.ConvertAll(vectorStr.Split(','), toFloat);
-                Vector3 vector = new Vector3(coords);
+
+                float[] coords = vectorStr.Split(',')
+                    .Select(coord => Format.ParseFloat(coord))
+                    .ToArray();
 
                 if (target == 0)
                     currentVertex.Position = new Vector3(coords) * vertScale;
@@ -89,25 +95,31 @@ namespace Rbx2Source.Geometry
             mesh.Loaded = true;
         }
 
-        private static void loadGeometryV2(BinaryReader reader, Mesh mesh)
+        private static void LoadGeometry_Binary(BinaryReader reader, Mesh rootMesh)
         {
-            Stream stream = reader.BaseStream;
-            stream.Position = 13; // Move past the header.
+            byte[] binVersion = reader.ReadBytes(13);
+            var headerSize = reader.ReadUInt16();
 
-            ushort cbSize = reader.ReadUInt16();
-            byte cbVerticesStride = reader.ReadByte();
-            byte cbFaceStride = reader.ReadByte();
+            var vertSize = reader.ReadByte();
+            var faceSize = reader.ReadByte();
+            
+            if (rootMesh.Version >= 3)
+            {
+                var lodRangeSize = reader.ReadUInt16();
+                var numLodRanges = reader.ReadUInt16();
+                rootMesh.LODs = new Mesh[numLodRanges - 2];
+            }
 
-            int vertBytesToSkip = 0;
-            if (cbVerticesStride != 36) // Some new bytes were added to new meshes regarding vertex color data. Skip over them if we can.
-                vertBytesToSkip = cbVerticesStride - 36;
+            int numVerts = reader.ReadInt32();
+            int numFaces = reader.ReadInt32();
 
-            mesh.VertCount = reader.ReadUInt32();
-            mesh.FaceCount = reader.ReadUInt32();
-            mesh.Verts = new Vertex[mesh.VertCount];
-            mesh.Faces = new int[mesh.FaceCount][];
+            var verts = new Vertex[numVerts];
+            var faces = new int[numFaces][];
 
-            for (int i = 0; i < mesh.VertCount; i++)
+            rootMesh.NumVerts = numVerts;
+            rootMesh.Verts = new Vertex[numVerts];
+
+            for (int i = 0; i < numVerts; i++)
             {
                 Vertex vert = new Vertex()
                 {
@@ -116,63 +128,102 @@ namespace Rbx2Source.Geometry
                     UV = new Vector3(reader)
                 };
 
-                if (vertBytesToSkip > 0)
-                    reader.ReadBytes(vertBytesToSkip);
+                if (vertSize > 36)
+                {
+                    byte r = reader.ReadByte(),
+                         g = reader.ReadByte(),
+                         b = reader.ReadByte(),
+                         a = reader.ReadByte();
 
-                mesh.Verts[i] = vert;
+                    int argb = (a << 24 | r << 16 | g << 8 | b);
+                    vert.Color = Color.FromArgb(argb);
+                    vert.HasColor = true;
+                }
+
+                verts[i] = vert;
             }
 
-            for (int p = 0; p < mesh.FaceCount; p++)
+            for (int f = 0; f < numFaces; f++)
             {
                 int[] face = new int[3];
 
                 for (int i = 0; i < 3; i++)
                     face[i] = reader.ReadInt32();
 
-                mesh.Faces[p] = face;
+                faces[f] = face;
             }
 
-            mesh.Loaded = true;
+            if (rootMesh.Version >= 3)
+            {
+                int rBegin = reader.ReadInt32();
+
+                int numLods = rootMesh.LODs.Length + 1;
+                int numLodRanges = numLods + 1;
+
+                for (int i = 0; i < numLodRanges; i++)
+                {
+                    int rEnd = reader.ReadInt32();
+                    int range = (rEnd - rBegin);
+
+                    if (i == 0)
+                    {
+                        rootMesh.NumFaces = range;
+                        rootMesh.Faces = new int[range][];
+                    }
+                }
+            }
+
+            rootMesh.Loaded = true;
         }
 
-        private static Mesh load(byte[] data)
+        private static Mesh Load(byte[] data)
         {
             string file = Encoding.ASCII.GetString(data);
 
             if (!file.StartsWith("version "))
                 throw new Exception("Invalid .mesh header!");
-
-            Mesh mesh = new Mesh();
             
             string versionStr = file.Substring(8, 4);
             double version = Format.ParseDouble(versionStr);
-            
+
+            Mesh mesh = new Mesh();
             mesh.Version = (int)version;
+
+            IDisposable toDispose;
 
             if (mesh.Version == 1)
             {
                 StringReader buffer = new StringReader(file);
-                loadGeometryV1(buffer, mesh);
+                LoadGeometry_Ascii(buffer, mesh);
+                toDispose = buffer;
             }
-            else if (mesh.Version == 2)
+            else if (mesh.Version == 2 || mesh.Version == 3)
             {
                 MemoryStream stream = new MemoryStream(data);
-                BinaryReader reader = new BinaryReader(stream);
-                loadGeometryV2(reader, mesh);
+
+                using (BinaryReader reader = new BinaryReader(stream))
+                    LoadGeometry_Binary(reader, mesh);
+
+                toDispose = stream;
             }
             else
             {
-                throw new Exception("Unknown .mesh file version: " + version);
+                throw new Exception($"Unknown .mesh file version: {version}");
             }
+
+            toDispose.Dispose();
+            toDispose = null;
 
             return mesh;
         }
 
         public void BakeGeometry(Vector3 scale, CFrame offset)
         {
-            for (int i = 0; i < VertCount; i++)
+            for (int i = 0; i < NumVerts; i++)
             {
-                Verts[i].Position = (offset * new CFrame(Verts[i].Position * scale)).Position;
+                var vert = Verts[i];
+                var cframe = (offset * new CFrame(vert.Position * scale));
+                vert.Position = cframe.Position;
             }
         }
 
@@ -188,14 +239,14 @@ namespace Rbx2Source.Geometry
                     data = buffer.ToArray();
                 }
             }
-            
-            return load(data);
+
+            return Load(data);
         }
 
         public static Mesh FromAsset(Asset asset)
         {
             byte[] content = asset.GetContent();
-            return load(content);
+            return Load(content);
         }
 
         public static Mesh BakePart(BasePart part, Material material = null)
@@ -211,8 +262,8 @@ namespace Rbx2Source.Geometry
             if (material != null)
             {
                 material.LinkedTo = part;
-                material.Transparency = part.Transparency;
                 material.Reflectance = part.Reflectance;
+                material.Transparency = part.Transparency;
             }
 
             if (part.Transparency < 1)
@@ -231,7 +282,7 @@ namespace Rbx2Source.Geometry
                         string partName = meshPart.Name;
                         StandardLimbs.TryGetValue(partName, out meshAsset);
                     }
-                    
+
                     if (meshPart.TextureId != null)
                         textureAsset = Asset.GetByAssetId(meshPart.TextureId);
 
@@ -247,8 +298,8 @@ namespace Rbx2Source.Geometry
                     if (specialMesh != null && specialMesh.MeshType == MeshType.FileMesh)
                     {
                         meshAsset = Asset.GetByAssetId(specialMesh.MeshId);
-                        scale = specialMesh.Scale;
                         offset *= new CFrame(specialMesh.Offset);
+                        scale = specialMesh.Scale;
 
                         if (material != null)
                         {

@@ -251,7 +251,7 @@ namespace Rbx2Source.Assembler
             Mesh geometry = Mesh.BakePart(part, material);
             meshBuilder.Materials[matName] = material;
             
-            for (int i = 0; i < geometry.FaceCount; i++)
+            for (int i = 0; i < geometry.NumFaces; i++)
             {
                 Triangle tri = new Triangle()
                 {
