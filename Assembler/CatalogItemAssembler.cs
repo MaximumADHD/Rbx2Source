@@ -101,7 +101,7 @@ namespace Rbx2Source.Assembler
                 Material material = new Material();
                 Mesh geometry = Mesh.BakePart(part, material);
 
-                if (geometry != null && geometry.FaceCount > 0)
+                if (geometry != null && geometry.NumFaces > 0)
                 {
                     string task = "BuildGeometry_" + name;
                     Rbx2Source.ScheduleTasks(task);
@@ -116,7 +116,7 @@ namespace Rbx2Source.Assembler
 
                     materials.Add(name, material);
 
-                    for (int i = 0; i < geometry.FaceCount; i++)
+                    for (int i = 0; i < geometry.NumFaces; i++)
                     {
                         Triangle tri = new Triangle()
                         {

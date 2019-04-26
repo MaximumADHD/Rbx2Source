@@ -1,4 +1,5 @@
-﻿using Rbx2Source.DataTypes;
+﻿using System.Drawing;
+using Rbx2Source.DataTypes;
 
 namespace Rbx2Source.Geometry
 {
@@ -10,6 +11,9 @@ namespace Rbx2Source.Geometry
         public Vector3 Position;
         public Vector3 Normal;
         public Vector3 UV;
+
+        public bool HasColor = false;
+        public Color Color;
 
         public string WriteStudioMdl()
         {

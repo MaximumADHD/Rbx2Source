@@ -142,7 +142,7 @@ namespace Rbx2Source.Textures
                 {
                     Mesh guide = composit.Guide;
 
-                    for (int face = 0; face < guide.FaceCount; face++)
+                    for (int face = 0; face < guide.NumFaces; face++)
                     {
                         Vertex[] verts = composit.GetGuideVerts(face);
                         Point offset = canvas.Location;
