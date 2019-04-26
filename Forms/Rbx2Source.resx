@@ -118,7 +118,16 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.50] (April 13th, 2019)
+    <value>[v2.51] (April 13th, 2019)
+
+• Added support for version 3 of Roblox's mesh format.
+  This support doesn't currently change anything, but
+  it will make sure these meshes are handled without 
+  any errors. I may try to include the level-of-detail 
+  data it introduces into compiled meshes later on.
+______________________________________________________
+
+[v2.50] (April 13th, 2019)
 
 • Rewrote the Rthro scaling logic so that avatars
   are scaled 100% accurately across the board.
@@ -139,7 +148,6 @@
 • Fixed a bug where untrimmed asset names would
   cause problems with material file linkage.
 ______________________________________________________
-
 
 [v2.41] (March 28th, 2019)
 
