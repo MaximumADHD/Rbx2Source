@@ -273,11 +273,12 @@ namespace Rbx2Source.Assembler
             Rbx2Source.PrintHeader("GATHERING " + context + " ASSETS");
 
             Folder characterAssets = new Folder();
-            List<long> assetIds = avatar.AccessoryVersionIds;
+            AssetInfo[] assets = avatar.Assets;
 
-            foreach (long id in assetIds)
+            foreach (AssetInfo info in assets)
             {
-                Asset asset = Asset.Get(id, "/asset/?assetversionid=");
+                long id = info.Id;
+                Asset asset = Asset.Get(id);
 
                 Folder import = RBXM.LoadFromAsset(asset);
                 Folder typeSpecific = import.FindFirstChild<Folder>(avatarType);
@@ -397,7 +398,7 @@ namespace Rbx2Source.Assembler
 
             FileUtility.InitiateEmptyDirectories(modelDir, anim8Dir, texturesDir, materialsDir);
 
-            AvatarType avatarType = avatar.ResolvedAvatarType;
+            AvatarType avatarType = avatar.PlayerAvatarType;
             ICharacterAssembler assembler;
 
             if (avatarType == AvatarType.R15)
@@ -406,7 +407,8 @@ namespace Rbx2Source.Assembler
                 assembler = new R6CharacterAssembler();
 
             string compileDir = "roblox_avatars/" + userName;
-            string avatarTypeName = Rbx2Source.GetEnumName(avatar.ResolvedAvatarType);
+
+            string avatarTypeName = Rbx2Source.GetEnumName(avatarType);
             Folder characterAssets = AppendCharacterAssets(avatar, avatarTypeName);
             
             Rbx2Source.ScheduleTasks
@@ -546,7 +548,7 @@ namespace Rbx2Source.Assembler
                     Folder import = RBXM.LoadFromAsset(animAsset);
 
                     KeyframeSequence sequence = import.FindFirstChildOfClass<KeyframeSequence>();
-                    sequence.AvatarType = avatar.ResolvedAvatarType;
+                    sequence.AvatarType = avatarType;
                     sequence.Name = animName;
 
                     string animation = Animator.Assemble(sequence, writer.Skeleton[0].Bones);

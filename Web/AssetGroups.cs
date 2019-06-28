@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Rbx2Source.Web
 {
     public enum AssetGroup
     {
-        PackageLimbs = 0,
-        Accessories = 1
+        PackageLimbs,
+        Accessories,
+        Animations
     }
 
     static class AssetGroups
@@ -36,7 +33,21 @@ namespace Rbx2Source.Web
                 AssetType.NeckAccessory,
                 AssetType.ShoulderAccessory,
                 AssetType.FrontAccessory,
-                AssetType.BackAccessory
+                AssetType.BackAccessory,
+                AssetType.WaistAccessory
+            });
+
+            groups.Add(AssetGroup.Animations, new List<AssetType>()
+            {
+                AssetType.ClimbAnimation,
+                AssetType.DeathAnimation,
+                AssetType.FallAnimation,
+                AssetType.IdleAnimation,
+                AssetType.JumpAnimation,
+                AssetType.RunAnimation,
+                AssetType.SwimAnimation,
+                AssetType.WalkAnimation,
+                AssetType.PoseAnimation
             });
         }
 

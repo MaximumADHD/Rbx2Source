@@ -79,7 +79,7 @@ namespace Rbx2Source
             setStatus("Checking for updates");
 
             string latestVersion = await GetGitHubString("version.txt");
-            string myVersion = Settings.GetSetting<string>("CurrentVersion");
+            string myVersion = Settings.GetString("CurrentVersion");
 
             if (latestVersion != myVersion)
             {

@@ -241,15 +241,16 @@ namespace Rbx2Source.Reflection
         public static Folder LoadFromBuffer(byte[] buffer)
         {
             Folder result = null;
-            string contents = Encoding.Default.GetString(buffer);
+            string header = Encoding.UTF7.GetString(buffer, 0, 14);
 
-            if (contents.StartsWith("<roblox!"))
+            if (header.StartsWith("<roblox!"))
             {
                 RobloxBinaryFile bin = new RobloxBinaryFile(buffer);
                 result = AssembleModel_BIN(bin);
             }
             else
             {
+                string contents = Encoding.UTF8.GetString(buffer);
                 XmlNode xml = LoadRobloxNode_XML(contents);
                 result = AssembleModel_XML(xml);
             }

@@ -574,7 +574,7 @@ namespace Rbx2Source
         
         private void loadComboBox(ComboBox comboBox, string settingsKey, int defaultValue = 0)
         {
-            string value = Settings.GetSetting<string>(settingsKey);
+            string value = Settings.GetString(settingsKey);
 
             if (value != null && comboBox.Items.Contains(value))
             {
@@ -710,7 +710,7 @@ namespace Rbx2Source
                 }
             }
 
-            string savedGameSelection = Settings.GetSetting<string>("SelectedGame");
+            string savedGameSelection = Settings.GetString("SelectedGame");
 
             int gameCount = 0;
             gameSelect.Items.Clear();
@@ -730,11 +730,11 @@ namespace Rbx2Source
             loadComboBox(gameSelect, "SelectedGame");
             loadComboBox(compilerTypeSelect, "CompilerType", 1);
 
-            string userName = Settings.GetSetting<string>("Username");
+            string userName = Settings.GetString("Username");
             if (userName != null)
                 TrySetUsername(userName);
 
-            string assetId = Settings.GetSetting<string>("AssetId");
+            string assetId = Settings.GetString("AssetId");
             TrySetAssetId(assetId);
 
             selectedGame = sourceGames[gameSelect.Text];

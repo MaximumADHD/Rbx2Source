@@ -118,7 +118,19 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.51] (April 13th, 2019)
+    <value>[v2.52] (June 28th, 2019)
+
+• Switched to a new avatar endpoint that should be
+  more reliable, as the previous one was causing a lot
+  of problems.
+• Fixed a bug where assets could potentially get 
+  cached with empty content.
+• Fixed some bugs pertaining to registry keys not
+  being casted to strings correctly.
+• Added HTTPS support to the asset installation.
+______________________________________________________
+
+[v2.51] (April 13th, 2019)
 
 • Added support for version 3 of Roblox's mesh format.
   This support doesn't currently change anything, but

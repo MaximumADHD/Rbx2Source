@@ -43,7 +43,7 @@ namespace Rbx2Source.Web
                 try
                 {
                     HttpWebRequest request = WebRequest.CreateHttp(CdnUrl);
-                    request.UserAgent = "Roblox";
+                    request.UserAgent = "RobloxStudio/WinInet";
                     request.Proxy = null;
                     request.UseDefaultCredentials = true;
                     request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip");
@@ -97,8 +97,8 @@ namespace Rbx2Source.Web
                     using (var response = ping.GetResponse() as HttpWebResponse)
                     {
                         location = response.GetResponseHeader("Location");
-                        identifier = location.Remove(0, 7).Replace(".rbxcdn.com/", "-");
-                        cachedFile = assetCacheDir + identifier.Replace('/', '\\');
+                        identifier = location.Remove(0, 8).Replace(".rbxcdn.com/", "-");
+                        cachedFile = assetCacheDir + '\\' + identifier.Replace('/', '\\');
 
                         if (File.Exists(cachedFile))
                         {
@@ -107,6 +107,13 @@ namespace Rbx2Source.Web
                             try
                             {
                                 asset = JsonConvert.DeserializeObject<Asset>(cachedContent);
+
+                                if (asset.Content.Length == 0)
+                                {
+                                    asset = null;
+                                    throw new Exception();
+                                }
+
                                 Rbx2Source.Print("Fetched pre-cached asset {0}", assetId);
                             }
                             catch

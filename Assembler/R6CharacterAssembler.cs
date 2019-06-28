@@ -130,16 +130,16 @@ namespace Rbx2Source.Assembler
             compositor.CharacterAssets = characterAssets;
 
             // Append BodyColors
-            compositor.AppendColor(bodyColors.TorsoColor,    COMPOSIT_TORSO,     RECT_FULL);
-            compositor.AppendColor(bodyColors.LeftArmColor,  COMPOSIT_LEFT_ARM,  RECT_FULL);
-            compositor.AppendColor(bodyColors.LeftLegColor,  COMPOSIT_LEFT_LEG,  RECT_FULL);
-            compositor.AppendColor(bodyColors.RightArmColor, COMPOSIT_RIGHT_ARM, RECT_FULL);
-            compositor.AppendColor(bodyColors.RightLegColor, COMPOSIT_RIGHT_LEG, RECT_FULL);
+            compositor.AppendColor(bodyColors.TorsoColorId,    COMPOSIT_TORSO,     RECT_FULL);
+            compositor.AppendColor(bodyColors.LeftArmColorId,  COMPOSIT_LEFT_ARM,  RECT_FULL);
+            compositor.AppendColor(bodyColors.LeftLegColorId,  COMPOSIT_LEFT_LEG,  RECT_FULL);
+            compositor.AppendColor(bodyColors.RightArmColorId, COMPOSIT_RIGHT_ARM, RECT_FULL);
+            compositor.AppendColor(bodyColors.RightLegColorId, COMPOSIT_RIGHT_LEG, RECT_FULL);
 
             // Append Head & Face
             Asset faceAsset = GetAvatarFace(characterAssets);
-            compositor.AppendColor(bodyColors.HeadColor, RECT_HEAD);
             compositor.AppendTexture(faceAsset, RECT_HEAD, 1);
+            compositor.AppendColor(bodyColors.HeadColorId, RECT_HEAD);
 
             // Append Shirt
             Shirt shirt = characterAssets.FindFirstChildOfClass<Shirt>();

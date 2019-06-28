@@ -316,8 +316,11 @@ namespace Rbx2Source.Assembler
 
         public Dictionary<string, AnimationId> CollectAnimationIds(UserAvatar avatar)
         {
+            var userAnims = avatar.Assets
+                .Where(asset => AssetGroups.IsTypeInGroup(asset.Type, AssetGroup.Animations))
+                .ToDictionary(asset => Rbx2Source.GetEnumName(asset.Type).Replace("Animation", ""));
+
             var animIds = new Dictionary<string, AnimationId>();
-            var userAnims = avatar.Animations;
 
             foreach (string animName in R15_ANIMATION_IDS.Keys)
             {
@@ -326,7 +329,7 @@ namespace Rbx2Source.Assembler
                 if (userAnims.ContainsKey(animName))
                 {
                     animId.AnimationType = AnimationType.R15AnimFolder;
-                    animId.AssetId = userAnims[animName];
+                    animId.AssetId = userAnims[animName].Id;
                 }
                 else
                 {
@@ -344,7 +347,7 @@ namespace Rbx2Source.Assembler
                     animIds.Remove("Idle2");
 
                 // If this isn't rthro idle...
-                long animId = userAnims["Idle"];
+                long animId = userAnims["Idle"].Id;
 
                 if (animId != 2510235063)
                 {
@@ -469,12 +472,12 @@ namespace Rbx2Source.Assembler
             TextureCompositor compositor = new TextureCompositor(AvatarType.R15, 1024, 568);
 
             // Append BodyColors
-            compositor.AppendColor(bodyColors.HeadColor,     RECT_HEAD);
-            compositor.AppendColor(bodyColors.TorsoColor,    RECT_TORSO);
-            compositor.AppendColor(bodyColors.LeftArmColor,  RECT_LEFT_ARM);
-            compositor.AppendColor(bodyColors.LeftLegColor,  RECT_LEFT_LEG);
-            compositor.AppendColor(bodyColors.RightArmColor, RECT_RIGHT_ARM);
-            compositor.AppendColor(bodyColors.RightLegColor, RECT_RIGHT_LEG);
+            compositor.AppendColor(bodyColors.HeadColorId,     RECT_HEAD);
+            compositor.AppendColor(bodyColors.TorsoColorId,    RECT_TORSO);
+            compositor.AppendColor(bodyColors.LeftArmColorId,  RECT_LEFT_ARM);
+            compositor.AppendColor(bodyColors.LeftLegColorId,  RECT_LEFT_LEG);
+            compositor.AppendColor(bodyColors.RightArmColorId, RECT_RIGHT_ARM);
+            compositor.AppendColor(bodyColors.RightLegColorId, RECT_RIGHT_LEG);
 
             // Append Face
             Asset face = GetAvatarFace(characterAssets);

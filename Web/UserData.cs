@@ -26,12 +26,27 @@ namespace Rbx2Source.Web
 
     public struct BodyColors
     {
-        public int HeadColor;
-        public int LeftArmColor;
-        public int RightArmColor;
-        public int LeftLegColor;
-        public int RightLegColor;
-        public int TorsoColor;
+        public int HeadColorId;
+        public int LeftArmColorId;
+        public int RightArmColorId;
+        public int LeftLegColorId;
+        public int RightLegColorId;
+        public int TorsoColorId;
+    }
+
+    public struct WrappedAssetType
+    {
+        public AssetType Id;
+        public string Name;
+    }
+
+    public class AssetInfo
+    {
+        public long Id;
+        public string Name;
+
+        public WrappedAssetType AssetType;
+        public AssetType Type => AssetType.Id;
     }
 
     public class UserAvatar
@@ -40,16 +55,14 @@ namespace Rbx2Source.Web
         public UserInfo UserInfo;
 
         public AvatarScale Scales;
+        public AvatarType PlayerAvatarType;
+
         public BodyColors BodyColors;
+        public AssetInfo[] Assets;
 
-        public AvatarType ResolvedAvatarType;
-        public List<long> AccessoryVersionIds;
-
-        public Dictionary<string, long> Animations;
-        
         private static UserAvatar createUserAvatar(UserInfo info)
         {
-            UserAvatar avatar = WebUtility.DownloadRbxApiJSON<UserAvatar>("v1.1/avatar-fetch?placeId=0&userId=" + info.Id);
+            UserAvatar avatar = WebUtility.DownloadRbxApiJSON<UserAvatar>($"/v1/users/{info.Id}/avatar", "avatar");
             avatar.UserExists = true;
             avatar.UserInfo = info;
             return avatar;

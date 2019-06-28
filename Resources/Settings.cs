@@ -17,15 +17,13 @@ namespace Rbx2Source.Resources
             return cache[key];
         }
 
-        public static T GetSetting<T>(string key)
+        public static string GetString(string key)
         {
             object value = GetSetting(key);
-            T result;
+            string result = "";
 
             if (value != null)
-                result = (T)value;
-            else
-                result = default(T);
+                result = value.ToInvariantString();
 
             return result;
         }
