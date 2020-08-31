@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 
 using Rbx2Source.Geometry;
 using Rbx2Source.Reflection;
@@ -146,13 +147,11 @@ namespace Rbx2Source.Textures
                     {
                         Vertex[] verts = composit.GetGuideVerts(face);
                         Point offset = canvas.Location;
-
-                        Point vert_a = verts[0].ToPoint(canvas, offset),
-                              vert_b = verts[1].ToPoint(canvas, offset),
-                              vert_c = verts[2].ToPoint(canvas, offset);
-
-                        Point[] polygon = new Point[3] { vert_a, vert_b, vert_c };
-
+                        
+                        Point[] poly = verts
+                            .Select(vert => vert.ToPoint(canvas, offset))
+                            .ToArray();
+                        
                         if (drawType == DrawType.Color)
                         {
                             composit.UseBrush(brush => buffer.FillPolygon(brush, polygon));
@@ -165,10 +164,10 @@ namespace Rbx2Source.Textures
                             Point origin = bbox.Location;
                             Bitmap drawLayer = new Bitmap(bbox.Width, bbox.Height);
 
-                            Point uv_a = verts[0].ToUV(texture),
-                                  uv_b = verts[1].ToUV(texture),
-                                  uv_c = verts[2].ToUV(texture);
-
+                            Point[] uv = verts
+                                .Select(vert => vert.ToUV(texture))
+                                .ToArray();
+                            
                             int origin_X = origin.X, 
                                 origin_Y = origin.Y;
 
@@ -177,11 +176,11 @@ namespace Rbx2Source.Textures
                                 for (int y = bbox.Top; y < bbox.Bottom; y++)
                                 {
                                     var pixel = new Point(x, y);
-                                    var bcPoint = new BarycentricPoint(pixel, vert_a, vert_b, vert_c);
+                                    var bcPoint = new BarycentricPoint(pixel, poly);
 
                                     if (bcPoint.InBounds())
                                     {
-                                        var uvPixel = bcPoint.ToCartesian(uv_a, uv_b, uv_c);
+                                        var uvPixel = bcPoint.ToCartesian(uv);
                                         Color color = texture.GetPixel(uvPixel.X, uvPixel.Y);
                                         drawLayer.SetPixel(x - origin_X, y - origin_Y, color);
                                     }
