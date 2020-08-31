@@ -7,8 +7,12 @@ namespace Rbx2Source.Textures
     {
         public readonly double U, V, W;
 
-        public BarycentricPoint(Point p, Point a, Point b, Point c)
+        public BarycentricPoint(Point p, params Point[] poly)
         {
+            Point a = poly[0],
+                  b = poly[1],
+                  c = poly[2];
+            
             Point v0 = b.Subtract(a),
                   v1 = c.Subtract(a),
                   v2 = p.Subtract(a);
@@ -27,8 +31,12 @@ namespace Rbx2Source.Textures
             U = 1.0 - V - W;
         }
 
-        public Point ToCartesian(Point a, Point b, Point c)
+        public Point ToCartesian(params Point[] poly)
         {
+            Point a = poly[0],
+                  b = poly[1],
+                  c = poly[2];
+            
             double x = (a.X * U) + (b.X * V) + (c.X * W),
                    y = (a.Y * U) + (b.Y * V) + (c.Y * W);
 
