@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using Rbx2Source.Reflection;
+using System.Diagnostics.Contracts;
+using RobloxFiles;
 
 namespace Rbx2Source.Animating
 {
@@ -7,10 +8,12 @@ namespace Rbx2Source.Animating
     {
         public int Compare(Keyframe a, Keyframe b)
         {
-            int aFrameTime = Animator.ToFrameRate(a.Time);
-            int bFrameTime = Animator.ToFrameRate(b.Time);
+            Contract.Requires(a != null && b != null);
 
-            return (aFrameTime - bFrameTime);
+            int aFrameTime = AnimationBuilder.ToFrameRate(a.Time);
+            int bFrameTime = AnimationBuilder.ToFrameRate(b.Time);
+
+            return aFrameTime - bFrameTime;
         }
     }
 }

@@ -8,25 +8,25 @@ namespace Rbx2Source.Compiler
 {
     public class GameInfo
     {
-        public string GameName = null;
-        public string GameInfoPath = null;
+        public string GameName;
+        public string GameInfoPath;
 
-        public string GameDirectory = null;
-        public string RootDirectory = null;
-        
-        public string StudioMdlPath = null;
+        public string GameDirectory;
+        public string RootDirectory;
+
+        public string StudioMdlPath;
 
         public string HLMVPath;
         public Icon GameIcon;
 
         public bool ReadyToUse => (GameInfoPath != null && StudioMdlPath != null);
 
-        private static Dictionary<string, string> PREFERRED_GAMEINFO_DIRECTORIES = new Dictionary<string, string>()
+        private static readonly IReadOnlyDictionary<string, string> PREFERRED_GAMEINFO_DIRECTORIES = new Dictionary<string, string>()
         {
             {"Half-Life 2", "hl2"}
         };
 
-        private void usePathIfExists(string path, ref string setTo)
+        private static void usePathIfExists(string path, ref string setTo)
         {
             if (File.Exists(path))
             {
@@ -52,7 +52,7 @@ namespace Rbx2Source.Compiler
                 line = line.TrimStart(' ');
                 line = line.Replace("\"game\"", "game");
 
-                if (line.StartsWith("game"))
+                if (line.StartsWith("game", StringComparison.InvariantCulture))
                 {
                     int firstQuote = line.IndexOf('"');
 
@@ -82,7 +82,10 @@ namespace Rbx2Source.Compiler
                     string allCapStr = group.ToString();
                     if (allCapStr.Length > 2)
                     {
-                        string newStr = allCapStr.Substring(0,1) + allCapStr.Substring(1).ToLower();
+                        string newStr = allCapStr.Substring(0,1) + allCapStr
+                            .Substring(1)
+                            .ToLowerInvariant();
+
                         GameName = GameName.Replace(allCapStr, newStr);
                     }
                 }
@@ -131,13 +134,15 @@ namespace Rbx2Source.Compiler
             {
                 foreach (string file in Directory.GetFiles(RootDirectory))
                 {
-                    if (file.EndsWith(".exe") || file.EndsWith(".ico"))
+                    if (file.EndsWith(".exe", StringComparison.InvariantCulture) || file.EndsWith(".ico", StringComparison.InvariantCulture))
                     {
                         GameIcon = Icon.ExtractAssociatedIcon(file);
                         break;
                     }
                 }
             }
+
+            reader.Dispose();
         }
     }
 }

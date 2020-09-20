@@ -6,7 +6,7 @@ namespace Rbx2Source.QuakeC
     public class QuakeCItem
     {
         public string Type = "";
-        protected bool IsChild = false;
+        protected bool IsChild;
 
         public List<string> Attributes = new List<string>();
         public HashSet<QuakeCItem> Children = new HashSet<QuakeCItem>();
@@ -20,8 +20,11 @@ namespace Rbx2Source.QuakeC
 
         public void AddSubItem(QuakeCItem item)
         {
-            item.IsChild = true;
-            Children.Add(item);
+            if (item != null)
+            {
+                item.IsChild = true;
+                Children.Add(item);
+            }
         }
 
         public void AddSubItem(string type, params object[] attributes)

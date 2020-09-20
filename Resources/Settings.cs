@@ -6,8 +6,8 @@ namespace Rbx2Source.Resources
 {
     static class Settings
     {
-        private static Dictionary<string, object> cache;
-        private static RegistryKey rbx2Source;
+        private static readonly Dictionary<string, object> cache;
+        private static readonly RegistryKey rbx2Source;
 
         public static object GetSetting(string key)
         {
@@ -75,6 +75,8 @@ namespace Rbx2Source.Resources
                 SetSetting("CompilerType", "Avatar");
                 SetSetting("InitializedV2", true);
             }
+
+            software.Dispose();
         }
     }
 }

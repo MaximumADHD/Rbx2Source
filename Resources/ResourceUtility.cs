@@ -9,11 +9,11 @@ namespace Rbx2Source.Resources
 {
     static class ResourceUtility
     {
-        private static Assembly rbx2Source;
-        private static List<string> manifestResourceNames;
-        private static Dictionary<string, byte[]> resourceCache;
-        private static string group;
-
+        private static readonly string group;
+        private static readonly Assembly rbx2Source;
+        private static readonly List<string> manifestResourceNames;
+        private static readonly Dictionary<string, byte[]> resourceCache;
+        
         static ResourceUtility()
         {
             rbx2Source = Assembly.GetExecutingAssembly();
@@ -26,13 +26,13 @@ namespace Rbx2Source.Resources
 
         public static List<string> GetFiles(string localDirectory)
         {
+            var files = new List<string>();
             string baseDir = group + ".Resources.";
             string lDirManifest = baseDir + localDirectory.Replace("/", ".");
-            var files = new List<string>();
-
+            
             foreach (string file in manifestResourceNames)
             {
-                if (file.StartsWith(lDirManifest))
+                if (file.StartsWith(lDirManifest, StringComparison.InvariantCulture))
                 {
                     string fileName = localDirectory + "/" + file.Replace(lDirManifest + ".", "");
                     files.Add(fileName);

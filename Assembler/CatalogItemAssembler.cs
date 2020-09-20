@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 
-using Rbx2Source.DataTypes;
+using RobloxFiles;
+using RobloxFiles.DataTypes;
+
 using Rbx2Source.Geometry;
 using Rbx2Source.QuakeC;
-using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.StudioMdl;
 using Rbx2Source.Web;
+using System.Diagnostics.Contracts;
 
 namespace Rbx2Source.Assembler
 {
@@ -18,7 +21,7 @@ namespace Rbx2Source.Assembler
     {
         private static void AddParts(List<BasePart> parts, Instance scan)
         {
-            foreach (BasePart part in scan.GetChildrenOfClass<BasePart>())
+            foreach (BasePart part in scan.GetChildrenOfType<BasePart>())
             {
                 if (part.Transparency < 1)
                 {
@@ -27,13 +30,18 @@ namespace Rbx2Source.Assembler
                 }
             }
 
-            scan.ForEachChild(inst => AddParts(parts, inst));
+            var children = scan
+                .GetChildren()
+                .ToList();
+
+            children.ForEach(inst => AddParts(parts, inst));
         }
 
         public static StudioMdlWriter AssembleModel(Asset asset)
         {
-            Folder content = RBXM.LoadFromAsset(asset);
+            Contract.Requires(asset != null);
 
+            var content = asset.OpenAsModel();
             Rbx2Source.ScheduleTasks("GatherParts", "BuildMesh");
 
             List<BasePart> parts = new List<BasePart>();
@@ -46,7 +54,7 @@ namespace Rbx2Source.Assembler
 
             foreach (BasePart part in parts)
             {
-                if (part.IsA("MeshPart") || part.Name == "Handle")
+                if (part is MeshPart || part.Name == "Handle")
                 {
                     primaryPart = part;
                     break;
@@ -56,7 +64,7 @@ namespace Rbx2Source.Assembler
             if (primaryPart == null) // k lol
                 primaryPart = parts[0];
 
-            primaryPart.Name = asset.ProductInfo.Name.Trim();
+            primaryPart.Name = asset.ProductInfo.WindowsSafeName.Trim();
 
             // Mark the primaryPart's location as the center.
             CFrame rootCoord = primaryPart.CFrame;
@@ -72,7 +80,7 @@ namespace Rbx2Source.Assembler
             BoneKeyframe skeleton = new BoneKeyframe();
             writer.Skeleton.Add(skeleton);
 
-            List<Bone> bones = skeleton.Bones;
+            List<StudioBone> bones = skeleton.Bones;
             List<Node> nodes = writer.Nodes;
 
             List<Triangle> triangles = writer.Triangles;
@@ -98,7 +106,7 @@ namespace Rbx2Source.Assembler
                 }
                 
                 // Assemble the part.
-                Material material = new Material();
+                var material = new ValveMaterial();
                 Mesh geometry = Mesh.BakePart(part, material);
 
                 if (geometry != null && geometry.NumFaces > 0)
@@ -107,8 +115,7 @@ namespace Rbx2Source.Assembler
                     Rbx2Source.ScheduleTasks(task);
                     Rbx2Source.Print("Building Geometry for {0}", name);
 
-                    Bone bone = new Bone(name, primaryPart, part);
-                    bone.C0 = part.CFrame;
+                    var bone = new StudioBone(name, primaryPart, part) { C0 = part.CFrame };
                     bones.Add(bone);
 
                     Node node = bone.Node;
@@ -139,20 +146,22 @@ namespace Rbx2Source.Assembler
             return writer;
         }
 
-        public static TextureBindings BindTextures(Dictionary<string, Material> materials)
+        public static TextureBindings BindTextures(Dictionary<string, ValveMaterial> materials)
         {
+            Contract.Requires(materials != null);
+
             var textures = new TextureBindings();
             var images = textures.Images;
 
             foreach (string mtlName in materials.Keys)
             {
-                Material material = materials[mtlName];
+                ValveMaterial material = materials[mtlName];
                 Asset textureAsset = material.TextureAsset;
 
                 if (textureAsset == null || textureAsset.Id == 9854798)
                 {
                     var linkedTo = material.LinkedTo;
-                    Color color;
+                    Color3 color;
 
                     if (linkedTo.BrickColor != null)
                     {
@@ -169,9 +178,9 @@ namespace Rbx2Source.Assembler
                         color = def.Color;
                     }
 
-                    float r = color.R / 255f,
-                          g = color.G / 255f,
-                          b = color.B / 255f;
+                    float r = color.R,
+                          g = color.G,
+                          b = color.B;
 
                     if (!images.ContainsKey("BrickColor"))
                     {
@@ -287,7 +296,7 @@ namespace Rbx2Source.Assembler
                 string vtfTarget = matLinks[matName];
                 string vmtPath = Path.Combine(materialsDir, matName + ".vmt");
 
-                Material mat = materials[matName];
+                ValveMaterial mat = materials[matName];
                 mat.SetVmtField("basetexture", mtlDir + '/' + vtfTarget);
                 mat.WriteVmtFile(vmtPath);
             }

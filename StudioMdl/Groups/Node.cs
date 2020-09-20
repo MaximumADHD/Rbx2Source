@@ -4,8 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-using Rbx2Source.Reflection;
+using RobloxFiles;
 using Rbx2Source.Geometry;
+using System.Diagnostics.Contracts;
 
 namespace Rbx2Source.StudioMdl
 {
@@ -16,7 +17,7 @@ namespace Rbx2Source.StudioMdl
         public int NodeIndex;
         public string Name;
 
-        public Bone Bone;
+        public StudioBone StudioBone;
         public Mesh Mesh;
 
         public int ParentIndex = -1;
@@ -24,8 +25,8 @@ namespace Rbx2Source.StudioMdl
         
         private int FindParent(List<Node> nodes)
         {
-            BasePart part0 = Bone.Part0,
-                     part1 = Bone.Part1;
+            BasePart part0 = StudioBone.Part0,
+                     part1 = StudioBone.Part1;
 
             if (part0 != part1)
             {
@@ -33,9 +34,9 @@ namespace Rbx2Source.StudioMdl
 
                 foreach (Node n in nodes)
                 {
-                    Bone b = n.Bone;
+                    StudioBone b = n.StudioBone;
 
-                    if (b != Bone && b.Part1 == part0)
+                    if (b != StudioBone && b.Part1 == part0)
                     {
                         parent = n;
                         break;
@@ -50,6 +51,8 @@ namespace Rbx2Source.StudioMdl
 
         public void WriteStudioMdl(StringWriter fileBuffer, List<Node> nodes)
         {
+            Contract.Requires(fileBuffer != null && nodes != null);
+
             NodeIndex = nodes.IndexOf(this);
             ParentIndex = UseParentIndex ? ParentIndex : FindParent(nodes);
 

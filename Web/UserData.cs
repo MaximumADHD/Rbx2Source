@@ -5,7 +5,7 @@ namespace Rbx2Source.Web
 {
     public enum AvatarType { R6, R15, Unknown }
 
-    public struct AvatarScale
+    public class AvatarScale
     {
         public float Width;
         public float Height;
@@ -16,7 +16,7 @@ namespace Rbx2Source.Web
         public float BodyType;
     }
 
-    public struct UserInfo
+    public class UserInfo
     {
         public long Id;
         public bool IsOnline;
@@ -24,7 +24,7 @@ namespace Rbx2Source.Web
         public List<WebApiError> Errors;
     }
 
-    public struct BodyColors
+    public class WebBodyColors
     {
         public int HeadColorId;
         public int LeftArmColorId;
@@ -34,7 +34,7 @@ namespace Rbx2Source.Web
         public int TorsoColorId;
     }
 
-    public struct WrappedAssetType
+    public class WrappedAssetType
     {
         public AssetType Id;
         public string Name;
@@ -57,7 +57,7 @@ namespace Rbx2Source.Web
         public AvatarScale Scales;
         public AvatarType PlayerAvatarType;
 
-        public BodyColors BodyColors;
+        public WebBodyColors BodyColors;
         public AssetInfo[] Assets;
 
         private static UserAvatar createUserAvatar(UserInfo info)
@@ -65,6 +65,7 @@ namespace Rbx2Source.Web
             UserAvatar avatar = WebUtility.DownloadRbxApiJSON<UserAvatar>($"/v1/users/{info.Id}/avatar", "avatar");
             avatar.UserExists = true;
             avatar.UserInfo = info;
+
             return avatar;
         }
 

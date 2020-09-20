@@ -16,7 +16,9 @@
             if (disposing && (components != null))
             {
                 components.Dispose();
+                http.Dispose();
             }
+
             base.Dispose(disposing);
         }
 

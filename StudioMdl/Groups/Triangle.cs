@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
 
 using Rbx2Source.Geometry;
@@ -17,7 +18,9 @@ namespace Rbx2Source.StudioMdl
         
         public void WriteStudioMdl(StringWriter buffer, List<Triangle> triangles)
         {
-            Vertex[] verts = Mesh.Verts;
+            Contract.Requires(buffer != null && triangles != null);
+
+            var verts = Mesh.Verts;
             int bone = Node.NodeIndex;
 
             int[] face = Mesh.Faces[FaceIndex];

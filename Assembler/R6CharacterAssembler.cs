@@ -3,12 +3,15 @@ using System.Drawing;
 using System.Linq;
 
 using Rbx2Source.Animating;
-using Rbx2Source.DataTypes;
-using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.StudioMdl;
 using Rbx2Source.Textures;
 using Rbx2Source.Web;
+
+using RobloxFiles;
+using RobloxFiles.Enums;
+using RobloxFiles.DataTypes;
+using System.Diagnostics.Contracts;
 
 namespace Rbx2Source.Assembler
 {
@@ -18,38 +21,37 @@ namespace Rbx2Source.Assembler
         // TEXTURE COMPOSITION CONSTANTS
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private static string COMPOSIT_TORSO     = "CompositTorso";
-        private static string COMPOSIT_LEFT_ARM  = "CompositLeftArm";
-        private static string COMPOSIT_LEFT_LEG  = "CompositLeftLeg";
-        private static string COMPOSIT_RIGHT_ARM = "CompositRightArm";
-        private static string COMPOSIT_RIGHT_LEG = "CompositRightLeg";
+        private const string COMPOSIT_TORSO     = "CompositTorso";
+        private const string COMPOSIT_LEFT_ARM  = "CompositLeftArm";
+        private const string COMPOSIT_LEFT_LEG  = "CompositLeftLeg";
+        private const string COMPOSIT_RIGHT_ARM = "CompositRightArm";
+        private const string COMPOSIT_RIGHT_LEG = "CompositRightLeg";
 
-        private static string COMPOSIT_SHIRT     = "CompositShirtTemplate";
-        private static string COMPOSIT_PANTS     = "CompositPantsTemplate";
+        private const string COMPOSIT_SHIRT     = "CompositShirtTemplate";
+        private const string COMPOSIT_PANTS     = "CompositPantsTemplate";
 
-        private static Rectangle RECT_FULL     = new Rectangle(  0,   0, 1024, 768);
-        private static Rectangle RECT_HEAD     = new Rectangle(400,   0,  200, 200);
-        private static Rectangle RECT_BODY     = new Rectangle(  0, 256, 1024, 512);
-        private static Rectangle RECT_ITEM     = new Rectangle(  0,   0,  512, 512);
-
-        private static Rectangle RECT_TSHIRT   = new Rectangle( 32, 321,  128, 128);
+        private static readonly Rectangle RECT_FULL   = new Rectangle(  0,   0, 1024, 768);
+        private static readonly Rectangle RECT_HEAD   = new Rectangle(400,   0,  200, 200);
+        private static readonly Rectangle RECT_BODY   = new Rectangle(  0, 256, 1024, 512);
+        private static readonly Rectangle RECT_ITEM   = new Rectangle(  0,   0,  512, 512);
+        private static readonly Rectangle RECT_TSHIRT = new Rectangle( 32, 321,  128, 128);
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R6/CollisionJoints.qc");
-        private static Asset R6AssemblyAsset = Asset.FromResource("AvatarData/R6/CharacterBase.rbxm");
+        private static readonly Asset R6AssemblyAsset = Asset.FromResource("AvatarData/R6/CharacterBase.rbxm");
 
-        private static Dictionary<Limb, string> LimbMatcher = new Dictionary<Limb, string>()
+        private static readonly IReadOnlyDictionary<BodyPart, string> LimbMatcher = new Dictionary<BodyPart, string>()
         {
-            {Limb.Head,     "Head"},
-            {Limb.LeftArm,  "Left Arm"},
-            {Limb.RightArm, "Right Arm"},
-            {Limb.LeftLeg,  "Left Leg"},
-            {Limb.RightLeg, "Right Leg"},
-            {Limb.Torso,    "Torso"}
+            {BodyPart.Head,     "Head"},
+            {BodyPart.LeftArm,  "Left Arm"},
+            {BodyPart.RightArm, "Right Arm"},
+            {BodyPart.LeftLeg,  "Left Leg"},
+            {BodyPart.RightLeg, "Right Leg"},
+            {BodyPart.Torso,    "Torso"}
         };
 
-        private static Dictionary<string, long> R6_ANIMATION_IDS = new Dictionary<string, long>()
+        private static readonly IReadOnlyDictionary<string, long> R6_ANIMATION_IDS = new Dictionary<string, long>()
         {
             { "Climb", 180436334 },
             { "Fall",  180436148 },
@@ -71,9 +73,12 @@ namespace Rbx2Source.Assembler
 
             foreach (string animName in R6_ANIMATION_IDS.Keys)
             {
-                AnimationId animId = new AnimationId();
-                animId.AssetId = R6_ANIMATION_IDS[animName];
-                animId.AnimationType = AnimationType.KeyframeSequence;
+                AnimationId animId = new AnimationId()
+                {
+                    AssetId = R6_ANIMATION_IDS[animName],
+                    AnimationType = AnimationType.KeyframeSequence
+                };
+
                 animIds.Add(animName, animId);
             }
 
@@ -82,10 +87,11 @@ namespace Rbx2Source.Assembler
 
         public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale, bool collisionModel = false)
         {
+            Contract.Requires(characterAssets != null && scale != null);
             StudioMdlWriter meshBuilder = new StudioMdlWriter();
 
             // Build Character
-            Folder import = RBXM.LoadFromAsset(R6AssemblyAsset);
+            var import = R6AssemblyAsset.OpenAsModel();
             Folder assembly = import.FindFirstChild<Folder>("ASSEMBLY");
             assembly.Parent = characterAssets;
 
@@ -95,40 +101,43 @@ namespace Rbx2Source.Assembler
 
             foreach (Instance asset in characterAssets.GetChildren())
             {
-                if (asset.IsA("CharacterMesh") && !collisionModel)
+                if (asset is CharacterMesh && !collisionModel)
                 {
-                    CharacterMesh characterMesh = (CharacterMesh)asset;
+                    var characterMesh = asset as CharacterMesh;
                     string limbName = LimbMatcher[characterMesh.BodyPart];
 
-                    MeshPart limb = assembly.FindFirstChild<MeshPart>(limbName);
-                    if (limb != null)
+                    var limb = assembly.FindFirstChild<MeshPart>(limbName);
+                    
+                    if (limb == null)
                     {
                         limb.MeshId = "rbxassetid://" + characterMesh.MeshId;
                     }
                 }
-                else if (asset.IsA("Accoutrement") && !collisionModel)
+                else if (asset is Accoutrement && !collisionModel)
                 {
                     PrepareAccessory(asset, assembly);
                 }
-                else if (asset.IsA("DataModelMesh"))
+                else if (asset is DataModelMesh)
                 {
-                    OverwriteHead(asset, head);
+                    OverwriteHead(asset as DataModelMesh, head);
                 }
             }
 
             BoneKeyframe keyframe = AssembleBones(meshBuilder, torso);
 
-            foreach (Bone bone in keyframe.Bones)
+            foreach (StudioBone bone in keyframe.Bones)
                 BuildAvatarGeometry(meshBuilder, bone);
             
             return meshBuilder;
         }
 
-        public TextureCompositor ComposeTextureMap(Folder characterAssets, BodyColors bodyColors)
+        public TextureCompositor ComposeTextureMap(Folder characterAssets, WebBodyColors bodyColors)
         {
-            TextureCompositor compositor = new TextureCompositor(AvatarType.R6, RECT_FULL);
-            compositor.CharacterAssets = characterAssets;
+            Contract.Requires(characterAssets != null && bodyColors != null);
 
+            var compositor = new TextureCompositor(AvatarType.R6, RECT_FULL) 
+                { CharacterAssets = characterAssets };
+            
             // Append BodyColors
             compositor.AppendColor(bodyColors.TorsoColorId,    COMPOSIT_TORSO,     RECT_FULL);
             compositor.AppendColor(bodyColors.LeftArmColorId,  COMPOSIT_LEFT_ARM,  RECT_FULL);
@@ -143,6 +152,7 @@ namespace Rbx2Source.Assembler
 
             // Append Shirt
             Shirt shirt = characterAssets.FindFirstChildOfClass<Shirt>();
+
             if (shirt != null)
             {
                 Asset shirtAsset = Asset.GetByAssetId(shirt.ShirtTemplate);
@@ -151,6 +161,7 @@ namespace Rbx2Source.Assembler
 
             // Append Pants
             Pants pants = characterAssets.FindFirstChildOfClass<Pants>();
+
             if (pants != null)
             {
                 Asset pantsAsset = Asset.GetByAssetId(pants.PantsTemplate);
@@ -159,6 +170,7 @@ namespace Rbx2Source.Assembler
 
             // Append T-Shirt
             ShirtGraphic tshirt = characterAssets.FindFirstChildOfClass<ShirtGraphic>();
+
             if (tshirt != null)
             {
                 Asset tshirtAsset = Asset.GetByAssetId(tshirt.Graphic);
@@ -168,8 +180,9 @@ namespace Rbx2Source.Assembler
             return compositor;
         }
 
-        public TextureBindings BindTextures(TextureCompositor compositor, Dictionary<string, Material> materials)
+        public TextureBindings BindTextures(TextureCompositor compositor, Dictionary<string, ValveMaterial> materials)
         {
+            Contract.Requires(compositor != null && materials != null);
             TextureBindings textures = new TextureBindings();
 
             Bitmap core = compositor.BakeTextureMap();
@@ -186,17 +199,17 @@ namespace Rbx2Source.Assembler
 
             // Collect CharacterMeshes
             var packagedLimbs = characterAssets
-                .GetChildrenOfClass<CharacterMesh>()
+                .GetChildrenOfType<CharacterMesh>()
                 .ToDictionary(mesh => mesh.BodyPart);
             
             // Compose the textures that will be used
-            var limbOverlays = new Dictionary<Limb, long>();
+            var limbOverlays = new Dictionary<BodyPart, long>();
             var limbBitmaps = new Dictionary<long, Bitmap>() { {0, body} };
 
-            foreach (Limb limb in LimbMatcher.Keys)
+            foreach (BodyPart limb in LimbMatcher.Keys)
             {
                 // Head is already textured, ignore it.
-                if (limb == Limb.Head)
+                if (limb == BodyPart.Head)
                     continue;
 
                 // Is there a CharacterMesh for this limb?
@@ -264,7 +277,7 @@ namespace Rbx2Source.Assembler
             }
 
             // Link the limbs to their textures.
-            foreach (Limb limb in limbOverlays.Keys)
+            foreach (BodyPart limb in limbOverlays.Keys)
             {
                 long id = limbOverlays[limb];
                 string matName = GetBodyMatName(id);
@@ -278,7 +291,7 @@ namespace Rbx2Source.Assembler
             {
                 if (!textures.MatLinks.ContainsKey(matName))
                 {
-                    Material material = materials[matName];
+                    ValveMaterial material = materials[matName];
                     Asset texture = material.TextureAsset;
 
                     TextureCompositor matComp = new TextureCompositor(AvatarType.R6, RECT_ITEM);

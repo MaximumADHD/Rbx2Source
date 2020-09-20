@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 
-using Rbx2Source.DataTypes;
-using Rbx2Source.Reflection;
+using RobloxFiles.DataTypes;
+using RobloxFiles;
+using System.Diagnostics.Contracts;
 
 namespace Rbx2Source.StudioMdl
 {
@@ -11,21 +12,22 @@ namespace Rbx2Source.StudioMdl
         public string GroupName => "skeleton";
 
         public int Time;
-        public List<Bone> Bones;
-        public List<Bone> BaseRig;
+        public List<StudioBone> Bones;
+        public List<StudioBone> BaseRig;
         public bool DeltaSequence = false;
 
         public BoneKeyframe(int time = 0)
         {
             Time = time;
-            Bones = new List<Bone>();
+            Bones = new List<StudioBone>();
         }
 
         public void WriteStudioMdl(StringWriter fileBuffer, List<BoneKeyframe> skeleton)
         {
+            Contract.Requires(fileBuffer != null && skeleton != null);
             fileBuffer.WriteLine("time " + Time);
 
-            foreach (Bone bone in Bones)
+            foreach (StudioBone bone in Bones)
             {
                 int boneIndex = Bones.IndexOf(bone);
                 fileBuffer.Write(boneIndex + " ");
@@ -35,7 +37,7 @@ namespace Rbx2Source.StudioMdl
 
                 if (DeltaSequence)
                 {
-                    Bone refBone = BaseRig[boneIndex];
+                    StudioBone refBone = BaseRig[boneIndex];
                     boneCFrame = refBone.C0 * boneCFrame;
 
                     Node refNode = refBone.Node;
@@ -43,18 +45,25 @@ namespace Rbx2Source.StudioMdl
 
                     if (refParentIndex >= 0)
                     {
-                        Bone refParent = BaseRig[refParentIndex];
+                        StudioBone refParent = BaseRig[refParentIndex];
                         boneCFrame = refParent.C1.Inverse() * boneCFrame;
                     }
                 }
                 else if (parentIndex >= 0)
                 {
-                    Bone parentBone = Bones[parentIndex];
+                    StudioBone parentBone = Bones[parentIndex];
                     boneCFrame *= parentBone.C1.Inverse();
                 }
 
-                string studioMdl = boneCFrame.WriteStudioMdl();
-                fileBuffer.Write(studioMdl);
+                Vector3 pos = boneCFrame.Position * Rbx2Source.MODEL_SCALE;
+                Vector3 rot = new Vector3(boneCFrame.ToEulerAnglesXYZ());
+                
+                fileBuffer.Write(Format.FormatFloats
+                (
+                    pos.X, pos.Y, pos.Z,
+                    rot.X, rot.Y, rot.Z
+                ));
+
                 fileBuffer.WriteLine();
             }
         }

@@ -10,7 +10,7 @@ namespace Rbx2Source.Assembler
             string result = Regex.Replace(name, @"[^A-Za-z0-9 _]", replaceWith).Trim();
 
             if (doExtraStuff)
-                result = result.Replace(" ","_").ToLower();
+                result = result.Replace(" ","_").ToLowerInvariant();
 
             return result;
         }

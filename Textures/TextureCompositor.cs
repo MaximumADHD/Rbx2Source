@@ -4,16 +4,16 @@ using System.Drawing;
 using System.Linq;
 
 using Rbx2Source.Geometry;
-using Rbx2Source.Reflection;
+using RobloxFiles;
 using Rbx2Source.Web;
 
 namespace Rbx2Source.Textures
 {
     public class TextureCompositor
     {
-        private List<CompositData> layers = new List<CompositData>();
+        private readonly List<CompositData> layers = new List<CompositData>();
         private string context = "Humanoid Texture Map";
-        private AvatarType avatarType;
+        private readonly AvatarType avatarType;
         private Rectangle canvas;
         private int composed;
 
@@ -51,7 +51,7 @@ namespace Rbx2Source.Textures
                 max_Y = Math.Max(max_Y, point_Y);
             }
 
-            int width = max_X - min_X,
+            int width  = max_X - min_X,
                 height = max_Y - min_Y;
 
             return new Rectangle(min_X, min_Y, width, height);
@@ -59,7 +59,7 @@ namespace Rbx2Source.Textures
 
         public void AppendColor(int brickColorId, string guide, Rectangle guideSize, byte layer = 0)
         {
-            CompositData composit = new CompositData(DrawMode.Guide, DrawType.Color);
+            var composit = new CompositData(DrawFlags.Guide | DrawFlags.Color);
             composit.SetGuide(guide, guideSize, avatarType);
             composit.SetDrawColor(brickColorId);
             composit.Layer = layer;
@@ -69,7 +69,7 @@ namespace Rbx2Source.Textures
 
         public void AppendTexture(object img, string guide, Rectangle guideSize, byte layer = 0)
         {
-            CompositData composit = new CompositData(DrawMode.Guide, DrawType.Texture);
+            var composit = new CompositData(DrawFlags.Guide | DrawFlags.Texture);
             composit.SetGuide(guide, guideSize, avatarType);
             composit.Texture = img;
             composit.Layer = layer;
@@ -79,7 +79,7 @@ namespace Rbx2Source.Textures
 
         public void AppendColor(int brickColorId, Rectangle rect, byte layer = 0)
         {
-            CompositData composit = new CompositData(DrawMode.Rect, DrawType.Color);
+            var composit = new CompositData(DrawFlags.Rect | DrawFlags.Color);
             composit.SetDrawColor(brickColorId);
             composit.Layer = layer;
             composit.Rect = rect;
@@ -89,7 +89,7 @@ namespace Rbx2Source.Textures
 
         public void AppendTexture(object img, Rectangle rect, byte layer = 0, RotateFlipType flipMode = RotateFlipType.RotateNoneFlipNone)
         {
-            CompositData composit = new CompositData(DrawMode.Rect, DrawType.Texture)
+            var composit = new CompositData(DrawFlags.Rect | DrawFlags.Texture)
             {
                 FlipMode = flipMode,
                 Texture = img,
@@ -107,7 +107,7 @@ namespace Rbx2Source.Textures
 
         public Bitmap BakeTextureMap()
         {
-            Bitmap bitmap = new Bitmap(canvas.Width, canvas.Height);
+            var bitmap = new Bitmap(canvas.Width, canvas.Height);
             layers.Sort();
 
             composed = 0;
@@ -117,19 +117,17 @@ namespace Rbx2Source.Textures
 
             foreach (CompositData composit in layers)
             {
-                Graphics buffer = Graphics.FromImage(bitmap);
-                Rectangle canvas = composit.Rect;
+                var buffer = Graphics.FromImage(bitmap);
+                var drawFlags = composit.DrawFlags;
+                var canvas = composit.Rect;
 
-                DrawMode drawMode = composit.DrawMode;
-                DrawType drawType = composit.DrawType;
-
-                if (drawMode == DrawMode.Rect)
+                if (drawFlags.HasFlag(DrawFlags.Rect))
                 {
-                    if (drawType == DrawType.Color)
+                    if (drawFlags.HasFlag(DrawFlags.Color))
                     {
                         composit.UseBrush(brush => buffer.FillRectangle(brush, canvas));
                     }
-                    else if (drawType == DrawType.Texture)
+                    else if (drawFlags.HasFlag(DrawFlags.Texture))
                     {
                         Bitmap image = composit.GetTextureBitmap();
 
@@ -139,7 +137,7 @@ namespace Rbx2Source.Textures
                         buffer.DrawImage(image, canvas);
                     }
                 }
-                else if (drawMode == DrawMode.Guide)
+                else if (drawFlags.HasFlag(DrawFlags.Guide))
                 {
                     Mesh guide = composit.Guide;
 
@@ -152,14 +150,14 @@ namespace Rbx2Source.Textures
                             .Select(vert => vert.ToPoint(canvas, offset))
                             .ToArray();
                         
-                        if (drawType == DrawType.Color)
+                        if (drawFlags.HasFlag(DrawFlags.Color))
                         {
-                            composit.UseBrush(brush => buffer.FillPolygon(brush, polygon));
+                            composit.UseBrush(brush => buffer.FillPolygon(brush, poly));
                         }
-                        else if (drawType == DrawType.Texture)
+                        else if (drawFlags.HasFlag(DrawFlags.Texture))
                         {
                             Bitmap texture = composit.GetTextureBitmap();
-                            Rectangle bbox = GetBoundingBox(polygon);
+                            Rectangle bbox = GetBoundingBox(poly);
 
                             Point origin = bbox.Location;
                             Bitmap drawLayer = new Bitmap(bbox.Width, bbox.Height);
@@ -219,8 +217,12 @@ namespace Rbx2Source.Textures
 
         public Bitmap BakeTextureMap(Rectangle crop)
         {
-            Bitmap src = BakeTextureMap();
-            return CropBitmap(src, crop);
+            Bitmap result;
+
+            using (Bitmap src = BakeTextureMap())
+                result = CropBitmap(src, crop);
+
+            return result;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -11,17 +12,16 @@ namespace Rbx2Source.StudioMdl
     /// See: https://developer.valvesoftware.com/wiki/Studiomdl_Data
     /// </summary>
 
-    public class StudioMdlWriter
+    public class StudioMdlWriter : IDisposable
     {
         private StringWriter buffer;
 
         public List<Node> Nodes;
         public List<Triangle> Triangles;
         public List<BoneKeyframe> Skeleton;
+        public Dictionary<string, ValveMaterial> Materials;
 
-        public Dictionary<string, Material> Materials;
-
-        private void writeEntities<T>(List<T> entities) where T : IStudioMdlEntity<T>
+        private void WriteEntities<T>(List<T> entities) where T : IStudioMdlEntity<T>
         {
             if (entities.Count > 0)
             {
@@ -44,11 +44,11 @@ namespace Rbx2Source.StudioMdl
             buffer.WriteLine("// The file was set to read-only for a reason ;)\n");
             buffer.WriteLine("version 1");
 
-            writeEntities(Nodes);
-            writeEntities(Skeleton);
+            WriteEntities(Nodes);
+            WriteEntities(Skeleton);
 
             if (writeGeometry)
-                writeEntities(Triangles);
+                WriteEntities(Triangles);
 
             return buffer.ToString();
         }
@@ -58,8 +58,18 @@ namespace Rbx2Source.StudioMdl
             Nodes     = new List<Node>();
             Triangles = new List<Triangle>();
             Skeleton  = new List<BoneKeyframe>();
+            Materials = new Dictionary<string, ValveMaterial>();
+        }
 
-            Materials = new Dictionary<string, Material>();
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            buffer.Dispose();
         }
     }
 }

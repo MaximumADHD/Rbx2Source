@@ -7,27 +7,46 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 using Rbx2Source.Assembler;
-using Rbx2Source.DataTypes;
-using Rbx2Source.Reflection;
 using Rbx2Source.Web;
+
+
+using RobloxFiles;
+using RobloxFiles.Enums;
+using RobloxFiles.DataTypes;
+using System.Diagnostics;
+using System.Diagnostics.Contracts;
 
 namespace Rbx2Source.Geometry
 {
     public class Mesh
     {
         public int Version;
+        public ushort NumMeshes;
 
-        public Vertex[] Verts;
-        public int[][] Faces;
-        public Mesh[] LODs;
+        public int NumVerts;
+        public List<Vertex> Verts;
 
-        public int NumLODs  = 0;
-        public int NumVerts = 0;
-        public int NumFaces = 0;
+        public int NumFaces;
+        public List<int[]> Faces;
 
-        public bool Loaded = false;
+        public ushort NumLODs;
+        public List<int> LODs;
 
-        private static IReadOnlyDictionary<string, Asset> StandardLimbs = new Dictionary<string, Asset>
+        public int NumBones;
+        public List<MeshBone> Bones;
+
+        public int NumSkinData;
+        public List<SkinData> SkinData;
+
+        public int NameTableSize;
+        public byte[] NameTable;
+
+        public bool HasLODs => (Version >= 3);
+        public bool HasSkinning => (Version >= 4);
+        public bool HasVertexColors { get; private set; }
+
+
+        private static readonly IReadOnlyDictionary<string, Asset> StandardLimbs = new Dictionary<string, Asset>
         {
             {"Left Arm",    Asset.FromResource("Meshes/StandardLimbs/leftarm.mesh")},
             {"Right Arm",   Asset.FromResource("Meshes/StandardLimbs/rightarm.mesh")},
@@ -41,11 +60,21 @@ namespace Rbx2Source.Geometry
             return $"Mesh (v{Version}) [{NumFaces} Faces, {NumVerts} Verts, {NumLODs} LODs]";
         }
 
+        private static Vector3 ReadVector3(BinaryReader reader)
+        {
+            float x = reader.ReadSingle(),
+                  y = reader.ReadSingle(),
+                  z = reader.ReadSingle();
+
+            return new Vector3(x, y, z);
+        }
+
         private static void LoadGeometry_Ascii(StringReader reader, Mesh mesh)
         {
             string header = reader.ReadLine();
+            mesh.NumMeshes = 1;
 
-            if (!header.StartsWith("version 1"))
+            if (!header.StartsWith("version 1", StringComparison.InvariantCulture))
                 throw new Exception("Expected version 1 header, got: " + header);
 
             string version = header.Substring(8);
@@ -56,8 +85,8 @@ namespace Rbx2Source.Geometry
             else
                 throw new Exception("Expected 2nd line to be the polygon count.");
 
-            mesh.Faces = new int[mesh.NumFaces][];
-            mesh.Verts = new Vertex[mesh.NumVerts];
+            mesh.Faces = new List<int[]>();
+            mesh.Verts = new List<Vertex>();
 
             string polyBuffer = reader.ReadLine();
             MatchCollection matches = Regex.Matches(polyBuffer, @"\[(.*?)\]");
@@ -87,185 +116,270 @@ namespace Rbx2Source.Geometry
 
                 if (target == 0)
                 {
-                    mesh.Verts[index++] = vertex;
+                    mesh.Verts.Add(vertex);
                     vertex = new Vertex();
 
                     if (index % 3 == 0)
                     {
-                        int v = face * 3;
-                        mesh.Faces[face++] = new int[3] { v, v + 1, v + 2 };
+                        int v = (face++) * 3;
+                        int[] faceDef = new int[3] { v, v + 1, v + 2 };
+                        mesh.Faces.Add(faceDef);
                     }
                 }
             }
-
-            mesh.Loaded = true;
         }
 
         private static void LoadGeometry_Binary(BinaryReader reader, Mesh mesh)
         {
-            byte[] binVersion = reader.ReadBytes(13);
-            var headerSize = reader.ReadUInt16();
+            _ = reader.ReadBytes(13); // version x.xx\n
+            _ = reader.ReadUInt16();
 
-            var vertSize = reader.ReadByte();
-            var faceSize = reader.ReadByte();
-            
-            if (mesh.Version >= 3)
+            if (mesh.HasSkinning)
             {
-                var lodRangeSize = reader.ReadUInt16();
-                var numLodRanges = reader.ReadUInt16();
+                mesh.NumMeshes = reader.ReadUInt16();
 
-                mesh.NumLODs = numLodRanges - 2;
-                mesh.LODs = new Mesh[mesh.NumLODs];
-            }
+                mesh.NumVerts = reader.ReadInt32();
+                mesh.NumFaces = reader.ReadInt32();
 
-            int numVerts = reader.ReadInt32();
-            int numFaces = reader.ReadInt32();
+                mesh.NumLODs = reader.ReadUInt16();
+                mesh.NumBones = reader.ReadUInt16();
 
-            var verts = new Vertex[numVerts];
-            var faces = new int[numFaces][];
-
-            mesh.NumVerts = numVerts;
-            mesh.Verts = verts;
-
-            for (int i = 0; i < numVerts; i++)
-            {
-                Vertex vert = new Vertex()
-                {
-                    Position = new Vector3(reader),
-                    Normal = new Vector3(reader),
-                    UV = new Vector3(reader)
-                };
-
-                if (vertSize > 36)
-                {
-                    byte r = reader.ReadByte(),
-                         g = reader.ReadByte(),
-                         b = reader.ReadByte(),
-                         a = reader.ReadByte();
-
-                    int argb = (a << 24 | r << 16 | g << 8 | b);
-                    vert.Color = Color.FromArgb(argb);
-                    vert.HasColor = true;
-                }
-
-                verts[i] = vert;
-            }
-
-            for (int f = 0; f < numFaces; f++)
-            {
-                int[] face = new int[3];
-
-                for (int i = 0; i < 3; i++)
-                    face[i] = reader.ReadInt32();
-
-                faces[f] = face;
-            }
-
-            if (mesh.Version >= 3)
-            {
-                int rangeBegin = reader.ReadInt32();
-                int meshCount = mesh.LODs.Length + 1;
-
-                for (int i = 0; i < meshCount; i++)
-                {
-                    var target = mesh;
-
-                    int rangeEnd = reader.ReadInt32();
-                    int range = (rangeEnd - rangeBegin);
-                    
-                    if (i > 0)
-                    {
-                        target = new Mesh()
-                        {
-                            Version = mesh.Version,
-                            LODs = new Mesh[0],
-                            Loaded = true,
-                        };
-
-                        mesh.LODs[i - 1] = target;
-                    }
-
-                    target.NumFaces = range;
-                    target.Faces = new int[range][];
-                    
-                    for (int r = 0; r < range; r++)
-                    {
-                        var face = faces[rangeBegin + r];
-                        target.Faces[r] = face;
-                    }
-
-                    var vertsInUse = target.Faces
-                        .SelectMany(face => face)
-                        .OrderBy(face => face)
-                        .Distinct()
-                        .ToArray();
-
-                    int minIndex = vertsInUse[0];
-
-                    target.NumVerts = vertsInUse.Length;
-                    target.Verts = vertsInUse
-                        .Select(index => verts[index])
-                        .ToArray();
-
-                    target.Faces = target.Faces
-                        .Select(face => face
-                            .Select(index => index - minIndex)
-                            .ToArray())
-                        .ToArray();
-
-                    rangeBegin = rangeEnd;
-                }
+                mesh.NameTableSize = reader.ReadInt32();
+                mesh.NumSkinData = reader.ReadInt32();
             }
             else
             {
-                mesh.NumFaces = numFaces;
-                mesh.LODs = new Mesh[0];
-                mesh.Faces = faces;
+                var sizeof_Vertex = reader.ReadByte();
+                mesh.HasVertexColors = (sizeof_Vertex > 36);
+
+                _ = reader.ReadByte();
+
+                if (mesh.HasLODs)
+                {
+                    _ = reader.ReadUInt16();
+                    mesh.NumLODs = reader.ReadUInt16();
+                }
+
+                if (mesh.NumLODs > 0)
+                    mesh.NumMeshes = (ushort)(mesh.NumLODs - 1);
+                else
+                    mesh.NumMeshes = 1;
+
+                mesh.NumVerts = reader.ReadInt32();
+                mesh.NumFaces = reader.ReadInt32();
+
+                mesh.NameTable = Array.Empty<byte>();
             }
 
-            mesh.Loaded = true;
+            mesh.LODs = new List<int>();
+            mesh.Faces = new List<int[]>();
+            mesh.Verts = new List<Vertex>();
+            mesh.Bones = new List<MeshBone>();
+            mesh.SkinData = new List<SkinData>();
+
+            // Read Vertices
+            for (int i = 0; i < mesh.NumVerts; i++)
+            {
+                var vert = new Vertex()
+                {
+                    Position = ReadVector3(reader),
+                    Normal = ReadVector3(reader),
+                    UV = ReadVector3(reader)
+                };
+
+                Color? color = null;
+
+                if (mesh.HasVertexColors)
+                {
+                    int rgba = reader.ReadInt32();
+                    color = Color.FromArgb(rgba << 24 | rgba >> 8);
+                }
+
+                vert.Color = color;
+                mesh.Verts.Add(vert);
+            }
+
+            if (mesh.HasSkinning)
+            {
+                // Read Bone Weights?
+                for (int i = 0; i < mesh.NumVerts; i++)
+                {
+                    var vert = mesh.Verts[i];
+
+                    var weights = new BoneWeights()
+                    {
+                        Bones = reader.ReadBytes(4),
+                        Weights = reader.ReadBytes(4)
+                    };
+
+                    vert.Weights = weights;
+                }
+            }
+
+            // Read Faces
+            for (int i = 0; i < mesh.NumFaces; i++)
+            {
+                int[] face = new int[3];
+
+                for (int f = 0; f < 3; f++)
+                    face[f] = reader.ReadInt32();
+
+                mesh.Faces.Add(face);
+            }
+
+            if (mesh.HasLODs && mesh.NumLODs > 0)
+            {
+                // Read LOD ranges
+                for (int i = 0; i < mesh.NumLODs; i++)
+                {
+                    int lod = reader.ReadInt32();
+                    mesh.LODs.Add(lod);
+                }
+            }
+
+            if (mesh.HasSkinning)
+            {
+                // Read Bones
+                for (int i = 0; i < mesh.NumBones; i++)
+                {
+                    float[] cf = new float[12];
+
+                    var bone = new MeshBone()
+                    {
+                        NameIndex = reader.ReadInt32(),
+                        Id = reader.ReadInt16(),
+
+                        ParentId = reader.ReadInt16(),
+                        Unknown = reader.ReadSingle()
+                    };
+
+                    for (int m = 0; m < 12; m++)
+                    {
+                        int index = (m + 3) % 12;
+                        cf[index] = reader.ReadSingle();
+                    }
+
+                    bone.CFrame = new CFrame(cf);
+                    mesh.Bones.Add(bone);
+                }
+
+                // Read Bone Names & Parents
+                var nameTable = reader.ReadBytes(mesh.NameTableSize);
+                mesh.NameTable = nameTable;
+
+                foreach (MeshBone bone in mesh.Bones)
+                {
+                    int index = bone.NameIndex;
+                    int parentId = bone.ParentId;
+
+                    var buffer = new List<byte>();
+
+                    while (true)
+                    {
+                        byte next = nameTable[index];
+
+                        if (next > 0)
+                            index++;
+                        else
+                            break;
+
+                        buffer.Add(next);
+                    }
+
+                    var result = buffer.ToArray();
+                    bone.Name = Encoding.UTF8.GetString(result);
+
+                    if (parentId >= 0)
+                    {
+                        var parent = mesh.Bones[parentId];
+                        bone.Parent = parent;
+                    }
+                }
+
+                // Read Skin Data
+                for (int p = 0; p < mesh.NumSkinData; p++)
+                {
+                    var skinData = new SkinData()
+                    {
+                        FacesBegin = reader.ReadInt32(),
+                        FacesLength = reader.ReadInt32(),
+
+                        VertsBegin = reader.ReadInt32(),
+                        VertsLength = reader.ReadInt32(),
+
+                        NumBones = reader.ReadInt32(),
+                        BoneIndexTree = new short[26]
+                    };
+
+                    for (int i = 0; i < 26; i++)
+                        skinData.BoneIndexTree[i] = reader.ReadInt16();
+
+                    mesh.SkinData.Add(skinData);
+                }
+            }
         }
 
-        private static Mesh Load(byte[] data)
+        public static Mesh FromBuffer(byte[] data)
         {
-            string file = Encoding.ASCII.GetString(data);
+            string file = Encoding.UTF8.GetString(data);
 
-            if (!file.StartsWith("version "))
+            if (!file.StartsWith("version ", StringComparison.InvariantCulture))
                 throw new Exception("Invalid .mesh header!");
-            
+
             string versionStr = file.Substring(8, 4);
             double version = Format.ParseDouble(versionStr);
 
-            Mesh mesh = new Mesh();
-            mesh.Version = (int)version;
-
-            IDisposable disposeThis;
-
+            Mesh mesh = new Mesh() { Version = (int)version };
+            
             if (mesh.Version == 1)
             {
                 StringReader buffer = new StringReader(file);
                 LoadGeometry_Ascii(buffer, mesh);
-
-                disposeThis = buffer;
+                buffer.Dispose();
             }
-            else if (mesh.Version == 2 || mesh.Version == 3)
+            else
             {
                 MemoryStream stream = new MemoryStream(data);
 
                 using (BinaryReader reader = new BinaryReader(stream))
                     LoadGeometry_Binary(reader, mesh);
 
-                disposeThis = stream;
+                stream.Dispose();
             }
-            else
-            {
-                throw new Exception($"Unknown .mesh file version: {version}");
-            }
-
-            disposeThis.Dispose();
-            disposeThis = null;
 
             return mesh;
+        }
+
+        public static Mesh FromStream(Stream stream)
+        {
+            Contract.Requires(stream != null);
+            byte[] data;
+
+            using (MemoryStream buffer = new MemoryStream())
+            {
+                stream.CopyTo(buffer);
+                data = buffer.ToArray();
+            }
+
+            return FromBuffer(data);
+        }
+
+        public static Mesh FromFile(string path)
+        {
+            Mesh result;
+
+            using (FileStream meshStream = File.OpenRead(path))
+                result = FromStream(meshStream);
+
+            return result;
+        }
+
+        public static Mesh FromAsset(Asset asset)
+        {
+            Contract.Requires(asset != null);
+            byte[] content = asset.GetContent();
+
+            return FromBuffer(content);
         }
 
         public void BakeGeometry(Vector3 scale, CFrame offset)
@@ -277,30 +391,9 @@ namespace Rbx2Source.Geometry
             }
         }
 
-        public static Mesh FromFile(string path)
+        public static Mesh BakePart(BasePart part, ValveMaterial material = null)
         {
-            byte[] data;
-
-            using (FileStream meshStream = File.OpenRead(path))
-            {
-                using (MemoryStream buffer = new MemoryStream())
-                {
-                    meshStream.CopyTo(buffer);
-                    data = buffer.ToArray();
-                }
-            }
-
-            return Load(data);
-        }
-
-        public static Mesh FromAsset(Asset asset)
-        {
-            byte[] content = asset.GetContent();
-            return Load(content);
-        }
-
-        public static Mesh BakePart(BasePart part, Material material = null)
-        {
+            Contract.Requires(part != null);
             Mesh result = null;
 
             Asset meshAsset = null;
@@ -318,13 +411,12 @@ namespace Rbx2Source.Geometry
 
             if (part.Transparency < 1)
             {
-                if (part.IsA("MeshPart"))
+                if (part is MeshPart meshPart)
                 {
-                    MeshPart meshPart = part as MeshPart;
-
-                    if (meshPart.MeshId != null && meshPart.MeshId.Length > 0)
+                    string meshId = meshPart.MeshId;
+                    
+                    if (meshId != null && meshId.Length > 0)
                     {
-                        string meshId = meshPart.MeshId;
                         meshAsset = Asset.GetByAssetId(meshId);
                     }
                     else
@@ -333,8 +425,8 @@ namespace Rbx2Source.Geometry
                         StandardLimbs.TryGetValue(partName, out meshAsset);
                     }
 
-                    if (meshPart.TextureId != null)
-                        textureAsset = Asset.GetByAssetId(meshPart.TextureId);
+                    if (meshPart.TextureID != null)
+                        textureAsset = Asset.GetByAssetId(meshPart.TextureID);
 
                     scale = meshPart.Size / meshPart.InitialSize;
                     offset = part.CFrame;

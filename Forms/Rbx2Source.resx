@@ -118,7 +118,26 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.52] (June 28th, 2019)
+    <value>[v2.60] (September 19th, 2020)
+
+• Migrated Instance handling my Roblox-File-Format 
+  library instead of using an old integrated solution.
+• Replaced several broken/removed Roblox Web APIs.
+• Made several improvements to the code based on
+  code analysis feedback. The program should hopefully
+  be more stable on systems that aren't using English.
+• Fixed a bug where catalog items would fail to
+  compile if they had any special characters in 
+  their name.
+• Library dependencies are now embedded into the
+  program instead of being bundled next to
+  Rbx2Source.exe
+• (Hopefully) reduced issues with the program failing
+  to locate the steamapps folder. File an issue if you 
+  still see it happening sometimes!
+______________________________________________________
+
+[v2.52] (June 28th, 2019)
 
 • Switched to a new avatar endpoint that should be
   more reliable, as the previous one was causing a lot

@@ -11,7 +11,7 @@ public static class Format
 
     private static string filterNan(string value, string replace = decimalFmt)
     {
-        if (value.ToLower() == "nan")
+        if (value.ToUpperInvariant() == "NAN")
             value = replace;
 
         return value;
@@ -36,25 +36,12 @@ public static class Format
 
     public static string ToInvariantString(this object value)
     {
-        if (value is float)
+        switch (value)
         {
-            float f = (float)value;
-            return f.ToInvariantString();
-        }
-        else if (value is double)
-        {
-            double d = (double)value;
-            return d.ToInvariantString();
-        }
-        else if (value is int)
-        {
-            int i = (int)value;
-            return i.ToInvariantString();
-        }
-        else
-        {
-            // Unhandled
-            return value.ToString();
+            case int i    : return i.ToInvariantString();
+            case float f  : return f.ToInvariantString();
+            case double d : return d.ToInvariantString();
+            default       : return value?.ToString();
         }
     }
 

@@ -5,12 +5,15 @@ using System.IO;
 using System.Linq;
 
 using Rbx2Source.Animating;
-using Rbx2Source.DataTypes;
-using Rbx2Source.Reflection;
 using Rbx2Source.Resources;
 using Rbx2Source.StudioMdl;
 using Rbx2Source.Textures;
 using Rbx2Source.Web;
+
+using RobloxFiles;
+using RobloxFiles.Enums;
+using RobloxFiles.DataTypes;
+using System.Diagnostics.Contracts;
 
 namespace Rbx2Source.Assembler
 {
@@ -20,24 +23,24 @@ namespace Rbx2Source.Assembler
         // TEXTURE COMPOSITION CONSTANTS
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private static string     COMPOSIT_TORSO      = "R15CompositTorsoBase";
-        private static string     COMPOSIT_LEFT_LIMB  = "R15CompositLeftArmBase";
-        private static string     COMPOSIT_RIGHT_LIMB = "R15CompositRightArmBase";
+        private const string COMPOSIT_TORSO      = "R15CompositTorsoBase";
+        private const string COMPOSIT_LEFT_LIMB  = "R15CompositLeftArmBase";
+        private const string COMPOSIT_RIGHT_LIMB = "R15CompositRightArmBase";
 
-        private static Rectangle  RECT_HEAD           =  new Rectangle ( 240, 272, 256, 296 );
-        private static Rectangle  RECT_TORSO          =  new Rectangle (   0,   0, 388, 272 );
-        private static Rectangle  RECT_LEFT_ARM       =  new Rectangle ( 496,   0, 264, 284 );
-        private static Rectangle  RECT_LEFT_LEG       =  new Rectangle ( 496, 284, 264, 284 );
-        private static Rectangle  RECT_RIGHT_ARM      =  new Rectangle ( 760,   0, 264, 284 );
-        private static Rectangle  RECT_RIGHT_LEG      =  new Rectangle ( 760, 284, 264, 284 );
-        private static Rectangle  RECT_TSHIRT         =  new Rectangle (   2,  74, 128, 128 );
+        private static readonly Rectangle RECT_HEAD      =  new Rectangle ( 240, 272, 256, 296 );
+        private static readonly Rectangle RECT_TORSO     =  new Rectangle (   0,   0, 388, 272 );
+        private static readonly Rectangle RECT_LEFT_ARM  =  new Rectangle ( 496,   0, 264, 284 );
+        private static readonly Rectangle RECT_LEFT_LEG  =  new Rectangle ( 496, 284, 264, 284 );
+        private static readonly Rectangle RECT_RIGHT_ARM =  new Rectangle ( 760,   0, 264, 284 );
+        private static readonly Rectangle RECT_RIGHT_LEG =  new Rectangle ( 760, 284, 264, 284 );
+        private static readonly Rectangle RECT_TSHIRT    =  new Rectangle (   2,  74, 128, 128 );
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         // RTHRO CONSTANTS 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
         
         // Scale R15 -> Rthro Normal
-        private static AvatarScaleRules R15_TO_RTHRO_NORMAL = new AvatarScaleRules()
+        private static readonly AvatarScaleRules R15_TO_RTHRO_NORMAL = new AvatarScaleRules()
         {
             Head          = new Vector3(0.942f, 0.942f, 0.942f),
             UpperTorso    = new Vector3(1.033f, 1.310f, 1.140f),
@@ -61,7 +64,7 @@ namespace Rbx2Source.Assembler
         };
 
         // Scale R15 -> Rthro Slender
-        private static AvatarScaleRules R15_TO_RTHRO_SLENDER = new AvatarScaleRules()
+        private static readonly AvatarScaleRules R15_TO_RTHRO_SLENDER = new AvatarScaleRules()
         {
             Head          = new Vector3(0.896f, 0.942f, 0.896f),
             UpperTorso    = new Vector3(0.905f, 1.204f, 1.013f),
@@ -85,7 +88,7 @@ namespace Rbx2Source.Assembler
         };
 
         // Scale Rthro Normal -> R15
-        private static AvatarScaleRules RTHRO_NORMAL_TO_R15 = new AvatarScaleRules()
+        private static readonly AvatarScaleRules RTHRO_NORMAL_TO_R15 = new AvatarScaleRules()
         {
             Head          = new Vector3(1.600f, 1.600f, 1.600f),
             UpperTorso    = new Vector3(1.014f, 0.814f, 0.924f),
@@ -109,7 +112,7 @@ namespace Rbx2Source.Assembler
         };
 
         // Scale Rthro Slender -> R15
-        private static AvatarScaleRules RTHRO_SLENDER_TO_R15 = new AvatarScaleRules()
+        private static readonly AvatarScaleRules RTHRO_SLENDER_TO_R15 = new AvatarScaleRules()
         {
             Head          = new Vector3(1.600f, 1.600f, 1.600f),
             UpperTorso    = new Vector3(1.156f, 0.885f, 1.039f),
@@ -134,20 +137,20 @@ namespace Rbx2Source.Assembler
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private static Asset R15AssemblyAsset = Asset.FromResource("AvatarData/R15/CharacterBase.rbxm");
+        private static readonly Asset R15AssemblyAsset = Asset.FromResource("AvatarData/R15/CharacterBase.rbxm");
         public byte[] CollisionModelScript => ResourceUtility.GetResource("AvatarData/R15/CollisionJoints.qc");
 
-        private static Dictionary<Limb, Rectangle> UVCrops = new Dictionary<Limb, Rectangle>()
+        private static readonly IReadOnlyDictionary<BodyPart, Rectangle> UVCrops = new Dictionary<BodyPart, Rectangle>()
         {
-            { Limb.Head,     RECT_HEAD      },
-            { Limb.Torso,    RECT_TORSO     },
-            { Limb.LeftArm,  RECT_LEFT_ARM  },
-            { Limb.LeftLeg,  RECT_LEFT_LEG  },
-            { Limb.RightArm, RECT_RIGHT_ARM },
-            { Limb.RightLeg, RECT_RIGHT_LEG },
+            { BodyPart.Head,     RECT_HEAD      },
+            { BodyPart.Torso,    RECT_TORSO     },
+            { BodyPart.LeftArm,  RECT_LEFT_ARM  },
+            { BodyPart.LeftLeg,  RECT_LEFT_LEG  },
+            { BodyPart.RightArm, RECT_RIGHT_ARM },
+            { BodyPart.RightLeg, RECT_RIGHT_LEG },
         };
 
-        private static Dictionary<string, long> R15_ANIMATION_IDS = new Dictionary<string, long>()
+        private static readonly IReadOnlyDictionary<string, long> R15_ANIMATION_IDS = new Dictionary<string, long>()
         {
             { "Climb", 507765644  },
             { "Jump",  507765000  },
@@ -164,6 +167,8 @@ namespace Rbx2Source.Assembler
 
         public static string GetAvatarPartScaleType(BasePart part)
         {
+            Contract.Requires(part != null);
+
             StringValue scaleType = part.FindFirstChild<StringValue>("AvatarPartScaleType");
             string result = "Classic";
 
@@ -175,6 +180,8 @@ namespace Rbx2Source.Assembler
 
         public static void SampleScales(BasePart limb, string scaleType, out Vector3 scaleR15, out Vector3 scaleNormal, out Vector3 scaleSlender)
         {
+            Contract.Requires(limb != null);
+
             string limbName = limb.Name;
             Vector3 sampleNoChange = new Vector3(1, 1, 1);
 
@@ -210,12 +217,13 @@ namespace Rbx2Source.Assembler
 
         public static Vector3 ComputeLimbScale(AvatarScale avatarScale, BasePart part)
         {
+            Contract.Requires(avatarScale != null && part != null);
             Vector3 sampleNoChange = new Vector3(1, 1, 1);
 
             string limbName = part.Name;
-            Limb limb = GetLimb(part);
+            BodyPart? limb = GetLimb(part);
 
-            if (limb == Limb.Unknown)
+            if (!limb.HasValue)
                 return sampleNoChange;
 
             // Compute the base scale
@@ -225,16 +233,15 @@ namespace Rbx2Source.Assembler
             string scaleType = GetAvatarPartScaleType(part);
 
             // Select the scales we will interpolate.
-            Vector3 scaleR15, scaleNormal, scaleSlender;
-
+            
             SampleScales
             (
                 part,
                 scaleType,
 
-                out scaleR15, 
-                out scaleNormal, 
-                out scaleSlender
+                out Vector3 scaleR15, 
+                out Vector3 scaleNormal, 
+                out Vector3 scaleSlender
             );
 
             // Compute the Rthro scaling based on the current proportions and body-type.
@@ -263,17 +270,14 @@ namespace Rbx2Source.Assembler
             // Okay so... the goal here is to figure out what the scale of this accessory would be when
             // the limb is at its original size, and then multiply it by the current scale of the limb.
 
-            Vector3 limbR15, limbNormal, limbSlender,
-                    handleR15, handleNormal, handleSlender;
-
             SampleScales
             (
                 limb,
                 limbScaleType,
 
-                out limbR15,
-                out limbNormal,
-                out limbSlender
+                out Vector3 limbR15,
+                out Vector3 limbNormal,
+                out Vector3 limbSlender
             );
 
             SampleScales
@@ -281,9 +285,9 @@ namespace Rbx2Source.Assembler
                 limb,
                 handleScaleType,
 
-                out handleR15,
-                out handleNormal,
-                out handleSlender
+                out Vector3 handleR15,
+                out Vector3 handleNormal,
+                out Vector3 handleSlender
             );
 
             Vector3 originScale;
@@ -301,14 +305,16 @@ namespace Rbx2Source.Assembler
 
         public static void ScalePart(BasePart part, Vector3 scale)
         {
-            foreach (Attachment att in part.GetChildrenOfClass<Attachment>())
+            Contract.Requires(part != null);
+
+            foreach (Attachment att in part.GetChildrenOfType<Attachment>())
             {
                 CFrame cf = att.CFrame;
                 Vector3 pos = cf.Position;
                 att.CFrame = new CFrame(pos * scale) * (cf - pos);
             }
 
-            foreach (SpecialMesh mesh in part.GetChildrenOfClass<SpecialMesh>())
+            foreach (SpecialMesh mesh in part.GetChildrenOfType<SpecialMesh>())
                 mesh.Scale *= scale;
             
             part.Size *= scale;
@@ -316,6 +322,8 @@ namespace Rbx2Source.Assembler
 
         public Dictionary<string, AnimationId> CollectAnimationIds(UserAvatar avatar)
         {
+            Contract.Requires(avatar != null);
+
             var userAnims = avatar.Assets
                 .Where(asset => AssetGroups.IsTypeInGroup(asset.Type, AssetGroup.Animations))
                 .ToDictionary(asset => Rbx2Source.GetEnumName(asset.Type).Replace("Animation", ""));
@@ -371,10 +379,11 @@ namespace Rbx2Source.Assembler
 
         public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale, bool collisionModel = false)
         {
+            Contract.Requires(characterAssets != null);
             StudioMdlWriter meshBuilder = new StudioMdlWriter();
 
             // Build Character
-            Folder import = RBXM.LoadFromAsset(R15AssemblyAsset);
+            var import = R15AssemblyAsset.OpenAsModel();
             Folder assembly = import.FindFirstChild<Folder>("ASSEMBLY");
 
             BasePart head = assembly.FindFirstChild<BasePart>("Head");
@@ -382,7 +391,7 @@ namespace Rbx2Source.Assembler
             
             foreach (Instance asset in characterAssets.GetChildren())
             {
-                if (asset.IsA("BasePart"))
+                if (asset is BasePart)
                 {
                     BasePart existing = assembly.FindFirstChild<BasePart>(asset.Name);
 
@@ -391,9 +400,9 @@ namespace Rbx2Source.Assembler
 
                     asset.Parent = assembly;
                 }
-                else if (asset.IsA("Folder") && asset.Name == "R15ArtistIntent")
+                else if (asset is Folder && asset.Name == "R15ArtistIntent")
                 {
-                    foreach (BasePart child in asset.GetChildrenOfClass<BasePart>())
+                    foreach (BasePart child in asset.GetChildrenOfType<BasePart>())
                     {
                         BasePart existing = assembly.FindFirstChild<BasePart>(child.Name);
 
@@ -403,28 +412,33 @@ namespace Rbx2Source.Assembler
                         child.Parent = assembly;
                     }
                 }
-                else if (asset.IsA("Accoutrement") && !collisionModel)
+                else if (asset is Accoutrement && !collisionModel)
                 {
                     PrepareAccessory(asset, assembly);
                 } 
-                else if (asset.IsA("DataModelMesh"))
+                else if (asset is DataModelMesh)
                 {
-                    OverwriteHead(asset, head);
+                    OverwriteHead(asset as DataModelMesh, head);
                 }
             }
 
             // Apply limb scaling
-            var parts = assembly.GetChildrenOfClass<BasePart>();
+            var parts = assembly.GetChildrenOfType<BasePart>();
             var attachMap = new Dictionary<string, Attachment>();
 
-            var avatarParts = parts.Where(part => GetLimb(part) != Limb.Unknown);
+            var avatarParts = parts.Where((part) =>
+            {
+                var limb = GetLimb(part);
+                return limb.HasValue;
+            });
+
             var accessoryParts = parts.Except(avatarParts);
             
             foreach (BasePart avatarPart in avatarParts)
             {
                 Vector3 limbScale = ComputeLimbScale(scale, avatarPart);
 
-                foreach (Attachment att in avatarPart.GetChildrenOfClass<Attachment>())
+                foreach (Attachment att in avatarPart.GetChildrenOfType<Attachment>())
                     attachMap[att.Name] = att;
 
                 ScalePart(avatarPart, limbScale);
@@ -454,21 +468,22 @@ namespace Rbx2Source.Assembler
             torso.CFrame = new CFrame();
 
             BoneKeyframe keyframe = AssembleBones(meshBuilder, torso);
-            List<Bone> bones = keyframe.Bones;
+            List<StudioBone> bones = keyframe.Bones;
 
             // Build File Data.
             Rbx2Source.Print("Building Geometry...");
             Rbx2Source.IncrementStack();
 
-            foreach (Bone bone in bones)
+            foreach (StudioBone bone in bones)
                 BuildAvatarGeometry(meshBuilder, bone);
 
             Rbx2Source.DecrementStack();
             return meshBuilder;
         }
 
-        public TextureCompositor ComposeTextureMap(Folder characterAssets, BodyColors bodyColors)
+        public TextureCompositor ComposeTextureMap(Folder characterAssets, WebBodyColors bodyColors)
         {
+            Contract.Requires(characterAssets != null && bodyColors != null);
             TextureCompositor compositor = new TextureCompositor(AvatarType.R15, 1024, 568);
 
             // Append BodyColors
@@ -513,12 +528,17 @@ namespace Rbx2Source.Assembler
 
             // Append Package Overlays
             Folder avatarParts = characterAssets.FindFirstChild<Folder>("ASSEMBLY");
-            List<Limb> overlainLimbs = new List<Limb>();
+            List<BodyPart> overlainLimbs = new List<BodyPart>();
 
-            foreach (MeshPart part in avatarParts.GetChildrenOfClass<MeshPart>())
+            foreach (MeshPart part in avatarParts.GetChildrenOfType<MeshPart>())
             {
-                Limb limb = GetLimb(part);
-                string textureId = part.TextureId;
+                BodyPart? maybeLimb = GetLimb(part);
+
+                if (!maybeLimb.HasValue)
+                    continue;
+
+                BodyPart limb = maybeLimb.Value;
+                string textureId = part.TextureID;
 
                 if (textureId != null && textureId.Length > 0 && !overlainLimbs.Contains(limb))
                 {
@@ -532,24 +552,23 @@ namespace Rbx2Source.Assembler
             return compositor;
         }
 
-        public TextureBindings BindTextures(TextureCompositor compositor, Dictionary<string, Material> materials)
+        public TextureBindings BindTextures(TextureCompositor compositor, Dictionary<string, ValveMaterial> materials)
         {
+            Contract.Requires(compositor != null && materials != null);
             TextureBindings textureBinds = new TextureBindings();
-            Bitmap uvMap = compositor.BakeTextureMap();
 
+            Bitmap uvMap = compositor.BakeTextureMap();
             Rbx2Source.SetDebugImage(uvMap);
 
             foreach (string matName in materials.Keys)
             {
                 Rbx2Source.Print("Building Material {0}", matName);
-                Material material = materials[matName];
+                ValveMaterial material = materials[matName];
                 Image image = null;
 
                 if (material.UseAvatarMap)
                 {
-                    Limb limb;
-
-                    if (Enum.TryParse(matName, out limb))
+                    if (Enum.TryParse(matName, out BodyPart limb))
                     {
                         Rectangle cropRegion = UVCrops[limb];
                         image = TextureCompositor.CropBitmap(uvMap, cropRegion);

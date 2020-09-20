@@ -1,24 +1,20 @@
-﻿using Rbx2Source.DataTypes;
-using Rbx2Source.StudioMdl;
+﻿using Rbx2Source.StudioMdl;
 
-namespace Rbx2Source.Reflection
+using RobloxFiles;
+using RobloxFiles.DataTypes;
+
+namespace RobloxFiles
 {
-    public class Bone : Instance
+    public class StudioBone : JointInstance
     {
-        public BasePart Part0;
-        public BasePart Part1;
-
-        public CFrame C0;
-        public CFrame C1;
-
         public Node Node;
         public bool IsAvatarBone;
 
-        public Bone(string name, BasePart parent, BasePart attachTo = null)
+        public StudioBone(string name, BasePart parent, BasePart attachTo = null)
         {
-            Node = new Node();
-            Node.Bone = this;
-
+            Name = name;
+            Node = new Node() { StudioBone = this };
+            
             Part0 = parent;
             Part1 = attachTo ?? parent;
 
@@ -31,7 +27,7 @@ namespace Rbx2Source.Reflection
             Parent = parent;
         }
 
-        public Bone(Node node, CFrame interp)
+        public StudioBone(Node node, CFrame interp)
         {
             Node = node;
             C0 = interp;

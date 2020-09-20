@@ -6,13 +6,16 @@ using System.IO;
 using System.Linq;
 
 using Rbx2Source.Animating;
-using Rbx2Source.DataTypes;
 using Rbx2Source.Geometry;
-using Rbx2Source.Reflection;
 using Rbx2Source.QuakeC;
 using Rbx2Source.StudioMdl;
 using Rbx2Source.Textures;
 using Rbx2Source.Web;
+
+using RobloxFiles;
+using RobloxFiles.Enums;
+using RobloxFiles.DataTypes;
+using System.Diagnostics.Contracts;
 
 namespace Rbx2Source.Assembler
 {
@@ -22,37 +25,41 @@ namespace Rbx2Source.Assembler
     {
         public static bool DEBUG_RAPID_ASSEMBLY = false;
 
-        public static Limb GetLimb(BasePart part)
+        public static BodyPart? GetLimb(BasePart part)
         {
+            Contract.Requires(part != null);
+
+            var invariant = StringComparison.InvariantCulture;
             string name = part.Name;
 
             if (name == "Head")
-                return Limb.Head;
-            else if (name.EndsWith("Torso"))
-                return Limb.Torso;
+                return BodyPart.Head;
+            else if (name.EndsWith("Torso", invariant))
+                return BodyPart.Torso;
 
             string limbName;
 
-            if (name.StartsWith("Left"))
+            if (name.StartsWith("Left", invariant))
                 limbName = "Left";
-            else if (name.StartsWith("Right"))
+            else if (name.StartsWith("Right", invariant))
                 limbName = "Right";
             else
-                return Limb.Unknown;
+                return null;
 
-            if (name.EndsWith("Arm") || name.EndsWith("Hand"))
+            if (name.EndsWith("Arm", invariant) || name.EndsWith("Hand", invariant))
                 limbName += "Arm";
-            else if (name.EndsWith("Leg") || name.EndsWith("Foot"))
+            else if (name.EndsWith("Leg", invariant) || name.EndsWith("Foot", invariant))
                 limbName += "Leg";
 
-            Limb result = Limb.Unknown;
-            Enum.TryParse(limbName, out result);
+            if (!Enum.TryParse(limbName, out BodyPart bodyPart))
+                return null;
 
-            return result;
+            return bodyPart;
         }
 
         public static List<Attachment> FindOtherAttachments(Attachment a, Instance bin)
         {
+            Contract.Requires(a != null && bin != null);
             List<Attachment> result = new List<Attachment>();
 
             foreach (Instance child in bin.GetChildren())
@@ -86,13 +93,15 @@ namespace Rbx2Source.Assembler
                         BasePart part0 = (BasePart)a0.Parent;
                         BasePart part1 = (BasePart)a1.Parent;
 
-                        bool isRigAttachment = a0.Name.EndsWith("RigAttachment");
+                        bool isRigAttachment = a0.Name.EndsWith("RigAttachment", StringComparison.InvariantCulture);
 
                         if (isRigAttachment || prep.AllowNonRigs)
                         {
-                            Bone bone = new Bone(part1.Name, part0, part1);
-                            bone.C0 = a0.CFrame;
-                            bone.C1 = a1.CFrame;
+                            StudioBone bone = new StudioBone(part1.Name, part0, part1)
+                            {
+                                C0 = a0.CFrame,
+                                C1 = a1.CFrame,
+                            };
 
                             bone.IsAvatarBone = !prep.AllowNonRigs;
                             prep.Bones.Add(bone);
@@ -108,7 +117,7 @@ namespace Rbx2Source.Assembler
 
                             if (!prep.AllowNonRigs)
                             {
-                                GenerateBones(prep, part1.GetChildrenOfClass<Attachment>());
+                                GenerateBones(prep, part1.GetChildrenOfType<Attachment>());
                             }
                         }
                         else // We'll deal with Accessory attachments afterwards.
@@ -122,7 +131,9 @@ namespace Rbx2Source.Assembler
 
         public static void ApplyBoneCFrames(BasePart part)
         {
-            foreach (Bone bone in part.GetChildrenOfClass<Bone>())
+            Contract.Requires(part != null);
+
+            foreach (StudioBone bone in part.GetChildrenOfType<StudioBone>())
             {
                 BasePart part0 = bone.Part0;
                 BasePart part1 = bone.Part1;
@@ -138,25 +149,30 @@ namespace Rbx2Source.Assembler
 
         public static BoneKeyframe AssembleBones(StudioMdlWriter meshBuilder, BasePart rootPart)
         {
-            Rbx2Source.Print("Building Skeleton...");
+            Contract.Requires(meshBuilder != null);
+            Contract.Requires(rootPart != null);
 
+            Rbx2Source.Print("Building Skeleton...");
             BoneKeyframe kf = new BoneKeyframe();
 
-            List<Bone> bones = kf.Bones;
+            List<StudioBone> bones = kf.Bones;
             List<Node> nodes = meshBuilder.Nodes;
 
-            Bone rootBone = new Bone(rootPart.Name, rootPart);
-            rootBone.C0 = new CFrame();
-            rootBone.IsAvatarBone = true;
-            bones.Add(rootBone);
+            StudioBone rootBone = new StudioBone(rootPart.Name, rootPart)
+            {
+                C0 = new CFrame(),
+                IsAvatarBone = true
+            };
 
             Node rootNode = rootBone.Node;
             rootNode.NodeIndex = 0;
+
+            bones.Add(rootBone);
             nodes.Add(rootNode);
 
             // Assemble the base rig.
             BoneAssemblePrep prep = new BoneAssemblePrep(ref bones, ref nodes);
-            GenerateBones(prep, rootPart.GetChildrenOfClass<Attachment>());
+            GenerateBones(prep, rootPart.GetChildrenOfType<Attachment>());
 
             // Assemble the accessories.
             prep.AllowNonRigs = true;
@@ -171,6 +187,8 @@ namespace Rbx2Source.Assembler
 
         public static void PrepareAccessory(Instance asset, Folder assembly)
         {
+            Contract.Requires(asset != null && assembly != null);
+
             if (DEBUG_RAPID_ASSEMBLY)
             {
                 asset.Destroy();
@@ -185,27 +203,31 @@ namespace Rbx2Source.Assembler
                 handle.CFrame = new CFrame();
                 handle.Parent = assembly;
                 
-                if (asset.IsA("Accessory")) // Make sure the attachment is in the Handle
+                if (asset is Accessory) // Make sure the attachment is in the Handle
                 {
                     Attachment accAtt = asset.FindFirstChildOfClass<Attachment>();
-                    Instance.TrySetParent(accAtt, handle);
+
+                    if (accAtt == null)
+                        return;
+
+                    accAtt.Parent = handle;
                 }
             }
         }
 
-        public static void OverwriteHead(Instance asset, BasePart head)
+        public static void OverwriteHead(DataModelMesh mesh, BasePart head)
         {
+            Contract.Requires(mesh != null && head != null);
             DataModelMesh currentMesh = head.FindFirstChild<DataModelMesh>("Mesh");
 
             if (currentMesh != null)
                 currentMesh.Destroy();
 
-            DataModelMesh mesh = asset as DataModelMesh;
             mesh.Name = "Mesh";
             mesh.Parent = head;
 
             // Apply Rthro adjustments
-            Vector3Value[] overrides = mesh.GetChildrenOfClass<Vector3Value>();
+            Vector3Value[] overrides = mesh.GetChildrenOfType<Vector3Value>();
 
             foreach (Vector3Value overrider in overrides)
             {
@@ -225,8 +247,10 @@ namespace Rbx2Source.Assembler
             extraInstances.ForEach((inst) => inst.Parent = head);
         }
 
-        public static void BuildAvatarGeometry(StudioMdlWriter meshBuilder, Bone bone)
+        public static void BuildAvatarGeometry(StudioMdlWriter meshBuilder, StudioBone bone)
         {
+            Contract.Requires(meshBuilder != null && bone != null);
+            
             string task = "BuildGeometry_" + bone.Node.Name;
             Rbx2Source.ScheduleTasks(task);
 
@@ -238,13 +262,16 @@ namespace Rbx2Source.Assembler
 
             if (isAvatarLimb)
             {
-                Limb limb = GetLimb(part);
-                matName = Rbx2Source.GetEnumName(limb);
+                BodyPart? limb = GetLimb(part);
+
+                if (!limb.HasValue)
+                    throw new ArgumentException("Provided StudioBone did not point to a limb correctly.");
+
+                matName = Rbx2Source.GetEnumName(limb.Value);
             }
 
-            Material material = new Material();
-            material.UseAvatarMap = isAvatarLimb;
-
+            var material = new ValveMaterial() { UseAvatarMap = isAvatarLimb };
+            
             Rbx2Source.Print("Building Geometry for {0}", part.Name);
             Rbx2Source.IncrementStack();
 
@@ -270,6 +297,7 @@ namespace Rbx2Source.Assembler
 
         public static Folder AppendCharacterAssets(UserAvatar avatar, string avatarType, string context = "CHARACTER")
         {
+            Contract.Requires(avatar != null);
             Rbx2Source.PrintHeader("GATHERING " + context + " ASSETS");
 
             Folder characterAssets = new Folder();
@@ -280,13 +308,17 @@ namespace Rbx2Source.Assembler
                 long id = info.Id;
                 Asset asset = Asset.Get(id);
 
-                Folder import = RBXM.LoadFromAsset(asset);
+                Instance import = asset.OpenAsModel();
                 Folder typeSpecific = import.FindFirstChild<Folder>(avatarType);
 
                 if (typeSpecific != null)
                     import = typeSpecific;
 
-                import.ForEachChild((obj) => obj.Parent = characterAssets);
+                var children = import
+                    .GetChildren()
+                    .ToList();
+
+                children.ForEach((obj) => obj.Parent = characterAssets);
             }
 
             return characterAssets;
@@ -305,12 +337,9 @@ namespace Rbx2Source.Assembler
             DataModelMesh oldHeadMesh = collisionAssets.FindFirstChildOfClass<DataModelMesh>();
 
             if (oldHeadMesh != null)
-            {
                 oldHeadMesh.Destroy();
-                oldHeadMesh = null;
-            }
-
-            SpecialMesh lowPolyHead = new SpecialMesh()
+            
+            _ = new SpecialMesh()
             {
                 MeshId = "rbxassetid://582002794",
                 MeshType = MeshType.FileMesh,
@@ -325,6 +354,7 @@ namespace Rbx2Source.Assembler
         public static Asset GetAvatarFace(Folder characterAssets)
         {
             // Check if this avatar is using an Rthro head with a texture overlay.
+            Contract.Requires(characterAssets != null);
             Folder assembly = characterAssets.FindFirstChild<Folder>("ASSEMBLY");
 
             if (assembly != null)
@@ -335,16 +365,21 @@ namespace Rbx2Source.Assembler
                 {
                     SpecialMesh headMesh = head.FindFirstChildOfClass<SpecialMesh>();
 
-                    if (headMesh != null && headMesh.TextureId != null && headMesh.TextureId.Length > 0)
+                    if (headMesh != null && headMesh.TextureId != null)
                     {
-                        // One last check to make sure this is *probably* an Rthro head.
-                        // The reason this check is necessary is due to the iBot Head, which has a texture and allows a face to be drawn on it.
-                        // I suspect Roblox will expand this behavior later, so I need to keep an eye on it.
-                        StringValue scaleType = head.FindFirstChild<StringValue>("AvatarPartScaleType");
+                        string textureId = headMesh.TextureId;
 
-                        if (scaleType != null && scaleType.Value != "Classic")
+                        if (textureId.Length > 0)
                         {
-                            return Asset.GetByAssetId(headMesh.TextureId);
+                            // One last check to make sure this is *probably* an Rthro head.
+                            // The reason this check is necessary is due to the iBot Head, which has a texture and allows a face to be drawn on it.
+                            // I suspect Roblox will expand this behavior later, so I need to keep an eye on it.
+                            StringValue scaleType = head.FindFirstChild<StringValue>("AvatarPartScaleType");
+
+                            if (scaleType != null && scaleType.Value != "Classic")
+                            {
+                                return Asset.GetByAssetId(headMesh.TextureId);
+                            }
                         }
                     }
                 }
@@ -364,10 +399,12 @@ namespace Rbx2Source.Assembler
 
         public static float ComputeFloorLevel(Folder assembly)
         {
+            Contract.Requires(assembly != null);
+
             BasePart lowest = null;
             float lowestY = float.MaxValue;
 
-            foreach (BasePart part in assembly.GetChildrenOfClass<BasePart>())
+            foreach (BasePart part in assembly.GetChildrenOfType<BasePart>())
             {
                 float y = part.Position.Y;
 
@@ -383,6 +420,8 @@ namespace Rbx2Source.Assembler
 
         public AssemblerData Assemble(UserAvatar avatar)
         {
+            Contract.Requires(avatar != null);
+
             UserInfo userInfo = avatar.UserInfo;
             string userName = FileUtility.MakeNameWindowsSafe(userInfo.Username);
 
@@ -483,23 +522,35 @@ namespace Rbx2Source.Assembler
 
                 foreach (string animName in animIds.Keys)
                 {
-                    AnimationId animId = animIds[animName];
-                    Asset animAsset = animId.GetAsset();
-                    Folder import = RBXM.LoadFromAsset(animAsset);
+                    var animId = animIds[animName];
+                    var animAsset = animId.GetAsset();
+                    var import = animAsset.OpenAsModel();
 
                     if (animId.AnimationType == AnimationType.R15AnimFolder)
                     {
                         Folder r15Anim = import.FindFirstChild<Folder>("R15Anim");
+
                         if (r15Anim != null)
                         {
                             foreach (Instance animDef in r15Anim.GetChildren())
                             {
                                 if (animDef.Name == "idle")
                                 {
-                                    Animation[] anims = animDef.GetChildrenOfClass<Animation>();
+                                    var anims = animDef.GetChildrenOfType<Animation>();
+
                                     if (anims.Length == 2)
                                     {
-                                        Animation lookAnim = anims.OrderBy(anim => anim.Weight).First();
+                                        var getLookAnim = anims.OrderBy((anim) =>
+                                        {
+                                            var weight = anim.FindFirstChild<NumberValue>("Weight");
+
+                                            if (weight != null)
+                                                return weight.Value;
+
+                                            return 0.0;
+                                        });
+
+                                        var lookAnim = getLookAnim.First();
                                         lookAnim.Destroy();
 
                                         Asset lookAsset = Asset.GetByAssetId(lookAnim.AnimationId);
@@ -545,13 +596,19 @@ namespace Rbx2Source.Assembler
                     Rbx2Source.Print("Building Animation {0}...", animName);
 
                     Asset animAsset = compileAnims[animName];
-                    Folder import = RBXM.LoadFromAsset(animAsset);
-
-                    KeyframeSequence sequence = import.FindFirstChildOfClass<KeyframeSequence>();
-                    sequence.AvatarType = avatarType;
+                    var import = animAsset.OpenAsModel();
+                    
+                    var sequence = import.FindFirstChildOfClass<KeyframeSequence>();
                     sequence.Name = animName;
 
-                    string animation = Animator.Assemble(sequence, writer.Skeleton[0].Bones);
+                    var avatarTypeRef = new StringValue()
+                    {
+                        Value = $"{avatarType}",
+                        Name = "AvatarType",
+                        Parent = sequence
+                    };
+
+                    string animation = AnimationBuilder.Assemble(sequence, writer.Skeleton[0].Bones);
                     string animPath = Path.Combine(anim8Dir, animName + ".smd");
 
                     FileUtility.WriteFile(animPath, animation);
@@ -624,7 +681,7 @@ namespace Rbx2Source.Assembler
                 string targetVtf = matLinks[mtlName];
                 string vmtPath = Path.Combine(materialsDir, mtlName + ".vmt");
 
-                Material mtl = materials[mtlName];
+                ValveMaterial mtl = materials[mtlName];
                 mtl.SetVmtField("basetexture", "models/" + compileDir + "/" + targetVtf);
                 mtl.WriteVmtFile(vmtPath);
             }
@@ -665,8 +722,8 @@ namespace Rbx2Source.Assembler
 
             foreach (string animName in compileAnims.Keys)
             {
-                QuakeCItem sequence = qc.Add("sequence", animName.ToLower(), "Animations/" + animName + ".smd");
-                sequence.AddSubItem("fps", Animator.FrameRate);
+                QuakeCItem sequence = qc.Add("sequence", animName.ToLowerInvariant(), "Animations/" + animName + ".smd");
+                sequence.AddSubItem("fps", AnimationBuilder.FrameRate);
 
                 if (avatarType == AvatarType.R6)
                     sequence.AddSubItem("delta");

@@ -1,5 +1,7 @@
 ﻿using System;
-using Rbx2Source.Reflection;
+
+using RobloxFiles;
+using RobloxFiles.Enums;
 
 namespace Rbx2Source.Animating
 {
@@ -7,8 +9,8 @@ namespace Rbx2Source.Animating
     {
         // Complex Easing Styles
 
-        private static float bounceBase = 7.5625f;
-        private static double tau = Math.PI * 2;
+        private const float bounceBase = 7.5625f;
+        private const double tau = Math.PI * 2;
 
         private static float bounce(float t)
         {

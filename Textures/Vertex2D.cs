@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics.Contracts;
+using System.Drawing;
 
 namespace Rbx2Source.Geometry
 {
@@ -25,6 +26,8 @@ namespace Rbx2Source.Geometry
 
         public Point ToUV(Bitmap target)
         {
+            Contract.Requires(target != null);
+
             float x = UV.X * target.Width,
                   y = UV.Y * target.Height;
 

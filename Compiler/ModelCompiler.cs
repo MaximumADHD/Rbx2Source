@@ -1,6 +1,7 @@
 ﻿#pragma warning disable 0649
 
 using System;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
@@ -10,11 +11,11 @@ using Rbx2Source.Resources;
 
 namespace Rbx2Source.Compiler
 {
-    public class ModelCompiler
+    public static class ModelCompiler
     {
         private static ThirdPartyUtility vtfCompiler;
-        private static string vtfCompilerPath;
-        private static string utilityDir;
+        private static readonly string vtfCompilerPath;
+        private static readonly string utilityDir;
 
         static ModelCompiler()
         {
@@ -34,6 +35,8 @@ namespace Rbx2Source.Compiler
 
         public static async Task<string> Compile(GameInfo gameInfo, AssemblerData data)
         {
+            Contract.Requires(gameInfo != null && data != null);
+
             if (!gameInfo.ReadyToUse)
                 throw new Exception("This gameinfo.txt file isn't ready to use!");
 

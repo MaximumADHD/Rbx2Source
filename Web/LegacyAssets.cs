@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Rbx2Source.Web
 {
-    public class LegacyAssets
+    public static class LegacyAssets
     {
-        private static Dictionary<string, long> Database = new Dictionary<string, long>()
+        private static readonly IReadOnlyDictionary<string, long> Database = new Dictionary<string, long>()
         {
             {"rbxasset://textures/A_Key_dn.png", 12222317},
             {"rbxasset://textures/A_Key.png", 12222308},
@@ -218,8 +218,8 @@ namespace Rbx2Source.Web
         {
             if (Database.ContainsKey(assetId))
                 return Database[assetId];
-            else
-                return -1;
+            
+            return -1;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿#pragma warning disable 0649
 
 using System;
+using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
@@ -12,19 +13,19 @@ using Newtonsoft.Json;
 
 namespace Rbx2Source.Web
 {
-    public struct WebApiError
+    public class WebApiError
     {
         public int Code;
         public string Message;
     }
 
-    public struct CdnPender
+    public class CdnPender
     {
         public string Url;
         public bool Final;
     }
 
-    public class WebUtility
+    public static class WebUtility
     {
         private static byte[] ReadFullStream(Stream stream, bool close = true)
         {
@@ -52,9 +53,9 @@ namespace Rbx2Source.Web
             waitTask.Wait();
         }
 
-        public static byte[] DownloadData(string url)
+        public static byte[] DownloadData(string address)
         {
-            HttpWebRequest request = WebRequest.CreateHttp(url);
+            HttpWebRequest request = WebRequest.CreateHttp(new Uri(address));
             request.Headers.Set(HttpRequestHeader.AcceptEncoding, "gzip");
 
             request.UserAgent = "Roblox";
@@ -67,12 +68,13 @@ namespace Rbx2Source.Web
             var response = request.GetResponse() as HttpWebResponse;
             var responseStream = response.GetResponseStream();
 
-            byte[] result = null;
+            byte[] result;
 
             if (response.ContentEncoding == "gzip")
             { 
-                GZipStream decompressor = new GZipStream(responseStream, CompressionMode.Decompress);
+                var decompressor = new GZipStream(responseStream, CompressionMode.Decompress);
                 result = ReadFullStream(decompressor);
+                decompressor.Dispose();
             }
             else
             {
@@ -82,36 +84,37 @@ namespace Rbx2Source.Web
             return result;
         }
 
-        public static string DownloadString(string url)
+        public static string DownloadString(string address)
         {
-            byte[] data = DownloadData(url);
+            byte[] data = DownloadData(address);
             return Encoding.UTF8.GetString(data);
         }
 
-        public static Bitmap DownloadImage(string url)
+        public static Bitmap DownloadImage(string address)
         {
-            byte[] data = DownloadData(url);
+            byte[] data = DownloadData(address);
+            Bitmap result;
 
             using (Stream imgStream = new MemoryStream(data))
-            {
-                return new Bitmap(imgStream);
-            }
+                result = new Bitmap(imgStream);
+
+            return result;
         }
 
-        public static T DownloadJSON<T>(string url)
+        public static T DownloadJSON<T>(string address)
         {
-            byte[] content = DownloadData(url);
+            byte[] content = DownloadData(address);
             var json = Encoding.UTF8.GetString(content);
             return JsonConvert.DeserializeObject<T>(json);
         }
 
-        public static T DownloadRbxApiJSON<T>(string subUrl, string apiServer = "api")
+        public static T DownloadRbxApiJSON<T>(string subAddress, string apiServer = "api")
         {
-            string url = "https://" + apiServer + ".roblox.com/" + subUrl;
+            string url = "https://" + apiServer + ".roblox.com/" + subAddress;
             return DownloadJSON<T>(url);
         }
 
-        public static string PendCdnUrl(string url, bool log = true)
+        public static string PendCdn(string address, bool log = true)
         {
             string result = null;
             bool final = false;
@@ -119,7 +122,7 @@ namespace Rbx2Source.Web
 
             while (!final && dots.Length <= 13)
             {
-                CdnPender pender = DownloadJSON<CdnPender>(url);
+                CdnPender pender = DownloadJSON<CdnPender>(address);
                 final = pender.Final;
                 result = pender.Url;
                 
@@ -128,7 +131,7 @@ namespace Rbx2Source.Web
                     dots += ".";
 
                     if (log)
-                        Rbx2Source.Print("Waiting for finalization of " + url + dots);
+                        Rbx2Source.Print("Waiting for finalization of " + address + dots);
 
                     wait(1f);
                 }
@@ -140,15 +143,15 @@ namespace Rbx2Source.Web
             return result;
         }
 
-        public static string ResolveHashUrl(string hash)
+        public static string ResolveHash(string hash)
         {
-            int comp = 31;
+            Contract.Requires(hash != null);
+            int id = 31;
 
             foreach (char c in hash)
-                comp ^= (byte)c;
+                id ^= (byte)c;
 
-            int id = comp % 8;
-            return "https://t" + id + ".rbxcdn.com/" + hash;
+            return $"https://t{id % 8}.rbxcdn.com/{hash}";
         }
     }
 }

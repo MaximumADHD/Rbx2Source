@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-using Rbx2Source.Reflection;
+using RobloxFiles;
 using Rbx2Source.StudioMdl;
 
 namespace Rbx2Source.Assembler
@@ -10,12 +10,12 @@ namespace Rbx2Source.Assembler
         public List<Attachment> NonRigs = new List<Attachment>();
         public List<Attachment> Completed = new List<Attachment>();
 
-        public List<Bone> Bones;
+        public List<StudioBone> Bones;
         public List<Node> Nodes;
 
         public bool AllowNonRigs;
 
-        public BoneAssemblePrep(ref List<Bone> bones, ref List<Node> nodes)
+        public BoneAssemblePrep(ref List<StudioBone> bones, ref List<Node> nodes)
         {
             Bones = bones;
             Nodes = nodes;

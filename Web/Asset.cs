@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Net;
 using System.IO;
 using System.IO.Compression;
+using System.Text.RegularExpressions;
 
 using Newtonsoft.Json;
 using Rbx2Source.Assembler;
 using Rbx2Source.Resources;
 
+using RobloxFiles;
+
 namespace Rbx2Source.Web
 {
-    public struct ProductInfo
+    public class ProductInfo
     {
         public string Name;
         public string WindowsSafeName;
@@ -24,17 +27,30 @@ namespace Rbx2Source.Web
         public AssetType AssetType;
         public ProductInfo ProductInfo;
 
-        public bool Loaded = false;
-        public bool IsLocal = false;
+        public bool Loaded;
+        public bool IsLocal;
 
         public string CdnUrl;
         public string CdnCacheId;
 
         public byte[] Content;
-        public bool ContentLoaded = false;
+        public bool ContentLoaded;
 
-        private static Dictionary<long, long> avidToId = new Dictionary<long, long>();
-        private static Dictionary<long, Asset> assetCache = new Dictionary<long, Asset>();
+        private static readonly Dictionary<long, Asset> assetCache = new Dictionary<long, Asset>();
+
+        public Instance OpenAsModel()
+        {
+            byte[] content = GetContent();
+
+            try
+            {
+                return RobloxFile.Open(content);
+            }
+            catch
+            {
+                return new Folder();
+            }
+        }
 
         public byte[] GetContent()
         {
@@ -48,10 +64,10 @@ namespace Rbx2Source.Web
                     request.UseDefaultCredentials = true;
                     request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip");
 
-                    HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-                    Stream responseStream = response.GetResponseStream();
-
+                    var response = request.GetResponse() as HttpWebResponse;
+                    var responseStream = response.GetResponseStream();
                     string encoding = response.ContentEncoding;
+
                     if (encoding == "gzip")
                         responseStream = new GZipStream(responseStream, CompressionMode.Decompress);
 
@@ -63,7 +79,7 @@ namespace Rbx2Source.Web
                 }
                 catch
                 {
-                    Content = new byte[0];
+                    Content = Array.Empty<byte>();
                     ContentLoaded = false;
                 }
             }
@@ -81,9 +97,9 @@ namespace Rbx2Source.Web
                 Directory.CreateDirectory(assetCacheDir);
 
                 // Ping Roblox to figure out what this asset's cdn url is
-                HttpWebRequest ping = WebRequest.CreateHttp("https://assetgame.roblox.com" + idPiece + assetId);
-                ping.UserAgent = "Roblox";
-                ping.Method = "HEAD";
+                Uri uri = new Uri("https://assetdelivery.roblox.com/v1" + idPiece + assetId);
+                HttpWebRequest ping = WebRequest.CreateHttp(uri);
+                ping.UserAgent = "RobloxStudio/WinInet";
                 ping.AllowAutoRedirect = false;
 
                 Asset asset = null;
@@ -135,14 +151,15 @@ namespace Rbx2Source.Web
 
                 if (asset == null)
                 {
-                    WebClient http = new WebClient();
-                    http.UseDefaultCredentials = true;
-                    http.Headers.Set(HttpRequestHeader.UserAgent, "Roblox");
-                    http.Proxy = null;
+                    WebClient http = new WebClient()
+                    {
+                        UseDefaultCredentials = true,
+                        Proxy = null
+                    };
 
-                    asset = new Asset();
-                    asset.Id = assetId;
-
+                    http.Headers.Set(HttpRequestHeader.UserAgent, "RobloxStudio/WinInet");
+                    asset = new Asset() { Id = assetId };
+                    
                     try
                     {
                         string productInfoJson = http.DownloadString("http://api.roblox.com/marketplace/productinfo?assetId=" + assetId);
@@ -152,10 +169,16 @@ namespace Rbx2Source.Web
                     }
                     catch
                     {
-                        ProductInfo dummyInfo = new ProductInfo();
-                        dummyInfo.Name = "unknown_" + asset.Id;
-                        dummyInfo.WindowsSafeName = dummyInfo.Name;
-                        dummyInfo.AssetTypeId = AssetType.Model;
+                        string name = "unknown_" + asset.Id;
+
+                        ProductInfo dummyInfo = new ProductInfo()
+                        {
+                            Name = name,
+                            WindowsSafeName = name,
+                            AssetTypeId = AssetType.Model
+                        };
+
+                        asset.ProductInfo = dummyInfo;
                     }
 
                     asset.CdnUrl = location;
@@ -175,6 +198,8 @@ namespace Rbx2Source.Web
                         // Oh well.
                         Rbx2Source.Print("Failed to cache AssetId {0}", assetId);
                     }
+
+                    http.Dispose();
                 }
 
                 assetCache[assetId] = asset;
@@ -187,64 +212,34 @@ namespace Rbx2Source.Web
         {
             byte[] embedded = ResourceUtility.GetResource(path);
 
-            Asset local = new Asset();
-            local.Content = embedded;
-            local.ContentLoaded = true;
-            local.AssetType = AssetType.Model;
-            local.IsLocal = true;
-            local.Loaded = true;
-            local.Id = 0;
-            
-            ProductInfo dummyInfo = new ProductInfo();
-            dummyInfo.AssetTypeId = AssetType.Model;
-            dummyInfo.Name = "???";
-            
-            return local;
+            return new Asset()
+            {
+                Content = embedded,
+                ContentLoaded = true,
+                AssetType = AssetType.Model,
+                IsLocal = true,
+                Loaded = true,
+                Id = 0
+            };
         }
 
-        public static Asset GetByAssetId(string url = "")
+        public static Asset GetByAssetId(string address = "")
         {
-            if (url == null || url.Length == 0)
-                url = "rbxassetid://9854798";
+            if (address == null || address.Length == 0)
+                address = "rbxassetid://9854798";
 
-            long legacyId = LegacyAssets.Check(url);
+            long legacyId = LegacyAssets.Check(address);
 
             if (legacyId > 0)
-            {
                 return Get(legacyId);
-            }
-            else
-            {
-                string sAssetId = "";
-                int endIndex = -1;
+           
+            var match = Regex.Match(address.Trim(), @"\d+$");
+            string sAssetId = match.Value;
 
-                for (int i = url.Length - 1; i >= 0; i--)
-                {
-                    char c = url[i];
+            if (!long.TryParse(sAssetId, out long assetId))
+                System.Diagnostics.Debugger.Break();
 
-                    if (char.IsNumber(c))
-                    {
-                        endIndex = i;
-                        break;
-                    }
-                }
-
-                for (int i = endIndex; i >= 0; i--)
-                {
-                    char c = url[i];
-
-                    if (!char.IsNumber(c))
-                        break;
-
-                    sAssetId += c;
-                }
-
-                char[] charArray = sAssetId.ToCharArray();
-                Array.Reverse(charArray);
-
-                long assetId = long.Parse(new string(charArray));
-                return Get(assetId);
-            }
+            return Get(assetId);
         }
     }
 }

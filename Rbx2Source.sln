@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rbx2Source", "Rbx2Source.csproj", "{C42F6CEA-EC45-4869-B3F1-411DA756F7F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RobloxFileFormat", "..\Roblox-File-Format\RobloxFileFormat.csproj", "{CF50C0E2-23A7-4DC1-B4B2-E60CDE716253}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Include", "Include", "{D3398526-AFE5-4127-B538-F6DBF2FCE0FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,8 +20,18 @@ Global
 		{C42F6CEA-EC45-4869-B3F1-411DA756F7F3}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{C42F6CEA-EC45-4869-B3F1-411DA756F7F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C42F6CEA-EC45-4869-B3F1-411DA756F7F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF50C0E2-23A7-4DC1-B4B2-E60CDE716253}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF50C0E2-23A7-4DC1-B4B2-E60CDE716253}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF50C0E2-23A7-4DC1-B4B2-E60CDE716253}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF50C0E2-23A7-4DC1-B4B2-E60CDE716253}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{CF50C0E2-23A7-4DC1-B4B2-E60CDE716253} = {D3398526-AFE5-4127-B538-F6DBF2FCE0FF}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C1DD71EA-95E3-4B92-BC61-91591188CCFE}
 	EndGlobalSection
 EndGlobal

@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 
-using Rbx2Source.DataTypes;
-using Rbx2Source.Reflection;
+using RobloxFiles;
+using RobloxFiles.Enums;
+using RobloxFiles.DataTypes;
+
 using Rbx2Source.Web;
+using System.Diagnostics.Contracts;
 
 namespace Rbx2Source.Geometry
 {
@@ -15,18 +18,18 @@ namespace Rbx2Source.Geometry
         public BevelType BevelType;
         
         public double Bevel;
-        public double Buldge;
+        public double Bulge;
         public double Roundness;
         
         public Head(BevelType bevelType, double bevel, double roundness, double buldge)
         {
             Bevel = bevel;
-            Buldge = buldge;
+            Bulge = buldge;
             BevelType = bevelType;
             Roundness = roundness;
         }
 
-        private bool fuzzyEq(double a, double b)
+        private static bool fuzzyEq(double a, double b)
         {
             double diff = Math.Abs(b - a);
             return (diff < 0.001);
@@ -34,14 +37,16 @@ namespace Rbx2Source.Geometry
 
         public bool FieldsMatchWith(BevelMesh mesh)
         {
+            Contract.Requires(mesh != null);
+
             bool bevelEq = fuzzyEq(Bevel, mesh.Bevel);
-            bool buldgeEq = fuzzyEq(Buldge, mesh.Buldge);
+            bool bulgeEq = fuzzyEq(Bulge, mesh.Bulge);
             bool roundnessEq = fuzzyEq(Roundness, mesh.Bevel_Roundness);
 
-            return (bevelEq && buldgeEq && roundnessEq);
+            return (bevelEq && bulgeEq && roundnessEq);
         }
 
-        public static Dictionary<Head,string> Lookup = new Dictionary<Head,string>()
+        public static readonly IReadOnlyDictionary<Head, string> Lookup = new Dictionary<Head,string>()
         {
             { new Head(BevelType.Block,    0.00, 0.00, 0.00), "Blockhead"        },
             { new Head(BevelType.Block,    0.50, 0.00, 0.00), "Hex"              },
@@ -62,16 +67,17 @@ namespace Rbx2Source.Geometry
 
         public static Asset ResolveHeadMeshAsset(DataModelMesh mesh)
         {
+            Contract.Requires(mesh != null);
             string result = "Default";
 
-            if (mesh.IsA("BevelMesh"))
+            if (mesh is BevelMesh)
             {
                 BevelMesh bevelMesh = mesh as BevelMesh;
                 BevelType bevelType = BevelType.Unknown;
                 
-                if (mesh.IsA("BlockMesh"))
+                if (mesh is BlockMesh)
                     bevelType = BevelType.Block;
-                else if (mesh.IsA("CylinderMesh"))
+                else if (mesh is CylinderMesh)
                     bevelType = BevelType.Cylinder;
 
                 Head match = Lookup.Keys
@@ -85,7 +91,7 @@ namespace Rbx2Source.Geometry
                 mesh.Scale = new Vector3(1, 1, 1);
             }
 
-            else if (mesh.IsA("SpecialMesh"))
+            else if (mesh is SpecialMesh)
             {
                 SpecialMesh specialMesh = mesh as SpecialMesh;
                 

@@ -12,7 +12,7 @@ namespace Rbx2Source
 {
     public partial class Launcher : Form
     {
-        private WebClient http = new WebClient();
+        private readonly WebClient http = new WebClient();
 
         public Launcher()
         {
@@ -53,7 +53,7 @@ namespace Rbx2Source
             string myName = myInfo.Name;
             string dir = myInfo.DirectoryName;
 
-            if (myName.StartsWith("NEW_"))
+            if (myName.StartsWith("NEW_", StringComparison.InvariantCulture))
             {
                 string newPath = Path.Combine(dir,myName.Substring(4));
                 File.Copy(myInfo.FullName, newPath, true);
@@ -68,7 +68,7 @@ namespace Rbx2Source
                     FileInfo info = new FileInfo(filePath);
                     string fileName = info.Name;
 
-                    if (fileName.StartsWith("NEW_") && info.Extension.ToLower() == "exe")
+                    if (fileName.StartsWith("NEW_", StringComparison.InvariantCulture) && info.Extension.ToUpperInvariant() == "EXE")
                     {
                         File.Delete(info.FullName);
                         break;
@@ -95,29 +95,6 @@ namespace Rbx2Source
                 Application.Exit();
             }
             
-            bool addedLibraries = false;
-            setStatus("Checking for required DLL files");
-
-            foreach (string library in ResourceUtility.GetFiles("Libraries"))
-            {
-                string libName = library.Replace("Libraries/", "");
-                string libPath = Path.Combine(dir, libName);
-
-                if (!File.Exists(libPath))
-                {
-                    byte[] content = ResourceUtility.GetResource(library);
-                    addedLibraries = true;
-
-                    File.WriteAllBytes(libPath, content);
-                }
-            }
-
-            if (addedLibraries)
-            {
-                await Task.Delay(1000);
-                Application.Restart();
-            }
-
             setStatus("Starting Rbx2Source");
             await Task.Delay(500);
 

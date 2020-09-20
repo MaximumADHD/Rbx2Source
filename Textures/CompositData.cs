@@ -4,22 +4,21 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
-using Rbx2Source.DataTypes;
+using RobloxFiles.DataTypes;
 using Rbx2Source.Geometry;
 using Rbx2Source.Web;
+using System.Diagnostics.Contracts;
 
 namespace Rbx2Source.Textures
 {
-    public enum DrawMode
+    [Flags]
+    public enum DrawFlags
     {
-        Guide,
-        Rect
-    }
+        Guide = 0b00,
+        Rect  = 0b10,
 
-    public enum DrawType
-    {
-        Texture,
-        Color,
+        Texture = 0b00,
+        Color   = 0b01,
     }
 
     public class TextureAllocation
@@ -39,23 +38,17 @@ namespace Rbx2Source.Textures
         public Rectangle Rect;
         public RotateFlipType FlipMode = RotateFlipType.RotateNoneFlipNone;
 
-        public readonly DrawMode DrawMode;
-        public readonly DrawType DrawType;
+        public readonly DrawFlags DrawFlags;
+        private static readonly Dictionary<long, TextureAllocation> TextureAlloc = new Dictionary<long, TextureAllocation>();
 
-        private static Dictionary<long, TextureAllocation> TextureAlloc = new Dictionary<long, TextureAllocation>();
-
-        public CompositData(DrawMode drawMode, DrawType drawType)
+        public CompositData(DrawFlags drawFlags)
         {
-            DrawMode = drawMode;
-            DrawType = drawType;
-
+            DrawFlags = drawFlags;
             Rect = new Rectangle();
         }
 
         public void SetGuide(string guideName, Rectangle guideSize, AvatarType avatarType)
         {
-            string avatarTypeName = Rbx2Source.GetEnumName(avatarType);
-
             string guidePath = "AvatarData/" + avatarType + "/Compositing/" + guideName + ".mesh";
             Asset guideAsset = Asset.FromResource(guidePath);
 
@@ -68,24 +61,18 @@ namespace Rbx2Source.Textures
             Rect.Location = offset;
         }
 
-        public bool SetDrawColor(int brickColorId)
+        public void SetDrawColor(int id)
         {
-            BrickColor bc;
-
-            if (BrickColor.TryFromNumber(brickColorId, out bc))
-            {
-                DrawColor = bc.Color;
-                return true;
-            }
-
-            return false;
+            BrickColor brick = id;
+            Color3uint8 clr = brick.Color;
+            DrawColor = Color.FromArgb(clr.R, clr.G, clr.B);
         }
 
         public int CompareTo(object other)
         {
             if (other is CompositData)
             {
-                CompositData otherComp = other as CompositData;
+                var otherComp = other as CompositData;
                 return (Layer - otherComp.Layer);
             }
 
@@ -94,33 +81,35 @@ namespace Rbx2Source.Textures
 
         public Vertex[] GetGuideVerts(int faceIndex)
         {
-            return Guide.Faces[faceIndex]
+            var result = Guide.Faces[faceIndex]
                 .Select((face) => Guide.Verts[face])
                 .ToArray();
+
+            return result;
         }
 
-        public void UseBrush(Action<Brush> handler)
+        public void UseBrush(Action<Brush> callback)
         {
-            using (Brush brush = new SolidBrush(DrawColor))
-            {
-                handler(brush);
-            }
+            using (var brush = new SolidBrush(DrawColor))
+            callback?.Invoke(brush);
         }
 
         public Bitmap GetTextureBitmap()
         {
             if (Texture is Asset)
             {
-                Asset asset = Texture as Asset;
+                var asset = Texture as Asset;
                 long assetId = asset.Id;
 
                 if (!TextureAlloc.ContainsKey(assetId))
                 {
                     byte[] buffer = asset.GetContent();
 
-                    var alloc = new TextureAllocation();
-                    alloc.Stream = new MemoryStream(buffer);
-
+                    var alloc = new TextureAllocation()
+                    {
+                        Stream = new MemoryStream(buffer)
+                    };
+                    
                     try
                     {
                         alloc.Texture = Image.FromStream(alloc.Stream) as Bitmap;

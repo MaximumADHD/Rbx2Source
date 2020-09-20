@@ -12,11 +12,13 @@ namespace Rbx2Source.Web
     static class AssetGroups
     {
 
-        private static Dictionary<AssetGroup, List<AssetType>> groups = new Dictionary<AssetGroup, List<AssetType>>();
+        private static readonly IReadOnlyDictionary<AssetGroup, List<AssetType>> groups;
 
         static AssetGroups()
         {
-            groups.Add(AssetGroup.PackageLimbs, new List<AssetType>()
+            var result = new Dictionary<AssetGroup, List<AssetType>>();
+
+            result.Add(AssetGroup.PackageLimbs, new List<AssetType>()
             {
                 AssetType.LeftArm,
                 AssetType.RightArm,
@@ -25,7 +27,7 @@ namespace Rbx2Source.Web
                 AssetType.Torso
             });
 
-            groups.Add(AssetGroup.Accessories, new List<AssetType>()
+            result.Add(AssetGroup.Accessories, new List<AssetType>()
             {
                 AssetType.Hat,
                 AssetType.HairAccessory,
@@ -37,7 +39,7 @@ namespace Rbx2Source.Web
                 AssetType.WaistAccessory
             });
 
-            groups.Add(AssetGroup.Animations, new List<AssetType>()
+            result.Add(AssetGroup.Animations, new List<AssetType>()
             {
                 AssetType.ClimbAnimation,
                 AssetType.DeathAnimation,
@@ -49,6 +51,8 @@ namespace Rbx2Source.Web
                 AssetType.WalkAnimation,
                 AssetType.PoseAnimation
             });
+
+            groups = result;
         }
 
         public static bool IsTypeInGroup(AssetType type, AssetGroup group)

@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 
-using Rbx2Source.DataTypes;
 using Rbx2Source.StudioMdl;
-using Rbx2Source.Reflection;
 using Rbx2Source.Web;
+
+using RobloxFiles;
+using RobloxFiles.DataTypes;
 
 namespace Rbx2Source.Animating
 {
-    public class Animator
+    public static class AnimationBuilder
     {
         public const int FrameRate = 60;
-        private static KeyframeSorter sorter = new KeyframeSorter();
+        private static readonly KeyframeSorter sorter = new KeyframeSorter();
 
         public static int ToFrameRate(float time)
         {
@@ -24,7 +26,7 @@ namespace Rbx2Source.Animating
             if (poses == null)
                 poses = new List<Pose>();
 
-            foreach (Pose pose in kf.GetChildrenOfClass<Pose>())
+            foreach (Pose pose in kf.GetChildrenOfType<Pose>())
             {
                 poses.Add(pose);
                 GatherPoses(pose, poses);
@@ -35,6 +37,8 @@ namespace Rbx2Source.Animating
 
         public static PosePair GetClosestPoses(Dictionary<int, Dictionary<string, Pose>> keyFrameMap, int frame, string poseName)
         {
+            Contract.Requires(keyFrameMap != null);
+
             // Get min.
             int minFrame = frame;
 
@@ -71,9 +75,11 @@ namespace Rbx2Source.Animating
             else
             {
                 // Generate dummy data so we don't do anything with this bone.
-                Pose stubPose = new Pose();
-                stubPose.Name = poseName;
-                stubPose.CFrame = new CFrame();
+                Pose stubPose = new Pose()
+                {
+                    Name = poseName,
+                    CFrame = new CFrame()
+                };
 
                 pair.Min.Pose = stubPose;
                 pair.Max.Pose = stubPose;
@@ -84,7 +90,8 @@ namespace Rbx2Source.Animating
 
         public static void PatchAngles(ref CFrame applyTo, int axis, float[] angles)
         {
-            float halfPi = (float)Math.PI / 2f;
+            Contract.Requires(angles != null);
+            const float halfPi = (float)(Math.PI / 2f);
 
             float[] applyRepair = new float[3];
             applyRepair[axis] = halfPi;
@@ -98,15 +105,17 @@ namespace Rbx2Source.Animating
             applyTo *= repair * rotate * repair.Inverse();
         }
 
-        public static string Assemble(KeyframeSequence sequence, List<Bone> rig)
+        public static string Assemble(KeyframeSequence sequence, List<StudioBone> rig)
         {
+            Contract.Requires(sequence != null && rig != null);
+
             StudioMdlWriter animWriter = new StudioMdlWriter();
             List<Keyframe> keyframes = new List<Keyframe>();
 
-            var boneLookup = new Dictionary<string, Bone>();
+            var boneLookup = new Dictionary<string, StudioBone>();
             var nodes = animWriter.Nodes;
 
-            foreach (Bone bone in rig)
+            foreach (StudioBone bone in rig)
             {
                 Node node = bone.Node;
 
@@ -121,20 +130,19 @@ namespace Rbx2Source.Animating
                 }
             }
 
-            foreach (Keyframe kf in sequence.GetChildrenOfClass<Keyframe>())
+            foreach (Keyframe kf in sequence.GetChildrenOfType<Keyframe>())
             {
                 Pose rootPart = kf.FindFirstChild<Pose>("HumanoidRootPart");
 
                 if (rootPart != null)
                 {
                     // We don't need the rootpart for this.
-                    foreach (Pose subPose in rootPart.GetChildrenOfClass<Pose>())
+                    foreach (Pose subPose in rootPart.GetChildrenOfType<Pose>())
                         subPose.Parent = kf;
 
                     rootPart.Destroy();
                 }
-
-                kf.Time /= sequence.TimeScale;
+                
                 keyframes.Add(kf);
             }
 
@@ -173,10 +181,11 @@ namespace Rbx2Source.Animating
 
             for (int i = 0; i < frameCount; i++)
             {
-                BoneKeyframe frame = new BoneKeyframe(i);
-                List<Bone> bones = frame.Bones;
-
-                if (sequence.AvatarType == AvatarType.R15)
+                var frame = new BoneKeyframe(i);
+                List<StudioBone> bones = frame.Bones;
+                var avatarTypeId = sequence.FindFirstChild<StringValue>("AvatarType");
+                
+                if (avatarTypeId.Value == "R15")
                 {
                     frame.BaseRig = rig;
                     frame.DeltaSequence = true;
@@ -197,7 +206,7 @@ namespace Rbx2Source.Animating
                     CFrame lastCFrame = pose0.CFrame;
                     CFrame nextCFrame = pose1.CFrame;
 
-                    Bone baseBone = boneLookup[node.Name];
+                    StudioBone baseBone = boneLookup[node.Name];
                     CFrame interp = lastCFrame.Lerp(nextCFrame, alpha);
 
                     // Make some patches to the interpolation offsets. Unfortunately I can't
@@ -205,7 +214,9 @@ namespace Rbx2Source.Animating
                     // At some point in the future, I want to find a more practical solution for this problem,
                     // but it is extremely difficult to isolate if any single solution exists.
 
-                    if (sequence.AvatarType == AvatarType.R6)
+                    var invariant = StringComparison.InvariantCulture;
+
+                    if (avatarTypeId.Value == "R6")
                     {
                         Vector3 pos = interp.Position;
                         CFrame rot = interp - pos;
@@ -217,13 +228,13 @@ namespace Rbx2Source.Animating
                             rot = CFrame.Angles(ang[0], ang[2], ang[1]);
                             pos = new Vector3(pos.X, pos.Z, pos.Y);
                         }
-                        else if (node.Name.StartsWith("Right"))
+                        else if (node.Name.StartsWith("Right", invariant))
                         {
                             // X-axis is inverted for the right arm/leg.
                             pos *= new Vector3(-1, 1, 1);
                         }
 
-                        if (node.Name.EndsWith("Arm") || node.Name.EndsWith("Leg"))
+                        if (node.Name.EndsWith("Arm", invariant) || node.Name.EndsWith("Leg", invariant))
                         {
                             // Rotate position offset of the arms & legs 90* counter-clockwise.
                             pos = new Vector3(-pos.Z, pos.Y, pos.X);
@@ -234,7 +245,7 @@ namespace Rbx2Source.Animating
 
                         interp = new CFrame(pos) * rot;
                     }
-                    else if (sequence.AvatarType == AvatarType.R15)
+                    else if (avatarTypeId.Value == "R15")
                     {
                         float[] ang = interp.ToEulerAnglesXYZ();
 
@@ -251,14 +262,17 @@ namespace Rbx2Source.Animating
                         PatchAngles(ref interp, 0, ang);
                     }
 
-                    Bone bone = new Bone(node, interp);
+                    StudioBone bone = new StudioBone(node, interp);
                     bones.Add(bone);
                 }
 
                 boneKeyframes.Add(frame);
             }
 
-            return animWriter.BuildFile();
+            string result = animWriter.BuildFile();
+            animWriter.Dispose();
+
+            return result;
         }
     }
 }

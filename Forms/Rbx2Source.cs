@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
@@ -43,22 +44,22 @@ namespace Rbx2Source
         private GameInfo selectedGame;
         private string latestCompiledModel;
         private GameInfo latestCompiledOnGame;
-        private Dictionary<string, GameInfo> sourceGames = new Dictionary<string, GameInfo>();
+        private readonly Dictionary<string, GameInfo> sourceGames = new Dictionary<string, GameInfo>();
 
         private Dictionary<Control, string> Links;
         private List<Control> CONTROLS_TO_DISABLE_WHEN_COMPILING;
         
         private static int stackLevel = 0;
-        private static List<OutputLog> outputQueue = new List<OutputLog>();
-        private static string outputDivider = "---------------------------------------------------------------------------";
+        private static readonly List<OutputLog> outputQueue = new List<OutputLog>();
+        private const  string outputDivider = "---------------------------------------------------------------------------";
 
-        private static Dictionary<string, bool> progressQueue = new Dictionary<string, bool>();
-        private static bool updateProgressQueue = false;
+        private static readonly Dictionary<string, bool> progressQueue = new Dictionary<string, bool>();
+        private static bool updateProgressQueue;
 
-        private static Image loadingImage = Properties.Resources.Loading;
-        private static Image brokenImage = Properties.Resources.BrokenPreview;
+        private static readonly Image loadingImage = Properties.Resources.Loading;
+        private static readonly Image brokenImage = Properties.Resources.BrokenPreview;
+        
         private static Image debugImage;
-
         private string assetPreviewImage = "";
 
         public Rbx2Source()
@@ -97,6 +98,9 @@ namespace Rbx2Source
 
         public static string GetEnumName<T>(T value)
         {
+            if (value == null)
+                return "null";
+
             return Enum.GetName(typeof(T), value);
         }
 
@@ -133,11 +137,15 @@ namespace Rbx2Source
 
         public static void PrintHeader(string msg)
         {
-            PrintInternal(new OutputLog("[" + msg.ToUpper() + "]", FontStyle.Bold));
+            Contract.Requires(msg != null);
+            PrintInternal(new OutputLog("[" + msg.ToUpperInvariant() + "]", FontStyle.Bold));
         }
 
         public static void Print(string msgFormat, params object[] values)
         {
+            if (msgFormat == null)
+                throw new ArgumentNullException(nameof(msgFormat));
+
             for (int i = 0; i < values.Length; i++)
             {
                 string match = "{" + i + "}";
@@ -152,17 +160,17 @@ namespace Rbx2Source
             debugImage = img;
         }
 
-        private void showError(string msg, bool fatal = false)
+        private static void showError(string msg, bool fatal = false)
         {
             MessageBox.Show(msg, (fatal ? "FATAL " : "") + "ERROR", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-            if (fatal)
-            {
-                Application.Exit();
-            }
+            if (!fatal)
+                return;
+
+            Application.Exit();
         }
 
-        private string[] getStringsInQuotes(string str)
+        private static string[] getStringsInQuotes(string str)
         {
             List<int> quoteLocs = new List<int>();
             char lastChar = '\0';
@@ -248,7 +256,7 @@ namespace Rbx2Source
 
                                 foreach (string gameDir in Directory.GetDirectories(game))
                                 {
-                                    if (!gameDir.Equals(bin))
+                                    if (!gameDir.Equals(bin, StringComparison.InvariantCulture))
                                     {
                                         string gameInfoPath = Path.Combine(gameDir, "gameinfo.txt");
                                         if (File.Exists(gameInfoPath))
@@ -297,7 +305,7 @@ namespace Rbx2Source
             {
                 assetPreviewImage = "https://www.roblox.com/asset-thumbnail/json?width=420&height=420&format=png&assetId=" + currentAssetId;
                 compilerInput.Text = "AssetId:";
-                compilerInputField.Text = currentAssetId.ToString();
+                compilerInputField.Text = currentAssetId.ToInvariantString();
                 compilerTypeIcon.Image = Properties.Resources.Accoutrement_icon;
             }
         }
@@ -326,10 +334,7 @@ namespace Rbx2Source
         {
             string text = value.ToString();
 
-            long assetId = -1;
-            long.TryParse(text, out assetId);
-
-            if (assetId > 0)
+            if (long.TryParse(text, out long assetId))
             {
                 Asset asset = null;
 
@@ -354,7 +359,7 @@ namespace Rbx2Source
                         assetPreview.Image = loadingImage;
                         currentAssetId = assetId;
 
-                        Settings.SaveSetting("AssetId", assetId.ToString());
+                        Settings.SaveSetting("AssetId", assetId.ToInvariantString());
                         return true;
                     }
                     else
@@ -389,7 +394,7 @@ namespace Rbx2Source
                     TrySetAssetId(compilerInputField.Text);
 
                 updateDisplays();
-                await Task.Delay(1);
+                await Task.Delay(100);
 
                 compilerTypeSelect.Enabled = true;
                 compilerInputField.Enabled = true;
@@ -436,7 +441,7 @@ namespace Rbx2Source
                 updateProgressQueue = false;
             }
 
-            await Task.Delay(1);
+            await Task.Delay(100);
         }
 
         private async void LogException(Task brokenTask, string context)
@@ -572,7 +577,7 @@ namespace Rbx2Source
             }
         }
         
-        private void loadComboBox(ComboBox comboBox, string settingsKey, int defaultValue = 0)
+        private static void loadComboBox(ComboBox comboBox, string settingsKey, int defaultValue = 0)
         {
             string value = Settings.GetString(settingsKey);
 
@@ -653,8 +658,8 @@ namespace Rbx2Source
             {
                 try
                 {
-                    RegistryKey classesRoot = Registry.ClassesRoot;
-                    RegistryKey steam = classesRoot.OpenSubKey(@"SOFTWARE\Valve\Steam");
+                    RegistryKey currentUser = Registry.CurrentUser;
+                    RegistryKey steam = currentUser.OpenSubKey(@"SOFTWARE\Valve\Steam");
                     steamDir = steam.GetValue("SteamPath") as string;
                 }
                 catch
@@ -745,7 +750,7 @@ namespace Rbx2Source
             Links = new Dictionary<Control, string>() 
             {
                 {twitterLink,   "https://www.twitter.com/CloneTeee1019"},
-                {AJLink,        "https://www.github.com/RedInquisitive"},
+                {AJLink,        "https://www.github.com/RedTopper"},
                 {egoMooseLink,  "https://www.github.com/EgoMoose"},
                 {nemsTools,     "http://nemesis.thewavelength.net/index.php?p=40"}
             };
@@ -771,7 +776,7 @@ namespace Rbx2Source
                             string currentPending = assetPreviewImage; // localize this in case it changes.
                             assetPreview.Image = loadingImage;
 
-                            Task<string> pend = Task.Run(() => WebUtility.PendCdnUrl(currentPending, false));
+                            Task<string> pend = Task.Run(() => WebUtility.PendCdn(currentPending, false));
 
                             while (!pend.IsCompleted)
                             {
