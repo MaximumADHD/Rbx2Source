@@ -119,7 +119,7 @@ namespace Rbx2Source.Assembler
                     bones.Add(bone);
 
                     Node node = bone.Node;
-                    nodes.Add(bone.Node);
+                    nodes.Add(node);
 
                     int faceStride;
                     materials.Add(name, material);
