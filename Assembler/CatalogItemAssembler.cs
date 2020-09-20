@@ -119,11 +119,17 @@ namespace Rbx2Source.Assembler
                     bones.Add(bone);
 
                     Node node = bone.Node;
-                    nodes.Add(node);
+                    nodes.Add(bone.Node);
 
+                    int faceStride;
                     materials.Add(name, material);
 
-                    for (int i = 0; i < geometry.NumFaces; i++)
+                    if (geometry.HasLODs)
+                        faceStride = geometry.LODs[1];
+                    else
+                        faceStride = geometry.NumFaces;
+
+                    for (int i = 0; i < faceStride; i++)
                     {
                         Triangle tri = new Triangle()
                         {

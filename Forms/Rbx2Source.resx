@@ -118,7 +118,19 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.60] (September 19th, 2020)
+    <value>[v2.61] (September 20th, 2020)
+
+• Fixed a bug where VertexColor values outside the
+  range of [0-1] would be colored incorrectly.
+  (i.e. Pal Hair)
+• Fixed a regression to meshes which would erroneously
+  bake all LOD meshes into one mesh.
+• Update procedure now correctly cleans up the old
+  version of the executable when updating.
+• Fixed a regression to R6 character packages.
+______________________________________________________
+
+[v2.60] (September 19th, 2020)
 
 • Migrated Instance handling to my Roblox-File-Format 
   library instead of using an old integrated solution.

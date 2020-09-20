@@ -277,8 +277,15 @@ namespace Rbx2Source.Assembler
 
             Mesh geometry = Mesh.BakePart(part, material);
             meshBuilder.Materials[matName] = material;
-            
-            for (int i = 0; i < geometry.NumFaces; i++)
+
+            int faceStride;
+
+            if (geometry.HasLODs)
+                faceStride = geometry.LODs[1];
+            else
+                faceStride = geometry.NumFaces;
+
+            for (int i = 0; i < faceStride; i++)
             {
                 Triangle tri = new Triangle()
                 {
