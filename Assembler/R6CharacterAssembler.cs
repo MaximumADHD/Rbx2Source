@@ -107,11 +107,7 @@ namespace Rbx2Source.Assembler
                     string limbName = LimbMatcher[characterMesh.BodyPart];
 
                     var limb = assembly.FindFirstChild<MeshPart>(limbName);
-                    
-                    if (limb == null)
-                    {
-                        limb.MeshId = "rbxassetid://" + characterMesh.MeshId;
-                    }
+                    limb.MeshId = "rbxassetid://" + characterMesh.MeshId;
                 }
                 else if (asset is Accoutrement && !collisionModel)
                 {
