@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 using RobloxFiles.DataTypes;
 using RobloxFiles;
 using Rbx2Source.Web;
-using System.Globalization;
+
 
 #pragma warning disable CA1308 // Normalize strings to uppercase
 
@@ -62,7 +63,7 @@ namespace Rbx2Source.Assembler
             VmtFields[name] = value;
         }
 
-        private void updateVmtFields()
+        private void UpdateVmtFields()
         {
             if (Transparency != 0.0 && Transparency != 1.0)
             {
@@ -81,14 +82,16 @@ namespace Rbx2Source.Assembler
 
             if (!usingDefaultColor)
             {
-                Vector3 vc = VertexColor;
+                float x = Math.Min(1f, Math.Max(0f, VertexColor.X)),
+                      y = Math.Min(1f, Math.Max(0f, VertexColor.Y)),
+                      z = Math.Min(1f, Math.Max(0f, VertexColor.Z));
 
-                byte r = (byte)(vc.X * 255);
-                byte g = (byte)(vc.Y * 255);
-                byte b = (byte)(vc.Z * 255);
+                byte r = (byte)(x * 255),
+                     g = (byte)(y * 255),
+                     b = (byte)(z * 255);
 
                 string rgb = string.Join(" ", r, g, b);
-                SetVmtField("color2", "{" + rgb + "}");
+                SetVmtField("color2", $"{{{rgb}}}");
             }
         }
 
@@ -98,7 +101,7 @@ namespace Rbx2Source.Assembler
 
             using (StringWriter buffer = new StringWriter())
             {
-                updateVmtFields();
+                UpdateVmtFields();
 
                 buffer.WriteLine(Shader);
                 buffer.WriteLine("{");
