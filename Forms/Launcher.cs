@@ -70,7 +70,19 @@ namespace Rbx2Source
 
                     if (fileName.StartsWith("NEW_", StringComparison.InvariantCulture) && info.Extension.ToUpperInvariant() == ".EXE")
                     {
-                        File.Delete(info.FullName);
+                        for (int i = 0; i < 10; i++)
+                        {
+                            try
+                            {
+                                File.Delete(info.FullName);
+                                break;
+                            }
+                            catch
+                            {
+                                await Task.Delay(100);
+                            }
+                        }
+                        
                         break;
                     }
                 }
