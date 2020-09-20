@@ -120,7 +120,7 @@
   <data name="changeLogBox.Text" xml:space="preserve">
     <value>[v2.60] (September 19th, 2020)
 
-• Migrated Instance handling my Roblox-File-Format 
+• Migrated Instance handling to my Roblox-File-Format 
   library instead of using an old integrated solution.
 • Replaced several broken/removed Roblox Web APIs.
 • Made several improvements to the code based on
