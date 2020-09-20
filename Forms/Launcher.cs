@@ -68,7 +68,7 @@ namespace Rbx2Source
                     FileInfo info = new FileInfo(filePath);
                     string fileName = info.Name;
 
-                    if (fileName.StartsWith("NEW_", StringComparison.InvariantCulture) && info.Extension.ToUpperInvariant() == "EXE")
+                    if (fileName.StartsWith("NEW_", StringComparison.InvariantCulture) && info.Extension.ToUpperInvariant() == ".EXE")
                     {
                         File.Delete(info.FullName);
                         break;
