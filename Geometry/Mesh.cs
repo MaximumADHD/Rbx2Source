@@ -35,11 +35,14 @@ namespace Rbx2Source.Geometry
         public int NumBones;
         public List<MeshBone> Bones;
 
-        public int NumSkinData;
+        public ushort NumSkinData;
         public List<SkinData> SkinData;
 
         public int NameTableSize;
         public byte[] NameTable;
+
+        // TODO: What is this?
+        public ushort Stub = 0;
 
         public bool HasLODs => (Version >= 3);
         public bool HasSkinning => (Version >= 4);
@@ -136,6 +139,7 @@ namespace Rbx2Source.Geometry
 
             if (mesh.HasSkinning)
             {
+                mesh.HasVertexColors = true;
                 mesh.NumMeshes = reader.ReadUInt16();
 
                 mesh.NumVerts = reader.ReadInt32();
@@ -145,7 +149,9 @@ namespace Rbx2Source.Geometry
                 mesh.NumBones = reader.ReadUInt16();
 
                 mesh.NameTableSize = reader.ReadInt32();
-                mesh.NumSkinData = reader.ReadInt32();
+                mesh.NumSkinData = reader.ReadUInt16();
+
+                mesh.Stub = reader.ReadUInt16();
             }
             else
             {
@@ -199,7 +205,7 @@ namespace Rbx2Source.Geometry
                 mesh.Verts.Add(vert);
             }
 
-            if (mesh.HasSkinning)
+            if (mesh.HasSkinning && mesh.NumBones > 0)
             {
                 // Read Bone Weights?
                 for (int i = 0; i < mesh.NumVerts; i++)
