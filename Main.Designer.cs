@@ -1,6 +1,6 @@
 ﻿namespace Rbx2Source
 {
-    partial class Rbx2Source
+    partial class Main
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Rbx2Source));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.About = new System.Windows.Forms.TabPage();
             this.nemsTools = new System.Windows.Forms.PictureBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
@@ -436,6 +436,7 @@
             // 
             this.assetPreview.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.assetPreview.ErrorImage = null;
+            this.assetPreview.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
             this.assetPreview.Location = new System.Drawing.Point(234, 3);
             this.assetPreview.Name = "assetPreview";
             this.assetPreview.Size = new System.Drawing.Size(116, 129);
@@ -541,7 +542,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Rbx2Source v2.62";
             this.TopMost = true;
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);
             this.About.ResumeLayout(false);
             this.About.PerformLayout();

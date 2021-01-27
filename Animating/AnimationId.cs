@@ -26,7 +26,7 @@ namespace Rbx2Source.Animating
 
         public override string ToString()
         {
-            return Rbx2Source.GetEnumName(AnimationType) + ' ' + AssetId;
+            return Main.GetEnumName(AnimationType) + ' ' + AssetId;
         }
     }
 }

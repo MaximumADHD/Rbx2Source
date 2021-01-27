@@ -10,21 +10,34 @@ namespace RobloxFiles
         public Node Node;
         public bool IsAvatarBone;
 
-        public StudioBone(string name, BasePart parent, BasePart attachTo = null)
+        public int NodeIndex => Node?.Index ?? -1;
+
+        public StudioBone(string name, BasePart part)
         {
             Name = name;
-            Node = new Node() { StudioBone = this };
+
+            Node = new Node(this);
+            Node.Name = name;
+
+            Part0 = part;
+            Part1 = part;
+
+            Parent = part;
+        }
+
+        public StudioBone(Attachment a0, Attachment a1)
+        {
+            Part0 = a0.Parent as BasePart;
+            Part1 = a1.Parent as BasePart;
+
+            Name = Part1.Name;
+            Node = new Node(this);
             
-            Part0 = parent;
-            Part1 = attachTo ?? parent;
+            C0 = a0.CFrame;
+            C1 = a1.CFrame;
 
-            if (Part1 != null)
-                Node.Name = Part1.Name;
-
-            C0 = new CFrame();
-            C1 = new CFrame();
-
-            Parent = parent;
+            Node.Name = Name;
+            Parent = Part1;
         }
 
         public StudioBone(Node node, CFrame interp)

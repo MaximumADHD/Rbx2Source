@@ -19,8 +19,6 @@ using System.Diagnostics.Contracts;
 
 namespace Rbx2Source.Assembler
 {
-    public enum Limb { Head, Torso, LeftArm, RightArm, LeftLeg, RightLeg, Unknown }
-    
     public class CharacterAssembler : IAssembler<UserAvatar>
     {
         public static bool DEBUG_RAPID_ASSEMBLY = false;
@@ -36,7 +34,9 @@ namespace Rbx2Source.Assembler
                 return BodyPart.Head;
             else if (name.EndsWith("Torso", invariant))
                 return BodyPart.Torso;
-
+            else if (name == "HumanoidRootPart")
+                return BodyPart.Torso;
+            
             string limbName;
 
             if (name.StartsWith("Left", invariant))
@@ -57,132 +57,89 @@ namespace Rbx2Source.Assembler
             return bodyPart;
         }
 
-        public static List<Attachment> FindOtherAttachments(Attachment a, Instance bin)
+        private static BasePart GetRootPart(Instance parent)
         {
-            Contract.Requires(a != null && bin != null);
-            List<Attachment> result = new List<Attachment>();
+            BasePart rootPart = parent.FindFirstChild<BasePart>("HumanoidRootPart");
 
-            foreach (Instance child in bin.GetChildren())
+            if (rootPart == null)
             {
-                Attachment b = child.FindFirstChild<Attachment>(a.Name);
+                var rootAtt = new Attachment();
+                rootAtt.Name = "RootRigAttachment";
+                rootAtt.CFrame = new CFrame(0, -1, 0);
 
-                if (b != null && a != b)
-                {
-                    result.Add(b);
-                }
+                rootPart = new Part();
+                rootPart.Transparency = 1;
+                rootPart.Name = "HumanoidRootPart";
+                rootPart.Size = new Vector3(2, 2, 1);
+
+                rootAtt.Parent = rootPart;
+                rootPart.Parent = parent;
             }
 
-            return result;
+            return rootPart;
         }
 
-        private static void GenerateBones(BoneAssemblePrep prep, Attachment[] queue)
+        public static void GenerateSkeleton(BasePart part, ref int nodeIndex)
         {
-            if (queue.Length == 0)
-                return;
-
-            Instance bin = queue[0].Parent.Parent;
-
-            foreach (Attachment a0 in queue)
+            foreach (Attachment a0 in part.GetChildrenOfType<Attachment>())
             {
-                List<Attachment> a1s = FindOtherAttachments(a0, bin);
+                if (a0.Tags.Contains("Marked"))
+                    continue;
 
-                foreach (Attachment a1 in a1s)
+                var model = part.Parent;
+
+                foreach (BasePart otherPart in model.GetChildrenOfType<BasePart>())
                 {
-                    if (a1 != null && !prep.Completed.Contains(a1))
+                    if (part == otherPart)
+                        continue;
+
+                    if (otherPart.Transparency >= 1)
+                        continue;
+                    
+                    var a1 = otherPart.FindFirstChild<Attachment>(a0.Name);
+
+                    if (a1 != null)
                     {
-                        BasePart part0 = (BasePart)a0.Parent;
-                        BasePart part1 = (BasePart)a1.Parent;
+                        var bone = new StudioBone(a0, a1);
+                        var limb = GetLimb(otherPart);
 
-                        bool isRigAttachment = a0.Name.EndsWith("RigAttachment", StringComparison.InvariantCulture);
+                        var node = bone.Node;
+                        node.Index = nodeIndex++;
 
-                        if (isRigAttachment || prep.AllowNonRigs)
-                        {
-                            StudioBone bone = new StudioBone(part1.Name, part0, part1)
-                            {
-                                C0 = a0.CFrame,
-                                C1 = a1.CFrame,
-                            };
+                        bone.IsAvatarBone = limb.HasValue;
+                        otherPart.CFrame = part.CFrame * a0.CFrame * a1.CFrame.Inverse();
 
-                            bone.IsAvatarBone = !prep.AllowNonRigs;
-                            prep.Bones.Add(bone);
-
-                            Node node = bone.Node;
-                            node.NodeIndex = prep.Bones.IndexOf(bone);
-                            prep.Nodes.Add(node);
-
-                            if (!prep.Completed.Contains(a0))
-                                prep.Completed.Add(a0);
-
-                            prep.Completed.Add(a1);
-
-                            if (!prep.AllowNonRigs)
-                            {
-                                GenerateBones(prep, part1.GetChildrenOfType<Attachment>());
-                            }
-                        }
-                        else // We'll deal with Accessory attachments afterwards.
-                        {
-                            prep.NonRigs.Add(a0);
-                        }
+                        a1.Tags.Add("Marked");
+                        GenerateSkeleton(otherPart, ref nodeIndex);
                     }
                 }
             }
         }
 
-        public static void ApplyBoneCFrames(BasePart part)
-        {
-            Contract.Requires(part != null);
-
-            foreach (StudioBone bone in part.GetChildrenOfType<StudioBone>())
-            {
-                BasePart part0 = bone.Part0;
-                BasePart part1 = bone.Part1;
-
-                part1.CFrame = part0.CFrame * bone.C0 * bone.C1.Inverse();
-
-                if (part0 != part1)
-                {
-                    ApplyBoneCFrames(part1);
-                }
-            }
-        }
-
-        public static BoneKeyframe AssembleBones(StudioMdlWriter meshBuilder, BasePart rootPart)
+        public static BoneKeyframe AssembleBones(StudioMdlWriter meshBuilder, Folder assembly)
         {
             Contract.Requires(meshBuilder != null);
-            Contract.Requires(rootPart != null);
+            Contract.Requires(assembly != null);
 
-            Rbx2Source.Print("Building Skeleton...");
-            BoneKeyframe kf = new BoneKeyframe();
+            BasePart rootPart = GetRootPart(assembly);
+            Main.Print("Building Skeleton...");
 
-            List<StudioBone> bones = kf.Bones;
-            List<Node> nodes = meshBuilder.Nodes;
+            int nodeCount = 0;
+            GenerateSkeleton(rootPart, ref nodeCount);
 
-            StudioBone rootBone = new StudioBone(rootPart.Name, rootPart)
-            {
-                C0 = new CFrame(),
-                IsAvatarBone = true
-            };
+            var reference = new BoneKeyframe();
+            meshBuilder.Skeleton.Add(reference);
 
-            Node rootNode = rootBone.Node;
-            rootNode.NodeIndex = 0;
+            reference.Bones = assembly
+                .GetDescendantsOfType<StudioBone>()
+                .OrderBy(bone => bone.NodeIndex)
+                .ToList();
 
-            bones.Add(rootBone);
-            nodes.Add(rootNode);
-
-            // Assemble the base rig.
-            BoneAssemblePrep prep = new BoneAssemblePrep(ref bones, ref nodes);
-            GenerateBones(prep, rootPart.GetChildrenOfType<Attachment>());
-
-            // Assemble the accessories.
-            prep.AllowNonRigs = true;
-            GenerateBones(prep, prep.NonRigs.ToArray());
-
-            // Apply the rig cframe data.
-            ApplyBoneCFrames(rootPart);
-            meshBuilder.Skeleton.Add(kf);
-
-            return kf;
+            meshBuilder.Nodes = reference.Bones
+                .Select(bone => bone.Node)
+                .ToList();
+            
+            return reference;
         }
 
         public static void PrepareAccessory(Instance asset, Folder assembly)
@@ -232,6 +189,7 @@ namespace Rbx2Source.Assembler
             foreach (Vector3Value overrider in overrides)
             {
                 Attachment attachment = head.FindFirstChild<Attachment>(overrider.Name);
+
                 if (attachment != null)
                 {
                     CFrame cf = attachment.CFrame;
@@ -252,7 +210,7 @@ namespace Rbx2Source.Assembler
             Contract.Requires(meshBuilder != null && bone != null);
             
             string task = "BuildGeometry_" + bone.Node.Name;
-            Rbx2Source.ScheduleTasks(task);
+            Main.ScheduleTasks(task);
 
             Node node = bone.Node;
             BasePart part = bone.Part1;
@@ -267,13 +225,13 @@ namespace Rbx2Source.Assembler
                 if (!limb.HasValue)
                     throw new ArgumentException("Provided StudioBone did not point to a limb correctly.");
 
-                matName = Rbx2Source.GetEnumName(limb.Value);
+                matName = Main.GetEnumName(limb.Value);
             }
 
             var material = new ValveMaterial() { UseAvatarMap = isAvatarLimb };
             
-            Rbx2Source.Print("Building Geometry for {0}", part.Name);
-            Rbx2Source.IncrementStack();
+            Main.Print($"Building Geometry for {part.Name}");
+            Main.IncrementStack();
 
             Mesh geometry = Mesh.BakePart(part, material);
             meshBuilder.Materials[matName] = material;
@@ -298,18 +256,21 @@ namespace Rbx2Source.Assembler
                 meshBuilder.Triangles.Add(tri);
             }
 
-            Rbx2Source.DecrementStack();
-            Rbx2Source.MarkTaskCompleted(task);
+            Main.DecrementStack();
+            Main.MarkTaskCompleted(task);
         }
+
 
         public static Folder AppendCharacterAssets(UserAvatar avatar, string avatarType, string context = "CHARACTER")
         {
             Contract.Requires(avatar != null);
-            Rbx2Source.PrintHeader("GATHERING " + context + " ASSETS");
+            Main.PrintHeader("GATHERING " + context + " ASSETS");
 
             Folder characterAssets = new Folder();
             AssetInfo[] assets = avatar.Assets;
 
+            GetRootPart(characterAssets);
+            
             foreach (AssetInfo info in assets)
             {
                 long id = info.Id;
@@ -354,6 +315,9 @@ namespace Rbx2Source.Assembler
                 Offset = new Vector3(),
                 Parent = collisionAssets
             };
+
+            if (collisionAssets.FindFirstChild("HumanoidRootPart") == null)
+                GetRootPart(collisionAssets);
 
             return collisionAssets;
         }
@@ -422,7 +386,12 @@ namespace Rbx2Source.Assembler
                 }
             }
 
-            return (lowestY - (lowest.Size.Y / 2f)) * Rbx2Source.MODEL_SCALE;
+            return (lowestY - (lowest.Size.Y / 2f)) * Main.MODEL_SCALE;
+        }
+
+        private static Rectangle ExtendEdge(Rectangle rect)
+        {
+            return new Rectangle(rect.X - 1, rect.Y - 1, rect.Width + 2, rect.Height + 2);
         }
 
         public AssemblerData Assemble(UserAvatar avatar)
@@ -444,20 +413,20 @@ namespace Rbx2Source.Assembler
 
             FileUtility.InitiateEmptyDirectories(modelDir, anim8Dir, texturesDir, materialsDir);
 
-            AvatarType avatarType = avatar.PlayerAvatarType;
+            HumanoidRigType avatarType = avatar.PlayerAvatarType;
             ICharacterAssembler assembler;
 
-            if (avatarType == AvatarType.R15)
+            if (avatarType == HumanoidRigType.R15)
                 assembler = new R15CharacterAssembler();
             else
                 assembler = new R6CharacterAssembler();
 
             string compileDir = "roblox_avatars/" + userName;
 
-            string avatarTypeName = Rbx2Source.GetEnumName(avatarType);
+            string avatarTypeName = Main.GetEnumName(avatarType);
             Folder characterAssets = AppendCharacterAssets(avatar, avatarTypeName);
             
-            Rbx2Source.ScheduleTasks
+            Main.ScheduleTasks
             (
                 "BuildCharacter",
                 "BuildCollisionModel", 
@@ -467,7 +436,7 @@ namespace Rbx2Source.Assembler
                 "BuildCompilerScript"
             );
 
-            Rbx2Source.PrintHeader("BUILDING CHARACTER MODEL");
+            Main.PrintHeader("BUILDING CHARACTER MODEL");
             #region Build Character Model
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -481,12 +450,12 @@ namespace Rbx2Source.Assembler
             string refPath = Path.Combine(modelDir, "ReferencePos.smd");
             FileUtility.WriteFile(refPath, staticPose);
 
-            Rbx2Source.MarkTaskCompleted("BuildCharacter");
+            Main.MarkTaskCompleted("BuildCharacter");
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
-            Rbx2Source.PrintHeader("BUILDING COLLISION MODEL");
+            Main.PrintHeader("BUILDING COLLISION MODEL");
             #region Build Character Collisions
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -501,12 +470,12 @@ namespace Rbx2Source.Assembler
             string cjointsPath = Path.Combine(modelDir, "CollisionJoints.qc");
 
             FileUtility.WriteFile(cjointsPath, collisionJoints);
-            Rbx2Source.MarkTaskCompleted("BuildCollisionModel");
+            Main.MarkTaskCompleted("BuildCollisionModel");
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
-            Rbx2Source.PrintHeader("BUILDING CHARACTER ANIMATIONS");
+            Main.PrintHeader("BUILDING CHARACTER ANIMATIONS");
             #region Build Character Animations
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -515,14 +484,14 @@ namespace Rbx2Source.Assembler
                 
             if (animIds.Count > 0)
             {
-                Rbx2Source.Print("Collecting Animations...");
-                Rbx2Source.IncrementStack();
+                Main.Print("Collecting Animations...");
+                Main.IncrementStack();
 
                 Action<string, Asset> collectAnimation = (animName, animAsset) =>
                 {
                     if (!compileAnims.ContainsKey(animName))
                     {
-                        Rbx2Source.Print("Collected animation {0} with id {1}", animName, animAsset.Id);
+                        Main.Print($"Collected animation {animName} with id {animAsset.Id}");
                         compileAnims.Add(animName, animAsset);
                     }
                 };
@@ -586,21 +555,21 @@ namespace Rbx2Source.Assembler
                     }
                 }
 
-                Rbx2Source.DecrementStack();
+                Main.DecrementStack();
             }
             else
             {
-                Rbx2Source.Print("No animations found :(");
+                Main.Print("No animations found :(");
             }
 
             if (compileAnims.Count > 0)
             {
-                Rbx2Source.Print("Assembling Animations...");
-                Rbx2Source.IncrementStack();
+                Main.Print("Assembling Animations...");
+                Main.IncrementStack();
 
                 foreach (string animName in compileAnims.Keys)
                 {
-                    Rbx2Source.Print("Building Animation {0}...", animName);
+                    Main.Print($"Building Animation {animName}...");
 
                     Asset animAsset = compileAnims[animName];
                     var import = animAsset.OpenAsModel();
@@ -621,15 +590,15 @@ namespace Rbx2Source.Assembler
                     FileUtility.WriteFile(animPath, animation);
                 }
 
-                Rbx2Source.DecrementStack();
+                Main.DecrementStack();
             }
 
-            Rbx2Source.MarkTaskCompleted("BuildAnimations");
+            Main.MarkTaskCompleted("BuildAnimations");
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
-            Rbx2Source.PrintHeader("BUILDING CHARACTER TEXTURES");
+            Main.PrintHeader("BUILDING CHARACTER TEXTURES");
             #region Build Character Textures
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -643,8 +612,9 @@ namespace Rbx2Source.Assembler
             }
             else
             {
-                TextureCompositor texCompositor = assembler.ComposeTextureMap(characterAssets, avatar.BodyColors);
+                var texCompositor = assembler.ComposeTextureMap(characterAssets, avatar.BodyColors);
                 textures = assembler.BindTextures(texCompositor, materials);
+                texCompositor.Dispose();
             }
 
             var images = textures.Images;
@@ -652,7 +622,7 @@ namespace Rbx2Source.Assembler
 
             foreach (string imageName in images.Keys)
             {
-                Rbx2Source.Print("Writing Image {0}.png", imageName);
+                Main.Print($"Writing Image {imageName}.png");
 
                 Image image = images[imageName];
                 string imagePath = Path.Combine(texturesDir, imageName + ".png");
@@ -663,19 +633,19 @@ namespace Rbx2Source.Assembler
                 }
                 catch
                 {
-                    Rbx2Source.Print("IMAGE {0}.png FAILED TO SAVE!", imageName);
+                    Main.Print($"IMAGE {imageName}.png FAILED TO SAVE!");
                 }
 
                 FileUtility.LockFile(imagePath);
             }
 
             CompositData.FreeAllocatedTextures();
-            Rbx2Source.MarkTaskCompleted("BuildTextures");
+            Main.MarkTaskCompleted("BuildTextures");
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
-            Rbx2Source.PrintHeader("WRITING MATERIAL FILES");
+            Main.PrintHeader("WRITING MATERIAL FILES");
             #region Write Material Files
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -683,7 +653,7 @@ namespace Rbx2Source.Assembler
 
             foreach (string mtlName in matLinks.Keys)
             {
-                Rbx2Source.Print("Building VMT {0}.vmt", mtlName);
+                Main.Print($"Building VMT {mtlName}.vmt");
 
                 string targetVtf = matLinks[mtlName];
                 string vmtPath = Path.Combine(materialsDir, mtlName + ".vmt");
@@ -693,12 +663,12 @@ namespace Rbx2Source.Assembler
                 mtl.WriteVmtFile(vmtPath);
             }
 
-            Rbx2Source.MarkTaskCompleted("BuildMaterials");
+            Main.MarkTaskCompleted("BuildMaterials");
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
-            Rbx2Source.PrintHeader("WRITING COMPILER SCRIPT");
+            Main.PrintHeader("WRITING COMPILER SCRIPT");
             #region Write Compiler Script
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -732,7 +702,7 @@ namespace Rbx2Source.Assembler
                 QuakeCItem sequence = qc.Add("sequence", animName.ToLowerInvariant(), "Animations/" + animName + ".smd");
                 sequence.AddSubItem("fps", AnimationBuilder.FrameRate);
 
-                if (avatarType == AvatarType.R6)
+                if (avatarType == HumanoidRigType.R6)
                     sequence.AddSubItem("delta");
 
                 sequence.AddSubItem("loop");
@@ -742,7 +712,7 @@ namespace Rbx2Source.Assembler
             string qcPath = Path.Combine(modelDir, "Compile.qc");
 
             FileUtility.WriteFile(qcPath, qcFile);
-            Rbx2Source.MarkTaskCompleted("BuildCompilerScript");
+            Main.MarkTaskCompleted("BuildCompilerScript");
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion

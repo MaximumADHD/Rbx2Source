@@ -8,33 +8,30 @@ namespace Rbx2Source.Geometry
     
     public partial class Vertex
     {
-        public Point ToPoint()
+        public PointF ToPoint()
         {
-            int x = (int)(Position.X + 0.5f),
-                y = (int)(Position.Y + 0.5f);
+            float x = Position.X,
+                  y = Position.Y;
 
-            return new Point(x, y);
+            return new PointF(x, y);
         }
 
-        public Point ToPoint(Rectangle canvas, Point offset)
+        public PointF ToPoint(Rectangle canvas, Point offset)
         {
-            int x = (int)(Position.X + 0.5f),
-                y = (int)(Position.Y + 0.5f);
+            float x = Position.X,
+                  y = Position.Y;
 
-            return new Point(offset.X + x, (offset.Y - y) + canvas.Height);
+            return new PointF(offset.X + x, offset.Y - y + canvas.Height);
         }
 
-        public Point ToUV(Bitmap target)
+        public PointF ToUV(Bitmap target)
         {
             Contract.Requires(target != null);
 
             float x = UV.X * target.Width,
                   y = UV.Y * target.Height;
 
-            int ix = (int)(x + 0.5f),
-                iy = (int)(y + 0.5f);
-
-            return new Point(ix, iy);
+            return new PointF(x, y);
         }
     }
 }

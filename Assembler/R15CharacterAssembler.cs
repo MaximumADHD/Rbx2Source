@@ -326,7 +326,7 @@ namespace Rbx2Source.Assembler
 
             var userAnims = avatar.Assets
                 .Where(asset => AssetGroups.IsTypeInGroup(asset.Type, AssetGroup.Animations))
-                .ToDictionary(asset => Rbx2Source.GetEnumName(asset.Type).Replace("Animation", ""));
+                .ToDictionary(asset => Main.GetEnumName(asset.Type).Replace("Animation", ""));
 
             var animIds = new Dictionary<string, AnimationId>();
 
@@ -464,27 +464,24 @@ namespace Rbx2Source.Assembler
                 }
             }
 
-            BasePart torso = assembly.FindFirstChild<BasePart>("LowerTorso");
-            torso.CFrame = new CFrame();
-
-            BoneKeyframe keyframe = AssembleBones(meshBuilder, torso);
+            BoneKeyframe keyframe = AssembleBones(meshBuilder, assembly);
             List<StudioBone> bones = keyframe.Bones;
 
             // Build File Data.
-            Rbx2Source.Print("Building Geometry...");
-            Rbx2Source.IncrementStack();
+            Main.Print("Building Geometry...");
+            Main.IncrementStack();
 
             foreach (StudioBone bone in bones)
                 BuildAvatarGeometry(meshBuilder, bone);
 
-            Rbx2Source.DecrementStack();
+            Main.DecrementStack();
             return meshBuilder;
         }
 
         public TextureCompositor ComposeTextureMap(Folder characterAssets, WebBodyColors bodyColors)
         {
             Contract.Requires(characterAssets != null && bodyColors != null);
-            TextureCompositor compositor = new TextureCompositor(AvatarType.R15, 1024, 568);
+            TextureCompositor compositor = new TextureCompositor(1024, 568, HumanoidRigType.R15);
 
             // Append BodyColors
             compositor.AppendColor(bodyColors.HeadColorId,     RECT_HEAD);
@@ -500,6 +497,7 @@ namespace Rbx2Source.Assembler
 
             // Append Shirt
             Shirt shirt = characterAssets.FindFirstChildOfClass<Shirt>();
+
             if (shirt != null)
             {
                 Asset shirtTemplate = Asset.GetByAssetId(shirt.ShirtTemplate);
@@ -510,6 +508,7 @@ namespace Rbx2Source.Assembler
 
             // Append Pants
             Pants pants = characterAssets.FindFirstChildOfClass<Pants>();
+
             if (pants != null)
             {
                 Asset pantsTemplate = Asset.GetByAssetId(pants.PantsTemplate);
@@ -520,6 +519,7 @@ namespace Rbx2Source.Assembler
 
             // Append T-Shirt
             ShirtGraphic tshirt = characterAssets.FindFirstChildOfClass<ShirtGraphic>();
+
             if (tshirt != null)
             {
                 Asset graphic = Asset.GetByAssetId(tshirt.Graphic);
@@ -558,11 +558,11 @@ namespace Rbx2Source.Assembler
             TextureBindings textureBinds = new TextureBindings();
 
             Bitmap uvMap = compositor.BakeTextureMap();
-            Rbx2Source.SetDebugImage(uvMap);
+            Main.SetDebugImage(uvMap);
 
             foreach (string matName in materials.Keys)
             {
-                Rbx2Source.Print("Building Material {0}", matName);
+                Main.Print($"Building Material {matName}");
                 ValveMaterial material = materials[matName];
                 Image image = null;
 
