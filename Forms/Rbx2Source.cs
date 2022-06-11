@@ -206,8 +206,8 @@ namespace Rbx2Source
 
         private void gatherSourceGames(string steamDir)
         {
-            string steamPath = Path.Combine(steamDir, "steamapps", "common");
-
+            //   string steamPath = Path.Combine(steamDir, "steamapps", "common");
+            string steamPath = File.ReadAllText("config.txt");
             if (Directory.Exists(steamPath))
             {
                 foreach (string game in Directory.GetDirectories(steamPath))
