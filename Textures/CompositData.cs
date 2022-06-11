@@ -4,11 +4,10 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 
-using RobloxFiles.Enums;
 using RobloxFiles.DataTypes;
-
 using Rbx2Source.Geometry;
 using Rbx2Source.Web;
+using System.Diagnostics.Contracts;
 
 namespace Rbx2Source.Textures
 {
@@ -26,27 +25,21 @@ namespace Rbx2Source.Textures
     {
         public MemoryStream Stream;
         public Bitmap Texture;
-
-        public TextureAllocation(MemoryStream stream)
-        {
-            Stream = stream;
-        }
     }
 
-    public class CompositData : IComparable, IDisposable
+    public class CompositData : IComparable
     {
         public object Texture;
         public Color DrawColor;
-        
+
         public int Layer;
         public Mesh Guide;
 
         public Rectangle Rect;
-        public RotateFlipType FlipType = RotateFlipType.RotateNoneFlipNone;
+        public RotateFlipType FlipMode = RotateFlipType.RotateNoneFlipNone;
 
         public readonly DrawFlags DrawFlags;
         private static readonly Dictionary<long, TextureAllocation> TextureAlloc = new Dictionary<long, TextureAllocation>();
-        public Brush DrawBrush { get; private set; }
 
         public CompositData(DrawFlags drawFlags)
         {
@@ -54,7 +47,7 @@ namespace Rbx2Source.Textures
             Rect = new Rectangle();
         }
 
-        public void SetGuide(string guideName, Rectangle guideSize, HumanoidRigType avatarType)
+        public void SetGuide(string guideName, Rectangle guideSize, AvatarType avatarType)
         {
             string guidePath = "AvatarData/" + avatarType + "/Compositing/" + guideName + ".mesh";
             Asset guideAsset = Asset.FromResource(guidePath);
@@ -72,9 +65,7 @@ namespace Rbx2Source.Textures
         {
             BrickColor brick = id;
             Color3uint8 clr = brick.Color;
-
             DrawColor = Color.FromArgb(clr.R, clr.G, clr.B);
-            DrawBrush = new SolidBrush(DrawColor);
         }
 
         public int CompareTo(object other)
@@ -97,16 +88,10 @@ namespace Rbx2Source.Textures
             return result;
         }
 
-        public void Dispose()
+        public void UseBrush(Action<Brush> callback)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            FreeAllocatedTextures();
-            DrawBrush?.Dispose();
+            using (var brush = new SolidBrush(DrawColor))
+            callback?.Invoke(brush);
         }
 
         public Bitmap GetTextureBitmap()
@@ -116,12 +101,14 @@ namespace Rbx2Source.Textures
                 var asset = Texture as Asset;
                 long assetId = asset.Id;
 
-                if (!TextureAlloc.TryGetValue(assetId, out TextureAllocation alloc))
+                if (!TextureAlloc.ContainsKey(assetId))
                 {
                     byte[] buffer = asset.GetContent();
 
-                    var stream = new MemoryStream(buffer);
-                    alloc = new TextureAllocation(stream);
+                    var alloc = new TextureAllocation()
+                    {
+                        Stream = new MemoryStream(buffer)
+                    };
                     
                     try
                     {
@@ -135,7 +122,7 @@ namespace Rbx2Source.Textures
                     TextureAlloc.Add(assetId, alloc);
                 }
 
-                return alloc.Texture;
+                return TextureAlloc[assetId].Texture;
             }
             else if (Texture is Bitmap)
             {

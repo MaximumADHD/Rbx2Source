@@ -10,7 +10,7 @@ namespace Rbx2Source.Assembler
             string result = Regex.Replace(name, @"[^A-Za-z0-9 _]", replaceWith).Trim();
 
             if (doExtraStuff)
-                result = result.Replace(" ", "_").ToLowerInvariant();
+                result = result.Replace(" ","_").ToLowerInvariant();
 
             return result;
         }
@@ -64,7 +64,7 @@ namespace Rbx2Source.Assembler
                 }
                 catch
                 {
-                    Main.Print($"{file.Name} is locked.");
+                    Rbx2Source.Print("{0} is locked.", file.Name);
                 }
             }
 
@@ -99,7 +99,7 @@ namespace Rbx2Source.Assembler
         public static void WriteFile(string path, string content)
         {
             File.WriteAllText(path, content);
-            Main.Print($"Wrote file: {path}");
+            Rbx2Source.Print("Wrote file: {0}", path);
         }
     }
 }

@@ -98,7 +98,6 @@ namespace Rbx2Source.Web
 
                 // Ping Roblox to figure out what this asset's cdn url is
                 Uri uri = new Uri("https://assetdelivery.roblox.com/v1" + idPiece + assetId);
-
                 HttpWebRequest ping = WebRequest.CreateHttp(uri);
                 ping.UserAgent = "RobloxStudio/WinInet";
                 ping.AllowAutoRedirect = false;
@@ -131,14 +130,14 @@ namespace Rbx2Source.Web
                                     throw new Exception();
                                 }
 
-                                Main.Print($"Fetched pre-cached asset {assetId}");
+                                Rbx2Source.Print("Fetched pre-cached asset {0}", assetId);
                             }
                             catch
                             {
                                 // Corrupted file?
                                 if (File.Exists(cachedFile))
                                 {
-                                    Main.Print($"Deleting corrupted file {cachedFile}");
+                                    Rbx2Source.Print("Deleting corrupted file {0}", cachedFile);
                                     File.Delete(cachedFile);
                                 }
                             }
@@ -147,12 +146,18 @@ namespace Rbx2Source.Web
                 }
                 catch
                 {
-                    Console.WriteLine($"Failed to fetch {assetId}?");
+                    Console.WriteLine("Failed to fetch {0}?", assetId);
                 }
 
                 if (asset == null)
                 {
-                    var http = new RobloxWebClient();
+                    WebClient http = new WebClient()
+                    {
+                        UseDefaultCredentials = true,
+                        Proxy = null
+                    };
+
+                    http.Headers.Set(HttpRequestHeader.UserAgent, "RobloxStudio/WinInet");
                     asset = new Asset() { Id = assetId };
                     
                     try
@@ -186,12 +191,12 @@ namespace Rbx2Source.Web
                     try
                     {
                         File.WriteAllText(cachedFile, serialized);
-                        Main.Print($"Precached AssetId {assetId}");
+                        Rbx2Source.Print("Precached AssetId {0}", assetId);
                     }
                     catch
                     {
                         // Oh well.
-                        Main.Print($"Failed to cache AssetId {assetId}!!");
+                        Rbx2Source.Print("Failed to cache AssetId {0}", assetId);
                     }
 
                     http.Dispose();

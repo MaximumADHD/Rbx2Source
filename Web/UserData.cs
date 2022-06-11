@@ -1,12 +1,10 @@
 ﻿#pragma warning disable 0649
-
 using System.Collections.Generic;
-using System.Threading.Tasks;
-
-using RobloxFiles.Enums;
 
 namespace Rbx2Source.Web
 {
+    public enum AvatarType { R6, R15, Unknown }
+
     public class AvatarScale
     {
         public float Width;
@@ -16,11 +14,6 @@ namespace Rbx2Source.Web
 
         public float Proportion;
         public float BodyType;
-    }
-    public class WebApiError
-    {
-        public int Code;
-        public string Message;
     }
 
     public class UserInfo
@@ -41,7 +34,7 @@ namespace Rbx2Source.Web
         public int TorsoColorId;
     }
 
-    public class AssetTypeInfo
+    public class WrappedAssetType
     {
         public AssetType Id;
         public string Name;
@@ -52,7 +45,7 @@ namespace Rbx2Source.Web
         public long Id;
         public string Name;
 
-        public AssetTypeInfo AssetType;
+        public WrappedAssetType AssetType;
         public AssetType Type => AssetType.Id;
     }
 
@@ -62,34 +55,26 @@ namespace Rbx2Source.Web
         public UserInfo UserInfo;
 
         public AvatarScale Scales;
-        public HumanoidRigType PlayerAvatarType;
+        public AvatarType PlayerAvatarType;
 
         public WebBodyColors BodyColors;
         public AssetInfo[] Assets;
 
-        private static async Task<UserAvatar> Create(string userInfoUrl)
+        private static UserAvatar createUserAvatar(UserInfo info)
         {
-            UserInfo info;
-            UserAvatar avatar;
-
-            using (var http = new RobloxWebClient())
-            {
-                info = await http.DownloadJson<UserInfo>(userInfoUrl);
-                avatar = await http.DownloadJson<UserAvatar>($"https://avatar.roblox.com/v1/users/{info.Id}/avatar");
-            }
-            
+            UserAvatar avatar = WebUtility.DownloadRbxApiJSON<UserAvatar>($"/v1/users/{info.Id}/avatar", "avatar");
             avatar.UserExists = true;
             avatar.UserInfo = info;
 
             return avatar;
         }
 
-        public static async Task<UserAvatar> FromUserId(long userId)
+        public static UserAvatar FromUserId(long userId)
         {
             try
             {
-                var result = Create($"https://api.roblox.com/Users/{userId}");
-                return await result.ConfigureAwait(false);
+                UserInfo info = WebUtility.DownloadRbxApiJSON<UserInfo>("Users/" + userId);
+                return createUserAvatar(info);
             }
             catch
             {
@@ -97,12 +82,12 @@ namespace Rbx2Source.Web
             }
         }
 
-        public static async Task<UserAvatar> FromUsername(string userName)
+        public static UserAvatar FromUsername(string userName)
         {
             try
             {
-                var result = Create($"https://api.roblox.com/Users/Get-By-Username?username={userName}");
-                return await result.ConfigureAwait(false);
+                UserInfo info = WebUtility.DownloadRbxApiJSON<UserInfo>("Users/Get-By-Username?username=" + userName);
+                return createUserAvatar(info);
             }
             catch
             {

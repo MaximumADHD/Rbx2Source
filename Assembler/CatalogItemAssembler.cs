@@ -26,7 +26,7 @@ namespace Rbx2Source.Assembler
                 if (part.Transparency < 1)
                 {
                     parts.Add(part);
-                    Main.Print($"Found Part {part.Name}");
+                    Rbx2Source.Print("Found Part {0}", part.Name);
                 }
             }
 
@@ -42,7 +42,7 @@ namespace Rbx2Source.Assembler
             Contract.Requires(asset != null);
 
             var content = asset.OpenAsModel();
-            Main.ScheduleTasks("GatherParts", "BuildMesh");
+            Rbx2Source.ScheduleTasks("GatherParts", "BuildMesh");
 
             List<BasePart> parts = new List<BasePart>();
             AddParts(parts, content);
@@ -72,8 +72,8 @@ namespace Rbx2Source.Assembler
             foreach (BasePart part in parts)
                 part.CFrame = rootCoord.ToObjectSpace(part.CFrame);
 
-            Main.MarkTaskCompleted("GatherParts");
-            Main.PrintHeader("BUILDING MESH");
+            Rbx2Source.MarkTaskCompleted("GatherParts");
+            Rbx2Source.PrintHeader("BUILDING MESH");
 
             StudioMdlWriter writer = new StudioMdlWriter();
 
@@ -112,20 +112,10 @@ namespace Rbx2Source.Assembler
                 if (geometry != null && geometry.NumFaces > 0)
                 {
                     string task = "BuildGeometry_" + name;
-                    Main.ScheduleTasks(task);
-                    Main.Print($"Building Geometry for {name}");
+                    Rbx2Source.ScheduleTasks(task);
+                    Rbx2Source.Print("Building Geometry for {0}", name);
 
-                    CFrame world0 = primaryPart.CFrame,
-                           world1 = part.CFrame;
-
-                    var a1 = new Attachment();
-                    a1.Parent = part;
-
-                    var a0 = new Attachment();
-                    a0.CFrame = world0.ToObjectSpace(world1);
-                    a0.Parent = primaryPart;
-
-                    var bone = new StudioBone(a0, a1);
+                    var bone = new StudioBone(name, primaryPart, part) { C0 = part.CFrame };
                     bones.Add(bone);
 
                     Node node = bone.Node;
@@ -152,13 +142,13 @@ namespace Rbx2Source.Assembler
                         triangles.Add(tri);
                     }
 
-                    Main.MarkTaskCompleted(task);
+                    Rbx2Source.MarkTaskCompleted(task);
                     numAssembledParts++;
                 }
             }
                 
 
-            Main.MarkTaskCompleted("BuildMesh");
+            Rbx2Source.MarkTaskCompleted("BuildMesh");
             return writer;
         }
 
@@ -244,9 +234,9 @@ namespace Rbx2Source.Assembler
             string materialsDir = Path.Combine(rootDir, "Materials");
 
             FileUtility.InitiateEmptyDirectories(modelDir, texturesDir, materialsDir);
-            Main.ScheduleTasks("BuildModel", "BuildTextures", "BuildMaterials", "BuildCompilerScript");
+            Rbx2Source.ScheduleTasks("BuildModel", "BuildTextures", "BuildMaterials", "BuildCompilerScript");
 
-            Main.PrintHeader("BUILDING MODEL");
+            Rbx2Source.PrintHeader("BUILDING MODEL");
             #region Build Model
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -260,12 +250,12 @@ namespace Rbx2Source.Assembler
             string refPath = Path.Combine(modelDir, "Reference.smd");
             FileUtility.WriteFile(refPath, reference);
                 
-            Main.MarkTaskCompleted("BuildModel");
+            Rbx2Source.MarkTaskCompleted("BuildModel");
             
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
-            Main.PrintHeader("BUILDING TEXTURES");
+            Rbx2Source.PrintHeader("BUILDING TEXTURES");
             #region Build Textures
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -277,7 +267,7 @@ namespace Rbx2Source.Assembler
 
             foreach (string imageName in images.Keys)
             {
-                Main.Print($"Writing Image {imageName}");
+                Rbx2Source.Print("Writing Image {0}", imageName);
 
                 Image image = images[imageName];
                 string imagePath = Path.Combine(texturesDir, imageName + ".png");
@@ -288,19 +278,19 @@ namespace Rbx2Source.Assembler
                 }
                 catch
                 {
-                    Main.Print($"IMAGE {imageName}.png FAILED TO SAVE!");
+                    Rbx2Source.Print("IMAGE {0}.png FAILED TO SAVE!", imageName);
                 }
 
                 FileUtility.LockFile(imagePath);
             }
 
             textures.MaterialDirectory = compileDir;
-            Main.MarkTaskCompleted("BuildTextures");
+            Rbx2Source.MarkTaskCompleted("BuildTextures");
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
-            Main.PrintHeader("WRITING MATERIAL FILES");
+            Rbx2Source.PrintHeader("WRITING MATERIAL FILES");
             #region Write Materials
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -317,12 +307,12 @@ namespace Rbx2Source.Assembler
                 mat.WriteVmtFile(vmtPath);
             }
 
-            Main.MarkTaskCompleted("BuildMaterials");
+            Rbx2Source.MarkTaskCompleted("BuildMaterials");
             
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
-            Main.PrintHeader("WRITING COMPILER SCRIPT");
+            Rbx2Source.PrintHeader("WRITING COMPILER SCRIPT");
             #region Write Compiler Script
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -348,7 +338,7 @@ namespace Rbx2Source.Assembler
             string qcPath = Path.Combine(modelDir, "Compile.qc");
 
             FileUtility.WriteFile(qcPath, qcFile);
-            Main.MarkTaskCompleted("BuildCompilerScript");
+            Rbx2Source.MarkTaskCompleted("BuildCompilerScript");
 
             ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion

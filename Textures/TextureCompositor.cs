@@ -5,35 +5,33 @@ using System.Linq;
 
 using Rbx2Source.Geometry;
 using RobloxFiles;
-using RobloxFiles.Enums;
+using Rbx2Source.Web;
 
 namespace Rbx2Source.Textures
 {
-    public class TextureCompositor : IDisposable
+    public class TextureCompositor
     {
         private readonly List<CompositData> layers = new List<CompositData>();
         private string context = "Humanoid Texture Map";
-        private readonly HumanoidRigType avatarType;
+        private readonly AvatarType avatarType;
         private Rectangle canvas;
         private int composed;
 
         public Folder CharacterAssets;
 
-        public TextureCompositor(int width, int height, HumanoidRigType at = HumanoidRigType.R6, Folder characterAssets = null)
+        public TextureCompositor(AvatarType at, int width, int height)
         {
-            CharacterAssets = characterAssets;
-            canvas = new Rectangle(0, 0, width, height);
             avatarType = at;
+            canvas = new Rectangle(0, 0, width, height);
         }
 
-        public TextureCompositor(Rectangle rect, HumanoidRigType at = HumanoidRigType.R6, Folder characterAssets = null)
+        public TextureCompositor(AvatarType at, Rectangle rect)
         {
-            CharacterAssets = characterAssets;
             avatarType = at;
             canvas = rect;
         }
 
-        public static Rectangle GetBoundingBox(params PointF[] points)
+        public static Rectangle GetBoundingBox(params Point[] points)
         {
             int min_X = int.MaxValue,
                 min_Y = int.MaxValue;
@@ -41,16 +39,16 @@ namespace Rbx2Source.Textures
             int max_X = int.MinValue,
                 max_Y = int.MinValue;
 
-            foreach (PointF point in points)
+            foreach (Point point in points)
             {
-                float point_X = point.X,
-                      point_Y = point.Y;
+                int point_X = point.X,
+                    point_Y = point.Y;
 
-                min_X = (int)Math.Min(min_X, point_X);
-                min_Y = (int)Math.Min(min_Y, point_Y);
+                min_X = Math.Min(min_X, point_X);
+                min_Y = Math.Min(min_Y, point_Y);
 
-                max_X = (int)Math.Max(max_X, point_X);
-                max_Y = (int)Math.Max(max_Y, point_Y);
+                max_X = Math.Max(max_X, point_X);
+                max_Y = Math.Max(max_Y, point_Y);
             }
 
             int width  = max_X - min_X,
@@ -89,11 +87,11 @@ namespace Rbx2Source.Textures
             layers.Add(composit);
         }
 
-        public void AppendTexture(object img, Rectangle rect, byte layer = 0, RotateFlipType flipType = RotateFlipType.RotateNoneFlipNone)
+        public void AppendTexture(object img, Rectangle rect, byte layer = 0, RotateFlipType flipMode = RotateFlipType.RotateNoneFlipNone)
         {
             var composit = new CompositData(DrawFlags.Rect | DrawFlags.Texture)
             {
-                FlipType = flipType,
+                FlipMode = flipMode,
                 Texture = img,
                 Layer = layer,
                 Rect = rect
@@ -107,18 +105,15 @@ namespace Rbx2Source.Textures
             context = newContext;
         }
 
-        public Bitmap BakeTextureMap(bool log = true)
+        public Bitmap BakeTextureMap()
         {
             var bitmap = new Bitmap(canvas.Width, canvas.Height);
             layers.Sort();
 
             composed = 0;
 
-            if (log)
-            {
-                Main.Print($"Composing {context}...");
-                Main.IncrementStack();
-            }
+            Rbx2Source.Print("Composing " + context + "...");
+            Rbx2Source.IncrementStack();
 
             foreach (CompositData composit in layers)
             {
@@ -130,16 +125,14 @@ namespace Rbx2Source.Textures
                 {
                     if (drawFlags.HasFlag(DrawFlags.Color))
                     {
-                        var brush = new SolidBrush(composit.DrawColor);
-                        buffer.FillRectangle(brush, canvas);
-                        brush.Dispose();
+                        composit.UseBrush(brush => buffer.FillRectangle(brush, canvas));
                     }
                     else if (drawFlags.HasFlag(DrawFlags.Texture))
                     {
                         Bitmap image = composit.GetTextureBitmap();
 
-                        if (composit.FlipType > 0)
-                            image.RotateFlip(composit.FlipType);
+                        if (composit.FlipMode > 0)
+                            image.RotateFlip(composit.FlipMode);
 
                         buffer.DrawImage(image, canvas);
                     }
@@ -153,13 +146,13 @@ namespace Rbx2Source.Textures
                         Vertex[] verts = composit.GetGuideVerts(face);
                         Point offset = canvas.Location;
                         
-                        PointF[] poly = verts
+                        Point[] poly = verts
                             .Select(vert => vert.ToPoint(canvas, offset))
                             .ToArray();
                         
                         if (drawFlags.HasFlag(DrawFlags.Color))
                         {
-                            buffer.FillPolygon(composit.DrawBrush, poly);
+                            composit.UseBrush(brush => buffer.FillPolygon(brush, poly));
                         }
                         else if (drawFlags.HasFlag(DrawFlags.Texture))
                         {
@@ -169,7 +162,7 @@ namespace Rbx2Source.Textures
                             Point origin = bbox.Location;
                             Bitmap drawLayer = new Bitmap(bbox.Width, bbox.Height);
 
-                            PointF[] uv = verts
+                            Point[] uv = verts
                                 .Select(vert => vert.ToUV(texture))
                                 .ToArray();
                             
@@ -180,13 +173,13 @@ namespace Rbx2Source.Textures
                             {
                                 for (int y = bbox.Top; y < bbox.Bottom; y++)
                                 {
-                                    var pixel = new PointF(x + .5f, y + .5f);
-                                    var point = new BarycentricPoint(pixel, poly);
+                                    var pixel = new Point(x, y);
+                                    var bcPoint = new BarycentricPoint(pixel, poly);
 
-                                    if (point.InBounds)
+                                    if (bcPoint.InBounds())
                                     {
-                                        var uvPixel = point.ToCartesian(uv);
-                                        Color color = texture.GetPixel(uvPixel);
+                                        var uvPixel = bcPoint.ToCartesian(uv);
+                                        Color color = texture.GetPixel(uvPixel.X, uvPixel.Y);
                                         drawLayer.SetPixel(x - origin_X, y - origin_Y, color);
                                     }
                                 }
@@ -198,21 +191,17 @@ namespace Rbx2Source.Textures
                     }
                 }
 
-                if (log)
-                    Main.Print($"{++composed}/{layers.Count} layers composed...");
+                Rbx2Source.Print("{0}/{1} layers composed...", ++composed, layers.Count);
 
                 if (layers.Count > 2)
-                    Main.SetDebugImage(bitmap);
+                    Rbx2Source.SetDebugImage(bitmap);
 
                 buffer.Dispose();
             }
 
-            if (log)
-            {
-                Main.Print("Done!");
-                Main.DecrementStack();
-            }
-            
+            Rbx2Source.Print("Done!");
+            Rbx2Source.DecrementStack();
+
             return bitmap;
         }
 
@@ -226,33 +215,14 @@ namespace Rbx2Source.Textures
             return target;
         }
 
-        public Bitmap BakeTextureMap(Rectangle crop, bool log = true)
+        public Bitmap BakeTextureMap(Rectangle crop)
         {
             Bitmap result;
 
-            using (Bitmap src = BakeTextureMap(log))
+            using (Bitmap src = BakeTextureMap())
                 result = CropBitmap(src, crop);
 
             return result;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                while (layers.Count > 0)
-                {
-                    var layer = layers.First();
-                    layers.Remove(layer);
-                    layer.Dispose();
-                }
-            }
         }
     }
 }

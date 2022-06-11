@@ -14,7 +14,7 @@ namespace Rbx2Source.StudioMdl
     {
         public string GroupName => "nodes";
 
-        public int Index;
+        public int NodeIndex;
         public string Name;
 
         public StudioBone StudioBone;
@@ -22,17 +22,7 @@ namespace Rbx2Source.StudioMdl
 
         public int ParentIndex = -1;
         public bool UseParentIndex = false;
-
-        public Node(StudioBone bone)
-        {
-            StudioBone = bone;
-        }
-
-        public override string ToString()
-        {
-            return Name;
-        }
-
+        
         private int FindParent(List<Node> nodes)
         {
             BasePart part0 = StudioBone.Part0,
@@ -63,10 +53,10 @@ namespace Rbx2Source.StudioMdl
         {
             Contract.Requires(fileBuffer != null && nodes != null);
 
-            Index = nodes.IndexOf(this);
+            NodeIndex = nodes.IndexOf(this);
             ParentIndex = UseParentIndex ? ParentIndex : FindParent(nodes);
 
-            string joined = string.Join(" ", Index, '"' + Name + '"', ParentIndex);
+            string joined = string.Join(" ", NodeIndex, '"' + Name + '"', ParentIndex);
             fileBuffer.WriteLine(joined);
         }
     }

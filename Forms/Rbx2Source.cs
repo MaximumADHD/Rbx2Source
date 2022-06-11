@@ -15,7 +15,7 @@ using Rbx2Source.Web;
 
 namespace Rbx2Source
 {
-    public partial class Main : Form
+    public partial class Rbx2Source : Form
     {
         private class OutputLog
         {
@@ -36,7 +36,8 @@ namespace Rbx2Source
         }
 
         public const float MODEL_SCALE = 10;
-        
+        public Launcher baseProcess;
+
         private UserInfo currentUser;
         private long currentAssetId = 19027209;
 
@@ -61,19 +62,18 @@ namespace Rbx2Source
         private static Image debugImage;
         private string assetPreviewImage = "";
 
-        public Main()
+        public Rbx2Source()
         {
+            UserAvatar defaultAvatar = UserAvatar.FromUserId(2032622);
+            currentUser = defaultAvatar.UserInfo;
+
             InitializeComponent();
 
             if (!Debugger.IsAttached)
             {
                 quickCompile.Visible = false;
                 MainTab.Controls.Remove(Debug);
-
-                return;
             }
-
-            quickCompile.Checked = true;
         }
 
         public static void ScheduleTasks(params string[] tasks)
@@ -206,9 +206,8 @@ namespace Rbx2Source
 
         private void gatherSourceGames(string steamDir)
         {
-            //    string steamPath = Path.Combine(steamDir, "steamapps", "common");
-            string ogPath = File.ReadAllText("config.txt");
-            string steamPath = Path.Combine(ogPath, "steamapps", "common");
+            string steamPath = Path.Combine(steamDir, "steamapps", "common");
+
             if (Directory.Exists(steamPath))
             {
                 foreach (string game in Directory.GetDirectories(steamPath))
@@ -295,7 +294,7 @@ namespace Rbx2Source
         {
             assetPreview.Image = loadingImage;
 
-            if (compilerTypeSelect.Text == "Avatar" && currentUser != null)
+            if (compilerTypeSelect.Text == "Avatar")
             {
                 assetPreviewImage = "https://www.roblox.com/headshot-thumbnail/json?width=420&height=420&format=png&userId=" + currentUser.Id;
                 compilerInput.Text = "Username:";
@@ -309,23 +308,17 @@ namespace Rbx2Source
                 compilerInputField.Text = currentAssetId.ToInvariantString();
                 compilerTypeIcon.Image = Properties.Resources.Accoutrement_icon;
             }
-
-            assetPreview.Refresh();
         }
 
-        private async Task<bool> TrySetUsername(string userName)
+        private bool TrySetUsername(string userName)
         {
-            var getAvatar = UserAvatar.FromUsername(userName);
-            var avatar = await getAvatar.ConfigureAwait(false);
+            UserAvatar avatar = UserAvatar.FromUsername(userName);
 
             if (avatar.UserExists)
             {
                 Settings.SaveSetting("Username", userName);
+                assetPreview.Image = loadingImage;
                 currentUser = avatar.UserInfo;
-
-                var update = new Action(updateDisplays);
-                Invoke(update);
-
                 return true;
             }
             else
@@ -396,12 +389,13 @@ namespace Rbx2Source
                 compilerTypeSelect.Enabled = false;
 
                 if (compilerTypeSelect.Text == "Avatar")
-                    await TrySetUsername(compilerInputField.Text);
+                    TrySetUsername(compilerInputField.Text);
                 else if (compilerTypeSelect.Text == "Accessory/Gear")
                     TrySetAssetId(compilerInputField.Text);
 
                 updateDisplays();
-                
+                await Task.Delay(100);
+
                 compilerTypeSelect.Enabled = true;
                 compilerInputField.Enabled = true;
             }
@@ -503,7 +497,7 @@ namespace Rbx2Source
             if (compilerTypeSelect.Text == "Avatar")
             {
                 var assembler = new CharacterAssembler();
-                var userAvatar = await UserAvatar.FromUsername(currentUser.Username);
+                var userAvatar = UserAvatar.FromUsername(currentUser.Username);
                 assemble = new Func<AssemblerData>(() => assembler.Assemble(userAvatar));
             }
             else
@@ -538,7 +532,7 @@ namespace Rbx2Source
                     PrintHeader("FINISHED MODEL!");
                     trackCompileTime.Stop();
 
-                    Print($"Assembled in {trackCompileTime.Elapsed.TotalSeconds} seconds.");
+                    Print("Assembled in {0} seconds.", trackCompileTime.Elapsed.TotalSeconds);
 
                     await UpdateCompilerState();
                     compileModel.Wait();
@@ -627,7 +621,7 @@ namespace Rbx2Source
             }
         }
 
-        private async void Rbx2Source_Load(object sender, EventArgs e)
+        private void Rbx2Source_Load(object sender, EventArgs e)
         {
             string steamDir = null;
             Process[] steamProcesses = Process.GetProcessesByName("Steam");
@@ -647,7 +641,6 @@ namespace Rbx2Source
                         if (info.Name == "Steam.exe")
                         {
                             string apps = Path.Combine(directory, "steamapps");
-
                             if (Directory.Exists(apps))
                             {
                                 steamDir = directory;
@@ -677,7 +670,6 @@ namespace Rbx2Source
                     {
                         string programFiles = Environment.GetEnvironmentVariable("ProgramFiles");
                         steamDir = Path.Combine(programFiles, "Steam");
-
                         if (!Directory.Exists(steamDir))
                         {
                             showError("Cannot find Steam on this PC!\nTry running Steam so Rbx2Source can detect it.", true);
@@ -744,9 +736,8 @@ namespace Rbx2Source
             loadComboBox(compilerTypeSelect, "CompilerType", 1);
 
             string userName = Settings.GetString("Username");
-
             if (userName != null)
-                _ = TrySetUsername(userName);
+                TrySetUsername(userName);
 
             string assetId = Settings.GetString("AssetId");
             TrySetAssetId(assetId);
@@ -767,50 +758,66 @@ namespace Rbx2Source
             foreach (Control link in Links.Keys)
                 link.Click += new EventHandler(onLinkClicked);
 
-            while (!IsDisposed)
+            Task.Run(async() =>
             {
-                if (assetPreview.ImageLocation != assetPreviewImage)
+                while (!IsDisposed)
                 {
-                    var currentPending = assetPreviewImage;
-                    assetPreview.Image = loadingImage;
-
-                    var pend = CdnPender.PendCdn(assetPreviewImage);
-
-                    while (!pend.IsCompleted)
+                    if (assetPreview.ImageLocation != assetPreviewImage)
                     {
-                        if (assetPreviewImage != currentPending)
-                            break;
+                        CdnPender check = WebUtility.DownloadJSON<CdnPender>(assetPreviewImage);
 
-                        if (pend.IsFaulted)
-                            break;
-
-                        assetPreview.Refresh();
-
-                        await Task.Delay(100);
-                    }
-
-                    if (assetPreviewImage == currentPending)
-                    {
-                        if (pend.IsFaulted) // mark the preview as broken.
+                        if (check.Final)
                         {
-                            assetPreviewImage = "";
-                            assetPreview.ImageLocation = "";
-                            assetPreview.Image = brokenImage;
+                            assetPreviewImage = check.Url;
+                            assetPreview.ImageLocation = check.Url;
                         }
                         else
                         {
-                            string result = pend.Result;
-                            assetPreviewImage = result;
-                            assetPreview.ImageLocation = result;
+                            string currentPending = assetPreviewImage; // localize this in case it changes.
+                            assetPreview.Image = loadingImage;
+
+                            Task<string> pend = Task.Run(() => WebUtility.PendCdn(currentPending, false));
+
+                            while (!pend.IsCompleted)
+                            {
+                                if (assetPreviewImage != currentPending)
+                                    break;
+
+                                if (pend.IsFaulted)
+                                    break;
+
+                                await Task.Delay(100);
+                            }
+
+                            if (assetPreviewImage == currentPending)
+                            {
+                                if (pend.IsFaulted) // mark the preview as broken.
+                                {
+                                    assetPreviewImage = "";
+                                    assetPreview.ImageLocation = "";
+                                    assetPreview.Image = brokenImage;
+                                }
+                                else
+                                {
+                                    string result = pend.Result;
+                                    assetPreviewImage = result;
+                                    assetPreview.ImageLocation = result;
+                                }
+                            }
                         }
                     }
+
+                    if (Debugger.IsAttached && debugImg.Image != debugImage)
+                        debugImg.Image = debugImage;
+
+                    await Task.Delay(10);
                 }
+            });
+        }
 
-                if (Debugger.IsAttached && debugImg.Image != debugImage)
-                    debugImg.Image = debugImage;
-
-                await Task.Delay(100);
-            }
+        private void Rbx2Source_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            baseProcess?.Dispose();
         }
 
         private void quickCompile_CheckedChanged(object sender, EventArgs e)

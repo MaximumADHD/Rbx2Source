@@ -30,13 +30,9 @@ namespace Rbx2Source.Assembler
             {
                 try
                 {
-                    if (limbName == "HumanoidRootPart")
-                        limbName = "LowerTorso";
-
                     var type = GetType();
                     var fieldInfo = type.GetField(limbName);
-
-                    return fieldInfo?.GetValue(this) as Vector3;
+                    return fieldInfo.GetValue(this) as Vector3;
                 }
                 catch
                 {

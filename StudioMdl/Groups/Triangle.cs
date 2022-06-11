@@ -21,7 +21,7 @@ namespace Rbx2Source.StudioMdl
             Contract.Requires(buffer != null && triangles != null);
 
             var verts = Mesh.Verts;
-            int bone = Node.Index;
+            int bone = Node.NodeIndex;
 
             int[] face = Mesh.Faces[FaceIndex];
             buffer.WriteLine(Material);
