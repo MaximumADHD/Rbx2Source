@@ -13,4 +13,5 @@ Originally developed by [MaximumADHD](https://github.com/MaximumADHD), this proj
 # Known Bugs
 - Model may appear as error sometimes
 - Missing textures on some head accessories when exporting to Source Filmmaker
-- Model does not load in Garry's Mod at all
+- Model does not load in Garry's Mod at all\
+- Not loading thumbnails of users/accessories
