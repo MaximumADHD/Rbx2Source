@@ -93,11 +93,9 @@ namespace Rbx2Source.Assembler
             // Build Character
             var import = R6AssemblyAsset.OpenAsModel();
             Folder assembly = import.FindFirstChild<Folder>("ASSEMBLY");
-            assembly.Parent = characterAssets;
 
             BasePart head = assembly.FindFirstChild<BasePart>("Head");
-            BasePart torso = assembly.FindFirstChild<BasePart>("Torso");
-            torso.CFrame = new CFrame();
+            assembly.Parent = characterAssets;
 
             foreach (Instance asset in characterAssets.GetChildren())
             {
@@ -119,9 +117,9 @@ namespace Rbx2Source.Assembler
                 }
             }
 
-            BoneKeyframe keyframe = AssembleBones(meshBuilder, torso);
+            BoneKeyframe skeleton = AssembleBones(meshBuilder, assembly);
 
-            foreach (StudioBone bone in keyframe.Bones)
+            foreach (StudioBone bone in skeleton.Bones)
                 BuildAvatarGeometry(meshBuilder, bone);
             
             return meshBuilder;
@@ -130,9 +128,7 @@ namespace Rbx2Source.Assembler
         public TextureCompositor ComposeTextureMap(Folder characterAssets, WebBodyColors bodyColors)
         {
             Contract.Requires(characterAssets != null && bodyColors != null);
-
-            var compositor = new TextureCompositor(AvatarType.R6, RECT_FULL) 
-                { CharacterAssets = characterAssets };
+            var compositor = new TextureCompositor(RECT_FULL, HumanoidRigType.R6, characterAssets);
             
             // Append BodyColors
             compositor.AppendColor(bodyColors.TorsoColorId,    COMPOSIT_TORSO,     RECT_FULL);
@@ -182,7 +178,7 @@ namespace Rbx2Source.Assembler
             TextureBindings textures = new TextureBindings();
 
             Bitmap core = compositor.BakeTextureMap();
-            Rbx2Source.SetDebugImage(core);
+            Main.SetDebugImage(core);
 
             Bitmap head = TextureCompositor.CropBitmap(core, RECT_HEAD);
             textures.BindTexture("Head", head);
@@ -190,8 +186,8 @@ namespace Rbx2Source.Assembler
             Bitmap body = TextureCompositor.CropBitmap(core, RECT_BODY);
             Folder characterAssets = compositor.CharacterAssets;
 
-            Rbx2Source.Print("Processing Package Textures...");
-            Rbx2Source.IncrementStack();
+            Main.Print("Processing Package Textures...");
+            Main.IncrementStack();
 
             // Collect CharacterMeshes
             var packagedLimbs = characterAssets
@@ -224,13 +220,17 @@ namespace Rbx2Source.Assembler
                         if (!limbBitmaps.ContainsKey(overlayId))
                         {
                             Asset overlayAsset = Asset.Get(overlayId);
+                            Bitmap overlayTex;
 
-                            TextureCompositor overlayCompositor = new TextureCompositor(AvatarType.R6, RECT_FULL);
-                            overlayCompositor.SetContext("Overlay Texture " + overlayId);
-                            overlayCompositor.AppendTexture(overlayAsset, RECT_BODY, 1);
-                            overlayCompositor.AppendTexture(body, RECT_BODY);
+                            using (var overlayCompositor = new TextureCompositor(RECT_FULL))
+                            {
+                                overlayCompositor.SetContext("Overlay Texture " + overlayId);
+                                overlayCompositor.AppendTexture(overlayAsset, RECT_BODY, 1);
+                                overlayCompositor.AppendTexture(body, RECT_BODY);
+
+                                overlayTex = overlayCompositor.BakeTextureMap(RECT_BODY);
+                            }
                             
-                            Bitmap overlayTex = overlayCompositor.BakeTextureMap(RECT_BODY);
                             limbBitmaps.Add(overlayId, overlayTex);
                         }
 
@@ -246,12 +246,15 @@ namespace Rbx2Source.Assembler
                         if (!limbBitmaps.ContainsKey(baseId))
                         {
                             Asset baseAsset = Asset.Get(baseId);
+                            Bitmap baseTex;
 
-                            TextureCompositor baseCompositor = new TextureCompositor(AvatarType.R6, RECT_FULL);
-                            baseCompositor.SetContext("Base Texture " + baseId);
-                            baseCompositor.AppendTexture(baseAsset, RECT_BODY);
+                            using (var baseCompositor = new TextureCompositor(RECT_FULL))
+                            {
+                                baseCompositor.SetContext("Base Texture " + baseId);
+                                baseCompositor.AppendTexture(baseAsset, RECT_BODY);
+                                baseTex = baseCompositor.BakeTextureMap(RECT_BODY);
+                            }
                             
-                            Bitmap baseTex = baseCompositor.BakeTextureMap(RECT_BODY);
                             limbBitmaps.Add(baseId, baseTex);
                         }
 
@@ -278,7 +281,7 @@ namespace Rbx2Source.Assembler
                 long id = limbOverlays[limb];
                 string matName = GetBodyMatName(id);
 
-                string limbName = Rbx2Source.GetEnumName(limb);
+                string limbName = Main.GetEnumName(limb);
                 textures.BindTextureAlias(limbName, matName);
             }
 
@@ -290,7 +293,7 @@ namespace Rbx2Source.Assembler
                     ValveMaterial material = materials[matName];
                     Asset texture = material.TextureAsset;
 
-                    TextureCompositor matComp = new TextureCompositor(AvatarType.R6, RECT_ITEM);
+                    TextureCompositor matComp = new TextureCompositor(RECT_ITEM, HumanoidRigType.R6);
                     matComp.SetContext("Accessory Texture " + matName);
                     matComp.AppendTexture(texture, RECT_ITEM);
                     
@@ -299,7 +302,7 @@ namespace Rbx2Source.Assembler
                 }
             }
 
-            Rbx2Source.DecrementStack();
+            Main.DecrementStack();
             return textures;
         }
     }

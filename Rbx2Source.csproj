@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="packages\Costura.Fody.4.1.0\build\Costura.Fody.props" Condition="Exists('packages\Costura.Fody.4.1.0\build\Costura.Fody.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -79,12 +78,6 @@
     <DelaySign>false</DelaySign>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Costura, Version=4.1.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
-      <HintPath>packages\Costura.Fody.4.1.0\lib\net40\Costura.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.IO.Compression" />
@@ -124,14 +117,8 @@
     <Compile Include="Assembler\CatalogItemAssembler.cs" />
     <Compile Include="Textures\BarycentricPoint.cs" />
     <Compile Include="Textures\CompositData.cs" />
-    <Compile Include="Textures\PointExtensions.cs" />
+    <Compile Include="Textures\DrawExtensions.cs" />
     <Compile Include="Textures\TextureCompositor.cs" />
-    <Compile Include="Forms\Launcher.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\Launcher.Designer.cs">
-      <DependentUpon>Launcher.cs</DependentUpon>
-    </Compile>
     <Compile Include="Geometry\Heads.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -139,11 +126,11 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Rbx2Source.cs">
+    <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Rbx2Source.Designer.cs">
-      <DependentUpon>Rbx2Source.cs</DependentUpon>
+    <Compile Include="Main.Designer.cs">
+      <DependentUpon>Main.cs</DependentUpon>
     </Compile>
     <Compile Include="Assembler\CharacterAssembler.cs" />
     <Compile Include="Assembler\Utility\FileUtility.cs" />
@@ -164,22 +151,22 @@
     <Compile Include="Web\AssetGroups.cs" />
     <Compile Include="Web\AssetType.cs" />
     <Compile Include="Web\LegacyAssets.cs" />
-    <Compile Include="Web\WebUtility.cs" />
+    <Compile Include="Web\RobloxWebClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Web\CdnPender.cs" />
     <Compile Include="Web\UserData.cs" />
     <Compile Include="Geometry\Mesh.cs" />
     <Compile Include="Geometry\Types\Vertex3D.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Web\Asset.cs" />
-    <EmbeddedResource Include="Forms\Launcher.resx">
-      <DependentUpon>Launcher.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Rbx2Source.resx">
-      <DependentUpon>Rbx2Source.cs</DependentUpon>
+    <EmbeddedResource Include="Main.resx">
+      <DependentUpon>Main.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\AvatarData\R15\Animations\Climb.rbxmx" />
@@ -232,7 +219,6 @@
     <EmbeddedResource Include="Resources\AvatarData\R15\CharacterBase.rbxm" />
     <EmbeddedResource Include="Resources\AvatarData\R6\CharacterBase.rbxm" />
     <None Include="web.config" />
-    <None Include="packages.config" />
     <EmbeddedResource Include="Resources\Meshes\StandardLimbs\leftarm.mesh" />
     <EmbeddedResource Include="Resources\Meshes\StandardLimbs\leftleg.mesh" />
     <EmbeddedResource Include="Resources\Meshes\StandardLimbs\rightarm.mesh" />
@@ -281,15 +267,20 @@
   <ItemGroup>
     <Content Include="FodyWeavers.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Costura.Fody">
+      <Version>4.1.0</Version>
+    </PackageReference>
+    <PackageReference Include="Fody">
+      <Version>6.2.6</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>12.0.3</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="packages\Fody.6.2.6\build\Fody.targets" Condition="Exists('packages\Fody.6.2.6\build\Fody.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('packages\Fody.6.2.6\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Fody.6.2.6\build\Fody.targets'))" />
-    <Error Condition="!Exists('packages\Costura.Fody.4.1.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Costura.Fody.4.1.0\build\Costura.Fody.props'))" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

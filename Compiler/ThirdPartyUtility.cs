@@ -68,7 +68,7 @@ namespace Rbx2Source.Compiler
                     if (nextLine == null)
                         break;
 
-                    Rbx2Source.Print(nextLine);
+                    Main.Print(nextLine);
                 }
             });
 

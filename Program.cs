@@ -22,7 +22,7 @@ namespace Rbx2Source
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Launcher());
+            Application.Run(new Main());
         }
     }
 }

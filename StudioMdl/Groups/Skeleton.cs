@@ -55,7 +55,7 @@ namespace Rbx2Source.StudioMdl
                     boneCFrame *= parentBone.C1.Inverse();
                 }
 
-                Vector3 pos = boneCFrame.Position * Rbx2Source.MODEL_SCALE;
+                Vector3 pos = boneCFrame.Position * Main.MODEL_SCALE;
                 Vector3 rot = new Vector3(boneCFrame.ToEulerAnglesXYZ());
                 
                 fileBuffer.Write(Format.FormatFloats

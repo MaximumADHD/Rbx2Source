@@ -30,7 +30,7 @@ namespace Rbx2Source.Compiler
         public static void PreScheduleTasks()
         {
             // This is called before the model is built or compiled.
-            Rbx2Source.ScheduleTasks("CompileModel", "CompileTextures", "MoveTextures");
+            Main.ScheduleTasks("CompileModel", "CompileTextures", "MoveTextures");
         }
 
         public static async Task<string> Compile(GameInfo gameInfo, AssemblerData data)
@@ -40,7 +40,7 @@ namespace Rbx2Source.Compiler
             if (!gameInfo.ReadyToUse)
                 throw new Exception("This gameinfo.txt file isn't ready to use!");
 
-            Rbx2Source.PrintHeader("COMPILING MODEL");
+            Main.PrintHeader("COMPILING MODEL");
             #region Compile Model
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -52,12 +52,12 @@ namespace Rbx2Source.Compiler
             studioMdl.AddFile(data.CompilerScript);
 
             await studioMdl.RunWithOutput();
-            Rbx2Source.MarkTaskCompleted("CompileModel");
+            Main.MarkTaskCompleted("CompileModel");
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
-            Rbx2Source.PrintHeader("COMPILING TEXTURES");
+            Main.PrintHeader("COMPILING TEXTURES");
             #region Compile Textures
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -91,11 +91,11 @@ namespace Rbx2Source.Compiler
             vtfCompiler.AddParameter("output", data.MaterialDirectory);
 
             await vtfCompiler.RunWithOutput();
-            Rbx2Source.MarkTaskCompleted("CompileTextures");
+            Main.MarkTaskCompleted("CompileTextures");
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 
-            Rbx2Source.PrintHeader("MOVING TEXTURES");
+            Main.PrintHeader("MOVING TEXTURES");
             #region Move Textures
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -110,19 +110,19 @@ namespace Rbx2Source.Compiler
                 FileInfo info = new FileInfo(filePath);
 
                 string fileName = info.Name;
-                Rbx2Source.Print("Moving File: {0}", fileName);
+                Main.Print($"Moving File: {fileName}");
 
-                Rbx2Source.IncrementStack();
-                Rbx2Source.Print("From: {0}", filePath);
+                Main.IncrementStack();
+                Main.Print($"From: {filePath}");
 
                 string destFilePath = Path.Combine(materialPath, fileName);
                 info.CopyTo(destFilePath);
 
-                Rbx2Source.Print("To:   {0}", destFilePath);
-                Rbx2Source.DecrementStack();
+                Main.Print($"To:   {destFilePath}");
+                Main.DecrementStack();
             }
 
-            Rbx2Source.MarkTaskCompleted("MoveTextures");
+            Main.MarkTaskCompleted("MoveTextures");
             /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             #endregion
 

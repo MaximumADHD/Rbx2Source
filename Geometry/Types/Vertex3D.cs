@@ -17,7 +17,7 @@ namespace Rbx2Source.Geometry
 
         public string WriteStudioMdl()
         {
-            var scale = Rbx2Source.MODEL_SCALE;
+            var scale = Main.MODEL_SCALE;
 
             return Format.FormatFloats
             (
