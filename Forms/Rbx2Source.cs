@@ -296,7 +296,7 @@ namespace Rbx2Source
 
             if (compilerTypeSelect.Text == "Avatar")
             {
-                assetPreviewImage = "https://www.roblox.com/headshot-thumbnail/json?width=420&height=420&format=png&userId=" + currentUser.Id;
+                assetPreviewImage = "https://www.roblox.com/headshot-thumbnail/image?userId=" + currentUser.Id + "&width=420&height=420&format=png" ;
                 compilerInput.Text = "Username:";
                 compilerInputField.Text = currentUser.Username;
                 compilerTypeIcon.Image = Properties.Resources.Humanoid_icon;
@@ -747,16 +747,17 @@ namespace Rbx2Source
 
             CONTROLS_TO_DISABLE_WHEN_COMPILING = new List<Control>() { compile, compilerInputField, gameSelect, viewCompiledModel, compilerTypeSelect, quickCompile };
             
-            Links = new Dictionary<Control, string>() 
-            {
-                {twitterLink,   "https://www.twitter.com/CloneTeee1019"},
-                {AJLink,        "https://www.github.com/RedTopper"},
-                {egoMooseLink,  "https://www.github.com/EgoMoose"},
-                {nemsTools,     "http://nemesis.thewavelength.net/index.php?p=40"}
-            };
+       //     Links = new Dictionary<Control, string>() 
+    //        {
+        //        {qfoxb,   "https://www.twitter.com/qfoxb1"},
+     //           {linklabel18,   "https://www.twitter.com/MaximumADHD"},
+     //           {AJLink,        "https://www.github.com/RedTopper"},
+        //        {egoMooseLink,  "https://www.github.com/EgoMoose"}
+         //       {nemsTools,     "http://nemesis.thewavelength.net/index.php?p=40"}
+      //      };
 
-            foreach (Control link in Links.Keys)
-                link.Click += new EventHandler(onLinkClicked);
+         //   foreach (Control link in Links.Keys)
+      //          link.Click += new EventHandler(onLinkClicked);
 
             Task.Run(async() =>
             {
@@ -823,6 +824,51 @@ namespace Rbx2Source
         private void quickCompile_CheckedChanged(object sender, EventArgs e)
         {
             CharacterAssembler.DEBUG_RAPID_ASSEMBLY = quickCompile.Checked;
+        }
+
+        private void changeLogBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void assetPreview_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void About_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void AJLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+
+        }
+
+        private void twitterLink1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+
+        }
+
+        private void developedBy_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void thirdPartyInfoElaboration_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void thirdPartyInfo_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
