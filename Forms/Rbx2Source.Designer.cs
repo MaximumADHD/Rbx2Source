@@ -120,7 +120,6 @@
             this.About.TabIndex = 3;
             this.About.Text = "About";
             this.About.UseVisualStyleBackColor = true;
- //           this.About.Click += new System.EventHandler(this.About_Click);
             // 
             // label1
             // 
@@ -168,7 +167,6 @@
             this.linkLabel18.TabIndex = 20;
             this.linkLabel18.TabStop = true;
             this.linkLabel18.Text = "@MaximumADHD";
-   //         this.linkLabel18.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
             // developedBy
             // 
@@ -229,7 +227,6 @@
             this.thirdPartyInfoElaboration.TabIndex = 14;
             this.thirdPartyInfoElaboration.Text = "This program utilizes some third party applications. \r\nInformation regarding them" +
     " is listed below:";
-//            this.thirdPartyInfoElaboration.Click += new System.EventHandler(this.thirdPartyInfoElaboration_Click);
             // 
             // thirdPartyInfo
             // 
@@ -241,7 +238,6 @@
             this.thirdPartyInfo.Size = new System.Drawing.Size(158, 18);
             this.thirdPartyInfo.TabIndex = 13;
             this.thirdPartyInfo.Text = "Third-Party Information";
-//            this.thirdPartyInfo.Click += new System.EventHandler(this.thirdPartyInfo_Click);
             // 
             // egoMooseContribution
             // 
@@ -286,7 +282,6 @@
             this.AJLink.TabIndex = 7;
             this.AJLink.TabStop = true;
             this.AJLink.Text = "RedTopper (AJ Walter)";
-//            this.AJLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.AJLink_LinkClicked);
             // 
             // specialThanksTo
             // 
@@ -310,7 +305,6 @@
             this.qfoxb.TabIndex = 4;
             this.qfoxb.TabStop = true;
             this.qfoxb.Text = "@qfoxb1";
-//            this.qfoxb.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.twitterLink1_LinkClicked);
             // 
             // fixedBy
             // 
@@ -322,7 +316,6 @@
             this.fixedBy.Size = new System.Drawing.Size(64, 17);
             this.fixedBy.TabIndex = 3;
             this.fixedBy.Text = "Fixed by:";
-//            this.fixedBy.Click += new System.EventHandler(this.developedBy_Click);
             // 
             // egoMooseIcon
             // 
@@ -547,7 +540,6 @@
             this.assetPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.assetPreview.TabIndex = 2;
             this.assetPreview.TabStop = false;
-//            this.assetPreview.Click += new System.EventHandler(this.assetPreview_Click);
             // 
             // compilerType
             // 
@@ -613,7 +605,6 @@
             this.changeLogBox.Size = new System.Drawing.Size(350, 275);
             this.changeLogBox.TabIndex = 1;
             this.changeLogBox.Text = resources.GetString("changeLogBox.Text");
-//            this.changeLogBox.TextChanged += new System.EventHandler(this.changeLogBox_TextChanged);
             // 
             // Debug
             // 
@@ -650,7 +641,7 @@
             this.MaximizeBox = false;
             this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Rbx2Source v2.62";
+            this.Text = "Rbx2Source v2.63";
             this.TopMost = true;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);
