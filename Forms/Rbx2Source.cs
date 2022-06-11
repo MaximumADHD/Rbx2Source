@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using Rbx2Source.Assembler;
+using Rbx2Source.Compiler;
+using Rbx2Source.Resources;
+using Rbx2Source.Web;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
@@ -6,12 +11,6 @@ using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Microsoft.Win32;
-
-using Rbx2Source.Assembler;
-using Rbx2Source.Compiler;
-using Rbx2Source.Resources;
-using Rbx2Source.Web;
 
 namespace Rbx2Source
 {
@@ -48,17 +47,17 @@ namespace Rbx2Source
 
         private Dictionary<Control, string> Links;
         private List<Control> CONTROLS_TO_DISABLE_WHEN_COMPILING;
-        
+
         private static int stackLevel = 0;
         private static readonly List<OutputLog> outputQueue = new List<OutputLog>();
-        private const  string outputDivider = "---------------------------------------------------------------------------";
+        private const string outputDivider = "---------------------------------------------------------------------------";
 
         private static readonly Dictionary<string, bool> progressQueue = new Dictionary<string, bool>();
         private static bool updateProgressQueue;
 
         private static readonly Image loadingImage = Properties.Resources.Loading;
         private static readonly Image brokenImage = Properties.Resources.BrokenPreview;
-        
+
         private static Image debugImage;
         private string assetPreviewImage = "";
 
@@ -208,7 +207,7 @@ namespace Rbx2Source
         {
             //string steamPath = Path.Combine(steamDir, "steamapps", "common");
             string configDir = File.ReadAllText("config.txt");
-            string steamPath = Path.Combine(configDir, "steamapps", "common"); 
+            string steamPath = Path.Combine(configDir, "steamapps", "common");
             if (Directory.Exists(steamPath))
             {
                 foreach (string game in Directory.GetDirectories(steamPath))
@@ -276,7 +275,7 @@ namespace Rbx2Source
                                     {
                                         string gameName = info.GameName;
                                         sourceGames[gameName] = info;
-                                    } 
+                                    }
                                 }
                                 catch (Exception e)
                                 {
@@ -345,7 +344,7 @@ namespace Rbx2Source
                 }
                 catch
                 {
-                    showError("This AssetId isn't configured correctly on Roblox's end.\n\n" + 
+                    showError("This AssetId isn't configured correctly on Roblox's end.\n\n" +
                               "This error usually happens if you input a very old AssetId that doesn't exist on their servers.\n\n" +
                               "Try something else!");
                 }
@@ -577,7 +576,7 @@ namespace Rbx2Source
                 viewCompiledModel.Enabled = false;
             }
         }
-        
+
         private static void loadComboBox(ComboBox comboBox, string settingsKey, int defaultValue = 0)
         {
             string value = Settings.GetString(settingsKey);
@@ -692,7 +691,7 @@ namespace Rbx2Source
                 {
                     string file = File.ReadAllText(libraryFolders);
 
-                    string[] newlines = new string[] {"\r\n","\n"};
+                    string[] newlines = new string[] { "\r\n", "\n" };
                     string[] lines = file.Split(newlines, StringSplitOptions.None);
 
                     foreach (string line in lines)
@@ -747,8 +746,8 @@ namespace Rbx2Source
             updateDisplays();
 
             CONTROLS_TO_DISABLE_WHEN_COMPILING = new List<Control>() { compile, compilerInputField, gameSelect, viewCompiledModel, compilerTypeSelect, quickCompile };
-            
-            Links = new Dictionary<Control, string>() 
+
+            Links = new Dictionary<Control, string>()
             {
                 {twitterLink,   "https://www.twitter.com/CloneTeee1019"},
                 {AJLink,        "https://www.github.com/RedTopper"},
@@ -759,7 +758,7 @@ namespace Rbx2Source
             foreach (Control link in Links.Keys)
                 link.Click += new EventHandler(onLinkClicked);
 
-            Task.Run(async() =>
+            Task.Run(async () =>
             {
                 while (!IsDisposed)
                 {
