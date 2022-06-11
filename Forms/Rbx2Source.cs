@@ -39,7 +39,7 @@ namespace Rbx2Source
         public Launcher baseProcess;
 
         private UserInfo currentUser;
-        private long currentAssetId = 19027209;
+        private long currentAssetId = 62601805;
 
         private GameInfo selectedGame;
         private string latestCompiledModel;
@@ -64,7 +64,7 @@ namespace Rbx2Source
 
         public Rbx2Source()
         {
-            UserAvatar defaultAvatar = UserAvatar.FromUserId(2032622);
+            UserAvatar defaultAvatar = UserAvatar.FromUserId(62601805);
             currentUser = defaultAvatar.UserInfo;
 
             InitializeComponent();
@@ -460,7 +460,7 @@ namespace Rbx2Source
                 {
                     exceptionMsg = exception.Message;
                     errorMsg += "\nError Message: " + exceptionMsg + "\n\n" +
-                                "If this error message has happened multiple times, and doesn't seem deliberate, you should totally send a screenshot of this error message to @CloneTeee1019 on Twitter.\n\n" +
+                                "If this error message has happened multiple times, and doesn't seem deliberate, you should totally send a screenshot of this error message to @qfoxb1 on Twitter.\n\n" +
                                 "STACK TRACE:\n" + outputDivider + "\n" + exception.StackTrace + "\n" + outputDivider;
                 }
             }

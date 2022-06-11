@@ -34,7 +34,7 @@ namespace Rbx2Source
             }
             else
             {
-                string gitPath = "https://raw.githubusercontent.com/CloneTrooper1019/Rbx2Source/master/" + localPath;
+                string gitPath = "https://raw.githubusercontent.com/StarLandRBLX/Rbx2Source/main/" + localPath;
                 return await http.DownloadDataTaskAsync(gitPath);
             }
         }
