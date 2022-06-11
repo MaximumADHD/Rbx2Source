@@ -747,16 +747,16 @@ namespace Rbx2Source
 
             CONTROLS_TO_DISABLE_WHEN_COMPILING = new List<Control>() { compile, compilerInputField, gameSelect, viewCompiledModel, compilerTypeSelect, quickCompile };
 
-            Links = new Dictionary<Control, string>()
-            {
-                {twitterLink,   "https://www.twitter.com/CloneTeee1019"},
-                {AJLink,        "https://www.github.com/RedTopper"},
-                {egoMooseLink,  "https://www.github.com/EgoMoose"},
-                {nemsTools,     "http://nemesis.thewavelength.net/index.php?p=40"}
-            };
-
-            foreach (Control link in Links.Keys)
-                link.Click += new EventHandler(onLinkClicked);
+     //       Links = new Dictionary<Control, string>()
+   //         {
+    //            {twitterLink,   "https://www.twitter.com/CloneTeee1019"},
+    //            {AJLink,        "https://www.github.com/RedTopper"},
+    //            {egoMooseLink,  "https://www.github.com/EgoMoose"},
+     //           {nemsTools,     "http://nemesis.thewavelength.net/index.php?p=40"}
+     //       };
+//
+   //         foreach (Control link in Links.Keys)
+    //            link.Click += new EventHandler(onLinkClicked);
 
             Task.Run(async () =>
             {
