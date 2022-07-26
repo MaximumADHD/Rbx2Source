@@ -17,4 +17,4 @@ Originally developed by [MaximumADHD](https://github.com/MaximumADHD), this proj
 - Build
 
 # Known Bugs
-- Not loading thumbnails of users/accessories
+- Not loading thumbnails of users/accessories [issue #1](https://github.com/StarLandRBLX/Rbx2Source/issues/1)
