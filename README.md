@@ -6,17 +6,15 @@ Originally developed by [MaximumADHD](https://github.com/MaximumADHD), this proj
 
 # Setup
 - Download the latest [Rbx2Source.exe](https://github.com/StarLandRBLX/Rbx2Source/raw/main/Rbx2Source.exe) file from the github page.       
-- Create a file called config.txt in the same folder as Rbx2Source.exe      
-- Edit the config.txt to your steam library folder with source games installed      
-- *Default: C:\Program Files (x86)\Steam*    
+- If your Source Games are on a drive other than C:, you must create a config.txt file next to Rbx2Source.
+- [Here's an example of a good config.txt file](https://github.com/StarLandRBLX/Rbx2Source/raw/main/config.example.txt)
 - If you're having issues after the first compile, run the [Cache Clearer](https://github.com/StarLandRBLX/Rbx2Source/raw/main/Clear%20Cache.bat).  
 
 # Building Instructions
-- Clone the github repository. 
-- Clone [this repository](https://github.com/StarLandRBLX/Roblox-File-Format) as well.
+- Clone the github repository. (With submodules)
+- You may have to edit the Roblox-File-Format submodule in Visual Studio to change it's output directory (you'll see the path it's looking for in a build error)
 - You may have to restore the NuGet Packages as well
 - Build
 
 # Known Bugs
-- Missing textures on some head accessories when exporting to Source Filmmaker
 - Not loading thumbnails of users/accessories
