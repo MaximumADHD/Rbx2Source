@@ -11,10 +11,10 @@ Originally developed by [MaximumADHD](https://github.com/MaximumADHD), this proj
 - If you're having issues after the first compile, run the [Cache Clearer](https://github.com/StarLandRBLX/Rbx2Source/raw/main/Clear%20Cache.bat).  
 
 # Building Instructions
-- Clone the github repository. (With submodules)
-- You may have to edit the Roblox-File-Format submodule in Visual Studio to change it's output directory (you'll see the path it's looking for in a build error)
-- You may have to restore the NuGet Packages as well
-- Build
+- Clone the github repository.
+- Clone [This repository](https://github.com/MaximumADHD/Roblox-File-Format/) as well.
+- Restore NuGet Packages on both repositories
+- Build within Visual Studio 2022
 
 # Known Bugs
 - Not loading thumbnails of users/accessories [issue #1](https://github.com/StarLandRBLX/Rbx2Source/issues/1)
