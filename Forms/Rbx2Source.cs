@@ -169,6 +169,24 @@ namespace Rbx2Source
             Application.Exit();
         }
 
+        private static string  ConfigLoader()
+        {
+            if (File.Exists("config.txt")) 
+            {
+                string configDir = File.ReadAllText("config.txt");
+      //          string steamPath = Path.Combine(configDir, "steamapps", "common");
+                return configDir;
+                
+            }
+            else
+            {
+                string steamPath = @"C:\Program Files (x86)\Steam";
+                Print("MicCheck");
+                return steamPath;
+            }
+
+        }
+
         private static string[] getStringsInQuotes(string str)
         {
             List<int> quoteLocs = new List<int>();
@@ -206,7 +224,7 @@ namespace Rbx2Source
         private void gatherSourceGames(string steamDir)
         {
             //string steamPath = Path.Combine(steamDir, "steamapps", "common");
-            string configDir = File.ReadAllText("config.txt");
+            string configDir = ConfigLoader();
             string steamPath = Path.Combine(configDir, "steamapps", "common");
             if (Directory.Exists(steamPath))
             {
