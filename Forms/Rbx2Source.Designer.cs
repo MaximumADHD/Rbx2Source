@@ -184,13 +184,14 @@
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.pictureBox1.ImageLocation = "https://github.com/CloneTrooper1019.png";
             this.pictureBox1.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
-            this.pictureBox1.Location = new System.Drawing.Point(7, 226);
+            this.pictureBox1.Location = new System.Drawing.Point(7, 227);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(65, 64);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 18;
             this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // textBox3
             // 
@@ -348,10 +349,10 @@
             this.TwitterIcon.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.TwitterIcon.ImageLocation = "https://github.com/qfoxb.png";
             this.TwitterIcon.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
-            this.TwitterIcon.Location = new System.Drawing.Point(9, 123);
+            this.TwitterIcon.Location = new System.Drawing.Point(9, 129);
             this.TwitterIcon.Margin = new System.Windows.Forms.Padding(2);
             this.TwitterIcon.Name = "TwitterIcon";
-            this.TwitterIcon.Size = new System.Drawing.Size(71, 71);
+            this.TwitterIcon.Size = new System.Drawing.Size(65, 64);
             this.TwitterIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.TwitterIcon.TabIndex = 1;
             this.TwitterIcon.TabStop = false;
@@ -641,7 +642,7 @@
             this.MaximizeBox = false;
             this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Rbx2Source v2.63";
+            this.Text = "Rbx2Source v2.64";
             this.TopMost = true;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);

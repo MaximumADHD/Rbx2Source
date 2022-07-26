@@ -824,5 +824,10 @@ namespace Rbx2Source
         {
             CharacterAssembler.DEBUG_RAPID_ASSEMBLY = quickCompile.Checked;
         }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
