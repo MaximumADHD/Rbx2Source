@@ -181,7 +181,6 @@ namespace Rbx2Source
             else
             {
                 string steamPath = @"C:\Program Files (x86)\Steam";
-                Print("MicCheck");
                 return steamPath;
             }
 
