@@ -37,7 +37,6 @@
             this.developedBy = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
-            this.vtfCmdTitle = new System.Windows.Forms.Label();
             this.thirdPartyInfoElaboration = new System.Windows.Forms.Label();
             this.thirdPartyInfo = new System.Windows.Forms.Label();
             this.egoMooseContribution = new System.Windows.Forms.Label();
@@ -72,6 +71,7 @@
             this.changeLogBox = new System.Windows.Forms.RichTextBox();
             this.Debug = new System.Windows.Forms.TabPage();
             this.debugImg = new System.Windows.Forms.PictureBox();
+            this.nemsTools = new System.Windows.Forms.LinkLabel();
             this.About.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -92,6 +92,7 @@
             // About
             // 
             this.About.AutoScroll = true;
+            this.About.Controls.Add(this.nemsTools);
             this.About.Controls.Add(this.label1);
             this.About.Controls.Add(this.rileyLink);
             this.About.Controls.Add(this.pictureBox2);
@@ -99,7 +100,6 @@
             this.About.Controls.Add(this.developedBy);
             this.About.Controls.Add(this.pictureBox1);
             this.About.Controls.Add(this.textBox3);
-            this.About.Controls.Add(this.vtfCmdTitle);
             this.About.Controls.Add(this.thirdPartyInfoElaboration);
             this.About.Controls.Add(this.thirdPartyInfo);
             this.About.Controls.Add(this.egoMooseContribution);
@@ -206,17 +206,6 @@
     "es into the Valve Texture Format (.VTF)\r\nRbx2Source utilizes VTFCmd to handle mo" +
     "del textures.";
             // 
-            // vtfCmdTitle
-            // 
-            this.vtfCmdTitle.AutoSize = true;
-            this.vtfCmdTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.20472F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.vtfCmdTitle.Location = new System.Drawing.Point(1, 375);
-            this.vtfCmdTitle.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.vtfCmdTitle.Name = "vtfCmdTitle";
-            this.vtfCmdTitle.Size = new System.Drawing.Size(68, 17);
-            this.vtfCmdTitle.TabIndex = 15;
-            this.vtfCmdTitle.Text = "VTFCmd";
-            // 
             // thirdPartyInfoElaboration
             // 
             this.thirdPartyInfoElaboration.AutoSize = true;
@@ -302,10 +291,10 @@
             this.qfoxbTwitter.Location = new System.Drawing.Point(10, 212);
             this.qfoxbTwitter.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.qfoxbTwitter.Name = "qfoxbTwitter";
-            this.qfoxbTwitter.Size = new System.Drawing.Size(50, 13);
+            this.qfoxbTwitter.Size = new System.Drawing.Size(72, 13);
             this.qfoxbTwitter.TabIndex = 4;
             this.qfoxbTwitter.TabStop = true;
-            this.qfoxbTwitter.Text = "@qfoxb1";
+            this.qfoxbTwitter.Text = "@qfoxbRBLX";
             this.qfoxbTwitter.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.qfoxb_LinkClicked);
             // 
             // fixedBy
@@ -630,6 +619,20 @@
             this.debugImg.TabIndex = 0;
             this.debugImg.TabStop = false;
             // 
+            // nemsTools
+            // 
+            this.nemsTools.AutoSize = true;
+            this.nemsTools.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.20472F, System.Drawing.FontStyle.Bold);
+            this.nemsTools.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.nemsTools.Location = new System.Drawing.Point(7, 384);
+            this.nemsTools.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.nemsTools.Name = "nemsTools";
+            this.nemsTools.Size = new System.Drawing.Size(68, 17);
+            this.nemsTools.TabIndex = 24;
+            this.nemsTools.TabStop = true;
+            this.nemsTools.Text = "VTFCmd";
+            this.nemsTools.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
+            // 
             // Rbx2Source
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -673,7 +676,6 @@
 
         private System.Windows.Forms.TabPage About;
         private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.Label vtfCmdTitle;
         private System.Windows.Forms.Label thirdPartyInfoElaboration;
         private System.Windows.Forms.Label thirdPartyInfo;
         private System.Windows.Forms.Label egoMooseContribution;
@@ -714,5 +716,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.LinkLabel rileyLink;
         private System.Windows.Forms.PictureBox pictureBox2;
+        private System.Windows.Forms.LinkLabel nemsTools;
     }
 }

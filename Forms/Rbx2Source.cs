@@ -766,12 +766,12 @@ namespace Rbx2Source
 
             Links = new Dictionary<Control, string>()
             {
-                {cloneTwitter,   "https://www.twitter.com/MaximumADHD"},
-                {qfoxbTwitter,   "https://www.twitter.com/qfoxbRBLX"},
+                {cloneTwitter,  "https://www.twitter.com/MaximumADHD"},
+                {qfoxbTwitter,  "https://www.twitter.com/qfoxbRBLX"},
                 {AJLink,        "https://www.github.com/RedTopper"},
                 {egoMooseLink,  "https://www.github.com/EgoMoose"},
-                {rileyLink,  "https://www.github.com/rileywilliam08"},
-            //    {nemsTools,     "http://nemesis.thewavelength.net/index.php?p=40"}
+                {rileyLink,     "https://www.github.com/rileywilliam08"},
+                {nemsTools,     "https://web.archive.org/web/20200201044259/http://nemesis.thewavelength.net:80/index.php?p=40"}
             };
 
             foreach (Control link in Links.Keys)
@@ -855,6 +855,11 @@ namespace Rbx2Source
         }
 
         private void TwitterIcon_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
 
         }
