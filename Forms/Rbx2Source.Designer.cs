@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Rbx2Source));
             this.About = new System.Windows.Forms.TabPage();
+            this.nemsTools = new System.Windows.Forms.LinkLabel();
             this.label1 = new System.Windows.Forms.Label();
             this.rileyLink = new System.Windows.Forms.LinkLabel();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
@@ -71,7 +72,6 @@
             this.changeLogBox = new System.Windows.Forms.RichTextBox();
             this.Debug = new System.Windows.Forms.TabPage();
             this.debugImg = new System.Windows.Forms.PictureBox();
-            this.nemsTools = new System.Windows.Forms.LinkLabel();
             this.About.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -120,6 +120,20 @@
             this.About.TabIndex = 3;
             this.About.Text = "About";
             this.About.UseVisualStyleBackColor = true;
+            // 
+            // nemsTools
+            // 
+            this.nemsTools.AutoSize = true;
+            this.nemsTools.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.20472F, System.Drawing.FontStyle.Bold);
+            this.nemsTools.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.nemsTools.Location = new System.Drawing.Point(7, 384);
+            this.nemsTools.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.nemsTools.Name = "nemsTools";
+            this.nemsTools.Size = new System.Drawing.Size(68, 17);
+            this.nemsTools.TabIndex = 24;
+            this.nemsTools.TabStop = true;
+            this.nemsTools.Text = "VTFCmd";
+            this.nemsTools.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
             // label1
             // 
@@ -288,7 +302,7 @@
             // 
             this.qfoxbTwitter.AutoSize = true;
             this.qfoxbTwitter.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.qfoxbTwitter.Location = new System.Drawing.Point(10, 212);
+            this.qfoxbTwitter.Location = new System.Drawing.Point(5, 212);
             this.qfoxbTwitter.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.qfoxbTwitter.Name = "qfoxbTwitter";
             this.qfoxbTwitter.Size = new System.Drawing.Size(72, 13);
@@ -301,7 +315,7 @@
             // 
             this.fixedBy.AutoSize = true;
             this.fixedBy.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.20472F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.fixedBy.Location = new System.Drawing.Point(8, 193);
+            this.fixedBy.Location = new System.Drawing.Point(5, 195);
             this.fixedBy.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.fixedBy.Name = "fixedBy";
             this.fixedBy.Size = new System.Drawing.Size(64, 17);
@@ -618,20 +632,6 @@
             this.debugImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.debugImg.TabIndex = 0;
             this.debugImg.TabStop = false;
-            // 
-            // nemsTools
-            // 
-            this.nemsTools.AutoSize = true;
-            this.nemsTools.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.20472F, System.Drawing.FontStyle.Bold);
-            this.nemsTools.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.nemsTools.Location = new System.Drawing.Point(7, 384);
-            this.nemsTools.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.nemsTools.Name = "nemsTools";
-            this.nemsTools.Size = new System.Drawing.Size(68, 17);
-            this.nemsTools.TabIndex = 24;
-            this.nemsTools.TabStop = true;
-            this.nemsTools.Text = "VTFCmd";
-            this.nemsTools.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
             // Rbx2Source
             // 
