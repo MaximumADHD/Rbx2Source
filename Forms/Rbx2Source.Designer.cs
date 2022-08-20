@@ -31,9 +31,9 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Rbx2Source));
             this.About = new System.Windows.Forms.TabPage();
             this.label1 = new System.Windows.Forms.Label();
-            this.linkLabel2 = new System.Windows.Forms.LinkLabel();
+            this.rileyLink = new System.Windows.Forms.LinkLabel();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.linkLabel18 = new System.Windows.Forms.LinkLabel();
+            this.cloneTwitter = new System.Windows.Forms.LinkLabel();
             this.developedBy = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.textBox3 = new System.Windows.Forms.TextBox();
@@ -45,7 +45,7 @@
             this.AJContribution = new System.Windows.Forms.Label();
             this.AJLink = new System.Windows.Forms.LinkLabel();
             this.specialThanksTo = new System.Windows.Forms.Label();
-            this.qfoxb = new System.Windows.Forms.LinkLabel();
+            this.qfoxbTwitter = new System.Windows.Forms.LinkLabel();
             this.fixedBy = new System.Windows.Forms.Label();
             this.egoMooseIcon = new System.Windows.Forms.PictureBox();
             this.AJIcon = new System.Windows.Forms.PictureBox();
@@ -93,9 +93,9 @@
             // 
             this.About.AutoScroll = true;
             this.About.Controls.Add(this.label1);
-            this.About.Controls.Add(this.linkLabel2);
+            this.About.Controls.Add(this.rileyLink);
             this.About.Controls.Add(this.pictureBox2);
-            this.About.Controls.Add(this.linkLabel18);
+            this.About.Controls.Add(this.cloneTwitter);
             this.About.Controls.Add(this.developedBy);
             this.About.Controls.Add(this.pictureBox1);
             this.About.Controls.Add(this.textBox3);
@@ -107,7 +107,7 @@
             this.About.Controls.Add(this.AJContribution);
             this.About.Controls.Add(this.AJLink);
             this.About.Controls.Add(this.specialThanksTo);
-            this.About.Controls.Add(this.qfoxb);
+            this.About.Controls.Add(this.qfoxbTwitter);
             this.About.Controls.Add(this.fixedBy);
             this.About.Controls.Add(this.egoMooseIcon);
             this.About.Controls.Add(this.AJIcon);
@@ -132,16 +132,16 @@
             this.label1.TabIndex = 23;
             this.label1.Text = "Troubleshooting + GitHub Maintainer";
             // 
-            // linkLabel2
+            // rileyLink
             // 
-            this.linkLabel2.AutoSize = true;
-            this.linkLabel2.Location = new System.Drawing.Point(143, 226);
-            this.linkLabel2.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.linkLabel2.Name = "linkLabel2";
-            this.linkLabel2.Size = new System.Drawing.Size(67, 13);
-            this.linkLabel2.TabIndex = 22;
-            this.linkLabel2.TabStop = true;
-            this.linkLabel2.Text = "rileywilliam08";
+            this.rileyLink.AutoSize = true;
+            this.rileyLink.Location = new System.Drawing.Point(143, 226);
+            this.rileyLink.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.rileyLink.Name = "rileyLink";
+            this.rileyLink.Size = new System.Drawing.Size(67, 13);
+            this.rileyLink.TabIndex = 22;
+            this.rileyLink.TabStop = true;
+            this.rileyLink.Text = "rileywilliam08";
             // 
             // pictureBox2
             // 
@@ -156,17 +156,17 @@
             this.pictureBox2.TabIndex = 21;
             this.pictureBox2.TabStop = false;
             // 
-            // linkLabel18
+            // cloneTwitter
             // 
-            this.linkLabel18.AutoSize = true;
-            this.linkLabel18.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.linkLabel18.Location = new System.Drawing.Point(6, 311);
-            this.linkLabel18.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.linkLabel18.Name = "linkLabel18";
-            this.linkLabel18.Size = new System.Drawing.Size(93, 13);
-            this.linkLabel18.TabIndex = 20;
-            this.linkLabel18.TabStop = true;
-            this.linkLabel18.Text = "@MaximumADHD";
+            this.cloneTwitter.AutoSize = true;
+            this.cloneTwitter.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.cloneTwitter.Location = new System.Drawing.Point(6, 311);
+            this.cloneTwitter.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.cloneTwitter.Name = "cloneTwitter";
+            this.cloneTwitter.Size = new System.Drawing.Size(93, 13);
+            this.cloneTwitter.TabIndex = 20;
+            this.cloneTwitter.TabStop = true;
+            this.cloneTwitter.Text = "@MaximumADHD";
             // 
             // developedBy
             // 
@@ -295,17 +295,18 @@
             this.specialThanksTo.TabIndex = 5;
             this.specialThanksTo.Text = "Special thanks to:";
             // 
-            // qfoxb
+            // qfoxbTwitter
             // 
-            this.qfoxb.AutoSize = true;
-            this.qfoxb.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.qfoxb.Location = new System.Drawing.Point(10, 212);
-            this.qfoxb.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.qfoxb.Name = "qfoxb";
-            this.qfoxb.Size = new System.Drawing.Size(50, 13);
-            this.qfoxb.TabIndex = 4;
-            this.qfoxb.TabStop = true;
-            this.qfoxb.Text = "@qfoxb1";
+            this.qfoxbTwitter.AutoSize = true;
+            this.qfoxbTwitter.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.qfoxbTwitter.Location = new System.Drawing.Point(10, 212);
+            this.qfoxbTwitter.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.qfoxbTwitter.Name = "qfoxbTwitter";
+            this.qfoxbTwitter.Size = new System.Drawing.Size(50, 13);
+            this.qfoxbTwitter.TabIndex = 4;
+            this.qfoxbTwitter.TabStop = true;
+            this.qfoxbTwitter.Text = "@qfoxb1";
+            this.qfoxbTwitter.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.qfoxb_LinkClicked);
             // 
             // fixedBy
             // 
@@ -356,6 +357,7 @@
             this.TwitterIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.TwitterIcon.TabIndex = 1;
             this.TwitterIcon.TabStop = false;
+            this.TwitterIcon.Click += new System.EventHandler(this.TwitterIcon_Click);
             // 
             // rbx2SourceLogo
             // 
@@ -679,8 +681,7 @@
         private System.Windows.Forms.Label AJContribution;
         private System.Windows.Forms.LinkLabel AJLink;
         private System.Windows.Forms.Label specialThanksTo;
-        private System.Windows.Forms.LinkLabel qfoxb;
-        //      private System.Windows.Forms.LinkLabel linklabel18;
+        private System.Windows.Forms.LinkLabel qfoxbTwitter;
         private System.Windows.Forms.Label fixedBy;
         private System.Windows.Forms.PictureBox egoMooseIcon;
         private System.Windows.Forms.PictureBox AJIcon;
@@ -707,11 +708,11 @@
         private System.Windows.Forms.TabPage Debug;
         private System.Windows.Forms.PictureBox debugImg;
         private System.Windows.Forms.CheckBox quickCompile;
-        private System.Windows.Forms.LinkLabel linkLabel18;
+        private System.Windows.Forms.LinkLabel cloneTwitter;
         private System.Windows.Forms.Label developedBy;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.LinkLabel linkLabel2;
+        private System.Windows.Forms.LinkLabel rileyLink;
         private System.Windows.Forms.PictureBox pictureBox2;
     }
 }

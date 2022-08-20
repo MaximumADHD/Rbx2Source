@@ -764,16 +764,18 @@ namespace Rbx2Source
 
             CONTROLS_TO_DISABLE_WHEN_COMPILING = new List<Control>() { compile, compilerInputField, gameSelect, viewCompiledModel, compilerTypeSelect, quickCompile };
 
-     //       Links = new Dictionary<Control, string>()
-   //         {
-    //            {twitterLink,   "https://www.twitter.com/CloneTeee1019"},
-    //            {AJLink,        "https://www.github.com/RedTopper"},
-    //            {egoMooseLink,  "https://www.github.com/EgoMoose"},
-     //           {nemsTools,     "http://nemesis.thewavelength.net/index.php?p=40"}
-     //       };
-//
-   //         foreach (Control link in Links.Keys)
-    //            link.Click += new EventHandler(onLinkClicked);
+            Links = new Dictionary<Control, string>()
+            {
+                {cloneTwitter,   "https://www.twitter.com/MaximumADHD"},
+                {qfoxbTwitter,   "https://www.twitter.com/qfoxbRBLX"},
+                {AJLink,        "https://www.github.com/RedTopper"},
+                {egoMooseLink,  "https://www.github.com/EgoMoose"},
+                {rileyLink,  "https://www.github.com/rileywilliam08"},
+            //    {nemsTools,     "http://nemesis.thewavelength.net/index.php?p=40"}
+            };
+
+            foreach (Control link in Links.Keys)
+                link.Click += new EventHandler(onLinkClicked);
 
             Task.Run(async () =>
             {
@@ -843,6 +845,16 @@ namespace Rbx2Source
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void qfoxb_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+
+        }
+
+        private void TwitterIcon_Click(object sender, EventArgs e)
         {
 
         }
