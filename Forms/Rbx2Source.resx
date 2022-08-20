@@ -118,7 +118,37 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.62] (December 6th, 2020)
+    <value>[v2.66] (August 20th, 2022)
+
+• Fix links in-app
+• Actually update the Change log in app
+• Redirect VTFCmd link to archived version
+______________________________________________________
+
+[v2.65.1] (July 26th, 2022)
+
+• Fix security vulnerability
+______________________________________________________
+
+[v2.65] (July 26th, 2022)
+
+• Automatically assume default steam directory if no config.txt present
+______________________________________________________
+
+[v2.64] (July 26th, 2022)
+
+• Fixed compilation (again)
+• Texture compilation for Source Filmmaker fixed
+• Fixed major crash resulting in no model being rendered at all (Model has 2D Geometry)
+______________________________________________________
+
+[v2.63] (June 11th, 2022)
+
+• Fixed compilation
+• Can now read from any directory for source games (config.txt added)
+______________________________________________________
+
+[v2.62] (December 6th, 2020) (Final CloneTrooper branch Version)
 
 • Fixed several read errors related to
   version 4.00 meshes
@@ -470,7 +500,6 @@ ______________________________________________________
 
 [v1.00] (December 25th, 2015)
 
-• Initial release.
-</value>
+• Initial release.</value>
   </data>
 </root>
