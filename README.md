@@ -18,3 +18,4 @@ Originally developed by [MaximumADHD](https://github.com/MaximumADHD), this proj
 
 # Known Bugs
 - Not loading thumbnails of users/accessories [issue #1](https://github.com/StarLandRBLX/Rbx2Source/issues/1)
+- Links do not work in the "About Section" [issue #2](https://github.com/StarLandRBLX/Rbx2Source/issues/2)
