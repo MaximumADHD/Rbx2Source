@@ -45,7 +45,7 @@
             this.AJContribution = new System.Windows.Forms.Label();
             this.AJLink = new System.Windows.Forms.LinkLabel();
             this.specialThanksTo = new System.Windows.Forms.Label();
-            this.qfoxbTwitter = new System.Windows.Forms.LinkLabel();
+            this.qfoxb = new System.Windows.Forms.LinkLabel();
             this.fixedBy = new System.Windows.Forms.Label();
             this.egoMooseIcon = new System.Windows.Forms.PictureBox();
             this.AJIcon = new System.Windows.Forms.PictureBox();
@@ -107,7 +107,7 @@
             this.About.Controls.Add(this.AJContribution);
             this.About.Controls.Add(this.AJLink);
             this.About.Controls.Add(this.specialThanksTo);
-            this.About.Controls.Add(this.qfoxbTwitter);
+            this.About.Controls.Add(this.qfoxb);
             this.About.Controls.Add(this.fixedBy);
             this.About.Controls.Add(this.egoMooseIcon);
             this.About.Controls.Add(this.AJIcon);
@@ -298,18 +298,18 @@
             this.specialThanksTo.TabIndex = 5;
             this.specialThanksTo.Text = "Special thanks to:";
             // 
-            // qfoxbTwitter
+            // qfoxb
             // 
-            this.qfoxbTwitter.AutoSize = true;
-            this.qfoxbTwitter.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.qfoxbTwitter.Location = new System.Drawing.Point(5, 212);
-            this.qfoxbTwitter.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.qfoxbTwitter.Name = "qfoxbTwitter";
-            this.qfoxbTwitter.Size = new System.Drawing.Size(72, 13);
-            this.qfoxbTwitter.TabIndex = 4;
-            this.qfoxbTwitter.TabStop = true;
-            this.qfoxbTwitter.Text = "@qfoxbRBLX";
-            this.qfoxbTwitter.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.qfoxb_LinkClicked);
+            this.qfoxb.AutoSize = true;
+            this.qfoxb.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.qfoxb.Location = new System.Drawing.Point(5, 212);
+            this.qfoxb.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.qfoxb.Name = "qfoxb";
+            this.qfoxb.Size = new System.Drawing.Size(44, 13);
+            this.qfoxb.TabIndex = 4;
+            this.qfoxb.TabStop = true;
+            this.qfoxb.Text = "@qfoxb";
+            this.qfoxb.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.qfoxb_LinkClicked);
             // 
             // fixedBy
             // 
@@ -683,7 +683,7 @@
         private System.Windows.Forms.Label AJContribution;
         private System.Windows.Forms.LinkLabel AJLink;
         private System.Windows.Forms.Label specialThanksTo;
-        private System.Windows.Forms.LinkLabel qfoxbTwitter;
+        private System.Windows.Forms.LinkLabel qfoxb;
         private System.Windows.Forms.Label fixedBy;
         private System.Windows.Forms.PictureBox egoMooseIcon;
         private System.Windows.Forms.PictureBox AJIcon;

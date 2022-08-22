@@ -63,7 +63,7 @@ namespace Rbx2Source
 
         public Rbx2Source()
         {
-            UserAvatar defaultAvatar = UserAvatar.FromUserId(2032622);
+            UserAvatar defaultAvatar = UserAvatar.FromUserId(62601805);
             currentUser = defaultAvatar.UserInfo;
 
             InitializeComponent();
@@ -341,7 +341,7 @@ namespace Rbx2Source
             else
             {
                 showError("An error occurred while trying to fetch this user!\n" +
-                          "Either the user does not exist, or something went wrong with the request.");
+                          "Either the user does not exist, is banned or something went wrong with the request.");
 
                 return false;
             }
@@ -477,7 +477,7 @@ namespace Rbx2Source
                 {
                     exceptionMsg = exception.Message;
                     errorMsg += "\nError Message: " + exceptionMsg + "\n\n" +
-                                "If this error message has happened multiple times, and doesn't seem deliberate, you should totally send a screenshot of this error message to @CloneTeee1019 on Twitter.\n\n" +
+                                "If this error message has happened multiple times, and doesn't seem deliberate, you should totally send a screenshot of this error message to @qfoxbRBLX on Twitter.\n\n" +
                                 "STACK TRACE:\n" + outputDivider + "\n" + exception.StackTrace + "\n" + outputDivider;
                 }
             }
@@ -744,7 +744,7 @@ namespace Rbx2Source
             }
 
             if (gameCount == 0)
-                showError("No Source Engine games were found on this PC!", true);
+                showError("No Source Engine games were found in current directory! Is your config.txt file setup correctly?", true);
 
             gameSelect.Enabled = true;
             compile.Enabled = true;
@@ -767,7 +767,7 @@ namespace Rbx2Source
             Links = new Dictionary<Control, string>()
             {
                 {cloneTwitter,  "https://www.twitter.com/MaximumADHD"},
-                {qfoxbTwitter,  "https://www.twitter.com/qfoxbRBLX"},
+                {qfoxb,         "https://www.github.com/qfoxb"},
                 {AJLink,        "https://www.github.com/RedTopper"},
                 {egoMooseLink,  "https://www.github.com/EgoMoose"},
                 {rileyLink,     "https://www.github.com/rileywilliam08"},
@@ -851,7 +851,7 @@ namespace Rbx2Source
 
         private void qfoxb_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-
+            
         }
 
         private void TwitterIcon_Click(object sender, EventArgs e)
