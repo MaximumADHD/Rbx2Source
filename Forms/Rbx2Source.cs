@@ -98,7 +98,7 @@ namespace Rbx2Source
             rpcClient.SetPresence(new RichPresence()
             {
                 Details = "Converting Assets",
-                State = "Converting Avatars to Source",
+                State = "Converting Roblox Assets to Source",
                 Assets = new Assets()
                 {
                     LargeImageKey = "image_large",
