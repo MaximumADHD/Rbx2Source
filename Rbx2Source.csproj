@@ -282,6 +282,9 @@
      <!-- <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets> -->
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="DiscordRichPresence">
+      <Version>1.0.175</Version>
+    </PackageReference>
     <PackageReference Include="Fody">
       <Version>6.6.3</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

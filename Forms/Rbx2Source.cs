@@ -11,6 +11,8 @@ using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DiscordRPC;
+using DiscordRPC.Logging;
 
 namespace Rbx2Source
 {
@@ -67,6 +69,7 @@ namespace Rbx2Source
             currentUser = defaultAvatar.UserInfo;
 
             InitializeComponent();
+            InitializeRPC();
 
             if (!Debugger.IsAttached)
             {
@@ -74,7 +77,36 @@ namespace Rbx2Source
                 MainTab.Controls.Remove(Debug);
             }
         }
+        public DiscordRpcClient rpcClient;
+        void InitializeRPC()
+        {
+            rpcClient = new DiscordRpcClient("1012837153757208576");
+            if (!Debugger.IsAttached)
+            {
+                rpcClient.Logger = new ConsoleLogger() { Level = LogLevel.Warning };
+                rpcClient.OnReady += (sender, e) =>
+                {
+                    Console.WriteLine("Received Ready from user {0}", e.User.Username);
+                };
 
+                rpcClient.OnPresenceUpdate += (sender, e) =>
+                {
+                    Console.WriteLine("Received Update! {0}", e.Presence);
+                };
+            }
+            rpcClient.Initialize();
+            rpcClient.SetPresence(new RichPresence()
+            {
+                Details = "Converting Assets",
+                State = "Converting Avatars to Source",
+                Assets = new Assets()
+                {
+                    LargeImageKey = "image_large",
+                    LargeImageText = $"Running Version {Settings.GetString("CurrentVersion")}",
+             //       SmallImageKey = "image_small"
+                }
+            });
+        }
         public static void ScheduleTasks(params string[] tasks)
         {
             foreach (string task in tasks)
@@ -837,6 +869,7 @@ namespace Rbx2Source
         private void Rbx2Source_FormClosed(object sender, FormClosedEventArgs e)
         {
             baseProcess?.Dispose();
+            rpcClient.Dispose();
         }
 
         private void quickCompile_CheckedChanged(object sender, EventArgs e)
