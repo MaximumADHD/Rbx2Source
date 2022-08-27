@@ -206,7 +206,7 @@ namespace Rbx2Source
             if (File.Exists("config.txt")) 
             {
                 string configDir = File.ReadAllText("config.txt");
-      //          string steamPath = Path.Combine(configDir, "steamapps", "common");
+//                string steamPath = Path.Combine(configDir, "steamapps", "common"); // Previous steam folder logic
                 return configDir;
                 
             }

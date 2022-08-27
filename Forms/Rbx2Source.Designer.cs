@@ -485,7 +485,8 @@
             this.compilerInputField.Name = "compilerInputField";
             this.compilerInputField.Size = new System.Drawing.Size(108, 20);
             this.compilerInputField.TabIndex = 6;
-            this.compilerInputField.Text = "CloneTrooper1019";
+            this.compilerInputField.Text = "qfoxb";
+            this.compilerInputField.TextChanged += new System.EventHandler(this.compilerInputField_TextChanged);
             this.compilerInputField.KeyDown += new System.Windows.Forms.KeyEventHandler(this.compilerInputField_KeyDown);
             this.compilerInputField.Leave += new System.EventHandler(this.compilerInputField_Leave);
             // 
@@ -647,7 +648,7 @@
             this.MaximizeBox = false;
             this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Rbx2Source v2.66";
+            this.Text = "Rbx2Source v2.67";
             this.TopMost = true;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);
