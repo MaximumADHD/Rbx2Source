@@ -486,7 +486,7 @@
             this.compilerInputField.Size = new System.Drawing.Size(108, 20);
             this.compilerInputField.TabIndex = 6;
             this.compilerInputField.Text = "qfoxb";
-            this.compilerInputField.TextChanged += new System.EventHandler(this.compilerInputField_TextChanged);
+            //this.compilerInputField.TextChanged += new System.EventHandler(this.compilerInputField_TextChanged);
             this.compilerInputField.KeyDown += new System.Windows.Forms.KeyEventHandler(this.compilerInputField_KeyDown);
             this.compilerInputField.Leave += new System.EventHandler(this.compilerInputField_Leave);
             // 
