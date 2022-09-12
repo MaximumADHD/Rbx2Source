@@ -56,12 +56,12 @@ jobs:
     - name: Get Roblox-File-Format dll
       uses: wei/wget@v1
       with:
-        args: https://https://github.com/MaximumADHD/Roblox-File-Format/raw/main/RobloxFileFormat.dll
+        args: https://github.com/MaximumADHD/Roblox-File-Format/raw/main/RobloxFileFormat.dll
     - run: mv RobloxFileFormat.dll ../Roblox-File-Format/bin/Debug/RobloxFileFormat.dll
     - name: Get Roblox-File-Format dll tes2
       uses: wei/wget@v1
       with:
-        args: https://https://github.com/MaximumADHD/Roblox-File-Format/raw/main/RobloxFileFormat.dll -O 
+        args: https://github.com/MaximumADHD/Roblox-File-Format/raw/main/RobloxFileFormat.dll -O 
 
     - run: mv RobloxFileFormat.dll ../Roblox-File-Format/bin/Release/RobloxFileFormat.dll
         
