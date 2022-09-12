@@ -51,32 +51,12 @@ jobs:
         
         # Details on CodeQL's query packs refer to : https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
         # queries: security-extended,security-and-quality
-    - run: cd ..
-        
-    - name: Get Roblox-File-Format dll
-      uses: wei/wget@v1
-      with:
-        args: https://github.com/MaximumADHD/Roblox-File-Format/raw/main/RobloxFileFormat.dll
     - run: |
          cd ..
-         mkdir Roblox-File-Format
-         cd Roblox-File-Format
-         mkdir bin
-         cd bin
-         mkdir Release
-         mkdir Debug
-         cd ..
-         cd ..
-         cd Rbx2Source-gh-actions-test
-         
-         mv RobloxFileFormat.dll ../Roblox-File-Format/bin/Debug/RobloxFileFormat.dll
-         
-    - name: Get Roblox-File-Format dll tes2
-      uses: wei/wget@v1
-      with:
-        args: https://github.com/MaximumADHD/Roblox-File-Format/raw/main/RobloxFileFormat.dll 
+          git clone https://github.com/MaximumADHD/Roblox-File-Format.git
 
-    - run: mv RobloxFileFormat.dll ../Roblox-File-Format/bin/Release/RobloxFileFormat.dll
+
+
         
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
