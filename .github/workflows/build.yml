@@ -1,0 +1,34 @@
+name: Build Rbx2Source
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - run: |
+         cd ..
+          git clone https://github.com/MaximumADHD/Roblox-File-Format.git
+          cd Roblox-File-Format
+          nuget restore
+
+    - name: Restore dependencies
+      run: nuget restore
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Build
+      run: msbuild Rbx2Source.sln
+    -  name: Upload Artifact  
+       uses: actions/upload-artifact@v3
+       with:
+         name: Rbx2Source
+         path: bin/Debug/Rbx2Source.exe
+         if-no-files-found: error
+      
