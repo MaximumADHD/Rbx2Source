@@ -13,8 +13,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v2
     - run: |
          cd ..
           git clone https://github.com/MaximumADHD/Roblox-File-Format.git
@@ -22,9 +20,9 @@ jobs:
           nuget restore
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: nuget restore
     - name: Build
-      run: dotnet build --no-restore  
+      run: msbuild Rbx2Source.sln
     -  name: Upload Artifact  
        uses: actions/upload-artifact@v3
        with:
