@@ -1,4 +1,6 @@
-﻿namespace Rbx2Source
+﻿using System;
+
+namespace Rbx2Source
 {
     partial class Rbx2Source
     {
@@ -718,5 +720,6 @@
         private System.Windows.Forms.LinkLabel rileyLink;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.LinkLabel nemsTools;
+        private EventHandler compilerInputField_TextChanged;
     }
 }
