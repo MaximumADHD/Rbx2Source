@@ -56,12 +56,14 @@ jobs:
     - name: Get Roblox-File-Format dll
       uses: wei/wget@v1
       with:
-        args: https://https://github.com/MaximumADHD/Roblox-File-Format/raw/main/RobloxFileFormat.dll -O ../Roblox-File-Format/bin/Release/RobloxFileFormat.dll
-        
+        args: https://https://github.com/MaximumADHD/Roblox-File-Format/raw/main/RobloxFileFormat.dll
+    - run: mv RobloxFileFormat.dll ../Roblox-File-Format/bin/Debug/RobloxFileFormat.dll
     - name: Get Roblox-File-Format dll tes2
       uses: wei/wget@v1
       with:
-        args: https://https://github.com/MaximumADHD/Roblox-File-Format/raw/main/RobloxFileFormat.dll -O ../Roblox-File-Format/bin/Debug/RobloxFileFormat.dll
+        args: https://https://github.com/MaximumADHD/Roblox-File-Format/raw/main/RobloxFileFormat.dll -O 
+
+    - run: mv RobloxFileFormat.dll ../Roblox-File-Format/bin/Release/RobloxFileFormat.dll
         
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
     # If this step fails, then you should remove it and run the build manually (see below)
