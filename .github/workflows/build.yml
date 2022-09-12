@@ -1,0 +1,36 @@
+name: Build Rbx2Source
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 4.7.2
+    - run: |
+         cd ..
+          git clone https://github.com/MaximumADHD/Roblox-File-Format.git
+          cd Roblox-File-Format
+          nuget restore
+
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore  
+    -  name: Upload Artifact  
+       uses: actions/upload-artifact@v3
+       with:
+         name: Rbx2Source
+         path: bin/Debug/Rbx2Source.exe
+         if-no-files-found: error
+      
