@@ -53,7 +53,7 @@ jobs:
         # queries: security-extended,security-and-quality
 
     - run: |
-       autobuild.bat
+       cmd autobuild.bat
 
         
     # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
