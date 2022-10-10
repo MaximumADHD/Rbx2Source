@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Rbx2Source
+﻿namespace Rbx2Source
 {
     partial class Rbx2Source
     {
@@ -488,7 +486,7 @@ namespace Rbx2Source
             this.compilerInputField.Size = new System.Drawing.Size(108, 20);
             this.compilerInputField.TabIndex = 6;
             this.compilerInputField.Text = "qfoxb";
-            this.compilerInputField.TextChanged += new System.EventHandler(this.compilerInputField_TextChanged);
+           // this.compilerInputField.TextChanged += new System.EventHandler(this.compilerInputField_TextChanged);
             this.compilerInputField.KeyDown += new System.Windows.Forms.KeyEventHandler(this.compilerInputField_KeyDown);
             this.compilerInputField.Leave += new System.EventHandler(this.compilerInputField_Leave);
             // 
@@ -720,6 +718,5 @@ namespace Rbx2Source
         private System.Windows.Forms.LinkLabel rileyLink;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.LinkLabel nemsTools;
-        private EventHandler compilerInputField_TextChanged;
     }
 }
