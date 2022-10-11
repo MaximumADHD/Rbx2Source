@@ -31,8 +31,7 @@ jobs:
       with:
         vt_api_key: ${{ secrets.VT_APIKEY}}
         request_rate: 4
-        files: |
-        bin/debug/Rbx2Source.exe  
+        files: bin/debug/Rbx2Source.exe  
     -  name: Upload Artifact  
        uses: actions/upload-artifact@v3
        with:
