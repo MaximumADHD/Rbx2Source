@@ -26,6 +26,13 @@ jobs:
       uses: microsoft/setup-msbuild@v1.1
     - name: Build
       run: msbuild Rbx2Source.sln
+    - name: VirusTotal Scan
+      uses: crazy-max/ghaction-virustotal@v3
+      with:
+        vt_api_key: ${{ secrets.VT_APIKEY}}
+        request_rate: 4
+        files: |
+        bin/debug/Rbx2Source.exe  
     -  name: Upload Artifact  
        uses: actions/upload-artifact@v3
        with:

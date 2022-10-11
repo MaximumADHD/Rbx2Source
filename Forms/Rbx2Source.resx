@@ -118,7 +118,14 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.67] (August 26th, 2022)
+    <value>[v2.68] (October 10th, 2022)
+
+• Bump dependencies
+• Github Actions Auto Build
+• Many Bug Fixes
+______________________________________________________
+
+[v2.67] (August 26th, 2022)
 
 • Add Discord Rich Presence Integration
 • Small UI Changes
@@ -506,6 +513,7 @@ ______________________________________________________
 
 [v1.00] (December 25th, 2015)
 
-• Initial release.</value>
+• Initial release.
+</value>
   </data>
 </root>
