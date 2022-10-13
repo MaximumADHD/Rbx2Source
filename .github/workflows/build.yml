@@ -1,17 +1,13 @@
 name: Build Rbx2Source
-
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-    
   workflow_dispatch:
 jobs:
   build:
-
     runs-on: windows-latest
-
     steps:
     - uses: actions/checkout@v3
     - run: |
@@ -38,4 +34,3 @@ jobs:
          name: Rbx2Source
          path: bin/Debug/Rbx2Source.exe
          if-no-files-found: error
-      
