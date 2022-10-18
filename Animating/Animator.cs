@@ -224,7 +224,7 @@ namespace Rbx2Source.Animating
                         if (node.Name == "Torso")
                         {
                             // Flip the YZ axis of the Torso.
-                            float[] ang = interp.ToEulerAnglesXYZ();
+                            float[] ang = interp.ToOrientation();
                             rot = CFrame.Angles(ang[0], ang[2], ang[1]);
                             pos = new Vector3(pos.X, pos.Z, pos.Y);
                         }
@@ -247,7 +247,7 @@ namespace Rbx2Source.Animating
                     }
                     else if (avatarTypeId.Value == "R15")
                     {
-                        float[] ang = interp.ToEulerAnglesXYZ();
+                        float[] ang = interp.ToOrientation();
 
                         // Cancel out the rotations
                         interp *= CFrame.Angles(-ang[0], -ang[1], -ang[2]);
