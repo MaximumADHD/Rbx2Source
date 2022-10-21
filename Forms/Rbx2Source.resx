@@ -118,10 +118,16 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.68] (October 10th, 2022)
+    <value>[v2.69] (October 20th, 2022)
+
+• Fix Thumbnail loading
+• Fix GitHub Actions failing on all PRs
+______________________________________________________
+
+[v2.68] (October 10th, 2022)
 
 • Bump dependencies
-• Github Actions Auto Build
+• GitHub Actions Auto Build
 • Many Bug Fixes
 ______________________________________________________
 
