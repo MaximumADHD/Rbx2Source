@@ -31,7 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Rbx2Source));
             this.About = new System.Windows.Forms.TabPage();
             this.nemsTools = new System.Windows.Forms.LinkLabel();
-            this.label1 = new System.Windows.Forms.Label();
+            this.rileyLabel = new System.Windows.Forms.Label();
             this.rileyLink = new System.Windows.Forms.LinkLabel();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.cloneTwitter = new System.Windows.Forms.LinkLabel();
@@ -93,7 +93,7 @@
             // 
             this.About.AutoScroll = true;
             this.About.Controls.Add(this.nemsTools);
-            this.About.Controls.Add(this.label1);
+            this.About.Controls.Add(this.rileyLabel);
             this.About.Controls.Add(this.rileyLink);
             this.About.Controls.Add(this.pictureBox2);
             this.About.Controls.Add(this.cloneTwitter);
@@ -135,16 +135,16 @@
             this.nemsTools.Text = "VTFCmd";
             this.nemsTools.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
-            // label1
+            // rileyLabel
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.236221F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(143, 239);
-            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(154, 12);
-            this.label1.TabIndex = 23;
-            this.label1.Text = "Troubleshooting + GitHub Maintainer";
+            this.rileyLabel.AutoSize = true;
+            this.rileyLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.236221F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rileyLabel.Location = new System.Drawing.Point(143, 239);
+            this.rileyLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.rileyLabel.Name = "rileyLabel";
+            this.rileyLabel.Size = new System.Drawing.Size(154, 12);
+            this.rileyLabel.TabIndex = 23;
+            this.rileyLabel.Text = "Troubleshooting + GitHub Maintainer";
             // 
             // rileyLink
             // 
@@ -152,10 +152,10 @@
             this.rileyLink.Location = new System.Drawing.Point(143, 226);
             this.rileyLink.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.rileyLink.Name = "rileyLink";
-            this.rileyLink.Size = new System.Drawing.Size(67, 13);
+            this.rileyLink.Size = new System.Drawing.Size(75, 13);
             this.rileyLink.TabIndex = 22;
             this.rileyLink.TabStop = true;
-            this.rileyLink.Text = "rileywilliam08";
+            this.rileyLink.Text = "RileyWilliam08";
             // 
             // pictureBox2
             // 
@@ -713,7 +713,7 @@
         private System.Windows.Forms.LinkLabel cloneTwitter;
         private System.Windows.Forms.Label developedBy;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label rileyLabel;
         private System.Windows.Forms.LinkLabel rileyLink;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.LinkLabel nemsTools;
