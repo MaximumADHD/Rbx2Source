@@ -23,6 +23,7 @@ jobs:
     - name: Build
       run: msbuild Rbx2Source.sln
     - name: VirusTotal Scan
+      continue-on-error: true
       uses: crazy-max/ghaction-virustotal@v3
       with:
         vt_api_key: ${{ secrets.VT_APIKEY}}
