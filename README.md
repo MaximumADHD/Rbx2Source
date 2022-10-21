@@ -17,5 +17,3 @@ Originally developed by [MaximumADHD](https://github.com/MaximumADHD), This proj
 - Clone [This repository](https://github.com/MaximumADHD/Roblox-File-Format/) as well.
 - Restore NuGet Packages
 - Build within Visual Studio 2022
-
-# Known Bugs
