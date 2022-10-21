@@ -6,6 +6,7 @@
 Originally developed by [MaximumADHD](https://github.com/MaximumADHD), This project serves as a continuation of the original [Rbx2Source](https://github.com/MaximumADHD/Rbx2Source) Project.
 
 # Setup
+- Download [.NET 4.7.2](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net472) if you don't have it already
 - Download the latest [Rbx2Source.exe](https://github.com/LockpickInteractive/Rbx2Source/raw/main/Rbx2Source.exe) file from the github page. 
 - Alternatively, download the latest build artifact from the last commit.      
 - If your Source Games are on a drive other than C:, you must create a config.txt file next to Rbx2Source.
