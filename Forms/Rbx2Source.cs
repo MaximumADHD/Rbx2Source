@@ -346,7 +346,7 @@ namespace Rbx2Source
 
             if (compilerTypeSelect.Text == "Avatar")
             {
-                // assetPreviewImage = "https://www.roblox.com/headshot-thumbnail/json?width=420&height=420&format=png&userId=" + currentUser.Id;
+                // assetPreviewImage = "https://www.roblox.com/headshot-thumbnail/json?width=420&height=420&format=png&userId=" + currentUser.Id; // Previous logic
                 assetPreviewImage = "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" + currentUser.Id + "&size=420x420&format=Png&isCircular=false";
                 compilerInput.Text = "Username:";
                 compilerInputField.Text = currentUser.Username;
@@ -354,7 +354,8 @@ namespace Rbx2Source
             }
             else if (compilerTypeSelect.Text == "Accessory/Gear")
             {
-                assetPreviewImage = "https://www.roblox.com/asset-thumbnail/json?width=420&height=420&format=png&assetId=" + currentAssetId;
+                // assetPreviewImage = "https://www.roblox.com/asset-thumbnail/json?width=420&height=420&format=png&assetId=" + currentAssetId; // Previous logic
+                assetPreviewImage = "https://thumbnails.roblox.com/v1/assets?assetIds=" + currentAssetId + "&returnPolicy=PlaceHolder&size=420x420&format=Png&isCircular=false";
                 compilerInput.Text = "AssetId:";
                 compilerInputField.Text = currentAssetId.ToInvariantString();
                 compilerTypeIcon.Image = Properties.Resources.Accoutrement_icon;
