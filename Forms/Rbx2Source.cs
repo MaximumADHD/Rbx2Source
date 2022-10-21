@@ -93,6 +93,7 @@ namespace Rbx2Source
                 {
                     Console.WriteLine("Received Update! {0}", e.Presence);
                 };
+
             }
             rpcClient.Initialize();
             rpcClient.SetPresence(new RichPresence()
@@ -345,7 +346,8 @@ namespace Rbx2Source
 
             if (compilerTypeSelect.Text == "Avatar")
             {
-                assetPreviewImage = "https://www.roblox.com/headshot-thumbnail/json?width=420&height=420&format=png&userId=" + currentUser.Id;
+                // assetPreviewImage = "https://www.roblox.com/headshot-thumbnail/json?width=420&height=420&format=png&userId=" + currentUser.Id;
+                assetPreviewImage = "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" + currentUser.Id + "&size=420x420&format=Png&isCircular=false";
                 compilerInput.Text = "Username:";
                 compilerInputField.Text = currentUser.Username;
                 compilerTypeIcon.Image = Properties.Resources.Humanoid_icon;
@@ -366,7 +368,7 @@ namespace Rbx2Source
             if (avatar.UserExists)
             {
                 Settings.SaveSetting("Username", userName);
-                assetPreview.Image = loadingImage;
+                assetPreview.Image = loadingImage; // Set the image to Loading.gif
                 currentUser = avatar.UserInfo;
                 return true;
             }
@@ -817,10 +819,12 @@ namespace Rbx2Source
                     {
                         CdnPender check = WebUtility.DownloadJSON<CdnPender>(assetPreviewImage);
 
-                        if (check.Final)
+                        if (check.Data[0].State == "Completed")
                         {
-                            assetPreviewImage = check.Url;
-                            assetPreview.ImageLocation = check.Url;
+                            //final = pender.Data[0].State == "Final";
+                            //result = pender.Data[0].ImageUrl.ToString();
+                            assetPreviewImage = check.Data[0].ImageUrl.ToString();
+                            assetPreview.ImageLocation = check.Data[0].ImageUrl.ToString();
                         }
                         else
                         {

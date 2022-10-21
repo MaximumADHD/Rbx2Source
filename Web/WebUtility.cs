@@ -18,11 +18,23 @@ namespace Rbx2Source.Web
         public int Code;
         public string Message;
     }
-
-    public class CdnPender
+    
+    public partial class CdnPender
     {
-        public string Url;
-        public bool Final;
+        [JsonProperty("data")]
+        public Datum[] Data { get; set; }
+    }
+
+    public partial class Datum
+    {
+        [JsonProperty("targetId")]
+        public long TargetId { get; set; }
+
+        [JsonProperty("state")]
+        public string State { get; set; }
+
+        [JsonProperty("imageUrl")]
+        public Uri ImageUrl { get; set; }
     }
 
     public static class WebUtility
@@ -108,13 +120,13 @@ namespace Rbx2Source.Web
             return JsonConvert.DeserializeObject<T>(json);
         }
 
-        public static T DownloadRbxApiJSON<T>(string subAddress, string apiServer = "api")
+        public static T DownloadRbxApiJSON<T>(string subAddress, string apiServer = "api") // TODO: Replace this code to use the newer roblox API endpoints
         {
             string url = "https://" + apiServer + ".roblox.com/" + subAddress;
             return DownloadJSON<T>(url);
         }
 
-        public static string PendCdn(string address, bool log = true)
+        public static string PendCdn(string address, bool log = true) // This is the image downloading Code
         {
             string result = null;
             bool final = false;
@@ -123,9 +135,9 @@ namespace Rbx2Source.Web
             while (!final && dots.Length <= 13)
             {
                 CdnPender pender = DownloadJSON<CdnPender>(address);
-                final = pender.Final;
-                result = pender.Url;
-                
+                final = pender.Data[0].State == "Final";
+                result = pender.Data[0].ImageUrl.ToString();
+
                 if (!final)
                 {
                     dots += ".";
