@@ -1,15 +1,14 @@
 name: Version Released
-
 on:
   release:
     types: [published]
-
 jobs:
   virustotal:
     runs-on: ubuntu-latest
     steps:
       -
         name: VirusTotal Scan
+        continue-on-error: true
         uses: crazy-max/ghaction-virustotal@v3
         with:
           vt_api_key: ${{ secrets.VT_APIKEY }}
