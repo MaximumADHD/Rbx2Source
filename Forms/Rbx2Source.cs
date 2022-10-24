@@ -93,7 +93,6 @@ namespace Rbx2Source
                 {
                     Console.WriteLine("Received Update! {0}", e.Presence);
                 };
-
             }
             rpcClient.Initialize();
             rpcClient.SetPresence(new RichPresence()
