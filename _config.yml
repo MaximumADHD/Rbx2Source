@@ -1,3 +1,7 @@
 # Note: This is not the config file you are looking for!!!
 
 remote_theme: pages-themes/cayman
+google_analytics: G-VG9JW0S5EG
+plugins:
+  - jekyll-sitemap
+  - jekyll-twemoji
