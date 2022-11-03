@@ -40,7 +40,7 @@ namespace Rbx2Source
         public Launcher baseProcess;
 
         private UserInfo currentUser;
-        private long currentAssetId = 19027209;
+        private long currentAssetId = 44113968;
 
         private GameInfo selectedGame;
         private string latestCompiledModel;

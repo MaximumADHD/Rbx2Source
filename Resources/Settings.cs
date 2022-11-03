@@ -71,7 +71,7 @@ namespace Rbx2Source.Resources
             if (GetSetting("InitializedV2") == null)
             {
                 SetSetting("Username", "qfoxb");
-                SetSetting("AssetId", "19027209");
+                SetSetting("AssetId", "44113968");
                 SetSetting("CompilerType", "Avatar");
                 SetSetting("InitializedV2", true);
             }
