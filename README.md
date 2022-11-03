@@ -15,6 +15,6 @@ Originally developed by [MaximumADHD](https://github.com/MaximumADHD), This proj
 
 # Building Instructions
 - Clone the github repository.
-- Clone [This repository](https://github.com/MaximumADHD/Roblox-File-Format/) as well.
-- Restore NuGet Packages
-- Build within Visual Studio 2022
+- Clone [the Dependency repository](https://github.com/MaximumADHD/Roblox-File-Format/) as well, in the same directory that you cloned Rbx2Source in
+- Restore NuGet Packages for Both repositories
+- Build within Visual Studio 2022 (Debug / Release)

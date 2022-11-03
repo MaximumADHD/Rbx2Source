@@ -33,7 +33,7 @@ namespace Rbx2Source
             }
             else
             {
-                string gitPath = "https://raw.githubusercontent.com/StarLandRBLX/Rbx2Source/main/" + localPath;
+                string gitPath = "https://raw.githubusercontent.com/LockpickInteractive/Rbx2Source/main/" + localPath;
                 return await http.DownloadDataTaskAsync(gitPath);
             }
         }
@@ -94,7 +94,7 @@ namespace Rbx2Source
 
             if (latestVersion != myVersion)
             {
-                setStatus("Updating Rbx2Source");
+                setStatus("Updating Rbx2Source to ver. " + latestVersion);
 
                 byte[] newVersion = await GetGitHubFile("Rbx2Source.exe");
                 string updatePath = Path.Combine(dir, "NEW_" + myName);
