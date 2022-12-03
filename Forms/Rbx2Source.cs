@@ -95,17 +95,7 @@ namespace Rbx2Source
                 };
             }
             rpcClient.Initialize();
-            rpcClient.SetPresence(new RichPresence()
-            {
-                Details = "Converting Assets",
-                State = "Converting Roblox Assets to Source",
-                Assets = new Assets()
-                {
-                    LargeImageKey = "image_large",
-                    LargeImageText = $"Running Version {Settings.GetString("CurrentVersion")}",
-             //       SmallImageKey = "image_small"
-                }
-            });
+           
         }
         public static void ScheduleTasks(params string[] tasks)
         {
@@ -350,6 +340,18 @@ namespace Rbx2Source
                 compilerInput.Text = "Username:";
                 compilerInputField.Text = currentUser.Username;
                 compilerTypeIcon.Image = Properties.Resources.Humanoid_icon;
+                rpcClient.SetPresence(new RichPresence()
+                {
+                    Details = "Converting Avatars",
+                    State = "Converting Roblox Assets to Source Engine",
+                    Assets = new Assets()
+                    {
+                        LargeImageKey = "image_large",
+                        LargeImageText = $"Running Version {Settings.GetString("CurrentVersion")}",
+                        SmallImageKey = "humanoid_icon",
+                    }
+                });
+
             }
             else if (compilerTypeSelect.Text == "Accessory/Gear")
             {
@@ -358,6 +360,17 @@ namespace Rbx2Source
                 compilerInput.Text = "AssetId:";
                 compilerInputField.Text = currentAssetId.ToInvariantString();
                 compilerTypeIcon.Image = Properties.Resources.Accoutrement_icon;
+                rpcClient.SetPresence(new RichPresence()
+                {
+                    Details = "Converting Accessories/Gear",
+                    State = "Converting Roblox Assets to Source Engine",
+                    Assets = new Assets()
+                    {
+                        LargeImageKey = "image_large",
+                        LargeImageText = $"Running Version {Settings.GetString("CurrentVersion")}",
+                        SmallImageKey = "accoutrement_icon"
+                    }
+                });
             }
         }
 

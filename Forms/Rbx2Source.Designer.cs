@@ -314,13 +314,13 @@
             // fixedBy
             // 
             this.fixedBy.AutoSize = true;
-            this.fixedBy.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.20472F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.fixedBy.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F);
             this.fixedBy.Location = new System.Drawing.Point(5, 195);
             this.fixedBy.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.fixedBy.Name = "fixedBy";
-            this.fixedBy.Size = new System.Drawing.Size(64, 17);
+            this.fixedBy.Size = new System.Drawing.Size(94, 16);
             this.fixedBy.TabIndex = 3;
-            this.fixedBy.Text = "Fixed by:";
+            this.fixedBy.Text = "Maintained by:";
             // 
             // egoMooseIcon
             // 
@@ -647,7 +647,7 @@
             this.MaximizeBox = false;
             this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Rbx2Source v2.70";
+            this.Text = "Rbx2Source v2.70.1";
             this.TopMost = true;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);
