@@ -18,3 +18,6 @@ Originally developed by [MaximumADHD](https://github.com/MaximumADHD), This proj
 - Clone [the Dependency repository](https://github.com/MaximumADHD/Roblox-File-Format/) as well, in the same directory that you cloned Rbx2Source in
 - Restore NuGet Packages for Both repositories
 - Build within Visual Studio 2022 (Debug / Release)
+
+# Known Issues
+- Right now, the way the program looks for steam games is by reading a config file. We're working on moving back to the previous behavior which is to scan all steam libraries and sweep for source games.
