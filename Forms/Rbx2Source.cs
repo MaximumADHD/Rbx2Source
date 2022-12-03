@@ -254,9 +254,9 @@ namespace Rbx2Source
 
         private void gatherSourceGames(string steamDir)
         {
-            //string steamPath = Path.Combine(steamDir, "steamapps", "common");
-            string configDir = ConfigLoader();
-            string steamPath = Path.Combine(configDir, "steamapps", "common");
+            string steamPath = Path.Combine(steamDir, "steamapps", "common");
+            //string configDir = ConfigLoader();
+           // string steamPath = Path.Combine(configDir, "steamapps", "common");
             if (Directory.Exists(steamPath))
             {
                 foreach (string game in Directory.GetDirectories(steamPath))
@@ -742,26 +742,20 @@ namespace Rbx2Source
                 {
                     string file = File.ReadAllText(libraryFolders);
 
-                    string[] newlines = new string[] { "\r\n", "\n" };
+                    string[] newlines = new string[] { "\r\n", "\n" };                   
                     string[] lines = file.Split(newlines, StringSplitOptions.None);
-
+                    
                     foreach (string line in lines)
                     {
                         string[] kvPair = getStringsInQuotes(line);
 
-                        if (kvPair.Length == 2)
+                        if (kvPair.Length == 2 && kvPair[0] == "path")
                         {
-                            string key = kvPair[0];
                             string value = kvPair[1];
-
-                            int index = -1;
-
-                            if (int.TryParse(key, out index))
-                            {
-                                value = value.Replace("\\\\", "\\");
-                                gatherSourceGames(value);
-                            }
+                            value = value.Replace("\\\\", "\\");
+                            gatherSourceGames(value);
                         }
+
                     }
                 }
             }
