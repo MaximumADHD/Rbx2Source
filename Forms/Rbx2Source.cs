@@ -772,7 +772,7 @@ namespace Rbx2Source
             }
 
             if (gameCount == 0)
-                showError("No Source Engine games were found in current directory! Is your config.txt file setup correctly?", true);
+                showError("No Source Engine games were found on this PC!", true);
 
             gameSelect.Enabled = true;
             compile.Enabled = true;

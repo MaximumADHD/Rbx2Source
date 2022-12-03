@@ -118,7 +118,14 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.69] (October 20th, 2022)
+    <value>[v2.70] (December 3rd, 2022)
+
+• Removed the config.txt requirement
+• Repaired the steam library search function, the program now automatically searches the steam libraries on your computer for source games
+• Update dependencies
+• Code cleanup
+______________________________________________________
+[v2.69] (October 20th, 2022)
 
 • Fix Thumbnail loading
 • Fix GitHub Actions failing on all PRs
