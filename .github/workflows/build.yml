@@ -10,7 +10,8 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v3
-    - run: |
+    - name: Clone Dependency Repository
+      run: |
          cd ..
           git clone https://github.com/MaximumADHD/Roblox-File-Format.git
           cd Roblox-File-Format
