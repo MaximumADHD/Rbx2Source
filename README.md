@@ -16,3 +16,8 @@ Originally developed by [MaximumADHD](https://github.com/MaximumADHD), This proj
 - Clone [the Dependency repository](https://github.com/MaximumADHD/Roblox-File-Format/) as well, in the same directory that you cloned Rbx2Source in
 - Restore NuGet Packages for Both repositories
 - Build within Visual Studio 2022 (Debug / Release)
+
+# Contributors
+<a href="https://github.com/LockpickInteractive/Rbx2Source/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=LockpickInteractive/Rbx2Source" />
+</a>
