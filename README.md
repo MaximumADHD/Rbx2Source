@@ -17,6 +17,10 @@ Originally developed by [MaximumADHD](https://github.com/MaximumADHD), This proj
 - Restore NuGet Packages for Both repositories
 - Build within Visual Studio 2022 (Debug / Release)
 
+# Known Issues
+- Accessories and Gear currently error out when compiling.
+- Having layered clothing on your avatar will cause the compilier to error out. Layered clothing is *not* a planned feature at the moment.
+
 # Contributors
 <a href="https://github.com/LockpickInteractive/Rbx2Source/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=LockpickInteractive/Rbx2Source" />
