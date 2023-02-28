@@ -18,7 +18,7 @@ Originally developed by [MaximumADHD](https://github.com/MaximumADHD), This proj
 - Build within Visual Studio 2022 (Debug / Release)
 
 # Known Issues
-- Accessories and Gear currently error out when compiling.
+- Accessories and Gear currently error out when compiling. see [Issue #17](https://github.com/LockpickInteractive/Rbx2Source/issues/17)
 - Having layered clothing on your avatar will cause the compilier to error out. Layered clothing is *not* a planned feature at the moment.
 
 # Contributors
