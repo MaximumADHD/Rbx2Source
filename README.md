@@ -1,12 +1,10 @@
+# ⚠Warning, This program is currently non-functional. I am working on fixing the issue. In the meantime, check the issues page and *do not DM me.* I am aware of the issue.⚠
 # ![rbx2source](Resources/Images/smallRbx2SourceLogo.png)
 ### Port Roblox models to Source Engine Games
 ##
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FStarLandRBLX%2FRbx2Source&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)[![Repo Size](https://img.shields.io/github/repo-size/LockpickInteractive/Rbx2Source)](https://hits.seeyoufarm.com)[![Build Rbx2Source](https://github.com/LockpickInteractive/Rbx2Source/actions/workflows/build.yml/badge.svg)](https://github.com/LockpickInteractive/Rbx2Source/actions/workflows/build.yml)![CodeQL](https://github.com/LockpickInteractive/Rbx2Source/actions/workflows/codeql.yml/badge.svg)![Dependabot](https://img.shields.io/badge/dependabot-025E8C?style=flat&logo=dependabot&logoColor=white)![.Net](https://img.shields.io/badge/.NET-5C2D91?style=flat&logo=.net&logoColor=white)![C#](https://img.shields.io/badge/c%23-%23239120.svg?style=flat&logo=c-sharp&logoColor=white)![Windows](https://img.shields.io/badge/Windows-0078D6?style=flat&logo=windows&logoColor=white)[<img src="https://discordapp.com/api/guilds/787797824557154344/widget.png?style=shield">](https://discord.gg/b9MUKXF88p)
                        
 Originally developed by [MaximumADHD](https://github.com/MaximumADHD), This project serves as a continuation of the original [Rbx2Source](https://github.com/MaximumADHD/Rbx2Source) Project.
-
-# Notice
-Avatar and Accessory compilation is currently broken on the main build. Accessory compilation has been fixed on the Development branch and Avatar compilation is being fixed soon. This message will disappear when it has been fixed on the main branch.
 
 # Setup
 - Download [.NET 4.7.2](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net472) if you don't have it already
