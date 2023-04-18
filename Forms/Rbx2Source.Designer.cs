@@ -31,9 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Rbx2Source));
             this.About = new System.Windows.Forms.TabPage();
             this.nemsTools = new System.Windows.Forms.LinkLabel();
-            this.rileyLabel = new System.Windows.Forms.Label();
-            this.rileyLink = new System.Windows.Forms.LinkLabel();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.RileyIcon = new System.Windows.Forms.PictureBox();
             this.cloneTwitter = new System.Windows.Forms.LinkLabel();
             this.developedBy = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
@@ -72,8 +70,13 @@
             this.changeLogBox = new System.Windows.Forms.RichTextBox();
             this.Debug = new System.Windows.Forms.TabPage();
             this.debugImg = new System.Windows.Forms.PictureBox();
+            this.TimelessIcon = new System.Windows.Forms.PictureBox();
+            this.rileyLink = new System.Windows.Forms.LinkLabel();
+            this.rileyLabel = new System.Windows.Forms.Label();
+            this.timelesslabel = new System.Windows.Forms.Label();
+            this.timelessLink = new System.Windows.Forms.LinkLabel();
             this.About.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.RileyIcon)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.egoMooseIcon)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.AJIcon)).BeginInit();
@@ -87,15 +90,19 @@
             this.ChangeLog.SuspendLayout();
             this.Debug.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.debugImg)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimelessIcon)).BeginInit();
             this.SuspendLayout();
             // 
             // About
             // 
             this.About.AutoScroll = true;
+            this.About.Controls.Add(this.timelesslabel);
+            this.About.Controls.Add(this.timelessLink);
+            this.About.Controls.Add(this.TimelessIcon);
             this.About.Controls.Add(this.nemsTools);
             this.About.Controls.Add(this.rileyLabel);
             this.About.Controls.Add(this.rileyLink);
-            this.About.Controls.Add(this.pictureBox2);
+            this.About.Controls.Add(this.RileyIcon);
             this.About.Controls.Add(this.cloneTwitter);
             this.About.Controls.Add(this.developedBy);
             this.About.Controls.Add(this.pictureBox1);
@@ -135,40 +142,18 @@
             this.nemsTools.Text = "VTFCmd";
             this.nemsTools.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
-            // rileyLabel
+            // RileyIcon
             // 
-            this.rileyLabel.AutoSize = true;
-            this.rileyLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.236221F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rileyLabel.Location = new System.Drawing.Point(143, 239);
-            this.rileyLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.rileyLabel.Name = "rileyLabel";
-            this.rileyLabel.Size = new System.Drawing.Size(154, 12);
-            this.rileyLabel.TabIndex = 23;
-            this.rileyLabel.Text = "Troubleshooting + GitHub Maintainer";
-            // 
-            // rileyLink
-            // 
-            this.rileyLink.AutoSize = true;
-            this.rileyLink.Location = new System.Drawing.Point(143, 226);
-            this.rileyLink.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.rileyLink.Name = "rileyLink";
-            this.rileyLink.Size = new System.Drawing.Size(75, 13);
-            this.rileyLink.TabIndex = 22;
-            this.rileyLink.TabStop = true;
-            this.rileyLink.Text = "RileyWilliam08";
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.pictureBox2.ImageLocation = "https://github.com/rileywilliam08.png";
-            this.pictureBox2.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
-            this.pictureBox2.Location = new System.Drawing.Point(104, 226);
-            this.pictureBox2.Margin = new System.Windows.Forms.Padding(2);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(38, 40);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox2.TabIndex = 21;
-            this.pictureBox2.TabStop = false;
+            this.RileyIcon.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.RileyIcon.ImageLocation = "https://github.com/rileywilliam08.png";
+            this.RileyIcon.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
+            this.RileyIcon.Location = new System.Drawing.Point(104, 226);
+            this.RileyIcon.Margin = new System.Windows.Forms.Padding(2);
+            this.RileyIcon.Name = "RileyIcon";
+            this.RileyIcon.Size = new System.Drawing.Size(38, 40);
+            this.RileyIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.RileyIcon.TabIndex = 21;
+            this.RileyIcon.TabStop = false;
             // 
             // cloneTwitter
             // 
@@ -633,6 +618,66 @@
             this.debugImg.TabIndex = 0;
             this.debugImg.TabStop = false;
             // 
+            // TimelessIcon
+            // 
+            this.TimelessIcon.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.TimelessIcon.ImageLocation = "https://github.com/timelessnesses.png";
+            this.TimelessIcon.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
+            this.TimelessIcon.Location = new System.Drawing.Point(104, 271);
+            this.TimelessIcon.Margin = new System.Windows.Forms.Padding(2);
+            this.TimelessIcon.Name = "TimelessIcon";
+            this.TimelessIcon.Size = new System.Drawing.Size(38, 40);
+            this.TimelessIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.TimelessIcon.TabIndex = 25;
+            this.TimelessIcon.TabStop = false;
+            this.TimelessIcon.Click += new System.EventHandler(this.pictureBox3_Click);
+            // 
+            // rileyLink
+            // 
+            this.rileyLink.AutoSize = true;
+            this.rileyLink.Location = new System.Drawing.Point(143, 229);
+            this.rileyLink.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.rileyLink.Name = "rileyLink";
+            this.rileyLink.Size = new System.Drawing.Size(75, 13);
+            this.rileyLink.TabIndex = 22;
+            this.rileyLink.TabStop = true;
+            this.rileyLink.Text = "RileyWilliam08";
+            // 
+            // rileyLabel
+            // 
+            this.rileyLabel.AutoSize = true;
+            this.rileyLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.236221F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rileyLabel.Location = new System.Drawing.Point(143, 242);
+            this.rileyLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.rileyLabel.Name = "rileyLabel";
+            this.rileyLabel.Size = new System.Drawing.Size(154, 12);
+            this.rileyLabel.TabIndex = 23;
+            this.rileyLabel.Text = "Troubleshooting + GitHub Maintainer";
+            // 
+            // timelesslabel
+            // 
+            this.timelesslabel.AutoSize = true;
+            this.timelesslabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.236221F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.timelesslabel.Location = new System.Drawing.Point(146, 284);
+            this.timelesslabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.timelesslabel.Name = "timelesslabel";
+            this.timelesslabel.Size = new System.Drawing.Size(102, 12);
+            this.timelesslabel.TabIndex = 27;
+            this.timelesslabel.Text = "Fixed API Compatibility";
+            this.timelesslabel.Click += new System.EventHandler(this.label1_Click_1);
+            // 
+            // timelessLink
+            // 
+            this.timelessLink.AutoSize = true;
+            this.timelessLink.Location = new System.Drawing.Point(146, 271);
+            this.timelessLink.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.timelessLink.Name = "timelessLink";
+            this.timelessLink.Size = new System.Drawing.Size(77, 13);
+            this.timelessLink.TabIndex = 26;
+            this.timelessLink.TabStop = true;
+            this.timelessLink.Text = "timelessnesses";
+            this.timelessLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked_2);
+            // 
             // Rbx2Source
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -647,13 +692,13 @@
             this.MaximizeBox = false;
             this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Rbx2Source v2.70.1";
+            this.Text = "Rbx2Source v2.71";
             this.TopMost = true;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);
             this.About.ResumeLayout(false);
             this.About.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.RileyIcon)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.egoMooseIcon)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.AJIcon)).EndInit();
@@ -668,6 +713,7 @@
             this.ChangeLog.ResumeLayout(false);
             this.Debug.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.debugImg)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.TimelessIcon)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -713,9 +759,12 @@
         private System.Windows.Forms.LinkLabel cloneTwitter;
         private System.Windows.Forms.Label developedBy;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox RileyIcon;
+        private System.Windows.Forms.LinkLabel nemsTools;
+        private System.Windows.Forms.PictureBox TimelessIcon;
+        private System.Windows.Forms.Label timelesslabel;
+        private System.Windows.Forms.LinkLabel timelessLink;
         private System.Windows.Forms.Label rileyLabel;
         private System.Windows.Forms.LinkLabel rileyLink;
-        private System.Windows.Forms.PictureBox pictureBox2;
-        private System.Windows.Forms.LinkLabel nemsTools;
     }
 }

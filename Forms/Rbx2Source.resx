@@ -118,7 +118,12 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.70.1] (December 3rd, 2022)
+    <value>[v2.71] (April 18th, 2023)
+
+• Fixed Unhandled Exception on avatar and Accessory compilation (thanks timelessnesses!)
+• Updated dependencies
+______________________________________________________
+[v2.70.1] (December 3rd, 2022)
 
 • Changed Discord Rich Presence Logic
 • Changed some text around
