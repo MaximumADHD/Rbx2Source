@@ -39,6 +39,8 @@ namespace Rbx2Source.Web
 
     public static class WebUtility
     {
+        private const string V = "application/json";
+
         private static byte[] ReadFullStream(Stream stream, bool close = true)
         {
             byte[] result;
@@ -65,7 +67,7 @@ namespace Rbx2Source.Web
             waitTask.Wait();
         }
 
-        public static byte[] DownloadData(string address)
+        public static byte[] DownloadData(string address, string body = "", string method = "GET")
         {
             HttpWebRequest request = WebRequest.CreateHttp(new Uri(address));
             request.Headers.Set(HttpRequestHeader.AcceptEncoding, "gzip");
@@ -74,8 +76,14 @@ namespace Rbx2Source.Web
             request.Proxy = null;
 
             request.UseDefaultCredentials = true;
-            request.Method = "GET";
+            request.Method = method;
 
+            if (method.ToUpper() != "GET") {
+                request.ContentLength = Encoding.Default.GetBytes(body).Length;
+                request.ContentType = V;
+                request.GetRequestStream().Write(Encoding.Default.GetBytes(body), 0, Encoding.Default.GetBytes(body).Length);
+
+            }
 
             var response = request.GetResponse() as HttpWebResponse;
             var responseStream = response.GetResponseStream();
@@ -113,17 +121,17 @@ namespace Rbx2Source.Web
             return result;
         }
 
-        public static T DownloadJSON<T>(string address)
+        public static T DownloadJSON<T>(string address,string body = "", string method = "GET")
         {
-            byte[] content = DownloadData(address);
+            byte[] content = DownloadData(address, body, method);
             var json = Encoding.UTF8.GetString(content);
             return JsonConvert.DeserializeObject<T>(json);
         }
 
-        public static T DownloadRbxApiJSON<T>(string subAddress, string apiServer = "api") // TODO: Replace this code to use the newer roblox API endpoints
+        public static T DownloadRbxApiJSON<T>(string subAddress, string apiServer = "api", string body = "", string method = "GET") // TODO: Replace this code to use the newer roblox API endpoints
         {
             string url = "https://" + apiServer + ".roblox.com/" + subAddress;
-            return DownloadJSON<T>(url);
+            return DownloadJSON<T>(url,body,method);
         }
 
         public static string PendCdn(string address, bool log = true) // This is the image downloading Code

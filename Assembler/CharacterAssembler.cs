@@ -430,7 +430,7 @@ namespace Rbx2Source.Assembler
             Contract.Requires(avatar != null);
 
             UserInfo userInfo = avatar.UserInfo;
-            string userName = FileUtility.MakeNameWindowsSafe(userInfo.Username);
+            string userName = FileUtility.MakeNameWindowsSafe(userInfo.name);
 
             string appData = Environment.GetEnvironmentVariable("LocalAppData");
             string rbx2Src = Path.Combine(appData, "Rbx2Source");
