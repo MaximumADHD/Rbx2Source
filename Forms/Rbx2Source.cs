@@ -40,7 +40,7 @@ namespace Rbx2Source
         public Launcher baseProcess;
 
         private UserInfo currentUser;
-        private long currentAssetId = 44113968;
+        private long currentAssetId = 12333523895;
 
         private GameInfo selectedGame;
         private string latestCompiledModel;
@@ -398,10 +398,10 @@ namespace Rbx2Source
 
                 if (asset != null)
                 {
-                    AssetType assetType = asset.AssetType;
+                    AssetType assetType = asset.ProductInfo.AssetTypeId;
                     bool isAccessory = AssetGroups.IsTypeInGroup(assetType, AssetGroup.Accessories);
 
-                    if (isAccessory || assetType == AssetType.Gear)
+                    if (isAccessory || assetType == AssetType.Gear || assetType == AssetType.Model)
                     {
                         assetPreview.Image = loadingImage;
                         currentAssetId = assetId;
