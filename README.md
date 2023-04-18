@@ -1,4 +1,3 @@
-# ⚠Warning, This program is currently non-functional. I am working on fixing the issue. In the meantime, check the issues page and *do not DM me.* I am aware of the issue.⚠
 # ![rbx2source](Resources/Images/smallRbx2SourceLogo.png)
 ### Port Roblox models to Source Engine Games
 ##
@@ -19,7 +18,6 @@ Originally developed by [MaximumADHD](https://github.com/MaximumADHD), This proj
 - Build within Visual Studio 2022 (Debug / Release)
 
 # Known Issues
-- Accessories and Gear currently error out when compiling. see [Issue #17](https://github.com/LockpickInteractive/Rbx2Source/issues/17)
 - Having layered clothing on your avatar will cause the compilier to error out. Layered clothing is *not* a planned feature at the moment.
 
 # Contributors
