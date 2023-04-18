@@ -40,7 +40,7 @@ namespace Rbx2Source
         public Launcher baseProcess;
 
         private UserInfo currentUser;
-        private long currentAssetId = 44113968;
+        private long currentAssetId = 12333523895;
 
         private GameInfo selectedGame;
         private string latestCompiledModel;
@@ -319,9 +319,9 @@ namespace Rbx2Source
             if (compilerTypeSelect.Text == "Avatar")
             {
                 // assetPreviewImage = "https://www.roblox.com/headshot-thumbnail/json?width=420&height=420&format=png&userId=" + currentUser.Id; // Previous logic
-                assetPreviewImage = "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" + currentUser.Id + "&size=420x420&format=Png&isCircular=false";
+                assetPreviewImage = "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" + currentUser.id + "&size=420x420&format=Png&isCircular=false";
                 compilerInput.Text = "Username:";
-                compilerInputField.Text = currentUser.Username;
+                compilerInputField.Text = currentUser.name;
                 compilerTypeIcon.Image = Properties.Resources.Humanoid_icon;
                 rpcClient.SetPresence(new RichPresence()
                 {
@@ -398,10 +398,10 @@ namespace Rbx2Source
 
                 if (asset != null)
                 {
-                    AssetType assetType = asset.AssetType;
+                    AssetType assetType = asset.ProductInfo.AssetTypeId;
                     bool isAccessory = AssetGroups.IsTypeInGroup(assetType, AssetGroup.Accessories);
 
-                    if (isAccessory || assetType == AssetType.Gear)
+                    if (isAccessory || assetType == AssetType.Gear || assetType == AssetType.Model)
                     {
                         assetPreview.Image = loadingImage;
                         currentAssetId = assetId;
@@ -544,7 +544,7 @@ namespace Rbx2Source
             if (compilerTypeSelect.Text == "Avatar")
             {
                 var assembler = new CharacterAssembler();
-                var userAvatar = UserAvatar.FromUsername(currentUser.Username);
+                var userAvatar = UserAvatar.FromUsername(currentUser.name);
                 assemble = new Func<AssemblerData>(() => assembler.Assemble(userAvatar));
             }
             else

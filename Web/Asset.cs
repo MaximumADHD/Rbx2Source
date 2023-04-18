@@ -91,6 +91,7 @@ namespace Rbx2Source.Web
         {
             if (!assetCache.ContainsKey(assetId))
             {
+                System.Console.WriteLine("Not!");
                 string appData = Environment.GetEnvironmentVariable("LocalAppData");
 
                 string assetCacheDir = Path.Combine(appData, "Rbx2Source", "AssetCache");
@@ -123,6 +124,8 @@ namespace Rbx2Source.Web
                             try
                             {
                                 asset = JsonConvert.DeserializeObject<Asset>(cachedContent);
+                                System.Console.WriteLine("First Step Deserialization");
+
 
                                 if (asset.Content.Length == 0)
                                 {
@@ -166,6 +169,7 @@ namespace Rbx2Source.Web
                         asset.ProductInfo = JsonConvert.DeserializeObject<ProductInfo>(productInfoJson);
                         asset.ProductInfo.WindowsSafeName = FileUtility.MakeNameWindowsSafe(asset.ProductInfo.Name);
                         asset.AssetType = asset.ProductInfo.AssetTypeId;
+                        System.Console.WriteLine("Successfully!");
                     }
                     catch
                     {
@@ -179,6 +183,7 @@ namespace Rbx2Source.Web
                         };
 
                         asset.ProductInfo = dummyInfo;
+                        System.Console.WriteLine("Aww");
                     }
 
                     asset.CdnUrl = location;
@@ -187,6 +192,7 @@ namespace Rbx2Source.Web
                     asset.Loaded = true;
 
                     string serialized = JsonConvert.SerializeObject(asset, Formatting.None);
+                    System.Console.WriteLine("Done!");
 
                     try
                     {
@@ -203,6 +209,9 @@ namespace Rbx2Source.Web
                 }
 
                 assetCache[assetId] = asset;
+            } else
+            {
+                System.Console.WriteLine("prob cached");
             }
 
             return assetCache[assetId];
