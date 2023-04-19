@@ -24,7 +24,7 @@ namespace Rbx2Source.Web
         public bool isBanned;
         public string externalAppDisplayName;
         public bool hasVerifiedBadge;
-        public int id;
+        public long id;
         public string name;
         public string displayName;
     }
@@ -63,7 +63,7 @@ namespace Rbx2Source.Web
     {
         public string requestedUsername;
         public bool hasVerifiedBadge;
-        public int id;
+        public long id;
         public string name;
         public string displayName;
     }
@@ -103,10 +103,8 @@ namespace Rbx2Source.Web
                 System.Console.WriteLine(info);
                 return createUserAvatar(info);
             }
-            catch(Exception e)
+            catch
             {
-                System.Console.WriteLine("L");
-                System.Console.WriteLine(e);
                 return new UserAvatar();
             }
         }
@@ -123,8 +121,6 @@ namespace Rbx2Source.Web
                 excludeBannedUsers = false
             });
             ResultGetByUsername res = WebUtility.DownloadRbxApiJSON<ResultGetByUsername>("v1/usernames/users", "users", body, "POST");
-            System.Console.WriteLine(res);
-            System.Console.WriteLine(body);
             return FromUserId(res.data[0].id);
         }
     }

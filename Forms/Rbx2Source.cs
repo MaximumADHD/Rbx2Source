@@ -40,7 +40,7 @@ namespace Rbx2Source
         public Launcher baseProcess;
 
         private UserInfo currentUser;
-        private long currentAssetId = 12333523895;
+        private long currentAssetId = 44113968;
 
         private GameInfo selectedGame;
         private string latestCompiledModel;
@@ -334,7 +334,6 @@ namespace Rbx2Source
                         SmallImageKey = "humanoid_icon",
                     }
                 });
-
             }
             else if (compilerTypeSelect.Text == "Accessory/Gear")
             {
