@@ -121,7 +121,13 @@ namespace Rbx2Source.Web
                 excludeBannedUsers = false
             });
             ResultGetByUsername res = WebUtility.DownloadRbxApiJSON<ResultGetByUsername>("v1/usernames/users", "users", body, "POST");
-            return FromUserId(res.data[0].id);
+            try
+            {
+                return FromUserId(res.data[0].id);
+            } catch (System.IndexOutOfRangeException)
+            {
+                return new UserAvatar();
+            }
         }
     }
 }

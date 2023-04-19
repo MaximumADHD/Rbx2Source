@@ -279,9 +279,10 @@ namespace Rbx2Source.Geometry
                     int parentId = bone.ParentId;
 
                     var buffer = new List<byte>();
-
                     while (true)
                     {
+                        if (nameTable.Length <= 0) break;
+                        System.Console.WriteLine(index);
                         byte next = nameTable[index];
 
                         if (next > 0)
