@@ -166,7 +166,7 @@ namespace Rbx2Source.Web
         public static string ResolveHash(string hash)
         {
             Contract.Requires(hash != null);
-            int id = 31;
+            long id = 31;
 
             foreach (char c in hash)
                 id ^= (byte)c;
