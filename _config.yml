@@ -1,6 +1,5 @@
 remote_theme: lewismiddleton/cayman-dark
-google_analytics: G-VG9JW0S5EG
-show_downloads: true 
+google_analytics: G-VG9JW0S5EG 
 plugins:
   - jekyll-sitemap
   - jekyll-twemoji
