@@ -15,7 +15,8 @@ Originally developed by [MaximumADHD](https://github.com/MaximumADHD), This proj
 - Clone the github repository.
 - Clone [the Dependency repository](https://github.com/MaximumADHD/Roblox-File-Format/) as well, in the same directory that you cloned Rbx2Source in
 - Restore NuGet Packages for Both repositories
-- Build within Visual Studio 2022 (Debug / Release)
+- Build within Visual Studio Community 2022 (Debug / Release)
+- Some users have experienced issues building versions of VS 2022 other than community.
 
 # Known Issues
 - Having layered clothing on your avatar will cause the compilier to error out. Layered clothing is *not* a planned feature at the moment.
