@@ -793,8 +793,8 @@ namespace Rbx2Source
                 {qfoxb,         "https://www.github.com/qfoxb"},
                 {AJLink,        "https://www.github.com/RedTopper"},
                 {egoMooseLink,  "https://www.github.com/EgoMoose"},
-                {rileyLink,     "https://www.github.com/rileywilliam08"},
-                {timelessLink,     "https://www.github.com/timelessnesses"},
+                {rileyLink,     "https://www.github.com/Rilinium"},
+                {timelessLink,  "https://www.github.com/timelessnesses"},
                 {nemsTools,     "https://web.archive.org/web/20200201044259/http://nemesis.thewavelength.net:80/index.php?p=40"}
             };
 
