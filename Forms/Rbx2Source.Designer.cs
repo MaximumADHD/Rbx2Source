@@ -200,12 +200,12 @@
             this.rileyLink.Size = new System.Drawing.Size(75, 13);
             this.rileyLink.TabIndex = 22;
             this.rileyLink.TabStop = true;
-            this.rileyLink.Text = "RileyWilliam08";
+            this.rileyLink.Text = "Rilinium";
             // 
             // RileyIcon
             // 
             this.RileyIcon.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.RileyIcon.ImageLocation = "https://github.com/rileywilliam08.png";
+            this.RileyIcon.ImageLocation = "https://github.com/rilinium.png";
             this.RileyIcon.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
             this.RileyIcon.Location = new System.Drawing.Point(104, 226);
             this.RileyIcon.Margin = new System.Windows.Forms.Padding(2);
