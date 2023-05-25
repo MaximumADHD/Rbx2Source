@@ -118,7 +118,77 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="changeLogBox.Text" xml:space="preserve">
-    <value>[v2.62] (December 6th, 2020)
+    <value>[v2.71.1] (April 18th, 2023)
+
+• Fixed error relating to ID's greater than the maximum 32-bit integer (thanks timelessnesses!)
+______________________________________________________
+[v2.71] (April 18th, 2023)
+
+• Fixed Unhandled Exception on avatar and Accessory compilation (thanks timelessnesses!)
+• Updated dependencies
+______________________________________________________
+[v2.70.1] (December 3rd, 2022)
+
+• Changed Discord Rich Presence Logic
+• Changed some text around
+______________________________________________________
+[v2.70] (December 3rd, 2022)
+
+• Removed the config.txt requirement
+• Repaired the steam library search function, the program now automatically searches the steam libraries on your computer for source games
+• Update dependencies
+• Code cleanup
+______________________________________________________
+[v2.69] (October 20th, 2022)
+
+• Fix Thumbnail loading
+• Fix GitHub Actions failing on all PRs
+______________________________________________________
+
+[v2.68] (October 10th, 2022)
+
+• Bump dependencies
+• GitHub Actions Auto Build
+• Many Bug Fixes
+______________________________________________________
+
+[v2.67] (August 26th, 2022)
+
+• Add Discord Rich Presence Integration
+• Small UI Changes
+______________________________________________________
+
+[v2.66] (August 20th, 2022)
+
+• Fix links in-app
+• Actually update the Change log in app
+• Redirect VTFCmd link to archived version
+______________________________________________________
+
+[v2.65.1] (July 26th, 2022)
+
+• Fix security vulnerability
+______________________________________________________
+
+[v2.65] (July 26th, 2022)
+
+• Automatically assume default steam directory if no config.txt present
+______________________________________________________
+
+[v2.64] (July 26th, 2022)
+
+• Fixed compilation (again)
+• Texture compilation for Source Filmmaker fixed
+• Fixed major crash resulting in no model being rendered at all (Model has 2D Geometry)
+______________________________________________________
+
+[v2.63] (June 11th, 2022)
+
+• Fixed compilation
+• Can now read from any directory for source games (config.txt added)
+______________________________________________________
+
+[v2.62] (December 6th, 2020) (Final CloneTrooper branch Version)
 
 • Fixed several read errors related to
   version 4.00 meshes

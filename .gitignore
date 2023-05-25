@@ -360,3 +360,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# old version
+brokenstuff/
+misc.txt
+Roblox-File-Format/
+C/

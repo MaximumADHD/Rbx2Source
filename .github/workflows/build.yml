@@ -1,0 +1,38 @@
+name: Build Rbx2Source
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Clone Dependency Repository
+      run: |
+         cd ..
+          git clone https://github.com/MaximumADHD/Roblox-File-Format.git
+          cd Roblox-File-Format
+          nuget restore
+
+    - name: Restore dependencies
+      run: nuget restore
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Build
+      run: msbuild Rbx2Source.sln
+    - name: VirusTotal Scan
+      continue-on-error: true
+      uses: crazy-max/ghaction-virustotal@v3
+      with:
+        vt_api_key: ${{ secrets.VT_APIKEY}}
+        request_rate: 4
+        files: bin/debug/Rbx2Source.exe  
+    -  name: Upload Artifact  
+       uses: actions/upload-artifact@v3
+       with:
+         name: Rbx2Source
+         path: bin/Debug/Rbx2Source.exe
+         if-no-files-found: error

@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Rbx2Source.Resources;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using Rbx2Source.Resources;
 
 namespace Rbx2Source
 {
@@ -34,7 +33,7 @@ namespace Rbx2Source
             }
             else
             {
-                string gitPath = "https://raw.githubusercontent.com/CloneTrooper1019/Rbx2Source/master/" + localPath;
+                string gitPath = "https://raw.githubusercontent.com/LockpickInteractive/Rbx2Source/main/" + localPath;
                 return await http.DownloadDataTaskAsync(gitPath);
             }
         }
@@ -55,7 +54,7 @@ namespace Rbx2Source
 
             if (myName.StartsWith("NEW_", StringComparison.InvariantCulture))
             {
-                string newPath = Path.Combine(dir,myName.Substring(4));
+                string newPath = Path.Combine(dir, myName.Substring(4));
                 File.Copy(myInfo.FullName, newPath, true);
 
                 Process.Start(newPath);
@@ -82,7 +81,7 @@ namespace Rbx2Source
                                 await Task.Delay(100);
                             }
                         }
-                        
+
                         break;
                     }
                 }
@@ -95,7 +94,7 @@ namespace Rbx2Source
 
             if (latestVersion != myVersion)
             {
-                setStatus("Updating Rbx2Source");
+                setStatus("Updating Rbx2Source to ver. " + latestVersion);
 
                 byte[] newVersion = await GetGitHubFile("Rbx2Source.exe");
                 string updatePath = Path.Combine(dir, "NEW_" + myName);
@@ -106,7 +105,7 @@ namespace Rbx2Source
                 Process.Start(updatePath);
                 Application.Exit();
             }
-            
+
             setStatus("Starting Rbx2Source");
             await Task.Delay(500);
 

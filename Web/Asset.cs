@@ -124,6 +124,7 @@ namespace Rbx2Source.Web
                             {
                                 asset = JsonConvert.DeserializeObject<Asset>(cachedContent);
 
+
                                 if (asset.Content.Length == 0)
                                 {
                                     asset = null;

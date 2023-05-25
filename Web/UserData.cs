@@ -1,4 +1,5 @@
 ﻿#pragma warning disable 0649
+using System;
 using System.Collections.Generic;
 
 namespace Rbx2Source.Web
@@ -18,10 +19,14 @@ namespace Rbx2Source.Web
 
     public class UserInfo
     {
-        public long Id;
-        public bool IsOnline;
-        public string Username;
-        public List<WebApiError> Errors;
+        public string description;
+        public string created; // Date time
+        public bool isBanned;
+        public string externalAppDisplayName;
+        public bool hasVerifiedBadge;
+        public long id;
+        public string name;
+        public string displayName;
     }
 
     public class WebBodyColors
@@ -49,6 +54,27 @@ namespace Rbx2Source.Web
         public AssetType Type => AssetType.Id;
     }
 
+    public class ResultGetByUsername
+    {
+        public Data[] data;
+    }
+
+    public class Data
+    {
+        public string requestedUsername;
+        public bool hasVerifiedBadge;
+        public long id;
+        public string name;
+        public string displayName;
+    }
+
+    public class RequestGetByUsernameBody
+    {
+        public string[] usernames;
+        public bool excludeBannedUsers;
+        
+    }
+
     public class UserAvatar
     {
         public bool UserExists;
@@ -62,7 +88,7 @@ namespace Rbx2Source.Web
 
         private static UserAvatar createUserAvatar(UserInfo info)
         {
-            UserAvatar avatar = WebUtility.DownloadRbxApiJSON<UserAvatar>($"/v1/users/{info.Id}/avatar", "avatar");
+            UserAvatar avatar = WebUtility.DownloadRbxApiJSON<UserAvatar>($"/v1/users/{info.id}/avatar", "avatar");
             avatar.UserExists = true;
             avatar.UserInfo = info;
 
@@ -73,7 +99,8 @@ namespace Rbx2Source.Web
         {
             try
             {
-                UserInfo info = WebUtility.DownloadRbxApiJSON<UserInfo>("Users/" + userId);
+                UserInfo info = WebUtility.DownloadRbxApiJSON<UserInfo>("v1/users/" + userId, "users");
+                System.Console.WriteLine(info);
                 return createUserAvatar(info);
             }
             catch
@@ -84,12 +111,20 @@ namespace Rbx2Source.Web
 
         public static UserAvatar FromUsername(string userName)
         {
+            // Very funky implementation 
+            var body = Newtonsoft.Json.JsonConvert.SerializeObject(new RequestGetByUsernameBody
+            {
+                usernames = new string[]
+                {
+                    userName
+                },
+                excludeBannedUsers = false
+            });
+            ResultGetByUsername res = WebUtility.DownloadRbxApiJSON<ResultGetByUsername>("v1/usernames/users", "users", body, "POST");
             try
             {
-                UserInfo info = WebUtility.DownloadRbxApiJSON<UserInfo>("Users/Get-By-Username?username=" + userName);
-                return createUserAvatar(info);
-            }
-            catch
+                return FromUserId(res.data[0].id);
+            } catch (System.IndexOutOfRangeException)
             {
                 return new UserAvatar();
             }

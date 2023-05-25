@@ -1,4 +1,9 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using Rbx2Source.Assembler;
+using Rbx2Source.Compiler;
+using Rbx2Source.Resources;
+using Rbx2Source.Web;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
@@ -6,12 +11,8 @@ using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Microsoft.Win32;
-
-using Rbx2Source.Assembler;
-using Rbx2Source.Compiler;
-using Rbx2Source.Resources;
-using Rbx2Source.Web;
+using DiscordRPC;
+using DiscordRPC.Logging;
 
 namespace Rbx2Source
 {
@@ -39,7 +40,7 @@ namespace Rbx2Source
         public Launcher baseProcess;
 
         private UserInfo currentUser;
-        private long currentAssetId = 19027209;
+        private long currentAssetId = 44113968;
 
         private GameInfo selectedGame;
         private string latestCompiledModel;
@@ -48,26 +49,27 @@ namespace Rbx2Source
 
         private Dictionary<Control, string> Links;
         private List<Control> CONTROLS_TO_DISABLE_WHEN_COMPILING;
-        
+
         private static int stackLevel = 0;
         private static readonly List<OutputLog> outputQueue = new List<OutputLog>();
-        private const  string outputDivider = "---------------------------------------------------------------------------";
+        private const string outputDivider = "---------------------------------------------------------------------------";
 
         private static readonly Dictionary<string, bool> progressQueue = new Dictionary<string, bool>();
         private static bool updateProgressQueue;
 
         private static readonly Image loadingImage = Properties.Resources.Loading;
         private static readonly Image brokenImage = Properties.Resources.BrokenPreview;
-        
+
         private static Image debugImage;
         private string assetPreviewImage = "";
 
         public Rbx2Source()
         {
-            UserAvatar defaultAvatar = UserAvatar.FromUserId(2032622);
+            UserAvatar defaultAvatar = UserAvatar.FromUserId(62601805);
             currentUser = defaultAvatar.UserInfo;
 
             InitializeComponent();
+            InitializeRPC();
 
             if (!Debugger.IsAttached)
             {
@@ -75,7 +77,26 @@ namespace Rbx2Source
                 MainTab.Controls.Remove(Debug);
             }
         }
+        public DiscordRpcClient rpcClient;
+        void InitializeRPC()
+        {
+            rpcClient = new DiscordRpcClient("1012837153757208576");
+            if (!Debugger.IsAttached)
+            {
+                rpcClient.Logger = new ConsoleLogger() { Level = LogLevel.Warning };
+                rpcClient.OnReady += (sender, e) =>
+                {
+                    Console.WriteLine("Received Ready from user {0}", e.User.Username);
+                };
 
+                rpcClient.OnPresenceUpdate += (sender, e) =>
+                {
+                    Console.WriteLine("Received Update! {0}", e.Presence);
+                };
+            }
+            rpcClient.Initialize();
+           
+        }
         public static void ScheduleTasks(params string[] tasks)
         {
             foreach (string task in tasks)
@@ -207,7 +228,8 @@ namespace Rbx2Source
         private void gatherSourceGames(string steamDir)
         {
             string steamPath = Path.Combine(steamDir, "steamapps", "common");
-
+            //string configDir = ConfigLoader();
+           // string steamPath = Path.Combine(configDir, "steamapps", "common");
             if (Directory.Exists(steamPath))
             {
                 foreach (string game in Directory.GetDirectories(steamPath))
@@ -275,7 +297,7 @@ namespace Rbx2Source
                                     {
                                         string gameName = info.GameName;
                                         sourceGames[gameName] = info;
-                                    } 
+                                    }
                                 }
                                 catch (Exception e)
                                 {
@@ -296,17 +318,41 @@ namespace Rbx2Source
 
             if (compilerTypeSelect.Text == "Avatar")
             {
-                assetPreviewImage = "https://www.roblox.com/headshot-thumbnail/json?width=420&height=420&format=png&userId=" + currentUser.Id;
+                // assetPreviewImage = "https://www.roblox.com/headshot-thumbnail/json?width=420&height=420&format=png&userId=" + currentUser.Id; // Previous logic
+                assetPreviewImage = "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" + currentUser.id + "&size=420x420&format=Png&isCircular=false";
                 compilerInput.Text = "Username:";
-                compilerInputField.Text = currentUser.Username;
+                compilerInputField.Text = currentUser.name;
                 compilerTypeIcon.Image = Properties.Resources.Humanoid_icon;
+                rpcClient.SetPresence(new RichPresence()
+                {
+                    Details = "Converting Avatars",
+                    State = "Converting Roblox Assets to Source Engine",
+                    Assets = new Assets()
+                    {
+                        LargeImageKey = "image_large",
+                        LargeImageText = $"Running Version {Settings.GetString("CurrentVersion")}",
+                        SmallImageKey = "humanoid_icon",
+                    }
+                });
             }
             else if (compilerTypeSelect.Text == "Accessory/Gear")
             {
-                assetPreviewImage = "https://www.roblox.com/asset-thumbnail/json?width=420&height=420&format=png&assetId=" + currentAssetId;
+                // assetPreviewImage = "https://www.roblox.com/asset-thumbnail/json?width=420&height=420&format=png&assetId=" + currentAssetId; // Previous logic
+                assetPreviewImage = "https://thumbnails.roblox.com/v1/assets?assetIds=" + currentAssetId + "&returnPolicy=PlaceHolder&size=420x420&format=Png&isCircular=false";
                 compilerInput.Text = "AssetId:";
                 compilerInputField.Text = currentAssetId.ToInvariantString();
                 compilerTypeIcon.Image = Properties.Resources.Accoutrement_icon;
+                rpcClient.SetPresence(new RichPresence()
+                {
+                    Details = "Converting Accessories/Gear",
+                    State = "Converting Roblox Assets to Source Engine",
+                    Assets = new Assets()
+                    {
+                        LargeImageKey = "image_large",
+                        LargeImageText = $"Running Version {Settings.GetString("CurrentVersion")}",
+                        SmallImageKey = "accoutrement_icon"
+                    }
+                });
             }
         }
 
@@ -317,14 +363,14 @@ namespace Rbx2Source
             if (avatar.UserExists)
             {
                 Settings.SaveSetting("Username", userName);
-                assetPreview.Image = loadingImage;
+                assetPreview.Image = loadingImage; // Set the image to Loading.gif
                 currentUser = avatar.UserInfo;
                 return true;
             }
             else
             {
                 showError("An error occurred while trying to fetch this user!\n" +
-                          "Either the user does not exist, or something went wrong with the request.");
+                          "Either the user does not exist, is banned or something went wrong with the request.");
 
                 return false;
             }
@@ -344,17 +390,17 @@ namespace Rbx2Source
                 }
                 catch
                 {
-                    showError("This AssetId isn't configured correctly on Roblox's end.\n\n" + 
+                    showError("This AssetId isn't configured correctly on Roblox's end.\n\n" +
                               "This error usually happens if you input a very old AssetId that doesn't exist on their servers.\n\n" +
                               "Try something else!");
                 }
 
                 if (asset != null)
                 {
-                    AssetType assetType = asset.AssetType;
+                    AssetType assetType = asset.ProductInfo.AssetTypeId;
                     bool isAccessory = AssetGroups.IsTypeInGroup(assetType, AssetGroup.Accessories);
 
-                    if (isAccessory || assetType == AssetType.Gear)
+                    if (isAccessory || assetType == AssetType.Gear || assetType == AssetType.Model)
                     {
                         assetPreview.Image = loadingImage;
                         currentAssetId = assetId;
@@ -460,7 +506,7 @@ namespace Rbx2Source
                 {
                     exceptionMsg = exception.Message;
                     errorMsg += "\nError Message: " + exceptionMsg + "\n\n" +
-                                "If this error message has happened multiple times, and doesn't seem deliberate, you should totally send a screenshot of this error message to @CloneTeee1019 on Twitter.\n\n" +
+                                "If this error message has happened multiple times, and doesn't seem deliberate, you should totally send a screenshot of this error message to @qfoxbRBLX on Twitter.\n\n" +
                                 "STACK TRACE:\n" + outputDivider + "\n" + exception.StackTrace + "\n" + outputDivider;
                 }
             }
@@ -497,7 +543,7 @@ namespace Rbx2Source
             if (compilerTypeSelect.Text == "Avatar")
             {
                 var assembler = new CharacterAssembler();
-                var userAvatar = UserAvatar.FromUsername(currentUser.Username);
+                var userAvatar = UserAvatar.FromUsername(currentUser.name);
                 assemble = new Func<AssemblerData>(() => assembler.Assemble(userAvatar));
             }
             else
@@ -576,7 +622,7 @@ namespace Rbx2Source
                 viewCompiledModel.Enabled = false;
             }
         }
-        
+
         private static void loadComboBox(ComboBox comboBox, string settingsKey, int defaultValue = 0)
         {
             string value = Settings.GetString(settingsKey);
@@ -691,26 +737,20 @@ namespace Rbx2Source
                 {
                     string file = File.ReadAllText(libraryFolders);
 
-                    string[] newlines = new string[] {"\r\n","\n"};
+                    string[] newlines = new string[] { "\r\n", "\n" };                   
                     string[] lines = file.Split(newlines, StringSplitOptions.None);
-
+                    
                     foreach (string line in lines)
                     {
                         string[] kvPair = getStringsInQuotes(line);
 
-                        if (kvPair.Length == 2)
+                        if (kvPair.Length == 2 && kvPair[0] == "path")
                         {
-                            string key = kvPair[0];
                             string value = kvPair[1];
-
-                            int index = -1;
-
-                            if (int.TryParse(key, out index))
-                            {
-                                value = value.Replace("\\\\", "\\");
-                                gatherSourceGames(value);
-                            }
+                            value = value.Replace("\\\\", "\\");
+                            gatherSourceGames(value);
                         }
+
                     }
                 }
             }
@@ -746,19 +786,22 @@ namespace Rbx2Source
             updateDisplays();
 
             CONTROLS_TO_DISABLE_WHEN_COMPILING = new List<Control>() { compile, compilerInputField, gameSelect, viewCompiledModel, compilerTypeSelect, quickCompile };
-            
-            Links = new Dictionary<Control, string>() 
+
+            Links = new Dictionary<Control, string>()
             {
-                {twitterLink,   "https://www.twitter.com/CloneTeee1019"},
+                {cloneTwitter,  "https://www.twitter.com/MaximumADHD"},
+                {qfoxb,         "https://www.github.com/qfoxb"},
                 {AJLink,        "https://www.github.com/RedTopper"},
                 {egoMooseLink,  "https://www.github.com/EgoMoose"},
-                {nemsTools,     "http://nemesis.thewavelength.net/index.php?p=40"}
+                {rileyLink,     "https://www.github.com/Rilinium"},
+                {timelessLink,  "https://www.github.com/timelessnesses"},
+                {nemsTools,     "https://web.archive.org/web/20200201044259/http://nemesis.thewavelength.net:80/index.php?p=40"}
             };
 
             foreach (Control link in Links.Keys)
                 link.Click += new EventHandler(onLinkClicked);
 
-            Task.Run(async() =>
+            Task.Run(async () =>
             {
                 while (!IsDisposed)
                 {
@@ -766,10 +809,12 @@ namespace Rbx2Source
                     {
                         CdnPender check = WebUtility.DownloadJSON<CdnPender>(assetPreviewImage);
 
-                        if (check.Final)
+                        if (check.Data[0].State == "Completed")
                         {
-                            assetPreviewImage = check.Url;
-                            assetPreview.ImageLocation = check.Url;
+                            //final = pender.Data[0].State == "Final";
+                            //result = pender.Data[0].ImageUrl.ToString();
+                            assetPreviewImage = check.Data[0].ImageUrl.ToString();
+                            assetPreview.ImageLocation = check.Data[0].ImageUrl.ToString();
                         }
                         else
                         {
@@ -818,11 +863,57 @@ namespace Rbx2Source
         private void Rbx2Source_FormClosed(object sender, FormClosedEventArgs e)
         {
             baseProcess?.Dispose();
+            rpcClient.Dispose();
         }
 
         private void quickCompile_CheckedChanged(object sender, EventArgs e)
         {
             CharacterAssembler.DEBUG_RAPID_ASSEMBLY = quickCompile.Checked;
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void qfoxb_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            
+        }
+
+        private void TwitterIcon_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+
+        }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void linkLabel1_LinkClicked_1(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+
+        }
+
+        private void linkLabel1_LinkClicked_2(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+
+        }
+
+        private void label1_Click_1(object sender, EventArgs e)
+        {
+
         }
     }
 }
