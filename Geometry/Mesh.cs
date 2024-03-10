@@ -95,7 +95,6 @@ namespace Rbx2Source.Geometry
             MatchCollection matches = Regex.Matches(polyBuffer, @"\[(.*?)\]");
 
             int face = 0;
-            int index = 0;
             int target = 0;
 
             var vertex = new Vertex();
@@ -122,12 +121,9 @@ namespace Rbx2Source.Geometry
                     mesh.Verts.Add(vertex);
                     vertex = new Vertex();
 
-                    if (index % 3 == 0)
-                    {
-                        int v = (face++) * 3;
-                        int[] faceDef = new int[3] { v, v + 1, v + 2 };
-                        mesh.Faces.Add(faceDef);
-                    }
+                    int v = (face++) * 3;
+                    int[] faceDef = new int[3] { v, v + 1, v + 2 };
+                    mesh.Faces.Add(faceDef);
                 }
             }
         }
