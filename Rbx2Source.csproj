@@ -131,9 +131,6 @@
     <Compile Include="Assembler\Utility\TextureBindings.cs" />
     <Compile Include="Compiler\UtilParameter.cs" />
     <Compile Include="Geometry\ObjFile.cs" />
-    <Compile Include="Geometry\QuadTree\QuadTree.cs" />
-    <Compile Include="Geometry\QuadTree\QuadTreeNode.cs" />
-    <Compile Include="Geometry\QuadTree\QuadTreeRegion.cs" />
     <Compile Include="Geometry\Types\MeshBone.cs" />
     <Compile Include="Geometry\Types\MeshSkinning.cs" />
     <Compile Include="QuakeC\QuakeCItem.cs" />
