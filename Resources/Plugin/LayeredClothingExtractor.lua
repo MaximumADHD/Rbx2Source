@@ -20,7 +20,7 @@ local dummyTextures = {
     "rbxassetid://115775189111780",
     "rbxassetid://97148112203914",
     "rbxassetid://95801620423031",
-    "rbxassetid://97067783686980", 
+    "rbxassetid://97067783686980",
 }
 
 -- Minimize what gets exported beyond the absolute necessities.
@@ -36,6 +36,15 @@ for i, desc in rig:GetDescendants() do
             if desc.Transparency < 1 then
                 local dummyTexture = assert(table.remove(dummyTextures, 1))
                 desc.TextureContent = Content.fromUri(dummyTexture)
+            end
+
+            local wrapLayer = desc:FindFirstChildOfClass("WrapLayer")
+            local att = desc:FindFirstChildOfClass("Attachment")
+
+            if wrapLayer and att then
+                task.delay(1, function ()
+                    wrapLayer.BindOffset = att.WorldCFrame:Inverse()
+                end)
             end
         end
 
