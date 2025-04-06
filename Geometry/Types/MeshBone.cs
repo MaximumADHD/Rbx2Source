@@ -7,10 +7,10 @@ namespace Rbx2Source.Geometry
     {
         public int NameIndex;
 
-        public short Id;
-        public short ParentId;
+        public short ParentIndex;
+        public short LodParentIndex;
 
-        public float Unknown;
+        public float Culling;
         public CFrame CFrame;
 
         public override string ToString()

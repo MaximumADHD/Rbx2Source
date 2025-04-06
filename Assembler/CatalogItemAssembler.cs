@@ -109,7 +109,7 @@ namespace Rbx2Source.Assembler
                 var material = new ValveMaterial();
                 Mesh geometry = Mesh.BakePart(part, material);
 
-                if (geometry != null && geometry.NumFaces > 0)
+                if (geometry != null && geometry.Faces.Count > 0)
                 {
                     string task = "BuildGeometry_" + name;
                     Rbx2Source.ScheduleTasks(task);
@@ -121,13 +121,8 @@ namespace Rbx2Source.Assembler
                     Node node = bone.Node;
                     nodes.Add(node);
 
-                    int faceStride;
+                    int faceStride = geometry.LodOffsets[1];
                     materials.Add(name, material);
-
-                    if (geometry.HasLODs)
-                        faceStride = geometry.LODs[1];
-                    else
-                        faceStride = geometry.NumFaces;
 
                     for (int i = 0; i < faceStride; i++)
                     {
@@ -146,8 +141,7 @@ namespace Rbx2Source.Assembler
                     numAssembledParts++;
                 }
             }
-                
-
+            
             Rbx2Source.MarkTaskCompleted("BuildMesh");
             return writer;
         }
@@ -162,57 +156,62 @@ namespace Rbx2Source.Assembler
             foreach (string mtlName in materials.Keys)
             {
                 ValveMaterial material = materials[mtlName];
-                Asset textureAsset = material.TextureAsset;
 
-                if (textureAsset == null || textureAsset.Id == 9854798)
+                foreach (var pair in material.TextureAssets)
                 {
-                    var linkedTo = material.LinkedTo;
-                    Color3 color;
+                    var textureAsset = pair.Value;
 
-                    if (linkedTo.BrickColor != null)
+                    // !! FIXME
+                    /*if (textureAsset == null || textureAsset.Id == 9854798)
                     {
-                        BrickColor bc = linkedTo.BrickColor;
-                        color = bc.Color;
-                    }
-                    else if (linkedTo.Color3uint8 != null)
-                    {
-                        color = linkedTo.Color3uint8;
+                        var linkedTo = material.LinkedTo;
+                        Color3 color;
+
+                        if (linkedTo.BrickColor != null)
+                        {
+                            BrickColor bc = linkedTo.BrickColor;
+                            color = bc.Color;
+                        }
+                        else if (linkedTo.Color3uint8 != null)
+                        {
+                            color = linkedTo.Color3uint8;
+                        }
+                        else
+                        {
+                            BrickColor def = BrickColorId.Medium_stone_grey;
+                            color = def.Color;
+                        }
+
+                        float r = color.R,
+                              g = color.G,
+                              b = color.B;
+
+                        if (!images.ContainsKey("BrickColor"))
+                        {
+                            byte[] rawImg = ResourceUtility.GetResource("Images/BlankWhite.png");
+
+                            using (MemoryStream imgStream = new MemoryStream(rawImg))
+                            {
+                                Image image = Image.FromStream(imgStream);
+                                textures.BindTexture("BrickColor", image, false);
+                            }
+                        }
+
+                        material.UseEnvMap = true;
+                        material.VertexColor = new Vector3(r, g, b);
+
+                        textures.BindTextureAlias(mtlName, "BrickColor");
                     }
                     else
-                    {
-                        BrickColor def = BrickColor.FromNumber(-1);
-                        color = def.Color;
-                    }
-
-                    float r = color.R,
-                          g = color.G,
-                          b = color.B;
-
-                    if (!images.ContainsKey("BrickColor"))
-                    {
-                        byte[] rawImg = ResourceUtility.GetResource("Images/BlankWhite.png");
+                    {*/
+                        byte[] rawImg = textureAsset.GetContent();
 
                         using (MemoryStream imgStream = new MemoryStream(rawImg))
                         {
                             Image image = Image.FromStream(imgStream);
-                            textures.BindTexture("BrickColor", image, false);
+                            textures.BindTexture(mtlName, image);
                         }
-                    }
-
-                    material.UseEnvMap = true;
-                    material.VertexColor = new Vector3(r, g, b);
-
-                    textures.BindTextureAlias(mtlName, "BrickColor");
-                }
-                else
-                {
-                    byte[] rawImg = textureAsset.GetContent();
-
-                    using (MemoryStream imgStream = new MemoryStream(rawImg))
-                    {
-                        Image image = Image.FromStream(imgStream);
-                        textures.BindTexture(mtlName, image);
-                    }
+                    //}
                 }
             }
 
@@ -299,11 +298,13 @@ namespace Rbx2Source.Assembler
             
             foreach (string matName in matLinks.Keys)
             {
-                string vtfTarget = matLinks[matName];
+                var vtfTargets = matLinks[matName];
                 string vmtPath = Path.Combine(materialsDir, matName + ".vmt");
-
                 ValveMaterial mat = materials[matName];
-                mat.SetVmtField("basetexture", mtlDir + '/' + vtfTarget);
+
+                foreach (var pair in vtfTargets)
+                    mat.SetVmtField(pair.Key, mtlDir + '/' + pair.Value);
+
                 mat.WriteVmtFile(vmtPath);
             }
 

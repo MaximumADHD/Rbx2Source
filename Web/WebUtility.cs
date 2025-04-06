@@ -1,7 +1,6 @@
 ﻿#pragma warning disable 0649
 
 using System;
-using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
@@ -18,29 +17,23 @@ namespace Rbx2Source.Web
         public int Code;
         public string Message;
     }
-    
+
     public partial class CdnPender
     {
-        [JsonProperty("data")]
         public Datum[] Data { get; set; }
     }
 
     public partial class Datum
     {
-        [JsonProperty("targetId")]
         public long TargetId { get; set; }
 
-        [JsonProperty("state")]
         public string State { get; set; }
 
-        [JsonProperty("imageUrl")]
         public Uri ImageUrl { get; set; }
     }
 
-    public static class WebUtility
+    public static class WebUtil
     {
-        private const string V = "application/json";
-
         private static byte[] ReadFullStream(Stream stream, bool close = true)
         {
             byte[] result;
@@ -67,7 +60,7 @@ namespace Rbx2Source.Web
             waitTask.Wait();
         }
 
-        public static byte[] DownloadData(string address, string body = "", string method = "GET")
+        public static byte[] DownloadData(string address, string method = "GET", string body = "")
         {
             HttpWebRequest request = WebRequest.CreateHttp(new Uri(address));
             request.Headers.Set(HttpRequestHeader.AcceptEncoding, "gzip");
@@ -78,11 +71,15 @@ namespace Rbx2Source.Web
             request.UseDefaultCredentials = true;
             request.Method = method;
 
-            if (method.ToUpper() != "GET") {
-                request.ContentLength = Encoding.Default.GetBytes(body).Length;
-                request.ContentType = V;
-                request.GetRequestStream().Write(Encoding.Default.GetBytes(body), 0, Encoding.Default.GetBytes(body).Length);
+            if (body != "")
+            {
+                request.ContentType = "application/json";
 
+                using (var stream = request.GetRequestStream())
+                using (var writer = new StreamWriter(stream))
+                {
+                    writer.Write(body);
+                }
             }
 
             var response = request.GetResponse() as HttpWebResponse;
@@ -91,7 +88,7 @@ namespace Rbx2Source.Web
             byte[] result;
 
             if (response.ContentEncoding == "gzip")
-            { 
+            {
                 var decompressor = new GZipStream(responseStream, CompressionMode.Decompress);
                 result = ReadFullStream(decompressor);
                 decompressor.Dispose();
@@ -104,9 +101,9 @@ namespace Rbx2Source.Web
             return result;
         }
 
-        public static string DownloadString(string address)
+        public static string DownloadString(string address, string method = "GET", string body = "")
         {
-            byte[] data = DownloadData(address);
+            byte[] data = DownloadData(address, method, body);
             return Encoding.UTF8.GetString(data);
         }
 
@@ -121,20 +118,14 @@ namespace Rbx2Source.Web
             return result;
         }
 
-        public static T DownloadJSON<T>(string address,string body = "", string method = "GET")
+        public static T DownloadJSON<T>(string address, string method = "GET", string body = "")
         {
-            byte[] content = DownloadData(address, body, method);
+            byte[] content = DownloadData(address, method, body);
             var json = Encoding.UTF8.GetString(content);
             return JsonConvert.DeserializeObject<T>(json);
         }
 
-        public static T DownloadRbxApiJSON<T>(string subAddress, string apiServer = "api", string body = "", string method = "GET") // TODO: Replace this code to use the newer roblox API endpoints
-        {
-            string url = "https://" + apiServer + ".roblox.com/" + subAddress;
-            return DownloadJSON<T>(url,body,method);
-        }
-
-        public static string PendCdn(string address, bool log = true) // This is the image downloading Code
+        public static string PendCdn(string address, bool log = true)
         {
             string result = null;
             bool final = false;
@@ -161,17 +152,6 @@ namespace Rbx2Source.Web
                 throw new Exception("CdnPender timed out after 10 retries! Roblox's servers may be overloaded right now.\nTry again after a few minutes!");
 
             return result;
-        }
-
-        public static string ResolveHash(string hash)
-        {
-            Contract.Requires(hash != null);
-            long id = 31;
-
-            foreach (char c in hash)
-                id ^= (byte)c;
-
-            return $"https://t{id % 8}.rbxcdn.com/{hash}";
         }
     }
 }

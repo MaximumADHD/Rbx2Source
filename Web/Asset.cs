@@ -20,17 +20,35 @@ namespace Rbx2Source.Web
         public AssetType AssetTypeId;
     }
 
+    public class AssetContentRepresentationSpecifier
+    {
+        public string Format;
+        public string MajorVersion;
+        public string Fidelity;
+    }
+
+    public class AssetResponseItem
+    {
+        public Uri Location;
+        public bool IsHashDynamic;
+        public bool IsCopyrightProtected;
+        public bool IsArchived;
+        public AssetType AssetTypeId;
+        public AssetContentRepresentationSpecifier ContentRepresentationSpecifier;
+    }
+
     public class Asset
     {
         public long Id;
 
         public AssetType AssetType;
         public ProductInfo ProductInfo;
+        public AssetResponseItem ResponseItem;
 
         public bool Loaded;
         public bool IsLocal;
 
-        public string CdnUrl;
+        public Uri CdnUri;
         public string CdnCacheId;
 
         public byte[] Content;
@@ -38,18 +56,45 @@ namespace Rbx2Source.Web
 
         private static readonly Dictionary<long, Asset> assetCache = new Dictionary<long, Asset>();
 
+        public static AssetResponseItem GetResponseItem(long assetId, string apiKey)
+        {
+            Uri uri = new Uri("https://apis.roblox.com/asset-delivery-api/v1/assetId/" + assetId);
+            AssetResponseItem responseItem;
+
+            HttpWebRequest request = WebRequest.CreateHttp(uri);
+            request.Headers.Add("x-api-key", apiKey);
+            request.AllowAutoRedirect = false;
+            request.UserAgent = "Rbx2Source";
+            request.Method = "GET";
+
+            using (var response = request.GetResponse() as HttpWebResponse)
+            using (var stream = response.GetResponseStream())
+            using (var reader = new StreamReader(stream))
+            {
+                string json = reader.ReadToEnd();
+                responseItem = JsonConvert.DeserializeObject<AssetResponseItem>(json);
+            }
+
+            return responseItem;
+        }
+
         public Instance OpenAsModel()
         {
             byte[] content = GetContent();
+            return RobloxFile.Open(content);
+        }
 
-            try
-            {
-                return RobloxFile.Open(content);
-            }
-            catch
-            {
-                return new Folder();
-            }
+        public override int GetHashCode()
+        {
+            return Id.ToString().GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Asset asset)
+                return asset.Id == Id;
+
+            return false;
         }
 
         public byte[] GetContent()
@@ -58,8 +103,8 @@ namespace Rbx2Source.Web
             {
                 try
                 {
-                    HttpWebRequest request = WebRequest.CreateHttp(CdnUrl);
-                    request.UserAgent = "RobloxStudio/WinInet";
+                    HttpWebRequest request = WebRequest.CreateHttp(CdnUri);
+                    request.UserAgent = "Rbx2Source";
                     request.Proxy = null;
                     request.UseDefaultCredentials = true;
                     request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip");
@@ -87,7 +132,7 @@ namespace Rbx2Source.Web
             return Content;
         }
 
-        public static Asset Get(long assetId, string idPiece = "/asset/?ID=")
+        public static Asset Get(long assetId)
         {
             if (!assetCache.ContainsKey(assetId))
             {
@@ -97,74 +142,73 @@ namespace Rbx2Source.Web
                 Directory.CreateDirectory(assetCacheDir);
 
                 // Ping Roblox to figure out what this asset's cdn url is
-                Uri uri = new Uri("https://assetdelivery.roblox.com/v1" + idPiece + assetId);
-                HttpWebRequest ping = WebRequest.CreateHttp(uri);
-                ping.UserAgent = "RobloxStudio/WinInet";
-                ping.AllowAutoRedirect = false;
+                var apiKey = Rbx2Source.GetApiKey();
+
+                if (apiKey == "")
+                    throw new Exception("Invalid API key!");
+
+                var responseItem = GetResponseItem(assetId, apiKey);
+                Uri uri = new Uri("https://apis.roblox.com/asset-delivery-api/v1/assetId/" + assetId);
+
+                HttpWebRequest request = WebRequest.CreateHttp(uri);
+                request.Headers.Add("x-api-key", apiKey);
+                request.UserAgent = "Rbx2Source";
+                request.AllowAutoRedirect = false;
+                request.Method = "GET";
 
                 Asset asset = null;
+                Uri location = responseItem.Location;
 
-                string location = "";
-                string identifier = "";
-                string cachedFile = "";
+                var identifier = location.Segments[1];
+                var cachedFile = assetCacheDir + '\\' + identifier;
 
-                try
+                if (File.Exists(cachedFile))
                 {
-                    using (var response = ping.GetResponse() as HttpWebResponse)
-                    {
-                        location = response.GetResponseHeader("Location");
-                        identifier = location.Remove(0, 8).Replace(".rbxcdn.com/", "-");
-                        cachedFile = assetCacheDir + '\\' + identifier.Replace('/', '\\');
+                    string cachedContent = File.ReadAllText(cachedFile);
 
+                    try
+                    {
+                        asset = JsonConvert.DeserializeObject<Asset>(cachedContent);
+
+                        if (asset.Content.Length == 0)
+                        {
+                            asset = null;
+                            throw new Exception();
+                        }
+
+                        Rbx2Source.Print("Fetched pre-cached asset {0}", assetId);
+                    }
+                    catch
+                    {
+                        // Corrupted file?
                         if (File.Exists(cachedFile))
                         {
-                            string cachedContent = File.ReadAllText(cachedFile);
-
-                            try
-                            {
-                                asset = JsonConvert.DeserializeObject<Asset>(cachedContent);
-
-
-                                if (asset.Content.Length == 0)
-                                {
-                                    asset = null;
-                                    throw new Exception();
-                                }
-
-                                Rbx2Source.Print("Fetched pre-cached asset {0}", assetId);
-                            }
-                            catch
-                            {
-                                // Corrupted file?
-                                if (File.Exists(cachedFile))
-                                {
-                                    Rbx2Source.Print("Deleting corrupted file {0}", cachedFile);
-                                    File.Delete(cachedFile);
-                                }
-                            }
+                            Rbx2Source.Print("Deleting corrupted file {0}", cachedFile);
+                            File.Delete(cachedFile);
                         }
                     }
-                }
-                catch
-                {
-                    Console.WriteLine("Failed to fetch {0}?", assetId);
                 }
 
                 if (asset == null)
                 {
-                    WebClient http = new WebClient()
+                    var http = new WebClient()
                     {
+                        Headers = {{ HttpRequestHeader.UserAgent, "Rbx2Source" }},
                         UseDefaultCredentials = true,
                         Proxy = null
                     };
 
-                    http.Headers.Set(HttpRequestHeader.UserAgent, "RobloxStudio/WinInet");
-                    asset = new Asset() { Id = assetId };
+                    asset = new Asset() 
+                    {
+                        Id = assetId,
+                        ResponseItem = responseItem,
+                    };
                     
                     try
                     {
-                        string productInfoJson = http.DownloadString("http://api.roblox.com/marketplace/productinfo?assetId=" + assetId);
+                        string productInfoJson = http.DownloadString($"https://economy.roblox.com/v2/assets/{assetId}/details");
                         asset.ProductInfo = JsonConvert.DeserializeObject<ProductInfo>(productInfoJson);
+
                         asset.ProductInfo.WindowsSafeName = FileUtility.MakeNameWindowsSafe(asset.ProductInfo.Name);
                         asset.AssetType = asset.ProductInfo.AssetTypeId;
                     }
@@ -182,8 +226,9 @@ namespace Rbx2Source.Web
                         asset.ProductInfo = dummyInfo;
                     }
 
-                    asset.CdnUrl = location;
+                    asset.CdnUri = location;
                     asset.CdnCacheId = identifier;
+
                     asset.GetContent();
                     asset.Loaded = true;
 
@@ -238,7 +283,9 @@ namespace Rbx2Source.Web
             string sAssetId = match.Value;
 
             if (!long.TryParse(sAssetId, out long assetId))
-                System.Diagnostics.Debugger.Break();
+                if (address == "rbxasset://textures/face.png")
+                    return FromResource("Images/face.png");
+
 
             return Get(assetId);
         }

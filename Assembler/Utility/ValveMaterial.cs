@@ -16,7 +16,7 @@ namespace Rbx2Source.Assembler
         private static readonly Vector3 DEFAULT_VERTEX_COLOR = new Vector3(1, 1, 1);
 
         public BasePart LinkedTo;
-        public Asset TextureAsset;
+        public Dictionary<string, Asset> TextureAssets = new Dictionary<string, Asset>();
 
         public bool UseAvatarMap = false;
         public bool UseEnvMap = false;
@@ -61,6 +61,14 @@ namespace Rbx2Source.Assembler
         public void SetVmtField(string name, object value)
         {
             VmtFields[name] = value;
+        }
+
+        public void AddTextureAsset(string key, Asset asset)
+        {
+            if (asset == null)
+                return;
+
+            TextureAssets.Add(key, asset);
         }
 
         private void UpdateVmtFields()

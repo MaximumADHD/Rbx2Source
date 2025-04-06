@@ -28,7 +28,7 @@ namespace Rbx2Source
         {
             if (Environment.CurrentDirectory.Contains(@"Rbx2Source\bin"))
             {
-                string path = Path.Combine(Environment.CurrentDirectory, @"..\..", localPath);
+                string path = Path.Combine(Environment.CurrentDirectory, @"..\..\..", localPath);
                 return File.ReadAllBytes(path);
             }
             else

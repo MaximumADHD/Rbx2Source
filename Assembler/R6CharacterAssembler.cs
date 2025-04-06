@@ -85,13 +85,11 @@ namespace Rbx2Source.Assembler
             return animIds;
         }
 
-        public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale, bool collisionModel = false)
+        public StudioMdlWriter AssembleModel(Folder characterAssets, UserAvatar avatar, bool collisionModel = false)
         {
-            Contract.Requires(characterAssets != null && scale != null);
             StudioMdlWriter meshBuilder = new StudioMdlWriter();
-
-            // Build Character
             var import = R6AssemblyAsset.OpenAsModel();
+
             Folder assembly = import.FindFirstChild<Folder>("ASSEMBLY");
             assembly.Parent = characterAssets;
 
@@ -127,24 +125,22 @@ namespace Rbx2Source.Assembler
             return meshBuilder;
         }
 
-        public TextureCompositor ComposeTextureMap(Folder characterAssets, WebBodyColors bodyColors)
+        public TextureCompositor ComposeTextureMap(Folder characterAssets, AvatarBodyColors bodyColors)
         {
-            Contract.Requires(characterAssets != null && bodyColors != null);
-
             var compositor = new TextureCompositor(AvatarType.R6, RECT_FULL) 
                 { CharacterAssets = characterAssets };
             
             // Append BodyColors
-            compositor.AppendColor(bodyColors.TorsoColorId,    COMPOSIT_TORSO,     RECT_FULL);
-            compositor.AppendColor(bodyColors.LeftArmColorId,  COMPOSIT_LEFT_ARM,  RECT_FULL);
-            compositor.AppendColor(bodyColors.LeftLegColorId,  COMPOSIT_LEFT_LEG,  RECT_FULL);
-            compositor.AppendColor(bodyColors.RightArmColorId, COMPOSIT_RIGHT_ARM, RECT_FULL);
-            compositor.AppendColor(bodyColors.RightLegColorId, COMPOSIT_RIGHT_LEG, RECT_FULL);
+            compositor.AppendColor(bodyColors.TorsoColor3,    COMPOSIT_TORSO,     RECT_FULL);
+            compositor.AppendColor(bodyColors.LeftArmColor3,  COMPOSIT_LEFT_ARM,  RECT_FULL);
+            compositor.AppendColor(bodyColors.LeftLegColor3,  COMPOSIT_LEFT_LEG,  RECT_FULL);
+            compositor.AppendColor(bodyColors.RightArmColor3, COMPOSIT_RIGHT_ARM, RECT_FULL);
+            compositor.AppendColor(bodyColors.RightLegColor3, COMPOSIT_RIGHT_LEG, RECT_FULL);
 
             // Append Head & Face
             Asset faceAsset = GetAvatarFace(characterAssets);
             compositor.AppendTexture(faceAsset, RECT_HEAD, 1);
-            compositor.AppendColor(bodyColors.HeadColorId, RECT_HEAD);
+            compositor.AppendColor(bodyColors.HeadColor3, RECT_HEAD);
 
             // Append Shirt
             Shirt shirt = characterAssets.FindFirstChildOfClass<Shirt>();
@@ -269,7 +265,7 @@ namespace Rbx2Source.Assembler
             {
                 Bitmap bitmap = limbBitmaps[id];
                 string matName = GetBodyMatName(id);
-                textures.BindTexture(matName, bitmap, false);
+                textures.BindTexture(matName, bitmap);
             }
 
             // Link the limbs to their textures.
@@ -288,7 +284,7 @@ namespace Rbx2Source.Assembler
                 if (!textures.MatLinks.ContainsKey(matName))
                 {
                     ValveMaterial material = materials[matName];
-                    Asset texture = material.TextureAsset;
+                    Asset texture = material.TextureAssets["basetexture"];
 
                     TextureCompositor matComp = new TextureCompositor(AvatarType.R6, RECT_ITEM);
                     matComp.SetContext("Accessory Texture " + matName);

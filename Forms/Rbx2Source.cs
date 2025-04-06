@@ -3,16 +3,16 @@ using Rbx2Source.Assembler;
 using Rbx2Source.Compiler;
 using Rbx2Source.Resources;
 using Rbx2Source.Web;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Drawing;
 using System.IO;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using DiscordRPC;
-using DiscordRPC.Logging;
 
 namespace Rbx2Source
 {
@@ -40,7 +40,7 @@ namespace Rbx2Source
         public Launcher baseProcess;
 
         private UserInfo currentUser;
-        private long currentAssetId = 44113968;
+        private long currentAssetId = 19027209;
 
         private GameInfo selectedGame;
         private string latestCompiledModel;
@@ -63,40 +63,67 @@ namespace Rbx2Source
         private static Image debugImage;
         private string assetPreviewImage = "";
 
+        private bool init = true;
+
+        public static string GetApiKey()
+        {
+            var apiKey = Settings.GetSetting("ApiKey");
+
+            if (apiKey != null && apiKey is byte[] rawApiKey)
+                return Convert.ToBase64String(rawApiKey);
+
+            return null;
+        }
+
+        public static bool ValidateApiKey(string key)
+        {
+            try
+            {
+                var responseItem = Asset.GetResponseItem(1818, key);
+                return responseItem.Location != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static void SetApiKey(string key)
+        {
+            var rawApiKey = Convert.FromBase64String(key);
+            Settings.SetSetting("ApiKey", rawApiKey);
+            Settings.Save();
+        }
+
         public Rbx2Source()
         {
-            UserAvatar defaultAvatar = UserAvatar.FromUserId(62601805);
+            UserAvatar defaultAvatar = UserAvatar.FromUserId(2032622);
             currentUser = defaultAvatar.UserInfo;
-
             InitializeComponent();
-            InitializeRPC();
 
             if (!Debugger.IsAttached)
             {
                 quickCompile.Visible = false;
+                useExistingObj.Visible = false;
                 MainTab.Controls.Remove(Debug);
             }
-        }
-        public DiscordRpcClient rpcClient;
-        void InitializeRPC()
-        {
-            rpcClient = new DiscordRpcClient("1012837153757208576");
-            if (!Debugger.IsAttached)
+            else
             {
-                rpcClient.Logger = new ConsoleLogger() { Level = LogLevel.Warning };
-                rpcClient.OnReady += (sender, e) =>
-                {
-                    Console.WriteLine("Received Ready from user {0}", e.User.Username);
-                };
-
-                rpcClient.OnPresenceUpdate += (sender, e) =>
-                {
-                    Console.WriteLine("Received Update! {0}", e.Presence);
-                };
+                useExistingObj.Checked = true;
             }
-            rpcClient.Initialize();
-           
+
+            try
+            {
+                apiKeyInput.Text = GetApiKey();
+            }
+            catch
+            {
+                MessageBox.Show("Invalid API key!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                apiKeyInput.Text = "";
+            }
         }
+
+
         public static void ScheduleTasks(params string[] tasks)
         {
             foreach (string task in tasks)
@@ -318,41 +345,17 @@ namespace Rbx2Source
 
             if (compilerTypeSelect.Text == "Avatar")
             {
-                // assetPreviewImage = "https://www.roblox.com/headshot-thumbnail/json?width=420&height=420&format=png&userId=" + currentUser.Id; // Previous logic
-                assetPreviewImage = "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" + currentUser.id + "&size=420x420&format=Png&isCircular=false";
+                assetPreviewImage = "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" + currentUser.Id + "&size=420x420&format=Png&isCircular=false";
                 compilerInput.Text = "Username:";
-                compilerInputField.Text = currentUser.name;
+                compilerInputField.Text = currentUser.Name;
                 compilerTypeIcon.Image = Properties.Resources.Humanoid_icon;
-                rpcClient.SetPresence(new RichPresence()
-                {
-                    Details = "Converting Avatars",
-                    State = "Converting Roblox Assets to Source Engine",
-                    Assets = new Assets()
-                    {
-                        LargeImageKey = "image_large",
-                        LargeImageText = $"Running Version {Settings.GetString("CurrentVersion")}",
-                        SmallImageKey = "humanoid_icon",
-                    }
-                });
             }
             else if (compilerTypeSelect.Text == "Accessory/Gear")
             {
-                // assetPreviewImage = "https://www.roblox.com/asset-thumbnail/json?width=420&height=420&format=png&assetId=" + currentAssetId; // Previous logic
                 assetPreviewImage = "https://thumbnails.roblox.com/v1/assets?assetIds=" + currentAssetId + "&returnPolicy=PlaceHolder&size=420x420&format=Png&isCircular=false";
                 compilerInput.Text = "AssetId:";
                 compilerInputField.Text = currentAssetId.ToInvariantString();
                 compilerTypeIcon.Image = Properties.Resources.Accoutrement_icon;
-                rpcClient.SetPresence(new RichPresence()
-                {
-                    Details = "Converting Accessories/Gear",
-                    State = "Converting Roblox Assets to Source Engine",
-                    Assets = new Assets()
-                    {
-                        LargeImageKey = "image_large",
-                        LargeImageText = $"Running Version {Settings.GetString("CurrentVersion")}",
-                        SmallImageKey = "accoutrement_icon"
-                    }
-                });
             }
         }
 
@@ -382,6 +385,13 @@ namespace Rbx2Source
 
             if (long.TryParse(text, out long assetId))
             {
+                if (init)
+                {
+                    assetPreview.Image = loadingImage;
+                    currentAssetId = assetId;
+                    return true;
+                }
+
                 Asset asset = null;
 
                 try
@@ -439,8 +449,8 @@ namespace Rbx2Source
                 else if (compilerTypeSelect.Text == "Accessory/Gear")
                     TrySetAssetId(compilerInputField.Text);
 
-                updateDisplays();
                 await Task.Delay(100);
+                updateDisplays();
 
                 compilerTypeSelect.Enabled = true;
                 compilerInputField.Enabled = true;
@@ -506,7 +516,7 @@ namespace Rbx2Source
                 {
                     exceptionMsg = exception.Message;
                     errorMsg += "\nError Message: " + exceptionMsg + "\n\n" +
-                                "If this error message has happened multiple times, and doesn't seem deliberate, you should totally send a screenshot of this error message to @qfoxbRBLX on Twitter.\n\n" +
+                                "If this error message has happened multiple times, and doesn't seem deliberate, you should file an issue on GitHub.\n\n" +
                                 "STACK TRACE:\n" + outputDivider + "\n" + exception.StackTrace + "\n" + outputDivider;
                 }
             }
@@ -525,6 +535,14 @@ namespace Rbx2Source
 
         private async void compile_Click(object sender, EventArgs e)
         {
+            var apiKey = GetApiKey();
+            
+            if (!ValidateApiKey(apiKey))
+            {
+                showError("Valid API key required to compile!");
+                return;
+            }
+
             Stopwatch trackCompileTime = new Stopwatch();
             trackCompileTime.Start();
 
@@ -543,7 +561,7 @@ namespace Rbx2Source
             if (compilerTypeSelect.Text == "Avatar")
             {
                 var assembler = new CharacterAssembler();
-                var userAvatar = UserAvatar.FromUsername(currentUser.name);
+                var userAvatar = UserAvatar.FromUsername(currentUser.Name);
                 assemble = new Func<AssemblerData>(() => assembler.Assemble(userAvatar));
             }
             else
@@ -750,7 +768,6 @@ namespace Rbx2Source
                             value = value.Replace("\\\\", "\\");
                             gatherSourceGames(value);
                         }
-
                     }
                 }
             }
@@ -770,7 +787,6 @@ namespace Rbx2Source
                 showError("No Source Engine games were found on this PC!", true);
 
             gameSelect.Enabled = true;
-            compile.Enabled = true;
 
             loadComboBox(gameSelect, "SelectedGame");
             loadComboBox(compilerTypeSelect, "CompilerType", 1);
@@ -785,11 +801,22 @@ namespace Rbx2Source
             selectedGame = sourceGames[gameSelect.Text];
             updateDisplays();
 
-            CONTROLS_TO_DISABLE_WHEN_COMPILING = new List<Control>() { compile, compilerInputField, gameSelect, viewCompiledModel, compilerTypeSelect, quickCompile };
+            CONTROLS_TO_DISABLE_WHEN_COMPILING = new List<Control>() 
+            {
+                compile,
+                compilerInputField,
+                gameSelect,
+                viewCompiledModel,
+                compilerTypeSelect,
+                quickCompile,
+                useExistingObj,
+                apiKeyInput,
+                apiKeyHelp,
+            };
 
             Links = new Dictionary<Control, string>()
             {
-                {cloneTwitter,  "https://www.twitter.com/MaximumADHD"},
+                {cloneTwitter,  "https://www.github.com/MaximumADHD"},
                 {qfoxb,         "https://www.github.com/qfoxb"},
                 {AJLink,        "https://www.github.com/RedTopper"},
                 {egoMooseLink,  "https://www.github.com/EgoMoose"},
@@ -807,7 +834,7 @@ namespace Rbx2Source
                 {
                     if (assetPreview.ImageLocation != assetPreviewImage)
                     {
-                        CdnPender check = WebUtility.DownloadJSON<CdnPender>(assetPreviewImage);
+                        CdnPender check = WebUtil.DownloadJSON<CdnPender>(assetPreviewImage);
 
                         if (check.Data[0].State == "Completed")
                         {
@@ -821,7 +848,7 @@ namespace Rbx2Source
                             string currentPending = assetPreviewImage; // localize this in case it changes.
                             assetPreview.Image = loadingImage;
 
-                            Task<string> pend = Task.Run(() => WebUtility.PendCdn(currentPending, false));
+                            Task<string> pend = Task.Run(() => WebUtil.PendCdn(currentPending, false));
 
                             while (!pend.IsCompleted)
                             {
@@ -858,12 +885,13 @@ namespace Rbx2Source
                     await Task.Delay(10);
                 }
             });
+
+            init = false;
         }
 
         private void Rbx2Source_FormClosed(object sender, FormClosedEventArgs e)
         {
             baseProcess?.Dispose();
-            rpcClient.Dispose();
         }
 
         private void quickCompile_CheckedChanged(object sender, EventArgs e)
@@ -871,49 +899,37 @@ namespace Rbx2Source
             CharacterAssembler.DEBUG_RAPID_ASSEMBLY = quickCompile.Checked;
         }
 
-        private void pictureBox1_Click(object sender, EventArgs e)
+        private void apiKeyHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-
+            DialogResult result = MessageBox.Show("Roblox now requires an Open Cloud API Key with 'legacy-asset:manage' access permissions granted to make assetdelivery requests.\n\nWould you like to view an article about creating an API key?", "API Key", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+        
+            if (result == DialogResult.Yes)
+            {
+                Process.Start("https://create.roblox.com/docs/cloud/auth/api-keys#create-api-keys");
+            }
         }
 
-        private void qfoxb_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void apiKeyInput_TextChanged(object sender, EventArgs e)
         {
-            
+            var newApiKey = apiKeyInput.Text;
+            var valid = true;
+
+            if (newApiKey.Length > 0)
+                valid = ValidateApiKey(newApiKey);
+
+            if (valid)
+            {
+                SetApiKey(newApiKey);
+                return;
+            }
+
+            MessageBox.Show("Invalid/Misconfigured API key!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            apiKeyInput.Text = "";
         }
 
-        private void TwitterIcon_Click(object sender, EventArgs e)
+        private void useExistingObj_CheckedChanged(object sender, EventArgs e)
         {
-
-        }
-
-        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-
-        }
-
-        private void pictureBox3_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void linkLabel1_LinkClicked_1(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-
-        }
-
-        private void linkLabel1_LinkClicked_2(object sender, LinkLabelLinkClickedEventArgs e)
-        {
-
-        }
-
-        private void label1_Click_1(object sender, EventArgs e)
-        {
-
+            LayeredClothingExtractor.UseExistingObj = useExistingObj.Checked;
         }
     }
 }

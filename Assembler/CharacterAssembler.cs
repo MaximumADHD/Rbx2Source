@@ -24,6 +24,7 @@ namespace Rbx2Source.Assembler
     public class CharacterAssembler : IAssembler<UserAvatar>
     {
         public static bool DEBUG_RAPID_ASSEMBLY = false;
+        private const float DEG2RAD = (float)Math.PI / 180f;
 
         public static BodyPart? GetLimb(BasePart part)
         {
@@ -114,35 +115,18 @@ namespace Rbx2Source.Assembler
                                 prep.Completed.Add(a0);
 
                             prep.Completed.Add(a1);
+                            part1.CFrame = part0.CFrame * a0.CFrame * a1.CFrame.Inverse();
 
-                            if (!prep.AllowNonRigs)
-                            {
-                                GenerateBones(prep, part1.GetChildrenOfType<Attachment>());
-                            }
+                            if (prep.AllowNonRigs)
+                                continue;
+
+                            GenerateBones(prep, part1.GetChildrenOfType<Attachment>());
                         }
                         else // We'll deal with Accessory attachments afterwards.
                         {
                             prep.NonRigs.Add(a0);
                         }
                     }
-                }
-            }
-        }
-
-        public static void ApplyBoneCFrames(BasePart part)
-        {
-            Contract.Requires(part != null);
-
-            foreach (StudioBone bone in part.GetChildrenOfType<StudioBone>())
-            {
-                BasePart part0 = bone.Part0;
-                BasePart part1 = bone.Part1;
-
-                part1.CFrame = part0.CFrame * bone.C0 * bone.C1.Inverse();
-
-                if (part0 != part1)
-                {
-                    ApplyBoneCFrames(part1);
                 }
             }
         }
@@ -179,7 +163,6 @@ namespace Rbx2Source.Assembler
             GenerateBones(prep, prep.NonRigs.ToArray());
 
             // Apply the rig cframe data.
-            ApplyBoneCFrames(rootPart);
             meshBuilder.Skeleton.Add(kf);
 
             return kf;
@@ -271,19 +254,12 @@ namespace Rbx2Source.Assembler
             }
 
             var material = new ValveMaterial() { UseAvatarMap = isAvatarLimb };
-            
             Rbx2Source.Print("Building Geometry for {0}", part.Name);
             Rbx2Source.IncrementStack();
 
             Mesh geometry = Mesh.BakePart(part, material);
             meshBuilder.Materials[matName] = material;
-
-            int faceStride;
-
-            if (geometry.HasLODs)
-                faceStride = geometry.LODs[1];
-            else
-                faceStride = geometry.NumFaces;
+            int faceStride = geometry.LodOffsets[1];
 
             for (int i = 0; i < faceStride; i++)
             {
@@ -313,19 +289,84 @@ namespace Rbx2Source.Assembler
             foreach (AssetInfo info in assets)
             {
                 long id = info.Id;
+                var meta = info.Meta;
                 Asset asset = Asset.Get(id);
 
                 Instance import = asset.OpenAsModel();
                 Folder typeSpecific = import.FindFirstChild<Folder>(avatarType);
+                Folder artistIntent = import.FindFirstChild<Folder>("R15ArtistIntent");
 
-                if (typeSpecific != null)
+                Vector3 scale = meta?.Scale;
+                Vector3 position = meta?.Position;
+                Vector3 rotation = meta?.Rotation;
+
+                if (artistIntent != null && avatarType == "R15")
+                    import = artistIntent;
+                else if (typeSpecific != null)
                     import = typeSpecific;
+
+                if (rotation != null)
+                {
+                    // Roblox rotates accessories relative to the bounding box center,
+                    // and this... makes the attachment offset pivot around. Fun!
+
+                    foreach (var att in import.GetDescendantsOfType<Attachment>())
+                    {
+                        var cf = att.CFrame;
+                        var rot = cf.Rotation;
+                        var pos = cf.Position;
+
+                        var newRot = rot
+                            * CFrame.Angles(0, 0, -rotation.Z * DEG2RAD)
+                            * CFrame.Angles(-rotation.X * DEG2RAD, 0, 0)
+                            * CFrame.Angles(0, -rotation.Y * DEG2RAD, 0);
+
+                        var newCF = newRot * new CFrame(pos);
+                        att.CFrame = newCF;
+                    }
+                }
+
+                if (position != null)
+                {
+                    foreach (var desc in import.GetDescendants())
+                    {
+                        if (desc is Attachment att)
+                        {
+                            att.CFrame *= new CFrame(-position);
+                        }
+                    }
+                }
+
+
+                if (scale != null)
+                {
+                    foreach (var desc in import.GetDescendants())
+                    {
+                        if (desc is BasePart part)
+                        {
+                            part.Size *= scale;
+                        }
+                        else if (desc is FileMesh mesh)
+                        {
+                            mesh.Scale *= scale;
+                        }
+                        else if (desc is Vector3Value vec3)
+                        {
+                            vec3.Value *= scale;
+                        }
+                        else if (desc is Attachment att)
+                        {
+                            var cf = att.CFrame;
+                            att.CFrame = cf.Rotation + (cf.Position * scale);
+                        }
+                    }
+                }
 
                 var children = import
                     .GetChildren()
                     .ToList();
 
-                children.ForEach((obj) => obj.Parent = characterAssets);
+                children.ForEach(obj => obj.Parent = characterAssets);
             }
 
             return characterAssets;
@@ -360,7 +401,7 @@ namespace Rbx2Source.Assembler
 
         public static Asset GetAvatarFace(Folder characterAssets)
         {
-            // Check if this avatar is using an Rthro head with a texture overlay.
+            // Check if this avatar's head is using a texture overlay.
             Contract.Requires(characterAssets != null);
             Folder assembly = characterAssets.FindFirstChild<Folder>("ASSEMBLY");
 
@@ -378,12 +419,7 @@ namespace Rbx2Source.Assembler
 
                         if (textureId.Length > 0)
                         {
-                            // One last check to make sure this is *probably* an Rthro head.
-                            // The reason this check is necessary is due to the iBot Head, which has a texture and allows a face to be drawn on it.
-                            // I suspect Roblox will expand this behavior later, so I need to keep an eye on it.
-                            StringValue scaleType = head.FindFirstChild<StringValue>("AvatarPartScaleType");
-
-                            if (scaleType != null && scaleType.Value != "Classic")
+                            if (headMesh.Tags.Contains("NoFace"))
                             {
                                 return Asset.GetByAssetId(headMesh.TextureId);
                             }
@@ -413,7 +449,10 @@ namespace Rbx2Source.Assembler
 
             foreach (BasePart part in assembly.GetChildrenOfType<BasePart>())
             {
-                float y = part.Position.Y;
+                if (part.Name.Contains("_"))
+                    continue;
+
+                float y = part.CFrame.Y;
 
                 if (y < lowestY)
                 {
@@ -430,7 +469,7 @@ namespace Rbx2Source.Assembler
             Contract.Requires(avatar != null);
 
             UserInfo userInfo = avatar.UserInfo;
-            string userName = FileUtility.MakeNameWindowsSafe(userInfo.name);
+            string userName = FileUtility.MakeNameWindowsSafe(userInfo.Name);
 
             string appData = Environment.GetEnvironmentVariable("LocalAppData");
             string rbx2Src = Path.Combine(appData, "Rbx2Source");
@@ -471,7 +510,7 @@ namespace Rbx2Source.Assembler
             #region Build Character Model
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-            StudioMdlWriter writer = assembler.AssembleModel(characterAssets, avatar.Scales, DEBUG_RAPID_ASSEMBLY);
+            StudioMdlWriter writer = assembler.AssembleModel(characterAssets, avatar, DEBUG_RAPID_ASSEMBLY);
 
             string studioMdl = writer.BuildFile();
             string modelPath = Path.Combine(modelDir, "CharacterModel.smd");
@@ -491,7 +530,7 @@ namespace Rbx2Source.Assembler
             ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
             Folder collisionAssets = AppendCollisionAssets(avatar, avatarTypeName);
-            StudioMdlWriter collisionWriter = assembler.AssembleModel(collisionAssets, avatar.Scales, true);
+            StudioMdlWriter collisionWriter = assembler.AssembleModel(collisionAssets, avatar, true);
 
             string collisionModel = collisionWriter.BuildFile();
             string cmodelPath = Path.Combine(modelDir, "CollisionModel.smd");
@@ -643,7 +682,7 @@ namespace Rbx2Source.Assembler
             }
             else
             {
-                TextureCompositor texCompositor = assembler.ComposeTextureMap(characterAssets, avatar.BodyColors);
+                TextureCompositor texCompositor = assembler.ComposeTextureMap(characterAssets, avatar.BodyColor3s);
                 textures = assembler.BindTextures(texCompositor, materials);
             }
 
@@ -685,11 +724,13 @@ namespace Rbx2Source.Assembler
             {
                 Rbx2Source.Print("Building VMT {0}.vmt", mtlName);
 
-                string targetVtf = matLinks[mtlName];
+                var targetVtfs = matLinks[mtlName];
                 string vmtPath = Path.Combine(materialsDir, mtlName + ".vmt");
-
                 ValveMaterial mtl = materials[mtlName];
-                mtl.SetVmtField("basetexture", "models/" + compileDir + "/" + targetVtf);
+
+                foreach (var pair in targetVtfs)
+                    mtl.SetVmtField(pair.Key, "models/" + compileDir + "/" + pair.Value);
+
                 mtl.WriteVmtFile(vmtPath);
             }
 

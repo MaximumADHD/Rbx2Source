@@ -57,11 +57,11 @@ namespace Rbx2Source.Textures
             return new Rectangle(min_X, min_Y, width, height);
         }
 
-        public void AppendColor(int brickColorId, string guide, Rectangle guideSize, byte layer = 0)
+        public void AppendColor(string hexColor3, string guide, Rectangle guideSize, byte layer = 0)
         {
             var composit = new CompositData(DrawFlags.Guide | DrawFlags.Color);
             composit.SetGuide(guide, guideSize, avatarType);
-            composit.SetDrawColor(brickColorId);
+            composit.SetDrawColor(hexColor3);
             composit.Layer = layer;
 
             layers.Add(composit);
@@ -77,10 +77,10 @@ namespace Rbx2Source.Textures
             layers.Add(composit);
         }
 
-        public void AppendColor(int brickColorId, Rectangle rect, byte layer = 0)
+        public void AppendColor(string hexColor3, Rectangle rect, byte layer = 0)
         {
             var composit = new CompositData(DrawFlags.Rect | DrawFlags.Color);
-            composit.SetDrawColor(brickColorId);
+            composit.SetDrawColor(hexColor3);
             composit.Layer = layer;
             composit.Rect = rect;
 
@@ -141,7 +141,7 @@ namespace Rbx2Source.Textures
                 {
                     Mesh guide = composit.Guide;
 
-                    for (int face = 0; face < guide.NumFaces; face++)
+                    for (int face = 0; face < guide.Faces.Count; face++)
                     {
                         Vertex[] verts = composit.GetGuideVerts(face);
                         Point offset = canvas.Location;

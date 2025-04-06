@@ -1,12 +1,16 @@
 ﻿#pragma warning disable 0649
+
 using System;
 using System.Collections.Generic;
+using RobloxFiles.DataTypes;
+
+using Newtonsoft.Json;
 
 namespace Rbx2Source.Web
 {
     public enum AvatarType { R6, R15, Unknown }
 
-    public class AvatarScale
+    public struct AvatarScale
     {
         public float Width;
         public float Height;
@@ -19,30 +23,80 @@ namespace Rbx2Source.Web
 
     public class UserInfo
     {
-        public string description;
-        public string created; // Date time
-        public bool isBanned;
-        public string externalAppDisplayName;
-        public bool hasVerifiedBadge;
-        public long id;
-        public string name;
-        public string displayName;
+        public long Id;
+        public string Name;
+        public string DisplayName;
+        public bool HasVerifiedBadge;
+        public List<WebApiError> Errors;
     }
-
-    public class WebBodyColors
+    
+    public struct UserInfos
     {
-        public int HeadColorId;
-        public int LeftArmColorId;
-        public int RightArmColorId;
-        public int LeftLegColorId;
-        public int RightLegColorId;
-        public int TorsoColorId;
+        public UserInfo[] Data;
     }
 
-    public class WrappedAssetType
+    public struct MultiGetByUsernameRequest
+    {
+        public string[] Usernames;
+        public bool ExcludeBannedUsers;
+
+        public MultiGetByUsernameRequest(bool excludeBannedUsers, params string[] usernames)
+        {
+            ExcludeBannedUsers = excludeBannedUsers;
+            Usernames = usernames;
+        }
+
+        public override string ToString()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
+    }
+
+    public struct AvatarBodyColors
+    {
+        public string HeadColor3;
+        public string LeftArmColor3;
+        public string RightArmColor3;
+        public string LeftLegColor3;
+        public string RightLegColor3;
+        public string TorsoColor3;
+    }
+
+    public struct AssetVector3
+    {
+        public float X;
+        public float Y;
+        public float Z;
+
+        public AssetVector3(float x, float y, float z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        public static implicit operator Vector3(AssetVector3 vec) => new Vector3(vec.X, vec.Y, vec.Z);
+        public static implicit operator AssetVector3(Vector3 vec) => new AssetVector3(vec.X, vec.Y, vec.Z);
+    }
+
+    public struct WebAssetType
     {
         public AssetType Id;
-        public string Name;
+        public string Name => Enum.GetName(typeof(AssetType), Id);
+
+        public static implicit operator AssetType(WebAssetType assetType) => assetType.Id;
+        public static implicit operator WebAssetType(AssetType id) => new WebAssetType() { Id = id };
+    }
+
+    public struct AssetMeta
+    {
+        public int Version;
+        public int? Order;
+        public float? Puffiness;
+
+        public AssetVector3? Position;
+        public AssetVector3? Rotation;
+        public AssetVector3? Scale;
     }
 
     public class AssetInfo
@@ -50,29 +104,27 @@ namespace Rbx2Source.Web
         public long Id;
         public string Name;
 
-        public WrappedAssetType AssetType;
-        public AssetType Type => AssetType.Id;
+        public WebAssetType AssetType;
+
+        public AssetMeta? Meta;
     }
 
-    public class ResultGetByUsername
+    public class ThumbnailConfig
     {
-        public Data[] data;
+        public int ThumbnailId = 3;
+        public string ThumbnailType = "3d";
+        public string Size = "420x420";
     }
-
-    public class Data
+    
+    public class RenderAvatarRequest
     {
-        public string requestedUsername;
-        public bool hasVerifiedBadge;
-        public long id;
-        public string name;
-        public string displayName;
-    }
+        public UserAvatar AvatarDefinition;
+        public ThumbnailConfig ThumbnailConfig = new ThumbnailConfig();
 
-    public class RequestGetByUsernameBody
-    {
-        public string[] usernames;
-        public bool excludeBannedUsers;
-        
+        public RenderAvatarRequest(UserAvatar avatar)
+        {
+            AvatarDefinition = avatar;
+        }
     }
 
     public class UserAvatar
@@ -83,12 +135,12 @@ namespace Rbx2Source.Web
         public AvatarScale Scales;
         public AvatarType PlayerAvatarType;
 
-        public WebBodyColors BodyColors;
+        public AvatarBodyColors BodyColor3s;
         public AssetInfo[] Assets;
 
-        private static UserAvatar createUserAvatar(UserInfo info)
+        private static UserAvatar CreateUserAvatar(UserInfo info)
         {
-            UserAvatar avatar = WebUtility.DownloadRbxApiJSON<UserAvatar>($"/v1/users/{info.id}/avatar", "avatar");
+            var avatar = WebUtil.DownloadJSON<UserAvatar>($"https://avatar.roblox.com/v2/avatar/users/{info.Id}/avatar");
             avatar.UserExists = true;
             avatar.UserInfo = info;
 
@@ -97,37 +149,19 @@ namespace Rbx2Source.Web
 
         public static UserAvatar FromUserId(long userId)
         {
-            try
-            {
-                UserInfo info = WebUtility.DownloadRbxApiJSON<UserInfo>("v1/users/" + userId, "users");
-                System.Console.WriteLine(info);
-                return createUserAvatar(info);
-            }
-            catch
-            {
-                return new UserAvatar();
-            }
+            var info = WebUtil.DownloadJSON<UserInfo>($"https://users.roblox.com/v1/users/{userId}");
+            return CreateUserAvatar(info);
         }
 
         public static UserAvatar FromUsername(string userName)
         {
-            // Very funky implementation 
-            var body = Newtonsoft.Json.JsonConvert.SerializeObject(new RequestGetByUsernameBody
-            {
-                usernames = new string[]
-                {
-                    userName
-                },
-                excludeBannedUsers = false
-            });
-            ResultGetByUsername res = WebUtility.DownloadRbxApiJSON<ResultGetByUsername>("v1/usernames/users", "users", body, "POST");
-            try
-            {
-                return FromUserId(res.data[0].id);
-            } catch (System.IndexOutOfRangeException)
-            {
-                return new UserAvatar();
-            }
+            var request = new MultiGetByUsernameRequest(false, userName);
+            var requestBody = request.ToString();
+
+            var userInfos = WebUtil.DownloadJSON<UserInfos>("https://users.roblox.com/v1/usernames/users", "POST", requestBody);
+            var userInfo = userInfos.Data[0];
+
+            return CreateUserAvatar(userInfo);
         }
     }
 }

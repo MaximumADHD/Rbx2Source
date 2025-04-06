@@ -61,11 +61,17 @@ namespace Rbx2Source.Textures
             Rect.Location = offset;
         }
 
-        public void SetDrawColor(int id)
+        public void SetDrawColor(string hex)
         {
-            BrickColor brick = id;
-            Color3uint8 clr = brick.Color;
-            DrawColor = Color.FromArgb(clr.R, clr.G, clr.B);
+            if (hex.Substring(0, 1) == "#")
+                hex = hex.Substring(2);
+
+            int rgb = Convert.ToInt32(hex, 16);
+            int r = (rgb >> 16) & 0xFF;
+            int g = (rgb >> 8) & 0xFF;
+            int b = rgb & 0xFF;
+
+            DrawColor = Color.FromArgb(r, g, b);
         }
 
         public int CompareTo(object other)

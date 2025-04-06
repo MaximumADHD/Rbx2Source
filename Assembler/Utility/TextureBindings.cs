@@ -8,36 +8,48 @@ namespace Rbx2Source.Assembler
         public string MaterialDirectory;
 
         public Dictionary<string, Image> Images;
-        public Dictionary<string, string> MatLinks;
+        public Dictionary<string, Dictionary<string, string>> MatLinks;
 
         public TextureBindings()
         {
             Images = new Dictionary<string, Image>();
-            MatLinks = new Dictionary<string, string>();
+            MatLinks = new Dictionary<string, Dictionary<string, string>>();
         }
 
-        public void BindTextureAlias(string name)
+        public void BindTextureAlias(string name, string key)
         {
-            MatLinks.Add(name, name);
+            if (!MatLinks.TryGetValue(name, out Dictionary<string, string> dict))
+            {
+                dict = new Dictionary<string, string>();
+                MatLinks.Add(name, dict);
+            }
+
+            dict.Add(key, $"{name}_{key}");
         }
 
-        public void BindTextureAlias(string link, string name)
+        public void BindTextureAlias(string link, string name, string key)
         {
-            MatLinks.Add(link, name);
+            if (!MatLinks.TryGetValue(link, out Dictionary<string, string> dict))
+            {
+                dict = new Dictionary<string, string>();
+                MatLinks.Add(link, dict);
+            }
+
+            dict.Add(key, name);
         }
 
-        public void BindTexture(string name, Image texture, bool bindName = true)
+        public void BindTexture(string name, Image texture, string key = "basetexture")
         {
-            if (bindName)
-                BindTextureAlias(name);
+            if (key != null)
+                BindTextureAlias(name, key);
 
-            Images.Add(name, texture);
+            Images.Add($"{name}_{key}", texture);
         }
 
         public void BindTexture(string name, string link, Image texture)
         {
-            BindTextureAlias(name, link);
-            BindTexture(link, texture, false);
+            BindTextureAlias(name, link, "basetexture");
+            BindTexture(link, texture, null);
         }
     }
 }

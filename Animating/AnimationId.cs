@@ -16,12 +16,7 @@ namespace Rbx2Source.Animating
 
         public Asset GetAsset()
         {
-            if (AnimationType == AnimationType.R15AnimFolder)
-                return Asset.Get(AssetId, "/asset/?assetversionid=");
-            else if (AnimationType == AnimationType.KeyframeSequence)
-                return Asset.Get(AssetId);
-
-            throw new NotImplementedException();
+            return Asset.Get(AssetId);
         }
 
         public override string ToString()

@@ -51,6 +51,21 @@ namespace Rbx2Source.Web
         PoseAnimation,
         EarAccessory,
         EyeAccessory,
-        EmoteAnimation = 61
+        EmoteAnimation = 61,
+
+        TShirtAccessory = 64,
+        ShirtAccessory,
+        PantsAccessory,
+        JacketAccessory,
+        SweaterAccessory,
+        ShortsAccessory,
+        LeftShoeAccessory,
+        RightShoeAccessory,
+        DressSkirtAccessory,
+        EyebrowAccessory = 76,
+        EyelashAccessory,
+
+        MoodAnimation,
+        DynamicHead,
     }
 }

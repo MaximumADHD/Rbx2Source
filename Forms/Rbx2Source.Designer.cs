@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Rbx2Source));
             this.About = new System.Windows.Forms.TabPage();
+            this.label1 = new System.Windows.Forms.Label();
             this.timelesslabel = new System.Windows.Forms.Label();
             this.timelessLink = new System.Windows.Forms.LinkLabel();
             this.TimelessIcon = new System.Windows.Forms.PictureBox();
@@ -49,12 +50,14 @@
             this.AJLink = new System.Windows.Forms.LinkLabel();
             this.specialThanksTo = new System.Windows.Forms.Label();
             this.qfoxb = new System.Windows.Forms.LinkLabel();
-            this.fixedBy = new System.Windows.Forms.Label();
             this.egoMooseIcon = new System.Windows.Forms.PictureBox();
             this.AJIcon = new System.Windows.Forms.PictureBox();
             this.TwitterIcon = new System.Windows.Forms.PictureBox();
             this.rbx2SourceLogo = new System.Windows.Forms.PictureBox();
             this.Compiler = new System.Windows.Forms.TabPage();
+            this.apiKeyHelp = new System.Windows.Forms.LinkLabel();
+            this.apiKeyInput = new System.Windows.Forms.TextBox();
+            this.apiKeyTitle = new System.Windows.Forms.Label();
             this.quickCompile = new System.Windows.Forms.CheckBox();
             this.compilerTypeIcon = new System.Windows.Forms.PictureBox();
             this.gameIcon = new System.Windows.Forms.PictureBox();
@@ -75,6 +78,7 @@
             this.changeLogBox = new System.Windows.Forms.RichTextBox();
             this.Debug = new System.Windows.Forms.TabPage();
             this.debugImg = new System.Windows.Forms.PictureBox();
+            this.useExistingObj = new System.Windows.Forms.CheckBox();
             this.About.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.TimelessIcon)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.RileyIcon)).BeginInit();
@@ -96,6 +100,7 @@
             // About
             // 
             this.About.AutoScroll = true;
+            this.About.Controls.Add(this.label1);
             this.About.Controls.Add(this.timelesslabel);
             this.About.Controls.Add(this.timelessLink);
             this.About.Controls.Add(this.TimelessIcon);
@@ -115,7 +120,6 @@
             this.About.Controls.Add(this.AJLink);
             this.About.Controls.Add(this.specialThanksTo);
             this.About.Controls.Add(this.qfoxb);
-            this.About.Controls.Add(this.fixedBy);
             this.About.Controls.Add(this.egoMooseIcon);
             this.About.Controls.Add(this.AJIcon);
             this.About.Controls.Add(this.TwitterIcon);
@@ -123,48 +127,56 @@
             this.About.Location = new System.Drawing.Point(4, 25);
             this.About.Margin = new System.Windows.Forms.Padding(2);
             this.About.Name = "About";
-            this.About.Size = new System.Drawing.Size(350, 275);
+            this.About.Size = new System.Drawing.Size(350, 307);
             this.About.TabIndex = 3;
             this.About.Text = "About";
             this.About.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.236221F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(52, 257);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(107, 24);
+            this.label1.TabIndex = 28;
+            this.label1.Text = "GitHub Maintainer during\r\nearly-mid 2020s";
             // 
             // timelesslabel
             // 
             this.timelesslabel.AutoSize = true;
             this.timelesslabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.236221F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.timelesslabel.Location = new System.Drawing.Point(146, 284);
+            this.timelesslabel.Location = new System.Drawing.Point(205, 254);
             this.timelesslabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.timelesslabel.Name = "timelesslabel";
             this.timelesslabel.Size = new System.Drawing.Size(102, 12);
             this.timelesslabel.TabIndex = 27;
             this.timelesslabel.Text = "Fixed API Compatibility";
-            this.timelesslabel.Click += new System.EventHandler(this.label1_Click_1);
             // 
             // timelessLink
             // 
             this.timelessLink.AutoSize = true;
-            this.timelessLink.Location = new System.Drawing.Point(146, 271);
+            this.timelessLink.Location = new System.Drawing.Point(205, 241);
             this.timelessLink.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.timelessLink.Name = "timelessLink";
             this.timelessLink.Size = new System.Drawing.Size(77, 13);
             this.timelessLink.TabIndex = 26;
             this.timelessLink.TabStop = true;
             this.timelessLink.Text = "timelessnesses";
-            this.timelessLink.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked_2);
             // 
             // TimelessIcon
             // 
             this.TimelessIcon.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.TimelessIcon.ImageLocation = "https://github.com/timelessnesses.png";
             this.TimelessIcon.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
-            this.TimelessIcon.Location = new System.Drawing.Point(104, 271);
+            this.TimelessIcon.Location = new System.Drawing.Point(163, 241);
             this.TimelessIcon.Margin = new System.Windows.Forms.Padding(2);
             this.TimelessIcon.Name = "TimelessIcon";
             this.TimelessIcon.Size = new System.Drawing.Size(38, 40);
             this.TimelessIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.TimelessIcon.TabIndex = 25;
             this.TimelessIcon.TabStop = false;
-            this.TimelessIcon.Click += new System.EventHandler(this.pictureBox3_Click);
             // 
             // nemsTools
             // 
@@ -178,13 +190,12 @@
             this.nemsTools.TabIndex = 24;
             this.nemsTools.TabStop = true;
             this.nemsTools.Text = "VTFCmd";
-            this.nemsTools.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabel1_LinkClicked);
             // 
             // rileyLabel
             // 
             this.rileyLabel.AutoSize = true;
             this.rileyLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.236221F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rileyLabel.Location = new System.Drawing.Point(143, 242);
+            this.rileyLabel.Location = new System.Drawing.Point(49, 304);
             this.rileyLabel.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.rileyLabel.Name = "rileyLabel";
             this.rileyLabel.Size = new System.Drawing.Size(154, 12);
@@ -194,10 +205,10 @@
             // rileyLink
             // 
             this.rileyLink.AutoSize = true;
-            this.rileyLink.Location = new System.Drawing.Point(143, 229);
+            this.rileyLink.Location = new System.Drawing.Point(49, 291);
             this.rileyLink.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.rileyLink.Name = "rileyLink";
-            this.rileyLink.Size = new System.Drawing.Size(75, 13);
+            this.rileyLink.Size = new System.Drawing.Size(43, 13);
             this.rileyLink.TabIndex = 22;
             this.rileyLink.TabStop = true;
             this.rileyLink.Text = "Rilinium";
@@ -207,7 +218,7 @@
             this.RileyIcon.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.RileyIcon.ImageLocation = "https://github.com/rilinium.png";
             this.RileyIcon.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
-            this.RileyIcon.Location = new System.Drawing.Point(104, 226);
+            this.RileyIcon.Location = new System.Drawing.Point(10, 288);
             this.RileyIcon.Margin = new System.Windows.Forms.Padding(2);
             this.RileyIcon.Name = "RileyIcon";
             this.RileyIcon.Size = new System.Drawing.Size(38, 40);
@@ -219,19 +230,19 @@
             // 
             this.cloneTwitter.AutoSize = true;
             this.cloneTwitter.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.cloneTwitter.Location = new System.Drawing.Point(6, 311);
+            this.cloneTwitter.Location = new System.Drawing.Point(7, 213);
             this.cloneTwitter.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.cloneTwitter.Name = "cloneTwitter";
-            this.cloneTwitter.Size = new System.Drawing.Size(93, 13);
+            this.cloneTwitter.Size = new System.Drawing.Size(82, 13);
             this.cloneTwitter.TabIndex = 20;
             this.cloneTwitter.TabStop = true;
-            this.cloneTwitter.Text = "@MaximumADHD";
+            this.cloneTwitter.Text = "MaximumADHD";
             // 
             // developedBy
             // 
             this.developedBy.AutoSize = true;
             this.developedBy.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.20472F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.developedBy.Location = new System.Drawing.Point(4, 292);
+            this.developedBy.Location = new System.Drawing.Point(5, 194);
             this.developedBy.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.developedBy.Name = "developedBy";
             this.developedBy.Size = new System.Drawing.Size(99, 17);
@@ -241,16 +252,15 @@
             // pictureBox1
             // 
             this.pictureBox1.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.pictureBox1.ImageLocation = "https://github.com/CloneTrooper1019.png";
+            this.pictureBox1.ImageLocation = "https://github.com/MaximumADHD.png";
             this.pictureBox1.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
-            this.pictureBox1.Location = new System.Drawing.Point(7, 227);
+            this.pictureBox1.Location = new System.Drawing.Point(8, 129);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(2);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(65, 64);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox1.TabIndex = 18;
             this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // textBox3
             // 
@@ -259,7 +269,7 @@
             this.textBox3.Multiline = true;
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
-            this.textBox3.Size = new System.Drawing.Size(321, 87);
+            this.textBox3.Size = new System.Drawing.Size(321, 49);
             this.textBox3.TabIndex = 16;
             this.textBox3.Text = "VTFCmd is a command-line based tool that allows you to convert standard image fil" +
     "es into the Valve Texture Format (.VTF)\r\nRbx2Source utilizes VTFCmd to handle mo" +
@@ -269,7 +279,7 @@
             // 
             this.thirdPartyInfoElaboration.AutoSize = true;
             this.thirdPartyInfoElaboration.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.236221F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.thirdPartyInfoElaboration.Location = new System.Drawing.Point(6, 350);
+            this.thirdPartyInfoElaboration.Location = new System.Drawing.Point(6, 356);
             this.thirdPartyInfoElaboration.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.thirdPartyInfoElaboration.Name = "thirdPartyInfoElaboration";
             this.thirdPartyInfoElaboration.Size = new System.Drawing.Size(213, 24);
@@ -281,7 +291,7 @@
             // 
             this.thirdPartyInfo.AutoSize = true;
             this.thirdPartyInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.77165F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.thirdPartyInfo.Location = new System.Drawing.Point(2, 330);
+            this.thirdPartyInfo.Location = new System.Drawing.Point(2, 336);
             this.thirdPartyInfo.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.thirdPartyInfo.Name = "thirdPartyInfo";
             this.thirdPartyInfo.Size = new System.Drawing.Size(158, 18);
@@ -317,9 +327,9 @@
             this.AJContribution.Location = new System.Drawing.Point(143, 149);
             this.AJContribution.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.AJContribution.Name = "AJContribution";
-            this.AJContribution.Size = new System.Drawing.Size(125, 24);
+            this.AJContribution.Size = new System.Drawing.Size(159, 24);
             this.AJContribution.TabIndex = 8;
-            this.AJContribution.Text = "Helped me reverse-engineer \rRoblox\'s binary mesh format.";
+            this.AJContribution.Text = "Helped me reverse-engineer \rRoblox\'s binary mesh format early on.";
             // 
             // AJLink
             // 
@@ -347,25 +357,13 @@
             // 
             this.qfoxb.AutoSize = true;
             this.qfoxb.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.qfoxb.Location = new System.Drawing.Point(5, 212);
+            this.qfoxb.Location = new System.Drawing.Point(51, 244);
             this.qfoxb.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.qfoxb.Name = "qfoxb";
             this.qfoxb.Size = new System.Drawing.Size(44, 13);
             this.qfoxb.TabIndex = 4;
             this.qfoxb.TabStop = true;
             this.qfoxb.Text = "@qfoxb";
-            this.qfoxb.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.qfoxb_LinkClicked);
-            // 
-            // fixedBy
-            // 
-            this.fixedBy.AutoSize = true;
-            this.fixedBy.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F);
-            this.fixedBy.Location = new System.Drawing.Point(5, 195);
-            this.fixedBy.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-            this.fixedBy.Name = "fixedBy";
-            this.fixedBy.Size = new System.Drawing.Size(94, 16);
-            this.fixedBy.TabIndex = 3;
-            this.fixedBy.Text = "Maintained by:";
             // 
             // egoMooseIcon
             // 
@@ -398,14 +396,13 @@
             this.TwitterIcon.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.TwitterIcon.ImageLocation = "https://github.com/qfoxb.png";
             this.TwitterIcon.InitialImage = global::Rbx2Source.Properties.Resources.Loading;
-            this.TwitterIcon.Location = new System.Drawing.Point(9, 129);
+            this.TwitterIcon.Location = new System.Drawing.Point(10, 244);
             this.TwitterIcon.Margin = new System.Windows.Forms.Padding(2);
             this.TwitterIcon.Name = "TwitterIcon";
-            this.TwitterIcon.Size = new System.Drawing.Size(65, 64);
+            this.TwitterIcon.Size = new System.Drawing.Size(38, 40);
             this.TwitterIcon.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.TwitterIcon.TabIndex = 1;
             this.TwitterIcon.TabStop = false;
-            this.TwitterIcon.Click += new System.EventHandler(this.TwitterIcon_Click);
             // 
             // rbx2SourceLogo
             // 
@@ -421,6 +418,10 @@
             // 
             // Compiler
             // 
+            this.Compiler.Controls.Add(this.useExistingObj);
+            this.Compiler.Controls.Add(this.apiKeyHelp);
+            this.Compiler.Controls.Add(this.apiKeyInput);
+            this.Compiler.Controls.Add(this.apiKeyTitle);
             this.Compiler.Controls.Add(this.quickCompile);
             this.Compiler.Controls.Add(this.compilerTypeIcon);
             this.Compiler.Controls.Add(this.gameIcon);
@@ -440,19 +441,49 @@
             this.Compiler.Margin = new System.Windows.Forms.Padding(2);
             this.Compiler.Name = "Compiler";
             this.Compiler.Padding = new System.Windows.Forms.Padding(2);
-            this.Compiler.Size = new System.Drawing.Size(350, 275);
+            this.Compiler.Size = new System.Drawing.Size(350, 307);
             this.Compiler.TabIndex = 0;
             this.Compiler.Text = "Compiler";
             this.Compiler.UseVisualStyleBackColor = true;
             // 
+            // apiKeyHelp
+            // 
+            this.apiKeyHelp.AutoSize = true;
+            this.apiKeyHelp.Location = new System.Drawing.Point(153, 8);
+            this.apiKeyHelp.Name = "apiKeyHelp";
+            this.apiKeyHelp.Size = new System.Drawing.Size(74, 13);
+            this.apiKeyHelp.TabIndex = 19;
+            this.apiKeyHelp.TabStop = true;
+            this.apiKeyHelp.Text = "(What is this?)";
+            this.apiKeyHelp.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.apiKeyHelp_LinkClicked);
+            // 
+            // apiKeyInput
+            // 
+            this.apiKeyInput.Location = new System.Drawing.Point(59, 5);
+            this.apiKeyInput.Name = "apiKeyInput";
+            this.apiKeyInput.Size = new System.Drawing.Size(94, 20);
+            this.apiKeyInput.TabIndex = 18;
+            this.apiKeyInput.UseSystemPasswordChar = true;
+            this.apiKeyInput.TextChanged += new System.EventHandler(this.apiKeyInput_TextChanged);
+            // 
+            // apiKeyTitle
+            // 
+            this.apiKeyTitle.AutoSize = true;
+            this.apiKeyTitle.Location = new System.Drawing.Point(5, 8);
+            this.apiKeyTitle.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+            this.apiKeyTitle.Name = "apiKeyTitle";
+            this.apiKeyTitle.Size = new System.Drawing.Size(48, 13);
+            this.apiKeyTitle.TabIndex = 17;
+            this.apiKeyTitle.Text = "API Key:";
+            // 
             // quickCompile
             // 
             this.quickCompile.AutoSize = true;
-            this.quickCompile.Location = new System.Drawing.Point(239, 69);
+            this.quickCompile.Location = new System.Drawing.Point(9, 290);
             this.quickCompile.Name = "quickCompile";
-            this.quickCompile.Size = new System.Drawing.Size(116, 17);
+            this.quickCompile.Size = new System.Drawing.Size(160, 17);
             this.quickCompile.TabIndex = 16;
-            this.quickCompile.Text = "Use Quick Compile";
+            this.quickCompile.Text = "DEBUG: Use Quick Compile";
             this.quickCompile.UseVisualStyleBackColor = true;
             this.quickCompile.CheckedChanged += new System.EventHandler(this.quickCompile_CheckedChanged);
             // 
@@ -460,7 +491,7 @@
             // 
             this.compilerTypeIcon.BackColor = System.Drawing.SystemColors.Control;
             this.compilerTypeIcon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.compilerTypeIcon.Location = new System.Drawing.Point(8, 57);
+            this.compilerTypeIcon.Location = new System.Drawing.Point(8, 84);
             this.compilerTypeIcon.Margin = new System.Windows.Forms.Padding(2);
             this.compilerTypeIcon.Name = "compilerTypeIcon";
             this.compilerTypeIcon.Size = new System.Drawing.Size(18, 20);
@@ -472,7 +503,7 @@
             // 
             this.gameIcon.BackColor = System.Drawing.SystemColors.Control;
             this.gameIcon.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
-            this.gameIcon.Location = new System.Drawing.Point(8, 19);
+            this.gameIcon.Location = new System.Drawing.Point(8, 46);
             this.gameIcon.Margin = new System.Windows.Forms.Padding(2);
             this.gameIcon.Name = "gameIcon";
             this.gameIcon.Size = new System.Drawing.Size(18, 20);
@@ -482,7 +513,7 @@
             // 
             // compileProgress
             // 
-            this.compileProgress.Location = new System.Drawing.Point(8, 235);
+            this.compileProgress.Location = new System.Drawing.Point(8, 262);
             this.compileProgress.Margin = new System.Windows.Forms.Padding(2);
             this.compileProgress.Name = "compileProgress";
             this.compileProgress.Size = new System.Drawing.Size(217, 25);
@@ -491,7 +522,7 @@
             // viewCompiledModel
             // 
             this.viewCompiledModel.Enabled = false;
-            this.viewCompiledModel.Location = new System.Drawing.Point(230, 235);
+            this.viewCompiledModel.Location = new System.Drawing.Point(230, 262);
             this.viewCompiledModel.Margin = new System.Windows.Forms.Padding(2);
             this.viewCompiledModel.Name = "viewCompiledModel";
             this.viewCompiledModel.Size = new System.Drawing.Size(116, 25);
@@ -503,7 +534,7 @@
             // outputHeader
             // 
             this.outputHeader.AutoSize = true;
-            this.outputHeader.Location = new System.Drawing.Point(6, 79);
+            this.outputHeader.Location = new System.Drawing.Point(6, 106);
             this.outputHeader.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.outputHeader.Name = "outputHeader";
             this.outputHeader.Size = new System.Drawing.Size(85, 13);
@@ -513,7 +544,7 @@
             // output
             // 
             this.output.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.output.Location = new System.Drawing.Point(8, 95);
+            this.output.Location = new System.Drawing.Point(8, 122);
             this.output.Margin = new System.Windows.Forms.Padding(2);
             this.output.Name = "output";
             this.output.ReadOnly = true;
@@ -525,18 +556,18 @@
             // 
             // compilerInputField
             // 
-            this.compilerInputField.Location = new System.Drawing.Point(238, 20);
+            this.compilerInputField.Location = new System.Drawing.Point(238, 47);
             this.compilerInputField.Margin = new System.Windows.Forms.Padding(2);
             this.compilerInputField.Name = "compilerInputField";
             this.compilerInputField.Size = new System.Drawing.Size(108, 20);
             this.compilerInputField.TabIndex = 6;
-            this.compilerInputField.Text = "qfoxb";
+            this.compilerInputField.Text = "Maximum_ADHD";
             this.compilerInputField.KeyDown += new System.Windows.Forms.KeyEventHandler(this.compilerInputField_KeyDown);
             this.compilerInputField.Leave += new System.EventHandler(this.compilerInputField_Leave);
             // 
             // compile
             // 
-            this.compile.Location = new System.Drawing.Point(238, 44);
+            this.compile.Location = new System.Drawing.Point(238, 71);
             this.compile.Margin = new System.Windows.Forms.Padding(2);
             this.compile.Name = "compile";
             this.compile.Size = new System.Drawing.Size(108, 20);
@@ -548,7 +579,7 @@
             // compilerInput
             // 
             this.compilerInput.AutoSize = true;
-            this.compilerInput.Location = new System.Drawing.Point(236, 2);
+            this.compilerInput.Location = new System.Drawing.Point(236, 29);
             this.compilerInput.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.compilerInput.Name = "compilerInput";
             this.compilerInput.Size = new System.Drawing.Size(58, 13);
@@ -562,7 +593,7 @@
             this.gameSelect.FormattingEnabled = true;
             this.gameSelect.Items.AddRange(new object[] {
             "Loading..."});
-            this.gameSelect.Location = new System.Drawing.Point(31, 19);
+            this.gameSelect.Location = new System.Drawing.Point(31, 46);
             this.gameSelect.Margin = new System.Windows.Forms.Padding(2);
             this.gameSelect.Name = "gameSelect";
             this.gameSelect.Size = new System.Drawing.Size(122, 21);
@@ -573,7 +604,7 @@
             // gameSelectLbl
             // 
             this.gameSelectLbl.AutoSize = true;
-            this.gameSelectLbl.Location = new System.Drawing.Point(6, 2);
+            this.gameSelectLbl.Location = new System.Drawing.Point(6, 29);
             this.gameSelectLbl.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.gameSelectLbl.Name = "gameSelectLbl";
             this.gameSelectLbl.Size = new System.Drawing.Size(108, 13);
@@ -584,7 +615,7 @@
             // 
             this.assetPreview.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.assetPreview.ErrorImage = null;
-            this.assetPreview.Location = new System.Drawing.Point(156, 2);
+            this.assetPreview.Location = new System.Drawing.Point(156, 29);
             this.assetPreview.Margin = new System.Windows.Forms.Padding(2);
             this.assetPreview.Name = "assetPreview";
             this.assetPreview.Size = new System.Drawing.Size(79, 85);
@@ -595,7 +626,7 @@
             // compilerType
             // 
             this.compilerType.AutoSize = true;
-            this.compilerType.Location = new System.Drawing.Point(6, 41);
+            this.compilerType.Location = new System.Drawing.Point(6, 68);
             this.compilerType.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
             this.compilerType.Name = "compilerType";
             this.compilerType.Size = new System.Drawing.Size(66, 13);
@@ -609,7 +640,7 @@
             this.compilerTypeSelect.Items.AddRange(new object[] {
             "Accessory/Gear",
             "Avatar"});
-            this.compilerTypeSelect.Location = new System.Drawing.Point(31, 57);
+            this.compilerTypeSelect.Location = new System.Drawing.Point(31, 84);
             this.compilerTypeSelect.Margin = new System.Windows.Forms.Padding(2);
             this.compilerTypeSelect.Name = "compilerTypeSelect";
             this.compilerTypeSelect.Size = new System.Drawing.Size(122, 21);
@@ -629,7 +660,7 @@
             this.MainTab.Margin = new System.Windows.Forms.Padding(2);
             this.MainTab.Name = "MainTab";
             this.MainTab.SelectedIndex = 0;
-            this.MainTab.Size = new System.Drawing.Size(358, 304);
+            this.MainTab.Size = new System.Drawing.Size(358, 336);
             this.MainTab.TabIndex = 0;
             // 
             // ChangeLog
@@ -638,7 +669,7 @@
             this.ChangeLog.Location = new System.Drawing.Point(4, 25);
             this.ChangeLog.Margin = new System.Windows.Forms.Padding(2);
             this.ChangeLog.Name = "ChangeLog";
-            this.ChangeLog.Size = new System.Drawing.Size(350, 275);
+            this.ChangeLog.Size = new System.Drawing.Size(350, 307);
             this.ChangeLog.TabIndex = 4;
             this.ChangeLog.Text = "Change Log";
             this.ChangeLog.UseVisualStyleBackColor = true;
@@ -653,7 +684,7 @@
             this.changeLogBox.Name = "changeLogBox";
             this.changeLogBox.ReadOnly = true;
             this.changeLogBox.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.changeLogBox.Size = new System.Drawing.Size(350, 275);
+            this.changeLogBox.Size = new System.Drawing.Size(350, 307);
             this.changeLogBox.TabIndex = 1;
             this.changeLogBox.Text = resources.GetString("changeLogBox.Text");
             // 
@@ -662,7 +693,7 @@
             this.Debug.Controls.Add(this.debugImg);
             this.Debug.Location = new System.Drawing.Point(4, 25);
             this.Debug.Name = "Debug";
-            this.Debug.Size = new System.Drawing.Size(350, 275);
+            this.Debug.Size = new System.Drawing.Size(350, 307);
             this.Debug.TabIndex = 5;
             this.Debug.Text = "Debug Draw";
             this.Debug.UseVisualStyleBackColor = true;
@@ -673,17 +704,28 @@
             this.debugImg.Dock = System.Windows.Forms.DockStyle.Fill;
             this.debugImg.Location = new System.Drawing.Point(0, 0);
             this.debugImg.Name = "debugImg";
-            this.debugImg.Size = new System.Drawing.Size(350, 275);
+            this.debugImg.Size = new System.Drawing.Size(350, 307);
             this.debugImg.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.debugImg.TabIndex = 0;
             this.debugImg.TabStop = false;
+            // 
+            // useExistingObj
+            // 
+            this.useExistingObj.AutoSize = true;
+            this.useExistingObj.Location = new System.Drawing.Point(177, 290);
+            this.useExistingObj.Name = "useExistingObj";
+            this.useExistingObj.Size = new System.Drawing.Size(151, 17);
+            this.useExistingObj.TabIndex = 20;
+            this.useExistingObj.Text = "DEBUG: Use Existing OBJ";
+            this.useExistingObj.UseVisualStyleBackColor = true;
+            this.useExistingObj.CheckedChanged += new System.EventHandler(this.useExistingObj_CheckedChanged);
             // 
             // Rbx2Source
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoValidate = System.Windows.Forms.AutoValidate.EnablePreventFocusChange;
-            this.ClientSize = new System.Drawing.Size(358, 304);
+            this.ClientSize = new System.Drawing.Size(358, 336);
             this.Controls.Add(this.MainTab);
             this.Cursor = System.Windows.Forms.Cursors.Default;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
@@ -693,7 +735,6 @@
             this.Name = "Rbx2Source";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Rbx2Source v2.71.1";
-            this.TopMost = true;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Rbx2Source_FormClosed);
             this.Load += new System.EventHandler(this.Rbx2Source_Load);
             this.About.ResumeLayout(false);
@@ -730,7 +771,6 @@
         private System.Windows.Forms.LinkLabel AJLink;
         private System.Windows.Forms.Label specialThanksTo;
         private System.Windows.Forms.LinkLabel qfoxb;
-        private System.Windows.Forms.Label fixedBy;
         private System.Windows.Forms.PictureBox egoMooseIcon;
         private System.Windows.Forms.PictureBox AJIcon;
         private System.Windows.Forms.PictureBox TwitterIcon;
@@ -766,5 +806,10 @@
         private System.Windows.Forms.LinkLabel timelessLink;
         private System.Windows.Forms.Label rileyLabel;
         private System.Windows.Forms.LinkLabel rileyLink;
+        private System.Windows.Forms.LinkLabel apiKeyHelp;
+        private System.Windows.Forms.TextBox apiKeyInput;
+        private System.Windows.Forms.Label apiKeyTitle;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.CheckBox useExistingObj;
     }
 }

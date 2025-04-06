@@ -22,7 +22,7 @@ namespace Rbx2Source.StudioMdl
             Bones = new List<StudioBone>();
         }
 
-        public void WriteStudioMdl(StringWriter fileBuffer, List<BoneKeyframe> skeleton)
+        public void WriteStudioMdl(StringWriter fileBuffer, StudioMdlWriter writer, List<BoneKeyframe> skeleton)
         {
             Contract.Requires(fileBuffer != null && skeleton != null);
             fileBuffer.WriteLine("time " + Time);
@@ -56,12 +56,12 @@ namespace Rbx2Source.StudioMdl
                 }
 
                 Vector3 pos = boneCFrame.Position * Rbx2Source.MODEL_SCALE;
-                Vector3 rot = new Vector3(boneCFrame.ToEulerAnglesXYZ());
+                EulerAngles rot = boneCFrame.ToEulerAngles();
                 
                 fileBuffer.Write(Format.FormatFloats
                 (
                     pos.X, pos.Y, pos.Z,
-                    rot.X, rot.Y, rot.Z
+                    rot.Pitch, rot.Yaw, rot.Roll
                 ));
 
                 fileBuffer.WriteLine();

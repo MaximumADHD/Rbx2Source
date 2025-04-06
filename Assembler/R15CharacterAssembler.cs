@@ -15,6 +15,12 @@ using RobloxFiles.Enums;
 using RobloxFiles.DataTypes;
 using System.Diagnostics.Contracts;
 
+using Newtonsoft.Json;
+using System.Windows.Forms;
+using System.Threading.Tasks;
+
+using Rbx2Source.Geometry;
+
 namespace Rbx2Source.Assembler
 {
     public class R15CharacterAssembler : CharacterAssembler, ICharacterAssembler
@@ -217,7 +223,6 @@ namespace Rbx2Source.Assembler
 
         public static Vector3 ComputeLimbScale(AvatarScale avatarScale, BasePart part)
         {
-            Contract.Requires(avatarScale != null && part != null);
             Vector3 sampleNoChange = new Vector3(1, 1, 1);
 
             string limbName = part.Name;
@@ -325,8 +330,8 @@ namespace Rbx2Source.Assembler
             Contract.Requires(avatar != null);
 
             var userAnims = avatar.Assets
-                .Where(asset => AssetGroups.IsTypeInGroup(asset.Type, AssetGroup.Animations))
-                .ToDictionary(asset => Rbx2Source.GetEnumName(asset.Type).Replace("Animation", ""));
+                .Where(asset => AssetGroups.IsTypeInGroup(asset.AssetType, AssetGroup.Animations))
+                .ToDictionary(asset => Rbx2Source.GetEnumName(asset.AssetType.Id).Replace("Animation", ""));
 
             var animIds = new Dictionary<string, AnimationId>();
 
@@ -377,12 +382,13 @@ namespace Rbx2Source.Assembler
             return animIds;
         }
 
-        public StudioMdlWriter AssembleModel(Folder characterAssets, AvatarScale scale, bool collisionModel = false)
+        public StudioMdlWriter AssembleModel(Folder characterAssets, UserAvatar avatar, bool collisionModel = false)
         {
             Contract.Requires(characterAssets != null);
             StudioMdlWriter meshBuilder = new StudioMdlWriter();
 
             // Build Character
+            var scale = avatar.Scales;
             var import = R15AssemblyAsset.OpenAsModel();
             Folder assembly = import.FindFirstChild<Folder>("ASSEMBLY");
 
@@ -412,10 +418,10 @@ namespace Rbx2Source.Assembler
                         child.Parent = assembly;
                     }
                 }
-                else if (asset is Accoutrement && !collisionModel)
+                else if (asset is Accessory && !collisionModel)
                 {
                     PrepareAccessory(asset, assembly);
-                } 
+                }
                 else if (asset is DataModelMesh)
                 {
                     OverwriteHead(asset as DataModelMesh, head);
@@ -445,10 +451,20 @@ namespace Rbx2Source.Assembler
             }
 
             // Apply accessory scaling
+            var layeredClothingParts = new List<BasePart>();
+            ObjFile layeredClothing = null;
+
             foreach (BasePart handle in accessoryParts)
             {
                 Attachment handleAtt = handle.FindFirstChildOfClass<Attachment>();
-                
+                WrapLayer wrapLayer = handle.FindFirstChildOfClass<WrapLayer>();
+
+                if (wrapLayer != null)
+                {
+                    layeredClothingParts.Add(handle);
+                    continue;
+                }
+
                 if (handleAtt != null)
                 {
                     string attName = handleAtt.Name;
@@ -461,6 +477,44 @@ namespace Rbx2Source.Assembler
                         Vector3 accessoryScale = ComputeAccessoryScale(scale, avatarPart, handle);
                         ScalePart(handle, accessoryScale);
                     }
+                }
+            }
+
+            if (layeredClothingParts.Any())
+            {
+                DialogResult result;
+
+                if (LayeredClothingExtractor.UseExistingObj)
+                    result = DialogResult.Yes;
+                else
+                    result = MessageBox.Show("In order to compile layered clothing correctly, Rbx2Source needs to grab an obj mesh of your avatar from Roblox Studio so the layered clothing geometry can be extracted.\n\nSelect \"Yes\" if you are okay with proceeding, or select \"No\" to remove the layered clothing.", "Heads up!", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+                if (result == DialogResult.Yes)
+                {
+                    var extractor = new LayeredClothingExtractor(avatar);
+                    var task = extractor.Extract();
+
+                    task.Wait();
+                    layeredClothing = extractor.Output;
+                }
+
+                if (layeredClothing != null)
+                {
+                    for (int i = 0; i < layeredClothing.Groups.Count; i++)
+                    {
+                        var group = layeredClothing.Groups[i];
+                        group = group.Replace("a1", "");
+
+                        if (!long.TryParse(group, out long assetId))
+                            continue;
+
+                        Mesh.RegisterTemporaryBakeMorph(assetId, layeredClothing, i);
+                    }
+                }
+                else
+                {
+                    Rbx2Source.Print("Could not get layered clothing data! Removing...");
+                    layeredClothingParts.ForEach(handle => handle.Destroy());
                 }
             }
 
@@ -481,18 +535,17 @@ namespace Rbx2Source.Assembler
             return meshBuilder;
         }
 
-        public TextureCompositor ComposeTextureMap(Folder characterAssets, WebBodyColors bodyColors)
+        public TextureCompositor ComposeTextureMap(Folder characterAssets, AvatarBodyColors bodyColors)
         {
-            Contract.Requires(characterAssets != null && bodyColors != null);
             TextureCompositor compositor = new TextureCompositor(AvatarType.R15, 1024, 568);
 
             // Append BodyColors
-            compositor.AppendColor(bodyColors.HeadColorId,     RECT_HEAD);
-            compositor.AppendColor(bodyColors.TorsoColorId,    RECT_TORSO);
-            compositor.AppendColor(bodyColors.LeftArmColorId,  RECT_LEFT_ARM);
-            compositor.AppendColor(bodyColors.LeftLegColorId,  RECT_LEFT_LEG);
-            compositor.AppendColor(bodyColors.RightArmColorId, RECT_RIGHT_ARM);
-            compositor.AppendColor(bodyColors.RightLegColorId, RECT_RIGHT_LEG);
+            compositor.AppendColor(bodyColors.HeadColor3,     RECT_HEAD);
+            compositor.AppendColor(bodyColors.TorsoColor3,    RECT_TORSO);
+            compositor.AppendColor(bodyColors.LeftArmColor3,  RECT_LEFT_ARM);
+            compositor.AppendColor(bodyColors.LeftLegColor3,  RECT_LEFT_LEG);
+            compositor.AppendColor(bodyColors.RightArmColor3, RECT_RIGHT_ARM);
+            compositor.AppendColor(bodyColors.RightLegColor3, RECT_RIGHT_LEG);
 
             // Append Face
             Asset face = GetAvatarFace(characterAssets);
@@ -572,23 +625,23 @@ namespace Rbx2Source.Assembler
                     {
                         Rectangle cropRegion = UVCrops[limb];
                         image = TextureCompositor.CropBitmap(uvMap, cropRegion);
+                        textureBinds.BindTexture(matName, image);
                     }
                 }
                 else
                 {
-                    Asset texture = material.TextureAsset;
-
-                    if (texture != null)
+                    foreach (var pair in material.TextureAssets)
                     {
+                        var texture = pair.Value;
                         byte[] textureData = texture.GetContent();
-                        MemoryStream textureStream = new MemoryStream(textureData);
-                        
+
+                        var textureStream = new MemoryStream(textureData);
                         image = Image.FromStream(textureStream);
+
                         textureStream.Dispose();
+                        textureBinds.BindTexture(matName, image, pair.Key);
                     }
                 }
-
-                textureBinds.BindTexture(matName, image);
             }
 
             return textureBinds;

@@ -62,18 +62,20 @@ namespace Rbx2Source.Resources
         {
             RegistryKey currentUser = Registry.CurrentUser;
             RegistryKey software = Open(currentUser, "SOFTWARE");
+
             rbx2Source = Open(software, "Rbx2Source");
             cache = new Dictionary<string, object>();
 
             foreach (string key in rbx2Source.GetValueNames())
                 SetSetting(key, rbx2Source.GetValue(key));
 
-            if (GetSetting("InitializedV2") == null)
+            if (GetSetting("InitializedV3") == null)
             {
-                SetSetting("Username", "qfoxb");
-                SetSetting("AssetId", "44113968");
+                SetSetting("Username", "Maximum_ADHD");
+                SetSetting("AssetId", "19027209");
                 SetSetting("CompilerType", "Avatar");
-                SetSetting("InitializedV2", true);
+                SetSetting("InitializedV3", true);
+                SetSetting("ApiKey", "");
             }
 
             software.Dispose();

@@ -49,7 +49,7 @@ namespace Rbx2Source.StudioMdl
             return -1;
         }
 
-        public void WriteStudioMdl(StringWriter fileBuffer, List<Node> nodes)
+        public void WriteStudioMdl(StringWriter fileBuffer, StudioMdlWriter writer, List<Node> nodes)
         {
             Contract.Requires(fileBuffer != null && nodes != null);
 

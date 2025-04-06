@@ -21,18 +21,9 @@ namespace Rbx2Source.Animating
             return (int)(time * FrameRate);
         }
 
-        private static List<Pose> GatherPoses(Instance kf, List<Pose> poses = null)
+        private static List<Pose> GatherPoses(Instance kf)
         {
-            if (poses == null)
-                poses = new List<Pose>();
-
-            foreach (Pose pose in kf.GetChildrenOfType<Pose>())
-            {
-                poses.Add(pose);
-                GatherPoses(pose, poses);
-            }
-
-            return poses;
+            return kf.GetDescendantsOfType<Pose>().ToList();
         }
 
         public static PosePair GetClosestPoses(Dictionary<int, Dictionary<string, Pose>> keyFrameMap, int frame, string poseName)
@@ -88,16 +79,15 @@ namespace Rbx2Source.Animating
             return pair;
         }
 
-        public static void PatchAngles(ref CFrame applyTo, int axis, float[] angles)
+        public static void PatchAngles(ref CFrame applyTo, int axis, float angle)
         {
-            Contract.Requires(angles != null);
             const float halfPi = (float)(Math.PI / 2f);
 
             float[] applyRepair = new float[3];
             applyRepair[axis] = halfPi;
 
             float[] applyRotate = new float[3];
-            applyRotate[axis] = angles[axis];
+            applyRotate[axis] = angle;
 
             CFrame repair = CFrame.Angles(applyRepair);
             CFrame rotate = CFrame.Angles(applyRotate);
@@ -146,46 +136,48 @@ namespace Rbx2Source.Animating
                 keyframes.Add(kf);
             }
 
-            keyframes.Sort(0, keyframes.Count, sorter);
+            keyframes = keyframes
+                .OrderBy(keyframe => keyframe.Time)
+                .ToList();
 
-            Keyframe lastKeyframe = keyframes[keyframes.Count - 1];
-
-            float fLength = lastKeyframe.Time;
+            float fLength = keyframes.Last().Time;
             int frameCount = ToFrameRate(fLength);
 
             // As far as I can tell, models in Source require you to store poses for every
-            // single frame, so I need to fill in the gaps with interpolated pose CFrames.
+            // single frame. I need to fill in the gaps with interpolated pose CFrames.
 
-            var keyframeMap = new Dictionary<int, Dictionary<string, Pose>>();
+            var keyframeMap = new Dictionary<string, LinkedList<PoseMapEntity>>();
 
             foreach (Keyframe kf in keyframes)
             {
                 int frame = ToFrameRate(kf.Time);
-                var poses = GatherPoses(kf);
+                var poses = kf.GetDescendantsOfType<Pose>();
 
-                var poseMap = poses.ToDictionary(pose => pose.Name);
-                keyframeMap[frame] = poseMap;
-            }
-
-            // Make sure there are no holes in the data.
-            for (int i = 0; i < frameCount; i++)
-            {
-                if (!keyframeMap.ContainsKey(i))
+                foreach (var pose in poses)
                 {
-                    var emptyState = new Dictionary<string, Pose>();
-                    keyframeMap.Add(i, emptyState);
+                    var name = pose.Name;
+
+                    if (!keyframeMap.TryGetValue(name, out LinkedList<PoseMapEntity> list))
+                    {
+                        list = new LinkedList<PoseMapEntity>();
+                        keyframeMap[name] = list;
+                    }
+
+                    var entry = new PoseMapEntity(frame) { Pose = pose };
+                    list.AddLast(entry);
                 }
             }
 
             List<BoneKeyframe> boneKeyframes = animWriter.Skeleton;
+            var avatarTypeId = sequence.FindFirstChild<StringValue>("AvatarType");
+            var avatarType = avatarTypeId?.Value ?? "R15";
 
             for (int i = 0; i < frameCount; i++)
             {
                 var frame = new BoneKeyframe(i);
                 List<StudioBone> bones = frame.Bones;
-                var avatarTypeId = sequence.FindFirstChild<StringValue>("AvatarType");
                 
-                if (avatarTypeId.Value == "R15")
+                if (avatarType == "R15")
                 {
                     frame.BaseRig = rig;
                     frame.DeltaSequence = true;
@@ -193,77 +185,54 @@ namespace Rbx2Source.Animating
 
                 foreach (Node node in nodes)
                 {
-                    PosePair closestPoses = GetClosestPoses(keyframeMap, i, node.Name);
+                    var name = node.Name;
 
-                    float min = closestPoses.Min.Frame;
-                    float max = closestPoses.Max.Frame;
+                    if (!keyframeMap.TryGetValue(name, out LinkedList<PoseMapEntity> list))
+                    {
+                        var dummyBone = new StudioBone(node, CFrame.identity);
+                        bones.Add(dummyBone);
 
-                    float alpha = (min == max ? 0 : (i - min) / (max - min));
+                        continue;
+                    }
 
-                    Pose pose0 = closestPoses.Min.Pose;
-                    Pose pose1 = closestPoses.Max.Pose;
+                    var node0 = list.First;
+                    var node1 = node0.Next ?? node0;
 
-                    CFrame lastCFrame = pose0.CFrame;
-                    CFrame nextCFrame = pose1.CFrame;
+                    var ent0 = node0.Value;
+                    var ent1 = node1.Value;
 
-                    StudioBone baseBone = boneLookup[node.Name];
+                    var frame0 = ent0.Frame;
+                    var frame1 = ent1.Frame;
+
+                    var pose0 = ent0.Pose;
+                    var pose1 = ent1.Pose;
+
+                    var lastCFrame = pose0.CFrame;
+                    var nextCFrame = pose1.CFrame;
+
+                    float alpha = frame0 != frame1
+                        ? (float)(i - frame0) / (frame1 - frame0)
+                        : 0;
+
+                    StudioBone baseBone = boneLookup[name];
                     CFrame interp = lastCFrame.Lerp(nextCFrame, alpha);
 
-                    // Make some patches to the interpolation offsets. Unfortunately I can't
-                    // identify any single fix that I can apply to each joint, so I have to get crafty.
-                    // At some point in the future, I want to find a more practical solution for this problem,
-                    // but it is extremely difficult to isolate if any single solution exists.
+                    var quat = new Quaternion(interp);
+                    var angles = quat.ToEulerAngles();
 
-                    var invariant = StringComparison.InvariantCulture;
+                    interp = CFrame.FromEulerAnglesXYZ(angles.Roll, 0, 0)
+                           * CFrame.FromEulerAnglesXYZ(0, 0, angles.Yaw)
+                           * CFrame.FromEulerAnglesXYZ(0, angles.Pitch, 0) 
+                           * new CFrame(interp.Position);
 
-                    if (avatarTypeId.Value == "R6")
-                    {
-                        Vector3 pos = interp.Position;
-                        CFrame rot = interp - pos;
-                        
-                        if (node.Name == "Torso")
-                        {
-                            // Flip the YZ axis of the Torso.
-                            float[] ang = interp.ToEulerAnglesXYZ();
-                            rot = CFrame.Angles(ang[0], ang[2], ang[1]);
-                            pos = new Vector3(pos.X, pos.Z, pos.Y);
-                        }
-                        else if (node.Name.StartsWith("Right", invariant))
-                        {
-                            // X-axis is inverted for the right arm/leg.
-                            pos *= new Vector3(-1, 1, 1);
-                        }
-
-                        if (node.Name.EndsWith("Arm", invariant) || node.Name.EndsWith("Leg", invariant))
-                        {
-                            // Rotate position offset of the arms & legs 90* counter-clockwise.
-                            pos = new Vector3(-pos.Z, pos.Y, pos.X);
-                        }
-
-                        if (node.Name != "Head")
-                            rot = rot.Inverse();
-
-                        interp = new CFrame(pos) * rot;
-                    }
-                    else if (avatarTypeId.Value == "R15")
-                    {
-                        float[] ang = interp.ToEulerAnglesXYZ();
-
-                        // Cancel out the rotations
-                        interp *= CFrame.Angles(-ang[0], -ang[1], -ang[2]);
-
-                        // Patch the Y-axis
-                        PatchAngles(ref interp, 1, ang);
-
-                        // Patch the Z-axis
-                        PatchAngles(ref interp, 2, ang);
-
-                        // Patch the X-axis
-                        PatchAngles(ref interp, 0, ang);
-                    }
-
-                    StudioBone bone = new StudioBone(node, interp);
+                    var bone = new StudioBone(node, interp);
                     bones.Add(bone);
+
+                    if (alpha >= 1)
+                    {
+                        // We're about to go past the next node, pop the front.
+                        list.RemoveFirst();
+                    }
                 }
 
                 boneKeyframes.Add(frame);
